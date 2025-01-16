@@ -2,7 +2,7 @@ import { useCallback, useRef } from "react";
 import QuickPinchZoom, { make3dTransformValue } from "react-quick-pinch-zoom";
 
 // react-quick-pinch-zoom 라이브러리 사용하여 이미지만 pinchZoom(모바일상에서 손가락으로 확대/축소)기능을 사용
-const Picture = ({ image }) => {
+const PinchPicture = ({ image }) => {
     const imgRef = useRef();
 
     const onUpdate = useCallback(({ x, y, scale }) => {
@@ -36,4 +36,4 @@ const Picture = ({ image }) => {
     );
 }
 
-export default Picture;
+export default PinchPicture;
