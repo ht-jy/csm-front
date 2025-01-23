@@ -27,3 +27,5 @@ yarn-error.log*
 .env.*
 README.md
 /*.log
+deploy-csm-front.sh
+*.tar
