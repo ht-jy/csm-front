@@ -85,6 +85,10 @@ h1, h2, h3, h4, h5, h6, p, ul, ol {
     text-align: center;
 }
 
+.save-checkbox{
+    padding-top: 11px;
+}
+
 a.brand-logo {
     color: #000000;
     color: #fff;
@@ -96,11 +100,11 @@ a.brand-logo {
     display: grid;
     padding: 30px 0px;
     align-items: center;
-    min-height: 100vh;
+    min-height: 50vh;
 }
 
 .w3l-login .form-section {
-    max-width: 400px;
+    max-width: 600px;
     margin: 20px auto;
     padding: 2rem 3rem;
     border-radius: 4px;
@@ -127,8 +131,9 @@ a.brand-logo {
 }
 
 .w3l-login .form-section h6 {
-    font-size: 15px;
-    color: #5a5a5a;
+    padding-top: 12px;
+    font-size: 20px;
+    color: #006699;
     text-align: center;
     margin-bottom: 20px;
 }
@@ -138,6 +143,7 @@ a.brand-logo {
     border: none;
     outline: none;
     width: 100%;
+    height: 40px;
     font-size: 16px;
     padding: 18px;
     color: #000;
