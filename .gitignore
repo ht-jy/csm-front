@@ -29,3 +29,4 @@ README.md
 /*.log
 deploy-csm-front.sh
 *.tar
+.env

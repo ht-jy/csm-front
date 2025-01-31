@@ -34,7 +34,7 @@ const AxiosInstance = (params, options) => {
                         RefreshToken: refreshToken,
                     });
 
-                    if(response.data.Result != "Success") {
+                    if(response.data.Result !== "Success") {
                         return Promise.reject(error);
                     }
 
