@@ -1,23 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import {useNavigate} from "react-router-dom";
 import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
 import "../../../assets/css/Login.css";
 import Logo from "../../../assets/image/hitecheng_logo_default.png";
 import { Axios } from "../../../utils/axios/Axios";
+import { Storage } from "../../../utils/Storage";
 
 function Login() {
+    const navigate = useNavigate();
     const [isSave, setIsSave] = useState(false);
     const [userId, setUserId] = useState("");
     const [pwd, setPwd] = useState("");
 
-    const handleCheckbox = () => {
+    const handleCheckbox = (e) => {
+        e.preventDefault();
         setIsSave(!isSave);
     }
 
     const handleUser = (e) => {
+        e.preventDefault();
         setUserId(e.target.value);
     }
 
     const handlePwd = (e) => {
+        e.preventDefault();
         setPwd(e.target.value);
     }
 
@@ -30,7 +36,16 @@ function Login() {
         const res = await Axios.POST("/login", user);
 
         console.log("login function res:", res);
+        if(res?.data?.result === "Success"){
+            return navigate("/temp");
+        }
     }
+
+    useEffect(() => {
+        if(Storage.getSession("login")){
+            return navigate("/temp");
+        }
+    }, [])
 
     return (
         <div>
