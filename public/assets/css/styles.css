@@ -311,6 +311,7 @@ svg {
 table {
   caption-side: bottom;
   border-collapse: collapse;
+
 }
 
 caption {
@@ -331,10 +332,12 @@ tfoot,
 tr,
 td,
 th {
-  border-color: inherit;
-  border-style: solid;
-  border-width: 0;
+  /* border-color: inherit; */
+  /* border-style: solid; */
+  /* border-width: 0; */
+  border: 1px solid rgba(0, 0, 0, 0.175);
 }
+
 
 label {
   display: inline-block;
@@ -4499,6 +4502,7 @@ textarea.form-control-lg {
   list-style: none;
   background-color: var(--bs-breadcrumb-bg);
   border-radius: var(--bs-breadcrumb-border-radius);
+  padding-top: 15px;
 }
 
 .breadcrumb-item + .breadcrumb-item {
