@@ -1,0 +1,34 @@
+.announcement-slider {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 600px;
+    padding: 16px;
+    background-color: transparent;
+    height: 60px;
+    overflow: hidden;
+}
+
+.slides-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;  /* 부모 요소에서 넘치지 않도록 설정 */
+}
+
+.slide {
+    width: 100%;
+    text-align: center;
+    color: white;
+}
+
+.slide span {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 500px;  /* 텍스트 길이를 제한 */
+}
