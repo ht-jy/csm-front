@@ -1,0 +1,43 @@
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 10px;
+  align-items: center;
+  justify-content: center; /* ✅ 가운데 정렬 */
+  width: 100%; /* ✅ 전체 너비 사용 */
+  margin-top: 20px; /* 테이블과 간격 추가 */
+}
+
+.pagination li {
+  margin: 2px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 35px;
+  border-radius: 5px;
+  font-size: 16px;
+  position: relative; /* 부모 요소로 설정 */
+}
+
+.pagination li a {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 8px; /* 클릭 가능 영역 확대 */
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.pagination .active {
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+}
+
+.pagination .disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

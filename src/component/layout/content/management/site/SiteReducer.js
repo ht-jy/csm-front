@@ -1,4 +1,4 @@
-import {ObjChk} from "../../../../utils/ObjChk";
+import {ObjChk} from "../../../../../utils/ObjChk";
 
 const SiteReducer = (state, action) => {
 
