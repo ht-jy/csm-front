@@ -93,6 +93,15 @@ body {
     width: 100%;
     border-radius: 5px;
 }
+
+/* tbody 안의 행에만 마우스 오버 효과 적용 */
+.table-container tbody tr:hover td {
+  background-color: rgba(0, 123, 255, 0.1);  /* 파란색 강조 */
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+
 /* 스크롤바의 폭 너비 */
 .table-container::-webkit-scrollbar {
     width: 10px;
@@ -149,27 +158,6 @@ body {
   align-items: center;
 }
 .square {
-  width: 13px;               /* 가로 크기 */
-  height: 13px;              /* 세로 크기 */
-  margin-left: 7px;
-}
-
-.square-blue {
-  width: 13px;               /* 가로 크기 */
-  height: 13px;              /* 세로 크기 */
-  margin-left: 7px;
-}
-.square-gray {
-  width: 13px;               /* 가로 크기 */
-  height: 13px;              /* 세로 크기 */
-  margin-left: 7px;
-}
-.square-red {
-  width: 13px;               /* 가로 크기 */
-  height: 13px;              /* 세로 크기 */
-  margin-left: 7px;
-}
-.square-green {
   width: 13px;               /* 가로 크기 */
   height: 13px;              /* 세로 크기 */
   margin-left: 7px;

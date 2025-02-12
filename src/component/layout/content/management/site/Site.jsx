@@ -1,9 +1,26 @@
 import { useState, useEffect, useReducer } from "react";
-import "../../../../assets/css/Table.css";
-import { Axios } from "../../../../utils/axios/Axios"
-import { dateUtil } from "../../../../utils/DateUtil";
+import "../../../../../assets/css/Table.css";
+import { Axios } from "../../../../../utils/axios/Axios"
+import { dateUtil } from "../../../../../utils/DateUtil";
 import SiteReducer from "./SiteReducer"
 
+
+/**
+ * [현장 관리]
+ * - 페이지 기능: 현장에 관한 내용을 대시보드와 같이 한눈에 요약해서 볼 수 있도록 보여주는 페이지.
+ * 
+ * @author 작성자: 김진우
+ * @created 작성일: 2025-02-10
+ * @modified 최종 수정일: 
+ * @modifiedBy 최종 수정자: 
+ * @usedComponents
+ * - 
+ * 
+ * @additionalInfo
+ * - API 호출
+ *      Http Method - GET : /site-list
+ * - 주요 상태 관리: useReducer
+ */
 const Site = () => {
     const [state, dispatch] = useReducer(SiteReducer, {
         list: [],
