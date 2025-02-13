@@ -13,7 +13,7 @@ const btnStyle = {
 };
 
 const Button = ({text, onClick, style}) => {
-  return <button style={{...btnStyle, ...style}} onClick={onClick}>{text}</button>;
+  return <button style={{...btnStyle, ...style}} onClick={() => onClick()}>{text}</button>;
 }
 
 export default Button;

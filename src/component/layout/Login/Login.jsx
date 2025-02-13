@@ -35,7 +35,6 @@ function Login() {
         }
         const res = await Axios.POST("/login", user);
 
-        console.log("login function res:", res);
         if(res?.data?.result === "Success"){
             return navigate("/temp");
         }

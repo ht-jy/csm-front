@@ -35,8 +35,6 @@ const SiteReducer = (state, action) => {
                 }
             });
 
-            console.log("list: ", sites, "code: ", action.code);
-
             return {...state, list: JSON.parse(JSON.stringify(sites)), code: JSON.parse(JSON.stringify(action.code))};
     }
 }
