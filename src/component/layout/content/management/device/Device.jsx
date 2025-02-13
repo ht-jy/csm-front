@@ -6,19 +6,43 @@ import { dateUtil } from "../../../../../utils/DateUtil";
 import DeviceReducer from "./DeviceReducer";
 import Loading from "../../../../module/Loading";
 import GridModal from "../../../../module/GridModal";
+import Modal from "../../../../module/modal";
+import Button from "../../../../module/Button";
 import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Paginate.css";
 
+/**
+ * @description: 
+ * 
+ * @author 작성자: 김진우
+ * @created 작성일: 2025-02-12
+ * @modified 최종 수정일: 
+ * @modifiedBy 최종 수정자: 
+ * @usedComponents
+ * - 
+ * 
+ * @additionalInfo
+ * - API: 
+ *    Http Method - GET : /site-nm (현장데이터 조회), /device (근태인식기 조회)
+ *    Http Method - POST : /device (근태인식기 추가)
+ *    Http Method - PUT : /device (근태인식기 수정)
+ *    Http Method - DELETE :  /device/${dno} (근태인식기 삭제)
+ * - 주요 상태 관리: useReducer, useState
+ */
 const Device = () => {
     const [state, dispatch] = useReducer(DeviceReducer, {
         list: [],
         count: 0,
+        selectList: {},
     });
 
     const [pageNum, setPageNum] = useState(1);
-    const [rowSize, setRowSize] = useState(5);
+    const [rowSize, setRowSize] = useState(10);
     const [isLoading, setIsLoading] = useState(false);
     const [isGridModal, setIsGridModal] = useState(false);
+    const [gridMode, setGridMode] = useState("");
+    const [isModal, setIsModal] = useState(false);
+    const [isMod, setIsMod] = useState(false);
     const [detail, setDetail] = useState([]);
 
     const options = [
@@ -26,6 +50,15 @@ const Device = () => {
         { value: 10, label: "10줄 보기" },
         { value: 15, label: "15줄 보기" },
         { value: 20, label: "20줄 보기" },
+    ];
+
+    const gridData = [
+        {type: "hidden", value: ""},
+        {type: "text", span: "double", label: "장치명", value: "" },
+        {type: "text", span: "double", label: "시리얼번호", value: "" },
+        {type: "select", span: "double", label: "현장이름", value: "", selectName: "siteNm" },
+        {type: "checkbox", span: "double", label: "사용여부", value: "" },
+        {type: "text", span: "full", label: "비고", value: "" },
     ];
 
     const handlePageClick = ({ selected }) => {
@@ -37,23 +70,107 @@ const Device = () => {
         setPageNum(1);
     };
 
-    const onClickRow = (item) => {
-        setIsGridModal(true);
+    const handleGridModal = (mode, item) => {
+        setGridMode(mode);
 
-        const arr = [
-            {type: "hidden", value: item.dno},
-            {type: "text", span: "double", label: "장치명", value: item.device_nm },
-            {type: "text", span: "double", label: "시리얼번호", value: item.device_sn },
-            {type: "select", span: "double", label: "현장이름", value: item.site_nm },
-            {type: "check", span: "double", label: "사용여부", value: item.is_use },
-            {type: "text", span: "full", label: "비고", value: item.etc },
-        ];
+        const arr = [...gridData];
+        if (mode === "DETAIL") {
+            arr[0].value = item.dno;
+            arr[1].value = item.device_nm;
+            arr[2].value = item.device_sn;
+            arr[3].value = item.sno;
+            arr[4].value = item.is_use;
+            arr[5].value = item.etc;
+        }
+        
         setDetail(arr);
+        getSiteData();
+        setIsGridModal(true);
     }
 
     const onClickGridModalExitBtn = () => {
         setDetail([]);
         setIsGridModal(false);
+    }
+
+    const getSiteData = async() => {
+        setIsLoading(true);
+
+        const res = await Axios.GET(`/site-nm`);
+
+        if (res?.data?.result === "Success") {
+            dispatch({ type: "SITE_NM", list: res?.data?.values?.list });
+        }
+
+        setIsLoading(false);
+    }
+
+    const onClicklModalSave = async(item, mode) => {
+        setIsLoading(true);
+        setGridMode(mode)
+
+        const device = {
+            dno: item[0].value || 0,
+            device_nm: item[1].value || "",
+            device_sn: item[2].value || "",
+            sno: item[3].value || 0,
+            is_use: item[4].value || "",
+            etc: item[5].value || "",
+        }
+
+        let res;
+        if(gridMode === "SAVE") {
+            res = await Axios.POST(`/device`, device);
+        }else{
+
+            res = await Axios.PUT(`/device`, device);
+        }
+
+        if (res?.data?.result === "Success") {
+            setIsMod(true);
+            getData();
+        }else {
+            setIsMod(false);
+        }
+
+        setIsLoading(false);    
+        setIsGridModal(false);
+        setIsModal(true);
+    }
+
+    const onClickModalRemove = async(item) => {
+        setIsLoading(true);
+        setGridMode("REMOVE")
+
+        const res = await Axios.DELETE(`/device/${item[0].value}`);        
+
+        if (res?.data?.result === "Success") {
+            setIsMod(true);
+            getData();
+        }else {
+            setIsMod(false);
+        }
+        
+        setIsLoading(false);
+        setIsGridModal(false);
+        setIsModal(true);
+    }
+
+    const onClickModeSet = (mode) => {
+        setGridMode(mode)
+    }
+
+    const getModeString = () => {
+        switch(gridMode) {
+            case "SAVE":
+                return "저장";
+            case "DETAIL":
+                return "상세";
+            case "EDIT":
+                return "수정";
+            case "REMOVE":
+                return "삭제";
+        }
     }
 
     const getData = async () => {
@@ -64,11 +181,7 @@ const Device = () => {
             row_size: rowSize
         };
 
-        console.log(page);
-
-        const res = await Axios.POST(`/device-list`, page);
-
-        console.log(res);
+        const res = await Axios.GET(`/device?page_num=${pageNum}&row_size=${rowSize}`);
 
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
@@ -84,10 +197,25 @@ const Device = () => {
     return (
         <div>
             <Loading isOpen={isLoading} />
+            <Modal 
+                isOpen={isModal}
+                title={`근태인식기 ${getModeString()}`}
+                text={`근태인식기 ${getModeString()}에 ${isMod ? "성공하였습니다." : "실패하였습니다."}`}
+                confirm={"확인"}
+                fncConfirm={() => setIsModal(false)}
+            />
             <GridModal 
                 isOpen={isGridModal}
+                gridMode={gridMode}
+                funcModeSet={onClickModeSet}
+                editBtn={true}
+                removeBtn={true}
+                title={`근태인식기 관리 ${getModeString()}`}
                 exitBtnClick={onClickGridModalExitBtn}
                 detailData={detail}
+                selectList={state.selectList}
+                saveBtnClick={onClicklModalSave}
+                removeBtnClick={onClickModalRemove}
             />
             <div>
                 <div className="container-fluid px-4">
@@ -102,9 +230,17 @@ const Device = () => {
                         <Select
                             onChange={onChangeSelect}
                             options={options}
+                            defaultValue={options.find(option => option.value === rowSize)}
                             placeholder={"몇줄 보기"}
                             style={{ width: "200px" }}
                         />
+
+                        <div style={{marginLeft:"auto"}}>
+                            <Button 
+                                text={"추가"}
+                                onClick={() => handleGridModal("SAVE")}
+                            />
+                        </div>
                     </div>
 
                     <div className="table-container" style={{ overflowX: 'auto' }}>
@@ -114,9 +250,9 @@ const Device = () => {
                                     <th style={{ width: '70px' }}>순번</th>
                                     <th style={{ width: '160px' }}>장치명</th>
                                     <th style={{ width: '170px' }}>시리얼번호</th>
-                                    <th style={{ width: '480px' }}>현장이름</th>
-                                    <th style={{ width: '480px' }}>비고</th>
-                                    <th style={{ width: '70px' }}>사용여부</th>
+                                    <th style={{ width: '470px' }}>현장이름</th>
+                                    <th style={{ width: '470px' }}>비고</th>
+                                    <th style={{ width: '90px' }}>사용여부</th>
                                     <th style={{ width: '140px' }}>최초 생성일시</th>
                                     <th style={{ width: '140px' }}>최종 수정일시</th>
                                 </tr>
@@ -128,13 +264,13 @@ const Device = () => {
                                     </tr>
                                 ) : (
                                     state.list.map((item, idx) => (
-                                        <tr key={idx} onClick={() => onClickRow(item)}>
+                                        <tr key={idx} onClick={() => handleGridModal("DETAIL", item)}>
                                             <td className="center">{item.row_num}</td>
                                             <td className="left">{item.device_nm}</td>
                                             <td className="left">{item.device_sn}</td>
                                             <td className="left ellipsis" style={{maxWidth:'480px'}}>{item.site_nm}</td>
                                             <td className="left ellipsis" style={{maxWidth:'480px'}}>{item.etc}</td>
-                                            <td className="center">{item.is_use}</td>
+                                            <td className="center">{item.is_use === "Y" ? "사용중" : "사용안함"}</td>
                                             <td className="center">{dateUtil.format(item.reg_date, "yyyy-MM-dd")}</td>
                                             <td className="center">{dateUtil.format(item.mod_date, "yyyy-MM-dd")}</td>
                                         </tr>

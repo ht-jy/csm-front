@@ -17,7 +17,7 @@ import SiteReducer from "./SiteReducer"
  * 
  * @additionalInfo
  * - API:
- *    Http Method - GET : /site-list
+ *    Http Method - GET : /site (현장관리 조회)
  * - 주요 상태 관리: useReducer
  */
 const Site = () => {
@@ -27,9 +27,7 @@ const Site = () => {
     })
 
     const getData = async() => {
-        const res = await Axios.GET(`/site-list?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}&pCode=SITE_STATUS`);
-
-        console.log(res);
+        const res = await Axios.GET(`/site?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}&pCode=SITE_STATUS`);
 
         if(res?.data?.result === "Success"){
             dispatch({type: "INIT", site: res?.data?.values?.site, code: res?.data?.values?.code});

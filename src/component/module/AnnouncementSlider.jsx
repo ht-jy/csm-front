@@ -44,7 +44,6 @@ function AnnouncementSlider() {
 
   const handleAnnouncementClick = () => {
     alert(`현재 공지사항: ${announcements[currentIndex]}`);
-    console.log(`공지사항 클릭: ${announcements[currentIndex]}`);
   };
 
   useEffect(() => {
