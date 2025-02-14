@@ -3,10 +3,11 @@ import ReactPaginate from "react-paginate";
 import Select from 'react-select';
 import { Axios } from "../../../../../utils/axios/Axios";
 import { dateUtil } from "../../../../../utils/DateUtil";
+import { useAuth } from "../../../../context/AuthContext";
 import DeviceReducer from "./DeviceReducer";
 import Loading from "../../../../module/Loading";
 import GridModal from "../../../../module/GridModal";
-import Modal from "../../../../module/modal";
+import Modal from "../../../../module/Modal";
 import Button from "../../../../module/Button";
 import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Paginate.css";
@@ -36,6 +37,8 @@ const Device = () => {
         selectList: {},
     });
 
+    const { user } = useAuth();
+
     const [pageNum, setPageNum] = useState(1);
     const [rowSize, setRowSize] = useState(10);
     const [isLoading, setIsLoading] = useState(false);
@@ -61,15 +64,18 @@ const Device = () => {
         {type: "text", span: "full", label: "비고", value: "" },
     ];
 
+    // 페이지네이션 버튼 클릭
     const handlePageClick = ({ selected }) => {
         setPageNum(selected+1);
     };
 
+    // 리스트 개수 select 선택
     const onChangeSelect = (e) => {
         setRowSize(e.value);
         setPageNum(1);
     };
 
+    // GridModal 띄우기 - 추가 또는 리스트 row 클릭시
     const handleGridModal = (mode, item) => {
         setGridMode(mode);
 
@@ -88,23 +94,13 @@ const Device = () => {
         setIsGridModal(true);
     }
 
+    // GridModal의 'X' 버튼 클릭 이벤트
     const onClickGridModalExitBtn = () => {
         setDetail([]);
         setIsGridModal(false);
     }
 
-    const getSiteData = async() => {
-        setIsLoading(true);
-
-        const res = await Axios.GET(`/site-nm`);
-
-        if (res?.data?.result === "Success") {
-            dispatch({ type: "SITE_NM", list: res?.data?.values?.list });
-        }
-
-        setIsLoading(false);
-    }
-
+    // GridModal의 저장 버튼 이벤트 - (저장, 수정)
     const onClicklModalSave = async(item, mode) => {
         setIsLoading(true);
         setGridMode(mode)
@@ -116,6 +112,8 @@ const Device = () => {
             sno: item[3].value || 0,
             is_use: item[4].value || "",
             etc: item[5].value || "",
+            reg_user: user.userId || "",
+            mod_user: user.userId || "",
         }
 
         let res;
@@ -138,6 +136,7 @@ const Device = () => {
         setIsModal(true);
     }
 
+    // GridModal의 삭제 버튼 이벤트
     const onClickModalRemove = async(item) => {
         setIsLoading(true);
         setGridMode("REMOVE")
@@ -156,10 +155,12 @@ const Device = () => {
         setIsModal(true);
     }
 
+    // GridModal의 gridMode props 변경 이벤트
     const onClickModeSet = (mode) => {
         setGridMode(mode)
     }
 
+    // Modal or GridModal 문구 출력
     const getModeString = () => {
         switch(gridMode) {
             case "SAVE":
@@ -173,6 +174,20 @@ const Device = () => {
         }
     }
 
+    // 현장데이터 리스트 조회 - GridModal select 용도
+    const getSiteData = async() => {
+        setIsLoading(true);
+
+        const res = await Axios.GET(`/site-nm`);
+
+        if (res?.data?.result === "Success") {
+            dispatch({ type: "SITE_NM", list: res?.data?.values?.list });
+        }
+
+        setIsLoading(false);
+    }
+
+    // 근태인식기 리스트 조회
     const getData = async () => {
         setIsLoading(true);
 
@@ -226,73 +241,75 @@ const Device = () => {
                         <li className="breadcrumb-item active">근태인식기 관리</li>
                     </ol>
 
-                    <div style={{ display: 'flex', alignItems: 'center', width: '1710px', marginBottom: '15px' }}>
-                        <Select
-                            onChange={onChangeSelect}
-                            options={options}
-                            defaultValue={options.find(option => option.value === rowSize)}
-                            placeholder={"몇줄 보기"}
-                            style={{ width: "200px" }}
-                        />
-
-                        <div style={{marginLeft:"auto"}}>
-                            <Button 
-                                text={"추가"}
-                                onClick={() => handleGridModal("SAVE")}
+                    <div className="table-header">
+                        <div className="table-header-left">
+                            <Select
+                                onChange={onChangeSelect}
+                                options={options}
+                                defaultValue={options.find(option => option.value === rowSize)}
+                                placeholder={"몇줄 보기"}
                             />
+                        </div>
+                        
+                        <div className="table-header-right">
+                            <Button text={"추가"} onClick={() => handleGridModal("SAVE")} />
+                        </div>
+                    </div>
+                    
+                    <div className="table-wrapper">
+                        <div className="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>순번</th>
+                                        <th>장치명</th>
+                                        <th>시리얼번호</th>
+                                        <th>현장이름</th>
+                                        <th>비고</th>
+                                        <th>사용여부</th>
+                                        <th>최초 생성일시</th>
+                                        <th>최종 수정일시</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {state.list.length === 0 ? (
+                                        <tr>
+                                            <td className="center" colSpan={8}>등록된 근태인식기가 없습니다.</td>
+                                        </tr>
+                                    ) : (
+                                        state.list.map((item, idx) => (
+                                            <tr key={idx} onClick={() => handleGridModal("DETAIL", item)}>
+                                                <td className="center">{item.row_num}</td>
+                                                <td className="left">{item.device_nm}</td>
+                                                <td className="left">{item.device_sn}</td>
+                                                <td className="left ellipsis">{item.site_nm}</td>
+                                                <td className="left ellipsis">{item.etc}</td>
+                                                <td className="center">{item.is_use === "Y" ? "사용중" : "사용안함"}</td>
+                                                <td className="center">{dateUtil.format(item.reg_date, "yyyy-MM-dd")}</td>
+                                                <td className="center">{dateUtil.format(item.mod_date, "yyyy-MM-dd")}</td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
-                    <div className="table-container" style={{ overflowX: 'auto' }}>
-                        <table style={{ width: "1710px", borderCollapse: 'collapse' }}>
-                            <thead>
-                                <tr>
-                                    <th style={{ width: '70px' }}>순번</th>
-                                    <th style={{ width: '160px' }}>장치명</th>
-                                    <th style={{ width: '170px' }}>시리얼번호</th>
-                                    <th style={{ width: '470px' }}>현장이름</th>
-                                    <th style={{ width: '470px' }}>비고</th>
-                                    <th style={{ width: '90px' }}>사용여부</th>
-                                    <th style={{ width: '140px' }}>최초 생성일시</th>
-                                    <th style={{ width: '140px' }}>최종 수정일시</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {state.list.length === 0 ? (
-                                    <tr>
-                                        <td className="center" colSpan={8}>등록된 근태인식기가 없습니다.</td>
-                                    </tr>
-                                ) : (
-                                    state.list.map((item, idx) => (
-                                        <tr key={idx} onClick={() => handleGridModal("DETAIL", item)}>
-                                            <td className="center">{item.row_num}</td>
-                                            <td className="left">{item.device_nm}</td>
-                                            <td className="left">{item.device_sn}</td>
-                                            <td className="left ellipsis" style={{maxWidth:'480px'}}>{item.site_nm}</td>
-                                            <td className="left ellipsis" style={{maxWidth:'480px'}}>{item.etc}</td>
-                                            <td className="center">{item.is_use === "Y" ? "사용중" : "사용안함"}</td>
-                                            <td className="center">{dateUtil.format(item.reg_date, "yyyy-MM-dd")}</td>
-                                            <td className="center">{dateUtil.format(item.mod_date, "yyyy-MM-dd")}</td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                    <div className="pagination-container">
+                        <ReactPaginate
+                            previousLabel={"<"}
+                            nextLabel={">"}
+                            breakLabel={"..."}
+                            pageCount={Math.ceil(state.count / rowSize)}
+                            marginPagesDisplayed={1}
+                            pageRangeDisplayed={4}
+                            onPageChange={handlePageClick}
+                            containerClassName={"pagination"}
+                            activeClassName={"active"}
+                        />
                     </div>
                 </div>
             </div>
-
-            <ReactPaginate
-                previousLabel={"<"}
-                nextLabel={">"}
-                breakLabel={"..."}
-                pageCount={Math.ceil(state.count/rowSize)}
-                marginPagesDisplayed={1} // 처음과 끝에서 보이는 페이지 개수
-                pageRangeDisplayed={4} // 현재 페이지 주변에서 보이는 페이지 개수
-                onPageChange={handlePageClick}
-                containerClassName={"pagination"}
-                activeClassName={"active"}
-            />
         </div>
     );
 };

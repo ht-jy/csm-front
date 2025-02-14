@@ -1,12 +1,10 @@
 .pagination {
   display: flex;
-  list-style: none;
-  padding: 10px;
-  align-items: center;
-  justify-content: center; /* ✅ 가운데 정렬 */
-  width: 100%; /* ✅ 전체 너비 사용 */
-  margin-top: 20px; /* 테이블과 간격 추가 */
+  justify-content: center;
+  width: 100%; /*  테이블과 같은 너비 유지 */
+  margin-top: 15px; /*  테이블과의 간격 */
 }
+
 
 .pagination li {
   margin: 2px;
