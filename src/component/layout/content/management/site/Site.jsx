@@ -67,7 +67,7 @@ const Site = () => {
                 </div>
 
                 <div className="table-container">
-                    <table>
+                    <table style={{width: "2000px"}}>
                         <thead>
                             <tr>
                                 <th rowSpan={2} style={{width: '10px'}}></th>

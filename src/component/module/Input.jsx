@@ -29,24 +29,27 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData }
     const [isChecked, setIsChecked] = useState(false);
     const [selectedOption, setSelectedOption] = useState(null); // 초기값을 null로 설정
 
+    // input 체인지 이벤트
     const inputChangeHandler = (event) => {
         const newValue = event.target.value;
         setIsValid(newValue.trim() !== "");
         onValueChange(newValue);  // 부모 컴포넌트에 값 전달
     };
 
+    // checkbox 체인지 이벤트
     const checkboxChangeHandler = (event) => {
         const checked = event.target.checked;
         setIsChecked(checked);
         onValueChange(checked ? "Y" : "N");  // 부모 컴포넌트에 값 전달
     };
 
+    // select 체인지 이벤트
     const selectChangeHandler = (option) => {
         setSelectedOption(option);
         onValueChange(option.value);  // 부모 컴포넌트에 값 전달
     };
 
-    // ✅ value가 변경될 때 체크박스 상태 업데이트
+    // value가 변경될 때 체크박스 상태 업데이트
     useEffect(() => {
         if (type === "checkbox") {
             setIsChecked(value === "Y"); // "Y"면 true, "N"이면 false

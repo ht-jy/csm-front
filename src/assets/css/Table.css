@@ -7,7 +7,7 @@ body {
     border: 1px #a39485 solid;
     font-size: .9em;
     box-shadow: 0 2px 5px rgba(0,0,0,.25);
-    width: 2000px;
+    width: 1710px;
     border-collapse: collapse;
     border-radius: 5px;
     overflow: hidden;
@@ -87,11 +87,50 @@ body {
     
     }
 
+/* 테이블과 컨트롤 요소(선택창, 버튼)를 정렬할 부모 컨테이너 */
+.table-header {
+  display: flex;
+  justify-content: space-between; /* 왼쪽-오른쪽 배치 */
+  align-items: center;
+  margin-bottom: 15px;
+  width: 100%;
+  max-width: 1710px; /* 테이블과 같은 최대 너비 유지 */
+}
+
+/* 왼쪽 정렬: "10줄 보기" 드롭다운 */
+.table-header-left {
+  display: flex;
+  align-items: center;
+}
+
+/* 오른쪽 정렬: "추가" 버튼 */
+.table-header-right {
+  display: flex;
+  align-items: center;
+  margin-left: auto; /* 오른쪽 끝 정렬 */
+}
+
+/* 테이블을 감싸는 컨테이너 */
+.table-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 테이블을 왼쪽 정렬 */
+  width: 100%;
+}
+
+/* 테이블 영역 */
 .table-container {
-    overflow: scroll;
-    overflow-y: hidden;
-    width: 100%;
-    border-radius: 5px;
+  overflow-x: auto;
+  width: 100%;
+  min-width: 1710px; /* 테이블 크기 유지 */
+}
+
+/* 페이지네이션을 테이블을 기준으로 가운데 정렬 */
+.pagination-container {
+  width: 1710px;
+  display: flex;
+  justify-content: center; /* 페이지네이션 중앙 정렬 */
+  margin-top: 15px; /* 테이블과 여백 추가 */
 }
 
 /* tbody 안의 행에만 마우스 오버 효과 적용 */
