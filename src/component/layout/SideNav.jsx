@@ -10,19 +10,14 @@ const SideNav = () => {
                         <img src={htencLogo} style={{backgroundColor: "white", width:"200px", padding:"15px", borderRadius:"5px"}}/>
                     </div>
                     <div className="nav">
-                        
-                        <Link className="nav-link" to="/temp">
-                            <div className="sb-nav-link-icon"><i className="fas fa-tachometer-alt" /></div>
-                            임시
-                        </Link>
-
-                        <a className="nav-link collapsed" href="#!" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
+                        <div style={{height:"15px"}}></div>
+                        {/* <a className="nav-link collapsed" href="#!" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
                             <div className="sb-nav-link-icon"><img src="/svg/menu/management.svg" width='20px' /></div>
                             관리 메뉴
                             <div className="sb-sidenav-collapse-arrow"><i className="fas fa-angle-down" /></div>
                         </a>
                         <div className="collapse" id="collapsePages" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
-                            <nav className="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages">
+                            <nav className="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages"> */}
                                 <Link className="nav-link" to="/site">
                                     <div className="sb-nav-link-icon"><img src="/svg/menu/site-management.svg" width='20px' /></div>
                                     현장 관리
@@ -40,8 +35,43 @@ const SideNav = () => {
                                     </nav>
                                 </div>
 
-                            </nav>
-                        </div>
+                                <Link className="nav-link" to="/equip">
+                                    <div className="sb-nav-link-icon"><img src="/svg/menu/equip-management.svg" width='20px' /></div>
+                                    장비 관리
+                                </Link>
+
+                                <Link className="nav-link" to="/device">
+                                    <div className="sb-nav-link-icon"><img src="/svg/menu/device-management.svg" width='20px' /></div>
+                                    근태인식기 관리
+                                </Link>
+
+                                <Link className="nav-link" to="/company">
+                                    <div className="sb-nav-link-icon"><img src="/svg/menu/company-management.svg" width='20px' /></div>
+                                    협력업체 관리
+                                </Link>
+
+                                <Link className="nav-link" to="/wage">
+                                    <div className="sb-nav-link-icon"><img src="/svg/menu/wage-management.svg" width='20px' /></div>
+                                    표준단가 관리
+                                </Link>
+
+                                <Link className="nav-link" to="/calender">
+                                    <div className="sb-nav-link-icon"><img src="/svg/menu/calendar-management.svg" width='20px' /></div>
+                                    일정 관리
+                                </Link>
+
+                                <Link className="nav-link" to="/notice">
+                                    <div className="sb-nav-link-icon"><img src="/svg/menu/notice-management.svg" width='20px' /></div>
+                                    공지사항 관리
+                                </Link>
+
+                                <Link className="nav-link" to="/code">
+                                    <div className="sb-nav-link-icon"><img src="/svg/menu/code-management.svg" width='20px' /></div>
+                                    코드 관리
+                                </Link>
+
+                            {/* </nav>
+                        </div> */}
 
                     </div>
                 </div>
