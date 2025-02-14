@@ -261,14 +261,14 @@ const Device = () => {
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>순번</th>
-                                        <th>장치명</th>
-                                        <th>시리얼번호</th>
-                                        <th>현장이름</th>
-                                        <th>비고</th>
-                                        <th>사용여부</th>
-                                        <th>최초 생성일시</th>
-                                        <th>최종 수정일시</th>
+                                        <th style={{width: "70px"}}>순번</th>
+                                        <th style={{width: "160px"}}>장치명</th>
+                                        <th style={{width: "160px"}}>시리얼번호</th>
+                                        <th style={{width: "460px"}}>현장이름</th>
+                                        <th style={{width: "460px"}}>비고</th>
+                                        <th style={{width: "100px"}}>사용여부</th>
+                                        <th style={{width: "150px"}}>최초 생성일시</th>
+                                        <th style={{width: "150px"}}>최종 수정일시</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -282,8 +282,8 @@ const Device = () => {
                                                 <td className="center">{item.row_num}</td>
                                                 <td className="left">{item.device_nm}</td>
                                                 <td className="left">{item.device_sn}</td>
-                                                <td className="left ellipsis">{item.site_nm}</td>
-                                                <td className="left ellipsis">{item.etc}</td>
+                                                <td className="left ellipsis" style={{maxWidth: "460px"}}>{item.site_nm}</td>
+                                                <td className="left ellipsis" style={{maxWidth: "460px"}}>{item.etc}</td>
                                                 <td className="center">{item.is_use === "Y" ? "사용중" : "사용안함"}</td>
                                                 <td className="center">{dateUtil.format(item.reg_date, "yyyy-MM-dd")}</td>
                                                 <td className="center">{dateUtil.format(item.mod_date, "yyyy-MM-dd")}</td>
