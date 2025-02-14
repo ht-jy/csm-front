@@ -1,12 +1,24 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import AnnouncementSlider from "../module/AnnouncementSlider";
+import { useAuth } from "../context/AuthContext";
+import { Axios } from "../../utils/axios/Axios";
 
 const Header = () => {
     const [isSidebarToggled, setIsSidebarToggled] = useState(false);
+    const { user } = useAuth();
+    const navigete = useNavigate();
 
     const handleSidebarToggle = () => {
         setIsSidebarToggled(prevState => !prevState);
     };
+
+    const onClickLogout = async() => {
+        const res = await Axios.POST("/logout");
+        if (res?.data?.result === "Success") {
+            navigete(0);
+        }
+    }
 
     useEffect(() => {
         // isSidebarToggled 상태에 따라 body 클래스 변경
@@ -38,9 +50,9 @@ const Header = () => {
                 <a className="nav-link dropdown-toggle" id="navbarDropdown" href="#!" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i className="fas fa-user fa-fw" /></a>
                 <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     {/* <li><a className="dropdown-item" href="#!">Settings</a></li> */}
-                    <li><a className="dropdown-item" href="#!">사용자</a></li>
+                    <li><a className="dropdown-item" href="#!">사용자: {user.userName||"GUEST"}</a></li>
                     <li><hr className="dropdown-divider" /></li>
-                    <li><a className="dropdown-item" href="#!">로그아웃</a></li>
+                    <li><a className="dropdown-item" href="#!" onClick={onClickLogout}>로그아웃</a></li>
                 </ul>
                 </li>
             </ul>
