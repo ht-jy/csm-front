@@ -83,7 +83,8 @@ const modalStyle = {
 };
 
 const h2Style = {
-    minHeight: '50px',
+    minHeight: '40px',
+    fontSize: '25px'
 }
 
 const pStyle = {
