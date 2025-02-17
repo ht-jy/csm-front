@@ -82,7 +82,7 @@ function Login() {
                     <div className="wrapper">
                         <div className="form-section">
                             <img src={Logo} alt="hitech_logo" />
-                            <h6>현 장 근 태 관 리 시 스 템</h6>
+                            <h6>공 사 관 리 시 스 템</h6>
                             <form className="signin-form">
                                 <div className="form-input">
                                     <input onChange={handleUser} type="text" name="userId" placeholder="아이디" required="" autoComplete="username"/>
