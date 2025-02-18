@@ -35,7 +35,14 @@ const Modal = ({isOpen, title, text, confirm, fncConfirm, cancel, fncCancel}) =>
                             <h2 style={h2Style}>{title}</h2>
                         }
                         
-                        <p style={pStyle}>{text}</p>
+                        <p style={pStyle}>
+                            {text.split("\n").map((line, index) => (
+                                <>
+                                    {line}
+                                    <br />
+                                </>
+                            ))}
+                        </p>
                         <div style={buttonDivStyle}>
                             {
                                 ObjChk.all(confirm) ?
@@ -84,7 +91,8 @@ const modalStyle = {
 
 const h2Style = {
     minHeight: '40px',
-    fontSize: '25px'
+    fontSize: '25px',
+    textAlign: "center"
 }
 
 const pStyle = {
