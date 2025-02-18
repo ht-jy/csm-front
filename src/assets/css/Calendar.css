@@ -1,0 +1,127 @@
+/* 캘린더 전체 스타일 */
+.react-calendar {
+    width: 100%;
+    max-width: 450px;
+    background: white;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+/* 요일 헤더 스타일 */
+.react-calendar__month-view__weekdays {
+    display: flex;
+    justify-content: space-around;
+    white-space: nowrap;  /* 자동 줄바꿈 방지 */
+    overflow: visible;  /* 넘치는 부분 숨김 해제 */
+}
+
+/* 요일별 색상 조정 */
+.react-calendar__month-view__weekdays__weekday {
+    flex: 1;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    padding: 5px;
+    width: auto !important;
+    min-width: 30px;  /* 최소 너비를 강제로 확보 */
+}
+
+.react-calendar__month-view__weekdays__weekday abbr {
+    text-decoration: none !important; /* 밑줄 제거 */
+    display: block !important; /* `inline-block` 대신 `block` */
+    font-size: 14px; /* 폰트 크기 조정 */
+    overflow: visible !important; /* `...` 강제 제거 */
+    text-overflow: clip !important; /* 말줄임표 방지 */
+    white-space: nowrap !important; /* 강제 줄바꿈 방지 */
+}
+
+/* 현재 월의 일요일 빨간색 */
+.sunday {
+    color: red !important;
+}
+
+/* 현재 월의 토요일 파란색 */
+.saturday {
+    color: blue !important;
+}
+
+.default{
+    color: black;
+}
+
+/* 이전/다음 달 날짜를 연한 회색으로 표시 */
+.neighboring-month {
+    color: #bbb !important;
+    opacity: 0.5 !important;
+    pointer-events: none; /* 클릭되지 않도록 설정 */
+}
+
+/* 날짜 기본 스타일 */
+.react-calendar__tile {
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+    width: 40px;
+    height: 40px;
+}
+
+/* 선택된 날짜 스타일 */
+.react-calendar__tile--active {
+    background: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+/* hover 시 색상 변경 */
+.react-calendar__tile:hover {
+    background: #e6f7ff;
+    transition: 0.3s;
+}
+
+/* 캘린더 팝업 스타일 */
+.calendar-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.calendar-popup {
+    position: absolute;
+    top: 40px;
+    right: 1;
+    z-index: 100;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    width: 450px;
+}
+
+/* 선택한 날짜 스타일 */
+.selected-date {
+    cursor: pointer;
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: inline-block;
+    transition: all 0.2s ease-in-out;
+}
+
+/* 선택한 날짜 hover 효과 */
+.selected-date:hover {
+    background: #e9ecef;
+    border-color: #bbb;
+    color: #007bff;
+}
+
+/* 선택한 날짜 클릭 시 활성화 효과 */
+.selected-date:active {
+    background: #dae0e5;
+    border-color: #aaa;
+}
