@@ -20,7 +20,12 @@ import "../../../../../assets/css/Paginate.css";
  * @modified 최종 수정일: 
  * @modifiedBy 최종 수정자: 
  * @usedComponents
- * - 
+ * - ReactPaginate: 페이지 버튼
+ * - Select: 셀렉트 박스
+ * - Loading: 로딩 스피너
+ * - GridModal: 상세 화면 모달
+ * - Modal: 알림 모달
+ * - Button: 버튼
  * 
  * @additionalInfo
  * - API: 
@@ -28,7 +33,6 @@ import "../../../../../assets/css/Paginate.css";
  *    Http Method - POST : /device (근태인식기 추가)
  *    Http Method - PUT : /device (근태인식기 수정)
  *    Http Method - DELETE :  /device/${dno} (근태인식기 삭제)
- * - 주요 상태 관리: useReducer, useState
  */
 const Device = () => {
     const [state, dispatch] = useReducer(DeviceReducer, {
@@ -47,6 +51,9 @@ const Device = () => {
     const [isModal, setIsModal] = useState(false);
     const [isMod, setIsMod] = useState(false);
     const [detail, setDetail] = useState([]);
+    const [isModal2, setIsModal2] = useState(false);
+    const [modal2Title, setModal2Title] = useState("");
+    const [modal2Text, setModal2Text] = useState("");
 
     const options = [
         { value: 5, label: "5줄 보기" },
@@ -90,8 +97,12 @@ const Device = () => {
         }
         
         setDetail(arr);
-        getSiteData();
-        setIsGridModal(true);
+
+        if(getSiteData()){
+            setIsGridModal(true);
+        }else{
+            setIsGridModal(false);
+        }
     }
 
     // GridModal의 'X' 버튼 클릭 이벤트
@@ -182,24 +193,29 @@ const Device = () => {
 
         if (res?.data?.result === "Success") {
             dispatch({ type: "SITE_NM", list: res?.data?.values?.list });
+        }else if(res?.data?.result === "Failure") {
+            setIsModal2(true);
+            setModal2Title("현장이름 조회");
+            setModal2Text(`현장이름을 조회하는데 실패하였습니다. 잠시 후에  다시 시도하여 주시기 바랍니다.`);
+            return false;
         }
-
+        
         setIsLoading(false);
+        return true;
     }
 
     // 근태인식기 리스트 조회
     const getData = async () => {
         setIsLoading(true);
 
-        const page = {
-            page_num: pageNum,
-            row_size: rowSize
-        };
-
         const res = await Axios.GET(`/device?page_num=${pageNum}&row_size=${rowSize}`);
 
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
+        }else if(res?.data?.result === "Failure") {
+            setIsModal2(true);
+            setModal2Title("근태인식기 조회");
+            setModal2Text("근태인식기를 조회하는데 실패하였습니다. 잠시 후에 다시 시도하여 주시기 바랍니다.");
         }
 
         setIsLoading(false);
@@ -218,6 +234,13 @@ const Device = () => {
                 text={`근태인식기 ${getModeString()}에 ${isMod ? "성공하였습니다." : "실패하였습니다."}`}
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
+            />
+            <Modal 
+                isOpen={isModal2}
+                title={modal2Title}
+                text={modal2Text}
+                confirm={"확인"}
+                fncConfirm={() => setIsModal2(false)}
             />
             <GridModal 
                 isOpen={isGridModal}
