@@ -2,7 +2,7 @@ import React from "react";
 
 const btnStyle = {
   color: "white",
-  background: "#73685d",
+  background: "#0d6efd",
   padding: ".375rem .75rem",
   border: "1px solid teal",
   borderRadius: ".25rem",
