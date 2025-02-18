@@ -1,4 +1,4 @@
-import { useState, useEffect, useReducer, useRef } from "react";
+import { useState, useEffect, useReducer } from "react";
 import ReactPaginate from "react-paginate";
 import Select from 'react-select';
 import Calendar from "react-calendar";
@@ -16,7 +16,7 @@ import "../../../../../assets/css/Calendar.css";
 
 
 /**
- * @description: 
+ * @description: 전체 근로자 관리
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-17
@@ -56,13 +56,13 @@ const Total = () => {
     const [isSearchInit, setIsSearchInit] = useState(false);
 
     const columns = [
-        { isSearch: false, width: "70px", header: "순번", itemName: "row_num", bodyAlign: "center", isEllipsis: false, isOrder: false, isDate: false },
-        { isSearch: true, width: "210px", header: "부서/조직명", itemName: "department", bodyAlign: "left", isEllipsis: false, isOrder: true, isDate: false },
-        { isSearch: true, width: "190px", header: "근로자 이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false, isOrder: true, isDate: false },
-        { isSearch: true, width: "480px", header: "현장이름", itemName: "site_nm", bodyAlign: "left", isEllipsis: true, isOrder: true, isDate: false },
-        { isSearch: true, width: "480px", header: "프로젝트명", itemName: "job_name", bodyAlign: "left", isEllipsis: true, isOrder: true, isDate: false },
-        { isSearch: false, width: "140px", header: "출근시간", itemName: "in_recog_time", bodyAlign: "center", isEllipsis: false, isOrder: true, isDate: true, dateFormat: "formatWithTime"},
-        { isSearch: false, width: "140px", header: "퇴근시간", itemName: "out_recog_time", bodyAlign: "center", isEllipsis: false, isOrder: true, isDate: true, dateFormat: "formatWithTime" }
+        { isSearch: false, isOrder: false, width: "70px", header: "순번", itemName: "row_num", bodyAlign: "center", isEllipsis: false, isDate: false },
+        { isSearch: true, isOrder: true, width: "210px", header: "부서/조직명", itemName: "department", bodyAlign: "left", isEllipsis: false, isDate: false },
+        { isSearch: true, isOrder: true, width: "190px", header: "근로자 이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false, isDate: false },
+        { isSearch: true, isOrder: true, width: "480px", header: "현장이름", itemName: "site_nm", bodyAlign: "left", isEllipsis: true, isDate: false },
+        { isSearch: true, isOrder: true, width: "480px", header: "프로젝트명", itemName: "job_name", bodyAlign: "left", isEllipsis: true, isDate: false },
+        { isSearch: false, isOrder: true, width: "140px", header: "출근시간", itemName: "in_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: "formatWithTime"},
+        { isSearch: false, isOrder: true, width: "140px", header: "퇴근시간", itemName: "out_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: "formatWithTime" }
     ];
 
     const defaultSearchValues = columns.reduce((acc, col) => {
@@ -139,7 +139,7 @@ const Total = () => {
         setIsLoading(true);
         
         const res = await Axios.GET(`/worker/total?page_num=${pageNum}&row_size=${rowSize}&order=${order}&search_time=${searchTime}&site_nm=${searchValues.site_nm}&job_name=${searchValues.job_name}&user_nm=${searchValues.user_nm}&department=${searchValues.department}`);
-        console.log(res);
+        
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
         }
