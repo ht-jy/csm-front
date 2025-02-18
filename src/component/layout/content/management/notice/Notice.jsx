@@ -9,21 +9,45 @@ import Button from "../../../../module/Button";
 import GridModal from "../../../../module/GridModal";
 import Loading from "../../../../module/Loading";
 import NoticeReducer from "./NoticeReducer";
+import { useAuth } from "../../../../context/AuthContext";
+
+/**
+ * @description: 공지사항 CRUD
+ * 
+ * @author 작성자: 정지영
+ * @created 작성일: 2025-02-18
+ * @modified 최종 수정일: 
+ * @modifiedBy 최종 수정자: 
+ * @usedComponents
+ * - 
+ * 
+ * @additionalInfo
+ * - API: 
+ *    Http Method - GET : /site-nm (현장데이터 조회), /notice (근태인식기 조회)
+ *    Http Method - POST : /notice (근태인식기 추가)
+ *    Http Method - PUT : /notice (근태인식기 수정)
+ *    Http Method - DELETE :  /notice/${idx} (근태인식기 삭제)
+ * - 주요 상태 관리: useReducer, useState
+ */
 
 const Notice = () => {
 
     const [state, dispatch] = useReducer(NoticeReducer, {
         notices: [],
         count: 0,
-
+        selectList: {},
     });
+
+    const { user } = useAuth();
 
     const [pageNum, setPageNum] = useState(1);
     const [rowSize, setRowSize] = useState(10);
     const [isLoading, setIsLoading] = useState(false);
-    const [isGridModal, setIsGridModal] = useState(false);
+    const [isGetGridModal, setIsGetGridModal] = useState(false);
+    const [isPostGridModal, setIsPostGridModal] = useState(false);
     const [gridMode, setGridMode] = useState("");
     const [detail, setDetail] = useState([]);
+    const [data, setData] = useState([]);
 
 
     const options = [
@@ -33,9 +57,16 @@ const Notice = () => {
         { value: 20, label: "20줄 보기" },
     ]
 
-    const gridData = [
+    const gridGetData = [
         { type: "html", span: "full", label: "", value: "" },
         { type: "html", span: "full", label: "", value: "" },
+    ]
+
+    const gridPostData = [
+        { type: "text", span: "full", label: "제목", value: "" },
+        { type: "select", span: "double", label: "현장", value: 0, selectName: "siteNm" },
+        { type: "select", span: "double", label: "공개범위", value: 0, selectName: "visibility" },
+        { type: "html", span: "full", label: "내용", vlaue: "" }
     ]
 
     const getModeString = () => {
@@ -50,24 +81,43 @@ const Notice = () => {
                 return "";
         }
     }
-    // 공지사항 상세 GridModal
-    const handleGridModal = (mode, notice) => {
+
+    // TODO: edit 모드인 경우 구현
+    const handlePostGridModal = (mode, notice) => {
         setGridMode(mode);
 
-        const arr = [...gridData]
+        const arr = [...gridPostData]
 
+        if (mode === "EDIT") {
+            arr[0].value = notice.title;
+            arr[1].value = notice.sno;
+            //            arr[2].value = notice.show_yn;
+            arr[3].value = notice.content;
+        }
+
+        setDetail(arr);
+        getSiteData();
+        setIsPostGridModal(true);
+    }
+
+    // [GridModal-Get] 공지사항 상세
+    const handleGetGridModal = (mode, notice) => {
+        setGridMode(mode);
+        setData([notice]);
+
+        const arr = [...gridGetData]
         // TODO: text가 긴 경우에 content가 넘어가고 스크롤로 변하지 않는 부분 변경
         if (mode === "DETAIL") {
             arr[0].value = `
                         <div class="row mb-2">
                             <div class="col-md-1 fw-bold">제목</div>
-                            <div class="col-md-11">${notice.title}</div>
+                            <div class="col-md-10">${notice.title}</div>
                         </div>
                         <div class="row">
                             <div class="col-md-1 fw-bold">지역</div>
                             <div class="col-md-3">${notice.loc_code}</div>
                             <div class="col-md-1 fw-bold">현장</div>
-                            <div class="col-md-7">${notice.site_nm}</div>
+                            <div class="col-md-6">${notice.site_nm}</div>
                         </div>
                         <div class="row mt-2">
                             <div class="col-md-1 fw-bold">등록자</div>
@@ -80,68 +130,152 @@ const Notice = () => {
                             ` : ""}
                         </div>
                         `
-            arr[1].value = `<div class="overflow-auto">${notice.content}</div>`;
+            arr[1].value = `<div class="overflow-auto Scrollbar">${notice.content}</div>`;
 
-            // TODO: 권한 있는 사람한테 수정 삭제 보이도록 고쳐야함.
+            // TODO: 권한 있는 사람에게만 수정 삭제 보이도록 고쳐야함.
         }
-        // TODO: 추가 기능 구현(지역, 현장 지정 기능 있어야 함)
 
         setDetail(arr);
-        setIsGridModal(true);
+        setIsGetGridModal(true);
     }
 
-    // 공지사항 상세 X 버튼 클릭 이벤트
-    const onClickGridModalExitBtn = () => {
+    // [GridModal] gridMode props 변경 이벤트
+    const onClickModeSet = (mode) => {
+        setGridMode(mode)
+    }
+
+
+    // [GridModal-Get] 공지사항 상세 X 버튼 클릭 이벤트
+    const onClickGetGridModalExitBtn = () => {
         setDetail([]);
-        setIsGridModal(false);
+        setIsGetGridModal(false);
     }
 
-    // 행의 개수 선택
+    // [GridModal-Post] 닫기 버튼을 눌렀을 경우
+    const onClickPostGridModalExitBtn = () => {
+        setDetail([]);
+        setIsPostGridModal(false);
+    }
+
+    // [GridModal-Post] 현장데이터 리스트 조회
+    const getSiteData = async () => {
+        setIsLoading(true);
+
+        const res = await Axios.GET(`/site-nm`);
+
+        if (res?.data?.result === "Success") {
+            dispatch({ type: "SITE_NM", list: res?.data?.values?.list });
+        }
+        setIsLoading(false);
+    }
+
+    // [GridModal-Post] 저장 버튼을 눌렀을 경우
+    const onClickModalSave = async (item, mode) => {
+
+        setIsLoading(true);
+        setGridMode(mode)
+
+        const notice = {
+            sno: Number(item[1].value) || 0,
+            title: item[0].value || "",
+            content: item[3].value || "",
+            show_yn: "Y",//item[2].value || "Y",
+            reg_uno: Number(user.userId) || 0,
+            reg_user: user.userName || ""
+        }
+
+        let res;
+        if (gridMode === "SAVE") {
+            res = await Axios.POST(`/notice`, notice);
+        } else {
+            res = await Axios.PUT(`/notice`, notice);
+        }
+
+        if (res?.data?.result === "Success") {
+            //  모달에 성공 값
+            console.log("성공");
+            getNotices();
+        } else {
+            // 모달에 실패 값
+            console.log("실패", res);
+        }
+
+        setIsLoading(false);
+        setIsPostGridModal(false);
+        // 성공/실패 모달 띄우기
+
+    }
+
+    // [테이블] 행의 개수 선택
     const onChangeSelect = (e) => {
         setRowSize(e.value);
         setPageNum(1);
     }
 
-    // 공지사항 전체 조회
+    // [데이터] 공지사항 전체 조회
     const getNotices = async () => {
         setIsLoading(true);
 
         const res = await Axios.GET(`/notice?page_num=${pageNum}&row_size=${rowSize}`);
-
-        if (res?.data.result === "Success") {
+        if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
-        }
+        } else if (res?.data?.result === "Failure") {
+            // 실패 메시지
+        }  
+        console.log(res)
 
         setIsLoading(false);
     }
 
-    // page 이동 클릭 시 >
+    // [페이지] > 이동 버튼 클릭 시
     const handlePageClick = ({ selected }) => {
         setPageNum(selected + 1);
     }
 
-
+    // [페이지] 페이지, 행크기 변경 시
     useEffect(() => {
         getNotices();
     }, [pageNum, rowSize])
+
+    // [GridModal] 모드 변경 시
+    useEffect(() => {
+        if (gridMode === "EDIT") {
+            setIsGetGridModal(false);
+            handlePostGridModal("EDIT", data[0]);
+        }
+    }, [gridMode])
 
     return (
         <div>
             <Loading isOpen={isLoading} />
             <GridModal
-                isOpen={isGridModal}
+                isOpen={isGetGridModal}
                 gridMode={gridMode}
-                funcModeSet //={onClickModeSet}
+                funcModeSet={onClickModeSet}
                 editBtn={true}
                 removeBtn={true}
                 title={`공지사항 ${getModeString()}`}
-                exitBtnClick={onClickGridModalExitBtn}
+                exitBtnClick={onClickGetGridModalExitBtn}
                 detailData={detail}
                 selectList
                 saveBtnClick//={"저장 누를때"}
                 removeBtnClick//={"삭제 누를때"}
 
             />
+            <GridModal
+                isOpen={isPostGridModal}
+                gridMode={gridMode}
+                funcModeSet={onClickModeSet}
+                editBtn={false}
+                removeBtn={false}
+                title={`공지사항 kkk${getModeString()}`}
+                exitBtnClick={onClickPostGridModalExitBtn}
+                detailData={detail}
+                selectList={state.selectList}
+                saveBtnClick={onClickModalSave}
+                removeBtnClick//={"삭제 누를때"}
+                />
+
             <div>
                 <div className="container-fluid px-4">
                     <h2 className="mt-4">공지사항</h2>
@@ -162,7 +296,7 @@ const Notice = () => {
                         </div>
 
                         <div className="table-header-right">
-                            <Button text={"추가"} onClick={() => handleGridModal("SAVE")}></Button>
+                            <Button text={"등록"} onClick={() => handlePostGridModal("SAVE")}></Button>
                         </div>
                     </div>
 
@@ -186,14 +320,16 @@ const Notice = () => {
                                         </tr>
                                     ) : (
                                         state.notices.map((notice, idx) => (
-                                            <tr key={idx} onClick={() => handleGridModal("DETAIL", notice)}>
-                                                <td className="center">{state.count - notice.row_num + 1}</td> {/* 등록일 정렬로 인해 순번이 역순으로 출력되는 문제를 해결하기 위해, 전체 - row_num + 1 */}
-                                                <td className="center">{notice.loc_code}</td>
-                                                <td className="left px-4 ellipsis">{notice.site_nm}</td>
-                                                <td className="left px-4 ellipsis">{notice.title}</td>
-                                                <td className="center">{notice.reg_user}</td>
-                                                <td className="center">{dateUtil.format(notice.reg_date, "yyyy-MM-dd")}</td>
-                                            </tr>
+                                            // notice.show_yn === "Y" ? (
+                                                <tr key={idx} onClick={() => handleGetGridModal("DETAIL", notice)}>
+                                                    <td className="center">{state.count - notice.row_num + 1}</td> {/* 등록일 정렬로 인해 순번이 역순으로 출력되는 문제를 해결하기 위해, 전체 - row_num + 1 */}
+                                                    <td className="center">{notice.loc_code}</td>
+                                                    <td className="left px-4 ellipsis">{notice.site_nm}</td>
+                                                    <td className="left px-4 ellipsis">{notice.title}</td>
+                                                    <td className="center">{notice.reg_user}</td>
+                                                    <td className="center">{dateUtil.format(notice.reg_date, "yyyy-MM-dd")}</td>
+                                                </tr>
+                                            // ) : null
                                         ))
                                     )}
                                 </tbody>
@@ -218,8 +354,8 @@ const Notice = () => {
 
                     </div>
                 </div>
-
             </div>
+
         </div>
 
     );

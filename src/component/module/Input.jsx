@@ -71,17 +71,17 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData }
 
     return (
         <div className="form-control" style={containerStyle}>
-            { label.length > 0 &&
-            <label style={{ color: !isValid ? "red" : "black", marginRight: "5px" }}>
-                {label}
-            </label>}
+            {label.length > 0 &&
+                <label style={{ color: !isValid ? "red" : "black", marginRight: "5px" }}>
+                    {label}
+                </label>}
             {
                 type === "text" ? (
                     <div className="form-input">
                         {
                             editMode ? (
                                 <input
-                                    style={{ width: "100%" }}
+                                    style={{ width: "100%", padding: "0.5rem" }}
                                     type="text"
                                     value={value}
                                     onChange={inputChangeHandler}
@@ -91,7 +91,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData }
                     </div>
                 ) : type === "checkbox" ? (
                     <div>
-                        <FormCheckInput checked={isChecked} onChange={checkboxChangeHandler} disabled={!editMode}/> 
+                        <FormCheckInput checked={isChecked} onChange={checkboxChangeHandler} disabled={!editMode} />
                         <span style={{ color: "grey" }}>&nbsp;&nbsp;{isChecked ? "사용중" : "사용안함"}</span>
                     </div>
                 ) : type === "select" ? (
@@ -109,20 +109,18 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData }
                         </div>
                     )
                 ) : type === "html" ? (
-                        <div dangerouslySetInnerHTML={{__html: value}} className="form-input Scrollbar">
-                            {
-                                editMode ? (
-                                    <input
-                                    style={{ width: "100%"}}
-                                    type="text"
-                                    value={value}
-                                    onChange={inputChangeHandler}
-                                    />
-                                ) : null
-                            }
+                    editMode ? (
+                        <textarea name="" id=""
+                            style={{ width: "100%", height: "30rem", marginTop: "0.5rem", padding: "0.5rem" }}
+                            value={value}
+                            onChange={inputChangeHandler}>
+                        </textarea>
+                    ) : (
+                        <div dangerouslySetInnerHTML={{ __html: value }}>
                         </div>
+                    )
                 ) : null
-                
+
             }
         </div>
     );
