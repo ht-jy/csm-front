@@ -1,15 +1,14 @@
 import { useEffect, useReducer, useState } from "react";
+import ReactPaginate from "react-paginate";
 import Select from 'react-select';
+import "../../../../../assets/css/Paginate.css";
+import "../../../../../assets/css/Table.css";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { dateUtil } from "../../../../../utils/DateUtil";
-import Loading from "../../../../module/Loading";
-import NoticeReducer from "./NoticeReducer";
-import ReactPaginate from "react-paginate";
-import "../../../../../assets/css/Table.css";
-import "../../../../../assets/css/Paginate.css";
-import Modal from "../../../../module/Modal";
 import Button from "../../../../module/Button";
 import GridModal from "../../../../module/GridModal";
+import Loading from "../../../../module/Loading";
+import NoticeReducer from "./NoticeReducer";
 
 const Notice = () => {
 
@@ -25,22 +24,22 @@ const Notice = () => {
     const [isGridModal, setIsGridModal] = useState(false);
     const [gridMode, setGridMode] = useState("");
     const [detail, setDetail] = useState([]);
-    
-    
+
+
     const options = [
         { value: 5, label: "5줄 보기" },
         { value: 10, label: "10줄 보기" },
         { value: 15, label: "15줄 보기" },
         { value: 20, label: "20줄 보기" },
     ]
-    
+
     const gridData = [
-        {type: "html", span: "full", label: "", value: ""},
-        {type: "html", span: "full", label: "내용", value: ""},
+        { type: "html", span: "full", label: "", value: "" },
+        { type: "html", span: "full", label: "", value: "" },
     ]
 
     const getModeString = () => {
-        switch(gridMode) {
+        switch (gridMode) {
             case "SAVE":
                 return "저장";
             case "EDIT":
@@ -56,18 +55,19 @@ const Notice = () => {
         setGridMode(mode);
 
         const arr = [...gridData]
-        
+
+        // TODO: text가 긴 경우에 content가 넘어가고 스크롤로 변하지 않는 부분 변경
         if (mode === "DETAIL") {
             arr[0].value = `
                         <div class="row mb-2">
                             <div class="col-md-1 fw-bold">제목</div>
-                            <div class="col-md-3">${notice.title}</div>
+                            <div class="col-md-11">${notice.title}</div>
                         </div>
                         <div class="row">
                             <div class="col-md-1 fw-bold">지역</div>
                             <div class="col-md-3">${notice.loc_code}</div>
                             <div class="col-md-1 fw-bold">현장</div>
-                            <div class="col-md-6">${notice.site_nm}</div>
+                            <div class="col-md-7">${notice.site_nm}</div>
                         </div>
                         <div class="row mt-2">
                             <div class="col-md-1 fw-bold">등록자</div>
@@ -80,15 +80,11 @@ const Notice = () => {
                             ` : ""}
                         </div>
                         `
-
-            arr[1].label = "내용";
-            arr[1].value = notice.content;
+            arr[1].value = `<div class="overflow-auto">${notice.content}</div>`;
 
             // TODO: 권한 있는 사람한테 수정 삭제 보이도록 고쳐야함.
-
-            
-
         }
+        // TODO: 추가 기능 구현(지역, 현장 지정 기능 있어야 함)
 
         setDetail(arr);
         setIsGridModal(true);
@@ -109,7 +105,7 @@ const Notice = () => {
     // 공지사항 전체 조회
     const getNotices = async () => {
         setIsLoading(true);
-        
+
         const res = await Axios.GET(`/notice?page_num=${pageNum}&row_size=${rowSize}`);
 
         if (res?.data.result === "Success") {
@@ -120,9 +116,10 @@ const Notice = () => {
     }
 
     // page 이동 클릭 시 >
-    const handlePageClick = ({selected}) => {
+    const handlePageClick = ({ selected }) => {
         setPageNum(selected + 1);
     }
+
 
     useEffect(() => {
         getNotices();
@@ -163,6 +160,10 @@ const Notice = () => {
                                 style={{ width: "200px" }}
                             />
                         </div>
+
+                        <div className="table-header-right">
+                            <Button text={"추가"} onClick={() => handleGridModal("SAVE")}></Button>
+                        </div>
                     </div>
 
                     <div className="table-wrapper">
@@ -170,12 +171,12 @@ const Notice = () => {
                             <table>
                                 <thead>
                                     <tr>
-                                        <th style={{width:"80px"}}>순번</th>
-                                        <th style={{width:"80px"}}>지역</th>
-                                        <th className="ellipsis" style={{width:"200px"}}>현장</th>
+                                        <th style={{ width: "80px" }}>순번</th>
+                                        <th style={{ width: "80px" }}>지역</th>
+                                        <th className="ellipsis" style={{ width: "200px" }}>현장</th>
                                         <th                        >제목</th>
-                                        <th style={{width:"100px"}}>등록자</th>
-                                        <th style={{width:"140px"}}>등록일</th>
+                                        <th style={{ width: "100px" }}>등록자</th>
+                                        <th style={{ width: "140px" }}>등록일</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -200,8 +201,8 @@ const Notice = () => {
 
                         </div>
                     </div>
-                    
-                    {/* TODO: 페이지가 항상 아래쪽에 위치하도록, 테이블의 가운데가 아닌 페이지의 가운데로 위치하도록 */}
+
+                    {/* TODO: 페이지가 항상 아래쪽에 위치하도록 */}
                     <div className="pagination-container">
                         <ReactPaginate
                             previousLabel={"<"}

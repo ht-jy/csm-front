@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
 import Select from 'react-select';
 import "../../assets/css/Input.css";
+import "../../assets/css/Scrollbar.css";
 
 /**
  * @description: 상세화면 모달 Input 컴포넌트
@@ -108,11 +109,11 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData }
                         </div>
                     )
                 ) : type === "html" ? (
-                        <div dangerouslySetInnerHTML={{__html: value}} className="form-input">
+                        <div dangerouslySetInnerHTML={{__html: value}} className="form-input Scrollbar">
                             {
                                 editMode ? (
                                     <input
-                                    style={{ width: "100%" }}
+                                    style={{ width: "100%"}}
                                     type="text"
                                     value={value}
                                     onChange={inputChangeHandler}
