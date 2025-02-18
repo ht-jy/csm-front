@@ -70,9 +70,10 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData }
 
     return (
         <div className="form-control" style={containerStyle}>
+            { label.length > 0 &&
             <label style={{ color: !isValid ? "red" : "black", marginRight: "5px" }}>
                 {label}
-            </label>
+            </label>}
             {
                 type === "text" ? (
                     <div className="form-input">
@@ -106,7 +107,21 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData }
                             {selectData?.find(option => option.value === value)?.label || "-"}
                         </div>
                     )
+                ) : type === "html" ? (
+                        <div dangerouslySetInnerHTML={{__html: value}} className="form-input">
+                            {
+                                editMode ? (
+                                    <input
+                                    style={{ width: "100%" }}
+                                    type="text"
+                                    value={value}
+                                    onChange={inputChangeHandler}
+                                    />
+                                ) : null
+                            }
+                        </div>
                 ) : null
+                
             }
         </div>
     );
