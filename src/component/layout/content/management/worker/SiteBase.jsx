@@ -145,9 +145,14 @@ const SiteBase = () => {
         if (sno === null) return;
         setIsLoading(true);
         
-        const res = await Axios.GET(`/worker/site-base?page_num=${pageNum}&row_size=${rowSize}&order=${order}&search_time=${searchTime}&sno=${sno}&site_nm=${searchValues.site_nm}&job_name=${searchValues.job_name}&user_nm=${searchValues.user_nm}&department=${searchValues.department}`);
+        const res = await Axios.GET(`/worker/site-base?page_num=${pageNum}&row_size=${rowSize}&order=${order}&search_time=${searchTime}&sno=${sno}&job_name=${searchValues.job_name}&user_nm=${searchValues.user_nm}&department=${searchValues.department}`);
         
         if (res?.data?.result === "Success") {
+            if(res?.data?.values?.list.length === 0) {
+                setIsModal(true);
+                setModalTitle("현장 근로자 조회");
+                setModalText("조회된 현장 근로자 데이터가 없습니다.");
+            }
             dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
         }
 

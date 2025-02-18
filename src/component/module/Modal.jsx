@@ -15,12 +15,29 @@ const Modal = ({isOpen, title, text, confirm, fncConfirm, cancel, fncCancel}) =>
     }
 
     useEffect(() => {
-        if(isOpen){
-            document.body.style.overflow = 'hidden';
-        }else{            
-            document.body.style.overflow = 'unset';
+        console.log("modal");
+        if (isOpen) {
+            document.body.style.overflow = "hidden";
+
+            // 엔터 키 이벤트 핸들러
+            const handleKeyDown = (event) => {
+                if (event.key === "Enter" || event.key === "Escape") {
+                    if (ObjChk.all(cancel)) {
+                        fncConfirm(); // cancel이 없으면 confirm 실행
+                    } else {
+                        fncCancel(); // cancel이 있으면 cancel 실행
+                    }
+                }
+            };
+
+            document.addEventListener("keydown", handleKeyDown);
+
+            return () => {
+                document.body.style.overflow = "unset";
+                document.removeEventListener("keydown", handleKeyDown);
+            };
         }
-    }, []);
+    }, [isOpen]);
 
     return(
         <div>
@@ -35,14 +52,14 @@ const Modal = ({isOpen, title, text, confirm, fncConfirm, cancel, fncCancel}) =>
                             <h2 style={h2Style}>{title}</h2>
                         }
                         
-                        <p style={pStyle}>
+                        <div style={pStyle}>
                             {text.split("\n").map((line, index) => (
-                                <>
+                                <div key={index}>
                                     {line}
                                     <br />
-                                </>
+                                </div>
                             ))}
-                        </p>
+                        </div>
                         <div style={buttonDivStyle}>
                             {
                                 ObjChk.all(confirm) ?
