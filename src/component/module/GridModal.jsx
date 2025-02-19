@@ -26,7 +26,7 @@ import Exit from "../../assets/image/exit.png";
  *  saveBtnClick: 저장버튼 function (저장, 수정 둘다 포함)
  *  removeBtnClick: 삭제버튼 function
  */
-const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, detailData, selectList, exitBtnClick, saveBtnClick, removeBtnClick }) => {
+const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, detailData, selectList, exitBtnClick, saveBtnClick, removeBtnClick, isCancle = true }) => {
     const [isEdit, setIsEdit] = useState(false);
     const [formData, setFormData] = useState([]);
     const [initialData, setInitialData] = useState([]); // 원본 데이터 저장
@@ -126,9 +126,13 @@ const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, d
                                             <button className="btn btn-primary" onClick={handleSave} name="confirm" style={{marginRight:"10px"}}>
                                                 저장
                                             </button>   
-                                            <button className="btn btn-primary" onClick={handleCancel} name="confirm" style={{marginRight:"10px"}}>
-                                                취소
-                                            </button> 
+                                            {
+                                                isCancle ?
+                                                    <button className="btn btn-primary" onClick={handleCancel} name="confirm" style={{marginRight:"10px"}}>
+                                                        취소
+                                                    </button> 
+                                                : null
+                                            }
                                         </div>
                                     :
                                         <div>

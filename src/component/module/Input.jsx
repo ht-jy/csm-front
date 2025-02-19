@@ -111,7 +111,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData }
                 ) : type === "html" ? (
                     editMode ? (
                         <textarea name="" id=""
-                            style={{ width: "100%", height: "30rem", marginTop: "0.5rem", padding: "0.5rem" }}
+                            style={{ width: "100%", height: "20rem", marginTop: "0.5rem", padding: "0.5rem" }}
                             value={value}
                             onChange={inputChangeHandler}>
                         </textarea>
