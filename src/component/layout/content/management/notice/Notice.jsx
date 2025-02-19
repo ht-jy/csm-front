@@ -60,13 +60,15 @@ const Notice = () => {
     const gridGetData = [
         { type: "html", span: "full", label: "", value: "" },
         { type: "html", span: "full", label: "", value: "" },
+        {type: "hidden", value: ""},
     ]
 
     const gridPostData = [
         { type: "text", span: "full", label: "제목", value: "" },
         { type: "select", span: "double", label: "현장", value: 0, selectName: "siteNm" },
         { type: "select", span: "double", label: "공개범위", value: 0, selectName: "visibility" },
-        { type: "html", span: "full", label: "내용", vlaue: "" }
+        { type: "html", span: "full", label: "내용", vlaue: "" },
+        {type: "hidden", value: ""},
     ]
 
     const getModeString = () => {
@@ -82,17 +84,24 @@ const Notice = () => {
         }
     }
 
-    // TODO: edit 모드인 경우 구현
+    // [GridModal-Post] 공지사항 수정, 등록
     const handlePostGridModal = (mode, notice) => {
         setGridMode(mode);
 
         const arr = [...gridPostData]
 
+        // 수정을 저장하고 난 후에, value값이 초기화 되지 않는 문제 해결하기 위해 사용.
+        if(mode === "SAVE") {
+            arr[3].value = "";
+        }
+
         if (mode === "EDIT") {
+
             arr[0].value = notice.title;
             arr[1].value = notice.sno;
             //            arr[2].value = notice.show_yn;
             arr[3].value = notice.content;
+            arr[4].value = notice.idx;
         }
 
         setDetail(arr);
@@ -106,7 +115,7 @@ const Notice = () => {
         setData([notice]);
 
         const arr = [...gridGetData]
-        // TODO: text가 긴 경우에 content가 넘어가고 스크롤로 변하지 않는 부분 변경
+
         if (mode === "DETAIL") {
             arr[0].value = `
                         <div class="row mb-2">
@@ -130,8 +139,8 @@ const Notice = () => {
                             ` : ""}
                         </div>
                         `
-            arr[1].value = `<div class="overflow-auto Scrollbar">${notice.content}</div>`;
-
+            arr[1].value = `<div class="overflow-auto Scrollbar" style="height: 28rem; padding: 0.5rem">${notice.content}</div>`;
+            arr[2].value = notice.idx;
             // TODO: 권한 있는 사람에게만 수정 삭제 보이도록 고쳐야함.
         }
 
@@ -143,7 +152,32 @@ const Notice = () => {
     const onClickModeSet = (mode) => {
         setGridMode(mode)
     }
+    
+    // [GridModal] 삭제 이벤트
+    const onClickGridModalDeleteBtn = async(item) => {
+        setIsLoading(true);
+        
+        var idx;
+        if(gridMode === "DETAIL"){
+            idx = Number(item[2].value)
+            setIsGetGridModal(false);
+        }else{
+            idx = Number(item[4].value)
+            setIsPostGridModal(false);
+        }
+        const res = await Axios.DELETE(`notice/${idx}`)
+        
+        if(res?.data?.result === "Success") {
+            // 성공 모달
+            getNotices();
+        }else {
+            // 실패모달
+        }
+        
+        setGridMode("REMOVE")
+        setIsLoading(false);
 
+    }
 
     // [GridModal-Get] 공지사항 상세 X 버튼 클릭 이벤트
     const onClickGetGridModalExitBtn = () => {
@@ -175,33 +209,41 @@ const Notice = () => {
         setIsLoading(true);
         setGridMode(mode)
 
+        // TODO: 값을 모두 입력 안했을 경우, 저장버튼 못누르도록 고치기
         const notice = {
             sno: Number(item[1].value) || 0,
             title: item[0].value || "",
             content: item[3].value || "",
             show_yn: "Y",//item[2].value || "Y",
-            reg_uno: Number(user.userId) || 0,
+            reg_uno: Number(user.userId) || 0, // USER.USERID는 UNO와 다른 것임.
             reg_user: user.userName || ""
         }
 
         let res;
+        
         if (gridMode === "SAVE") {
             res = await Axios.POST(`/notice`, notice);
         } else {
+            notice.idx = item[4].value;
             res = await Axios.PUT(`/notice`, notice);
         }
-
+        
+        
         if (res?.data?.result === "Success") {
             //  모달에 성공 값
             console.log("성공");
             getNotices();
+
         } else {
             // 모달에 실패 값
             console.log("실패", res);
         }
 
         setIsLoading(false);
+        setDetail([]);
+        setData([]);
         setIsPostGridModal(false);
+       
         // 성공/실패 모달 띄우기
 
     }
@@ -222,7 +264,6 @@ const Notice = () => {
         } else if (res?.data?.result === "Failure") {
             // 실패 메시지
         }  
-        console.log(res)
 
         setIsLoading(false);
     }
@@ -259,21 +300,22 @@ const Notice = () => {
                 detailData={detail}
                 selectList
                 saveBtnClick//={"저장 누를때"}
-                removeBtnClick//={"삭제 누를때"}
+                removeBtnClick={onClickGridModalDeleteBtn}
 
             />
             <GridModal
                 isOpen={isPostGridModal}
                 gridMode={gridMode}
                 funcModeSet={onClickModeSet}
-                editBtn={false}
-                removeBtn={false}
-                title={`공지사항 kkk${getModeString()}`}
+                editBtn={true}
+                removeBtn={true}
+                title={`공지사항 ${getModeString()}`}
                 exitBtnClick={onClickPostGridModalExitBtn}
                 detailData={detail}
                 selectList={state.selectList}
                 saveBtnClick={onClickModalSave}
-                removeBtnClick//={"삭제 누를때"}
+                removeBtnClick={onClickGridModalDeleteBtn}
+                isCancle={false}
                 />
 
             <div>
@@ -320,9 +362,10 @@ const Notice = () => {
                                         </tr>
                                     ) : (
                                         state.notices.map((notice, idx) => (
+                                             
                                             // notice.show_yn === "Y" ? (
                                                 <tr key={idx} onClick={() => handleGetGridModal("DETAIL", notice)}>
-                                                    <td className="center">{state.count - notice.row_num + 1}</td> {/* 등록일 정렬로 인해 순번이 역순으로 출력되는 문제를 해결하기 위해, 전체 - row_num + 1 */}
+                                                    <td className="center">{state.count - notice.row_num + 1}{/* 등록일 정렬로 인해 순번이 역순으로 출력되는 문제를 해결하기 위해, 전체 - row_num + 1 */}</td>
                                                     <td className="center">{notice.loc_code}</td>
                                                     <td className="left px-4 ellipsis">{notice.site_nm}</td>
                                                     <td className="left px-4 ellipsis">{notice.title}</td>
