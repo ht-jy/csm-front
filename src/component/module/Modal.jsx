@@ -15,7 +15,6 @@ const Modal = ({isOpen, title, text, confirm, fncConfirm, cancel, fncCancel}) =>
     }
 
     useEffect(() => {
-        console.log("modal");
         if (isOpen) {
             document.body.style.overflow = "hidden";
 

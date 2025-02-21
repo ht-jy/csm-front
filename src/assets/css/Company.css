@@ -1,0 +1,18 @@
+.company-wrapper {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+  
+.company-wrapper.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.company-manager {
+    display: flex;
+    position: relative;
+    width: 1710px;
+    height: auto;
+    margin-bottom: 40px;
+}
