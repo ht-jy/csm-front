@@ -57,16 +57,16 @@ const CompanyInfo = ({jno, styles}) => {
                         <th colSpan={header.length+5}>협력업체</th>
                     </tr>
                     <tr>
-                        <th style={{width:"180px"}}>업체명</th>
-                        <th style={{width:"180px"}}>아이디</th>      
-                        <th style={{width:"180px"}}>사용자명</th>                                          
+                        <th style={{width:"230px"}}>업체명</th>
+                        <th style={{width:"160px"}}>아이디</th>      
+                        <th style={{width:"160px"}}>사용자명</th>                                          
                         <th style={{width:"180px"}}>휴대전화</th>
-                        <th style={{width:"180px"}}>이메일</th>
+                        <th style={{width:"200px"}}>이메일</th>
                         {
                             header.length === 0 ? null
                             :
                             header.map((item, idx) => (
-                                <th style={{width:"50px"}} key={idx}>{item.func_name}</th>
+                                <th style={{width:"70px"}} key={idx}>{item.func_name}</th>
                             ))
                         }
                     </tr>
@@ -81,9 +81,9 @@ const CompanyInfo = ({jno, styles}) => {
                         company.map((item, idx) => (
                             <tr key={idx}>
                                 <td>{item.comp_name_kr}</td>
-                                <td>{item.id}</td>
+                                <td className="center">{item.id}</td>
                                 <td>{item.worker_name}</td>
-                                <td>{item.cellphone}</td>
+                                <td className="center">{item.cellphone}</td>
                                 <td>{item.email}</td>
                                 {
                                     Array.from({length: header.length}, (_, i) => (
