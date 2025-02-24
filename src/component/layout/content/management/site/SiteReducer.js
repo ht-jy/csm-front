@@ -16,12 +16,12 @@ const SiteReducer = (state, action) => {
                 const projectLength = projectList?.length;
                 const rowSpan = projectLength > 1 ? projectList?.length + 1 : 1;
                 const originalOrderCompName = defaultProject?.order_comp_name ?? "";
-                const siteDate = site.site_date;
-                const orderCompName = originalOrderCompName
-                .replaceAll("(주)", "")
-                .replaceAll("㈜", "")
-                .replaceAll("주식회사", "");
-                const hasDailyItem = !!projectList?.[0]?.daily_content_list;
+                // const siteDate = site.site_date;
+                // const orderCompName = originalOrderCompName
+                // .replaceAll("(주)", "")
+                // .replaceAll("㈜", "")
+                // .replaceAll("주식회사", "");
+                // const hasDailyItem = !!projectList?.[0]?.daily_content_list;
                 const siteStatsColor = setColor(site.current_site_stats);
 
                 sites.push(
@@ -34,7 +34,7 @@ const SiteReducer = (state, action) => {
                     })
                 }
             });
-
+            
             return {...state, list: JSON.parse(JSON.stringify(sites)), code: JSON.parse(JSON.stringify(action.code))};
     }
 }
