@@ -26,8 +26,10 @@ import { ObjChk } from "../../utils/ObjChk";
  *  setActiveSearch: 검색창 활성화 리스트 set 함수
  *  resetTrigger: 검색어 초기화 트리거
  *  onSortChange: 정렬시 부모 컴포넌트 실행 함수
+ *  rowIndexName: 행클릭시 행의 정보를 구분할 열 이름
+ *  onClickRow: 행클릭 시 부모 컴포넌트 실행 함수 // 인자: ("DETAIL", 해당 행의 rowIndexName의 정보)
  */
-const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchChange, activeSearch, setActiveSearch, resetTrigger, onSortChange, styles }) => {
+const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchChange, activeSearch, setActiveSearch, resetTrigger, onSortChange, styles, rowIndexName, onClickRow  }) => {
     const [localSearchValues, setLocalSearchValues] = useState(searchValues); // 로컬 상태 유지
     const [orderState, setOrderState] = useState({}); // 각 컬럼별 정렬 상태 관리
     const [orderStateList, setOrderStateList] = useState([]);
@@ -35,7 +37,6 @@ const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchC
     // 정렬 아이콘 클릭 시 상태 변경 및 정렬 함수 실행
     const handleSortChange = (itemName) => {
         const newOrder = orderState[itemName] === "asc" ? "desc" : orderState[itemName] === "desc" ? null : "asc";
-        
         setOrderState((prev) => ({ ...prev, [itemName]: newOrder }));
 
         setOrderStateList((prevList) => {
@@ -211,7 +212,14 @@ const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchC
                     </tr>
                 ) : (
                     data.map((item, idx) => (
-                        <tr key={idx}>
+                        <tr key={idx}
+                            
+                            onClick={
+                                rowIndexName != null && onClickRow != null ?
+                                    () => onClickRow("DETAIL", item[rowIndexName]) : 
+                                   null
+                                }
+                            >
                             {columns.map(col => (
                                 <td
                                     key={col.itemName}

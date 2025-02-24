@@ -11,6 +11,7 @@ import Modal from "../../../../module/Modal";
 import Button from "../../../../module/Button";
 import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Paginate.css";
+import Table from "../../../../module/Table";
 
 /**
  * @description: 
@@ -26,6 +27,7 @@ import "../../../../../assets/css/Paginate.css";
  * - GridModal: 상세 화면 모달
  * - Modal: 알림 모달
  * - Button: 버튼
+ * - Table: 테이블
  * 
  * @additionalInfo
  * - API: 
@@ -39,10 +41,12 @@ const Device = () => {
         list: [],
         count: 0,
         selectList: {},
+        devices: [],
     });
 
     const { user } = useAuth();
 
+    const [order, setOrder] = useState("");
     const [pageNum, setPageNum] = useState(1);
     const [rowSize, setRowSize] = useState(10);
     const [isLoading, setIsLoading] = useState(false);
@@ -63,17 +67,86 @@ const Device = () => {
     ];
 
     const gridData = [
-        {type: "hidden", value: ""},
-        {type: "text", span: "double", label: "장치명", value: "" },
-        {type: "text", span: "double", label: "시리얼번호", value: "" },
-        {type: "select", span: "double", label: "현장이름", value: "", selectName: "siteNm" },
-        {type: "checkbox", span: "double", label: "사용여부", value: "" },
-        {type: "text", span: "full", label: "비고", value: "" },
+        { type: "hidden", value: "" },
+        { type: "text", span: "double", label: "장치명", value: "" },
+        { type: "text", span: "double", label: "시리얼번호", value: "" },
+        { type: "select", span: "double", label: "현장이름", value: "", selectName: "siteNm" },
+        { type: "checkbox", span: "double", label: "사용여부", value: "" },
+        { type: "text", span: "full", label: "비고", value: "" },
     ];
+
+    const columns = [
+        { header: "순번", width: "10px", itemName: "row_num", bodyAlign: "center", isSearch: false, isOrder: false, isDate: false, isEllipsis: false },
+        { header: "장치명", width: "60px", itemName: "device_nm", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: false },
+        { header: "시리얼번호", width: "80px", itemName: "device_sn", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: false },
+        { header: "현장이름", width: "150px", itemName: "site_nm", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
+        { header: "비고", width: "150px", itemName: "etc", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
+        { header: "사용여부", width: "50px", itemName: "is_use", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false },
+        { header: "최초 생성일시", width: "60px", itemName: "reg_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format" },
+        { header: "최종 수정일시", width: "60px", itemName: "mod_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format" },
+    ]
+
+    // 검색 필드 초기값
+    const defaultSearchValues = columns.reduce((acc, col) => {
+        if (col.isSearch) acc[col.itemName] = "";
+        return acc
+    }, {});
+
+    const [isSearchInit, setIsSearchInit] = useState(false);
+    const [isSearchReset, setIsSearchReset] = useState(false);
+    const [searchValues, setSearchValues] = useState(defaultSearchValues);
+    const [activeSearch, setActiveSearch] = useState(
+        columns.reduce((acc, col) => {
+            if (col.isSearch) acc[col.itemName] = false;
+            return acc
+        }, {})
+    );
+
+    // 검색 시 실행 함수
+    const handleTableSearch = () => {
+        setIsSearchInit(true);
+        getData();
+    }
+
+    // 검색 단어 갱신
+    const handleSearchChange = (field, value) => {
+        setSearchValues(prev => ({
+            ...prev,
+            [field]: value
+        }))
+    }
+
+    // 검색 초기화
+    const onClickSearchInit = () => {
+        setSearchValues(defaultSearchValues);
+        setActiveSearch(columns.reduce((acc, col) => {
+            if (col.isSearch) acc[col.itemName] = false;
+            return acc;
+        }, {}));
+
+        setIsSearchInit(false);
+        setIsSearchReset(true);
+    }
+
+    // 정렬 이벤트
+    const handleSortChange = (newOrder) => {
+        setOrder(newOrder);
+    }
+
+    // 상세페이지 클릭 시
+    const onClickRow = (mode, deviceRow) => {
+        const device = state.list.filter((device) => device.row_num === deviceRow);
+        handleGridModal(mode, ...device);
+        console.log(device);
+
+        console.log("list", state.list)
+        console.log("devi", state.devices)
+    }
+
 
     // 페이지네이션 버튼 클릭
     const handlePageClick = ({ selected }) => {
-        setPageNum(selected+1);
+        setPageNum(selected + 1);
     };
 
     // 리스트 개수 select 선택
@@ -95,12 +168,12 @@ const Device = () => {
             arr[4].value = item.is_use;
             arr[5].value = item.etc;
         }
-        
+
         setDetail(arr);
 
-        if(getSiteData()){
+        if (getSiteData()) {
             setIsGridModal(true);
-        }else{
+        } else {
             setIsGridModal(false);
         }
     }
@@ -112,7 +185,7 @@ const Device = () => {
     }
 
     // GridModal의 저장 버튼 이벤트 - (저장, 수정)
-    const onClicklModalSave = async(item, mode) => {
+    const onClicklModalSave = async (item, mode) => {
         setIsLoading(true);
         setGridMode(mode)
 
@@ -128,39 +201,38 @@ const Device = () => {
         }
 
         let res;
-        if(gridMode === "SAVE") {
+        if (gridMode === "SAVE") {
             res = await Axios.POST(`/device`, device);
-        }else{
-
+        } else {
             res = await Axios.PUT(`/device`, device);
         }
 
         if (res?.data?.result === "Success") {
             setIsMod(true);
             getData();
-        }else {
+        } else {
             setIsMod(false);
         }
 
-        setIsLoading(false);    
+        setIsLoading(false);
         setIsGridModal(false);
         setIsModal(true);
     }
 
     // GridModal의 삭제 버튼 이벤트
-    const onClickModalRemove = async(item) => {
+    const onClickModalRemove = async (item) => {
         setIsLoading(true);
         setGridMode("REMOVE")
 
-        const res = await Axios.DELETE(`/device/${item[0].value}`);        
+        const res = await Axios.DELETE(`/device/${item[0].value}`);
 
         if (res?.data?.result === "Success") {
             setIsMod(true);
             getData();
-        }else {
+        } else {
             setIsMod(false);
         }
-        
+
         setIsLoading(false);
         setIsGridModal(false);
         setIsModal(true);
@@ -173,7 +245,7 @@ const Device = () => {
 
     // Modal or GridModal 문구 출력
     const getModeString = () => {
-        switch(gridMode) {
+        switch (gridMode) {
             case "SAVE":
                 return "저장";
             case "DETAIL":
@@ -186,20 +258,19 @@ const Device = () => {
     }
 
     // 현장데이터 리스트 조회 - GridModal select 용도
-    const getSiteData = async() => {
+    const getSiteData = async () => {
         setIsLoading(true);
 
         const res = await Axios.GET(`/site-nm`);
-
         if (res?.data?.result === "Success") {
             dispatch({ type: "SITE_NM", list: res?.data?.values?.list });
-        }else if(res?.data?.result === "Failure") {
+        } else if (res?.data?.result === "Failure") {
             setIsModal2(true);
             setModal2Title("현장이름 조회");
             setModal2Text(`현장이름을 조회하는데 실패하였습니다. 잠시 후에  다시 시도하여 주시기 바랍니다.`);
             return false;
         }
-        
+
         setIsLoading(false);
         return true;
     }
@@ -208,41 +279,57 @@ const Device = () => {
     const getData = async () => {
         setIsLoading(true);
 
-        const res = await Axios.GET(`/device?page_num=${pageNum}&row_size=${rowSize}`);
+        let isUse = "";
+        if(searchValues.is_use === "사용 중"){
+            isUse = "Y";
+        }else if(searchValues.is_use==="사용안함"){
+            isUse = "N";
+        }
+        const res = await Axios.GET(`/device?page_num=${pageNum}&row_size=${rowSize}&order=${order}&device_nm=${searchValues.device_nm}&device_sn=${searchValues.device_sn}&site_nm=${searchValues.site_nm}&etc=${searchValues.etc}&is_use=${isUse}`);
 
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
-        }else if(res?.data?.result === "Failure") {
+        } else if (res?.data?.result === "Failure") {
+
             setIsModal2(true);
             setModal2Title("근태인식기 조회");
             setModal2Text("근태인식기를 조회하는데 실패하였습니다. 잠시 후에 다시 시도하여 주시기 바랍니다.");
         }
 
+
         setIsLoading(false);
     };
 
+    // 검색 단어 초기화 시
+    useEffect(() => {
+        if (isSearchReset) {
+            getData();
+            setIsSearchReset(false);
+        }
+
+    }, [isSearchReset])
     useEffect(() => {
         getData();
-    }, [pageNum, rowSize]);
+    }, [pageNum, rowSize, order]);
 
     return (
         <div>
             <Loading isOpen={isLoading} />
-            <Modal 
+            <Modal
                 isOpen={isModal}
                 title={`근태인식기 ${getModeString()}`}
                 text={`근태인식기 ${getModeString()}에 ${isMod ? "성공하였습니다." : "실패하였습니다."}`}
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
             />
-            <Modal 
+            <Modal
                 isOpen={isModal2}
                 title={modal2Title}
                 text={modal2Text}
                 confirm={"확인"}
                 fncConfirm={() => setIsModal2(false)}
             />
-            <GridModal 
+            <GridModal
                 isOpen={isGridModal}
                 gridMode={gridMode}
                 funcModeSet={onClickModeSet}
@@ -273,48 +360,32 @@ const Device = () => {
                                 placeholder={"몇줄 보기"}
                             />
                         </div>
-                        
+
                         <div className="table-header-right">
+                            {
+                                isSearchInit ? <Button text={"초기화"} onClick={onClickSearchInit} /> : null
+                            }
                             <Button text={"추가"} onClick={() => handleGridModal("SAVE")} />
                         </div>
                     </div>
-                    
+
                     <div className="table-wrapper">
                         <div className="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th style={{width: "70px"}}>순번</th>
-                                        <th style={{width: "160px"}}>장치명</th>
-                                        <th style={{width: "160px"}}>시리얼번호</th>
-                                        <th style={{width: "460px"}}>현장이름</th>
-                                        <th style={{width: "460px"}}>비고</th>
-                                        <th style={{width: "100px"}}>사용여부</th>
-                                        <th style={{width: "150px"}}>최초 생성일시</th>
-                                        <th style={{width: "150px"}}>최종 수정일시</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {state.list.length === 0 ? (
-                                        <tr>
-                                            <td className="center" colSpan={8}>등록된 근태인식기가 없습니다.</td>
-                                        </tr>
-                                    ) : (
-                                        state.list.map((item, idx) => (
-                                            <tr key={idx} onClick={() => handleGridModal("DETAIL", item)}>
-                                                <td className="center">{item.row_num}</td>
-                                                <td className="left">{item.device_nm}</td>
-                                                <td className="left">{item.device_sn}</td>
-                                                <td className="left ellipsis" style={{maxWidth: "460px"}}>{item.site_nm}</td>
-                                                <td className="left ellipsis" style={{maxWidth: "460px"}}>{item.etc}</td>
-                                                <td className="center">{item.is_use === "Y" ? "사용중" : "사용안함"}</td>
-                                                <td className="center">{dateUtil.format(item.reg_date, "yyyy-MM-dd")}</td>
-                                                <td className="center">{dateUtil.format(item.mod_date, "yyyy-MM-dd")}</td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
+
+                            <Table
+                                columns={columns}
+                                data={state.devices}
+                                searchValues={searchValues}
+                                onSearch={handleTableSearch}
+                                onSearchChange={handleSearchChange}
+                                activeSearch={activeSearch}
+                                setActiveSearch={setActiveSearch}
+                                resetTrigger={isSearchReset}
+                                onSortChange={handleSortChange}
+                                rowIndexName={"row_num"}
+                                onClickRow={onClickRow}
+                            />
+
                         </div>
                     </div>
 

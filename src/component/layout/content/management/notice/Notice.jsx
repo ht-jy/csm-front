@@ -11,6 +11,8 @@ import Modal from "../../../../module/Modal";
 import Loading from "../../../../module/Loading";
 import NoticeReducer from "./NoticeReducer";
 import { useAuth } from "../../../../context/AuthContext";
+import Table from "../../../../module/Table";
+
 
 /**
  * @description: 공지사항 CRUD
@@ -26,6 +28,7 @@ import { useAuth } from "../../../../context/AuthContext";
  * - GridModal: 공지사항 상세, 추가, 수정
  * - Modal: 알림 모달
  * - Loading: 로딩
+ * - Table: 테이블
  * 
  * @additionalInfo
  * - API: 
@@ -34,7 +37,7 @@ import { useAuth } from "../../../../context/AuthContext";
  *    Http Method - PUT : /notice (근태인식기 수정)
  *    Http Method - DELETE :  /notice/${idx} (근태인식기 삭제)
  * - 주요 상태 관리: useReducer, useState
- */
+*/
 
 const Notice = () => {
 
@@ -46,18 +49,26 @@ const Notice = () => {
 
     const { user } = useAuth();
 
-    const [pageNum, setPageNum] = useState(1);
-    const [rowSize, setRowSize] = useState(10);
+
+    // [GridModal]
+    const [data, setData] = useState([]);
+    const [detail, setDetail] = useState([]);
+    const [gridMode, setGridMode] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isGetGridModal, setIsGetGridModal] = useState(false);
     const [isPostGridModal, setIsPostGridModal] = useState(false);
-    const [gridMode, setGridMode] = useState("");
-    const [detail, setDetail] = useState([]);
-    const [data, setData] = useState([]);
-    const [isOpenModal, setIsOpenModal] = useState(false);
+
+    // [Modal]
     const [isMod, setIsMod] = useState(true);
-    const [isValidation, setIsValidation] = useState(true);
     const [modalText, setModalText] = useState("")
+    const [isOpenModal, setIsOpenModal] = useState(false);
+    const [isValidation, setIsValidation] = useState(true);
+
+    // [페이지]
+    const [order, setOrder] = useState("");
+    const [pageNum, setPageNum] = useState(1);
+    const [rowSize, setRowSize] = useState(10);
+
 
     const options = [
         { value: 5, label: "5줄 보기" },
@@ -66,6 +77,34 @@ const Notice = () => {
         { value: 20, label: "20줄 보기" },
     ]
 
+    // [테이블]
+    const columns = [
+        { header: "순번", width: "10px", itemName: "row_num", bodyAlign: "center", isSearch: false, isOrder: false, isDate: false, isEllipsis: false },
+        { header: "지역", width: "30px", itemName: "loc_code", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false },
+        { header: "현장", width: "120px", itemName: "site_nm", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
+        { header: "제목", width: "250px", itemName: "title", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
+        { header: "등록자", width: "60px", itemName: "reg_user", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false },
+        { header: "등록일", width: "60px", itemName: "reg_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format" },
+    ]
+
+
+    const defaultSearchValues = columns.reduce((acc, col) => {
+        if (col.isSearch) acc[col.itemName] = "";
+        return acc
+    }, {});
+
+    const [isSearchInit, setIsSearchInit] = useState(false);
+    const [isSearchReset, setIsSearchReset] = useState(false);
+    const [searchValues, setSearchValues] = useState(defaultSearchValues);
+    const [activeSearch, setActiveSearch] = useState(
+        columns.reduce((acc, col) => {
+            if (col.isSearch) acc[col.itemName] = false;
+            return acc;
+        }, {})
+    );
+
+
+    // [GridModal]
     const gridGetData = [
         { type: "html", span: "full", label: "", value: "" },
         { type: "html", span: "full", label: "", value: "" },
@@ -93,6 +132,68 @@ const Notice = () => {
         }
     }
 
+    // [테이블] 검색
+    const handleTableSearch = () => {
+        setIsSearchInit(true);
+        getNotices();
+    }
+
+    // [테이블] 검색 단어 갱신
+    const handleSearchChange = (field, value) => {
+        setSearchValues(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    }
+
+    // [테이블] 검색 초기화
+    const onClickSearchInit = () => {
+
+        setSearchValues(defaultSearchValues);
+        setActiveSearch(columns.reduce((acc, col) => {
+            if (col.isSearch) acc[col.itemName] = false;
+            return acc;
+        }, {}));
+
+        setIsSearchInit(false);
+        setIsSearchReset(true);
+    }
+
+    // [테이블] 정렬 이벤트
+    const handleSortChange = (newOrder) => {
+        setOrder(newOrder);
+    }
+
+    // [테이블] 행의 개수 선택
+    const onChangeSelect = (e) => {
+        setRowSize(e.value);
+        setPageNum(1);
+    }
+
+    // [테이블] 행 클릭 시 상세페이지 
+    const onClickRow = (mode, noticeRow) => {
+        setGridMode(mode);
+        const notice = state.notices.filter(notice => notice.row_num === noticeRow);
+        setData(notice);
+        handleGetGridModal("DETAIL", ...notice);
+    }
+
+
+    // [데이터] 공지사항 전체 조회
+    const getNotices = async () => {
+        setIsLoading(true);
+
+        const res = await Axios.GET(`/notice?page_num=${pageNum}&row_size=${rowSize}&order=${order}&&loc_code=${searchValues.loc_code}&site_nm=${searchValues.site_nm}&title=${searchValues.title}&reg_user=${searchValues.reg_user}`);
+        if (res?.data?.result === "Success") {
+            dispatch({ type: "INIT", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
+        } else if (res?.data?.result === "Failure") {
+            setIsMod(false);
+            setIsOpenModal(true);
+        }
+        setIsLoading(false);
+
+    }
+
     // [GridModal-Post] 공지사항 수정, 등록
     const handlePostGridModal = (mode, notice) => {
         setGridMode(mode);
@@ -106,12 +207,12 @@ const Notice = () => {
 
         // string content = notice.content;
         if (mode === "EDIT") {
-
             arr[0].value = notice.title;
             arr[1].value = notice.sno;
             //            arr[2].value = notice.show_yn;
             arr[3].value = notice.content;
             arr[4].value = notice.idx;
+            console.log("notice", notice)
         }
 
         setDetail(arr);
@@ -121,8 +222,6 @@ const Notice = () => {
 
     // [GridModal-Get] 공지사항 상세
     const handleGetGridModal = (mode, notice) => {
-        setGridMode(mode);
-        setData([notice]);
 
         const arr = [...gridGetData]
 
@@ -156,6 +255,7 @@ const Notice = () => {
 
         setDetail(arr);
         setIsGetGridModal(true);
+
     }
 
     // [GridModal] gridMode props 변경 이벤트
@@ -242,8 +342,9 @@ const Notice = () => {
                 sno: Number(item[1].value) || 0,
                 title: item[0].value || "",
                 content: item[3].value || "",
+                // FIXME: auth에 uno 정보 넣으면..
                 show_yn: "Y", //item[2].value || "Y",
-                reg_uno: Number(user.userId) || 0, // USER.USERID는 UNO와 다른 것임.
+                // reg_uno: Number(user.uno) || 0,
                 reg_user: user.userName || ""
             }
 
@@ -253,6 +354,8 @@ const Notice = () => {
                 res = await Axios.POST(`/notice`, notice);
             } else {
                 notice.idx = item[4].value;
+                notice.mod_user = user.userName || "";
+                // notice.mod_uno = Number(user.uno) || 0;
                 res = await Axios.PUT(`/notice`, notice);
             }
 
@@ -273,43 +376,34 @@ const Notice = () => {
 
     }
 
-    // [테이블] 행의 개수 선택
-    const onChangeSelect = (e) => {
-        setRowSize(e.value);
-        setPageNum(1);
-    }
-
-    // [데이터] 공지사항 전체 조회
-    const getNotices = async () => {
-        setIsLoading(true);
-
-        const res = await Axios.GET(`/notice?page_num=${pageNum}&row_size=${rowSize}`);
-        if (res?.data?.result === "Success") {
-            dispatch({ type: "INIT", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
-        } else if (res?.data?.result === "Failure") {
-            // 실패 메시지
-        }
-
-        setIsLoading(false);
-    }
-
     // [페이지] > 이동 버튼 클릭 시
     const handlePageClick = ({ selected }) => {
         setPageNum(selected + 1);
     }
 
-    // [페이지] 페이지, 행크기 변경 시
+    // [테이블] 단어 검색 초기화 시
     useEffect(() => {
-        getNotices();
-    }, [pageNum, rowSize])
+        if (isSearchReset) {
+            getNotices();
+            setIsSearchReset(false);
+        }
+
+    }, [isSearchReset])
 
     // [GridModal] 모드 변경 시
     useEffect(() => {
         if (gridMode === "EDIT") {
+            console.log(data[0])
             setIsGetGridModal(false);
             handlePostGridModal("EDIT", data[0]);
         }
+
     }, [gridMode])
+
+    // [페이지] 페이지, 행크기, 정렬 변경 시
+    useEffect(() => {
+        getNotices();
+    }, [pageNum, rowSize, order])
 
     return (
         <div>
@@ -348,7 +442,7 @@ const Notice = () => {
                 text={isValidation ? (isMod ? "성공하였습니다." : "실패하였습니다.") : modalText}
                 confirm={"확인"}
                 fncConfirm={() => setIsOpenModal(false)}
-            ></Modal>
+            />
 
             <div>
                 <div className="container-fluid px-4">
@@ -370,50 +464,32 @@ const Notice = () => {
                         </div>
 
                         <div className="table-header-right">
+                            {
+                                isSearchInit ? <Button text={"초기화"} onClick={onClickSearchInit} /> : null
+                            }
                             <Button text={"등록"} onClick={() => handlePostGridModal("SAVE")}></Button>
                         </div>
                     </div>
 
                     <div className="table-wrapper">
                         <div className="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th style={{ width: "80px" }}>순번</th>
-                                        <th style={{ width: "80px" }}>지역</th>
-                                        <th className="ellipsis" style={{ width: "200px" }}>현장</th>
-                                        <th                        >제목</th>
-                                        <th style={{ width: "100px" }}>등록자</th>
-                                        <th style={{ width: "140px" }}>등록일</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {state.notices.length === 0 ? (
-                                        <tr>
-                                            <td className="center" colSpan={6}>등록된 공지사항이 없습니다.</td>
-                                        </tr>
-                                    ) : (
-                                        state.notices.map((notice, idx) => (
-
-                                            // notice.show_yn === "Y" ? (
-                                            <tr key={idx} onClick={() => handleGetGridModal("DETAIL", notice)}>
-                                                <td className="center">{state.count - notice.row_num + 1}{/* 등록일 정렬로 인해 순번이 역순으로 출력되는 문제를 해결하기 위해, 전체 - row_num + 1 */}</td>
-                                                <td className="center">{notice.loc_code}</td>
-                                                <td className="left px-4 ellipsis">{notice.site_nm}</td>
-                                                <td className="left px-4 ellipsis">{notice.title}</td>
-                                                <td className="center">{notice.reg_user}</td>
-                                                <td className="center">{dateUtil.format(notice.reg_date, "yyyy-MM-dd")}</td>
-                                            </tr>
-                                            // ) : null
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-
+                            <Table
+                                columns={columns}
+                                data={state.notices}
+                                searchValues={searchValues}
+                                onSearch={handleTableSearch}
+                                onSearchChange={handleSearchChange}
+                                activeSearch={activeSearch}
+                                setActiveSearch={setActiveSearch}
+                                resetTrigger={isSearchReset}
+                                onSortChange={handleSortChange}
+                                rowIndexName={"row_num"}
+                                onClickRow={onClickRow}
+                            />
                         </div>
                     </div>
 
-                    {/* TODO: 페이지가 항상 아래쪽에 위치하도록 */}
+                    {/* TODO: 페이지가 항상 아래 쪽에 위치하도록 */}
                     <div className="pagination-container">
                         <ReactPaginate
                             previousLabel={"<"}
