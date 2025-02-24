@@ -41,6 +41,7 @@ const Device = () => {
         list: [],
         count: 0,
         selectList: {},
+        devices: [],
     });
 
     const { user } = useAuth();
@@ -132,9 +133,14 @@ const Device = () => {
         setOrder(newOrder);
     }
 
+    // 상세페이지 클릭 시
     const onClickRow = (mode, deviceRow) => {
-        const device = state.list.filter((device) => device.row_num == deviceRow);
+        const device = state.list.filter((device) => device.row_num === deviceRow);
         handleGridModal(mode, ...device);
+        console.log(device);
+
+        console.log("list", state.list)
+        console.log("devi", state.devices)
     }
 
 
@@ -198,7 +204,6 @@ const Device = () => {
         if (gridMode === "SAVE") {
             res = await Axios.POST(`/device`, device);
         } else {
-
             res = await Axios.PUT(`/device`, device);
         }
 
@@ -257,7 +262,6 @@ const Device = () => {
         setIsLoading(true);
 
         const res = await Axios.GET(`/site-nm`);
-
         if (res?.data?.result === "Success") {
             dispatch({ type: "SITE_NM", list: res?.data?.values?.list });
         } else if (res?.data?.result === "Failure") {
@@ -275,11 +279,13 @@ const Device = () => {
     const getData = async () => {
         setIsLoading(true);
 
-        if(searchValues.is_use){
-            // 사용 중인 경우 Y 사용중이 아닌 경우 N으로 변경
+        let isUse = "";
+        if(searchValues.is_use === "사용 중"){
+            isUse = "Y";
+        }else if(searchValues.is_use==="사용안함"){
+            isUse = "N";
         }
-
-        const res = await Axios.GET(`/device?page_num=${pageNum}&row_size=${rowSize}&order=${order}&device_nm=${searchValues.device_nm}&device_sn=${searchValues.device_sn}&site_nm=${searchValues.site_nm}&etc=${searchValues.etc}&is_use=${searchValues.is_use}`);
+        const res = await Axios.GET(`/device?page_num=${pageNum}&row_size=${rowSize}&order=${order}&device_nm=${searchValues.device_nm}&device_sn=${searchValues.device_sn}&site_nm=${searchValues.site_nm}&etc=${searchValues.etc}&is_use=${isUse}`);
 
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
@@ -289,6 +295,7 @@ const Device = () => {
             setModal2Title("근태인식기 조회");
             setModal2Text("근태인식기를 조회하는데 실패하였습니다. 잠시 후에 다시 시도하여 주시기 바랍니다.");
         }
+
 
         setIsLoading(false);
     };
@@ -367,7 +374,7 @@ const Device = () => {
 
                             <Table
                                 columns={columns}
-                                data={state.list}
+                                data={state.devices}
                                 searchValues={searchValues}
                                 onSearch={handleTableSearch}
                                 onSearchChange={handleSearchChange}

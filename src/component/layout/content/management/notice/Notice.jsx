@@ -173,7 +173,7 @@ const Notice = () => {
     // [테이블] 행 클릭 시 상세페이지 
     const onClickRow = (mode, noticeRow) => {
         setGridMode(mode);
-        const notice = state.notices.filter(notice => notice.row_num == noticeRow);
+        const notice = state.notices.filter(notice => notice.row_num === noticeRow);
         setData(notice);
         handleGetGridModal("DETAIL", ...notice);
     }
