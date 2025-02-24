@@ -5,6 +5,7 @@ import ExitIcon from "../../assets/image/exit.png";
 import SortIcon from "../../assets/image/sort-icon.png";
 import UpIcon from "../../assets/image/up-icon.png";
 import DownIcon from "../../assets/image/down-icon.png";
+import { ObjChk } from "../../utils/ObjChk";
 
 /**
  * @description: 
@@ -16,7 +17,7 @@ import DownIcon from "../../assets/image/down-icon.png";
  * @additionalInfo
  * - props
  *  columns: 테이블 th/td 설정 리스트
- *      [{isSearch: true|false(검색여부), width: th/td size, header: th 제목/input placeholder , itemName: 실제값 명칭, bodyAlign: "center"|"left"|"right"(td align), isEllipsis: true|false(td 줄임말(...)여부), isOrder: true|false(정렬여부), isDate: true|false(날짜필드여부), dateFormat: (dateUtils 기준)}, ...]
+ *      [{isSearch: true|false(검색여부), width: th/td size, header: th 제목/input placeholder , itemName: 실제값 명칭, isItemSplit: true|false(여러 아이템 사용여부. '|' split 하여 ' ' 공백으로 연결), bodyAlign: "center"|"left"|"right"(td align), isEllipsis: true|false(td 줄임말(...)여부), isOrder: true|false(정렬여부), isDate: true|false(날짜필드여부), dateFormat: (dateUtils 기준)}, ...]
  *  data: 실제 값 리스트
  *  searchValues={}: 검색 필드 객체
  *  onSearch: 검색 시 부모 컴포넌트 실행 함수(검색input에서 enter 입력시 실행)
@@ -28,7 +29,7 @@ import DownIcon from "../../assets/image/down-icon.png";
  *  rowIndexName: 행클릭시 행의 정보를 구분할 열 이름
  *  onClickRow: 행클릭 시 부모 컴포넌트 실행 함수 // 인자: ("DETAIL", 해당 행의 rowIndexName의 정보)
  */
-const Table = ({ columns, data, searchValues={}, onSearch, onSearchChange, activeSearch, setActiveSearch, resetTrigger, onSortChange, rowIndexName, onClickRow }) => {
+const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchChange, activeSearch, setActiveSearch, resetTrigger, onSortChange, styles, rowIndexName, onClickRow  }) => {
     const [localSearchValues, setLocalSearchValues] = useState(searchValues); // 로컬 상태 유지
     const [orderState, setOrderState] = useState({}); // 각 컬럼별 정렬 상태 관리
     const [orderStateList, setOrderStateList] = useState([]);
@@ -86,7 +87,9 @@ const Table = ({ columns, data, searchValues={}, onSearch, onSearchChange, activ
 
     // 부모 컴포넌트에 정렬 값 전달
     useEffect(() => {
-        onSortChange(convertToQueryString(orderStateList).toUpperCase());
+        if(onSortChange !== undefined){
+            onSortChange(convertToQueryString(orderStateList).toUpperCase());
+        }
     }, [orderStateList]);
 
     // 부모 컴포넌트에 검색 값 전달
@@ -95,7 +98,7 @@ const Table = ({ columns, data, searchValues={}, onSearch, onSearchChange, activ
     }, [resetTrigger]);
 
     return (
-        <table>
+        <table style={{...styles}}>
             <thead>
                 <tr>
                     {columns.map(col => (
@@ -198,7 +201,14 @@ const Table = ({ columns, data, searchValues={}, onSearch, onSearchChange, activ
             <tbody>
                 {data.length === 0 ? (
                     <tr>
-                        <td className="center" colSpan={columns.length}>등록된 데이터가 없습니다.</td>
+                        <td className="center" colSpan={columns.length}>
+                            {
+                                ObjChk.all(noDataText) ?
+                                    "등록된 데이터가 없습니다."
+                                :
+                                    noDataText
+                            }
+                        </td>
                     </tr>
                 ) : (
                     data.map((item, idx) => (
@@ -219,7 +229,12 @@ const Table = ({ columns, data, searchValues={}, onSearch, onSearchChange, activ
                                     {
                                         col.isDate ?
                                             formatDate(item[col.itemName], col.dateFormat)
-                                        :  item[col.itemName]
+                                        : col.isItemSplit ? 
+                                            col.itemName
+                                            .split("|")
+                                            .map(itemName => item[itemName])
+                                            .join(' ')
+                                        : item[col.itemName]
                                     }
                                 </td>
                             ))}

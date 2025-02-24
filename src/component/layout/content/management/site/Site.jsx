@@ -168,7 +168,7 @@ const Site = () => {
                                     :
                                         <tr key={idx}>
                                             {/* 현장 */}
-                                            <td className="left ellipsis" style={{maxWidth:'390px'}}>{item.project_nm}</td>
+                                            <td className="left ellipsis" style={{maxWidth:'390px'}}><li>{item.project_nm}</li></td>
                                             {/* 공사 */}
                                             <td className="right">150</td>
                                             {/* 안전 */}

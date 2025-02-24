@@ -11,7 +11,7 @@ function ContentLayout() {
                 <SideNav />
                 <div id="layoutSidenav_content">
                     <Outlet />
-                    <Footer />
+                    {/* <Footer /> */}
                 </div>
             </div> 
         </>
