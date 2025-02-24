@@ -79,7 +79,7 @@ const Notice = () => {
 
     // [테이블]
     const columns = [
-        { header: "순번", width: "10px", itemName: "row_num", bodyAlign: "center", isSearch: false, isOrder: true, isDate: false, isEllipsis: false },
+        { header: "순번", width: "10px", itemName: "row_num", bodyAlign: "center", isSearch: false, isOrder: false, isDate: false, isEllipsis: false },
         { header: "지역", width: "30px", itemName: "loc_code", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false },
         { header: "현장", width: "120px", itemName: "site_nm", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
         { header: "제목", width: "250px", itemName: "title", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
@@ -342,6 +342,7 @@ const Notice = () => {
                 sno: Number(item[1].value) || 0,
                 title: item[0].value || "",
                 content: item[3].value || "",
+                // FIXME: auth에 uno 정보 넣으면..
                 show_yn: "Y", //item[2].value || "Y",
                 // reg_uno: Number(user.uno) || 0,
                 reg_user: user.userName || ""

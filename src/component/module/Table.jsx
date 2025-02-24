@@ -36,7 +36,6 @@ const Table = ({ columns, data, searchValues={}, onSearch, onSearchChange, activ
     // 정렬 아이콘 클릭 시 상태 변경 및 정렬 함수 실행
     const handleSortChange = (itemName) => {
         const newOrder = orderState[itemName] === "asc" ? "desc" : orderState[itemName] === "desc" ? null : "asc";
-        
         setOrderState((prev) => ({ ...prev, [itemName]: newOrder }));
 
         setOrderStateList((prevList) => {
@@ -206,7 +205,7 @@ const Table = ({ columns, data, searchValues={}, onSearch, onSearchChange, activ
                         <tr key={idx}
                             
                             onClick={
-                                rowIndexName != null ?
+                                rowIndexName != null && onClickRow != null ?
                                     () => onClickRow("DETAIL", item[rowIndexName]) : 
                                    null
                                 }
