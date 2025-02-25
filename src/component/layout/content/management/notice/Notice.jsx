@@ -205,14 +205,13 @@ const Notice = () => {
             arr[3].value = "";
         }
 
-        // string content = notice.content;
         if (mode === "EDIT") {
             arr[0].value = notice.title;
             arr[1].value = notice.sno;
-            //            arr[2].value = notice.show_yn;
+            //            arr[2].value = notice.show_yn; // TODO: 공개범위 설정
             arr[3].value = notice.content;
             arr[4].value = notice.idx;
-            console.log("notice", notice)
+
         }
 
         setDetail(arr);
@@ -251,6 +250,7 @@ const Notice = () => {
             arr[1].value = `<div class="overflow-auto Scrollbar" style="white-space:pre; height: 28rem; padding: 0.5rem">${notice.content}</div>`;
             arr[2].value = notice.idx;
             // TODO: 권한 있는 사람에게만 수정 삭제 보이도록 고쳐야함.
+
         }
 
         setDetail(arr);
@@ -342,9 +342,8 @@ const Notice = () => {
                 sno: Number(item[1].value) || 0,
                 title: item[0].value || "",
                 content: item[3].value || "",
-                // FIXME: auth에 uno 정보 넣으면..
                 show_yn: "Y", //item[2].value || "Y",
-                // reg_uno: Number(user.uno) || 0,
+                reg_uno: Number(user.uno) || 0,
                 reg_user: user.userName || ""
             }
 
@@ -355,7 +354,7 @@ const Notice = () => {
             } else {
                 notice.idx = item[4].value;
                 notice.mod_user = user.userName || "";
-                // notice.mod_uno = Number(user.uno) || 0;
+                notice.mod_uno = Number(user.uno) || 0;
                 res = await Axios.PUT(`/notice`, notice);
             }
 
@@ -393,11 +392,9 @@ const Notice = () => {
     // [GridModal] 모드 변경 시
     useEffect(() => {
         if (gridMode === "EDIT") {
-            console.log(data[0])
             setIsGetGridModal(false);
             handlePostGridModal("EDIT", data[0]);
         }
-
     }, [gridMode])
 
     // [페이지] 페이지, 행크기, 정렬 변경 시

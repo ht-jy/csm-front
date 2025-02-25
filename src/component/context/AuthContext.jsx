@@ -15,12 +15,12 @@ export const AuthProvider = ({ children }) => {
             if (res?.data?.result === "Success") {
                 setIsAuthenticated(true);
                 setUser({
+                    uno: res?.data?.values?.claims?.uno,
                     userId: res?.data?.values?.claims?.user_id,
                     userName: res?.data?.values?.claims?.user_name,
                     role: res?.data?.values?.claims?.role,
                 });
-                // TODO: auth에 uno오도록!
-                // console.log(res?.data?.values?.claims);
+
             } else {
                 setIsAuthenticated(false);
                 setUser(null);
