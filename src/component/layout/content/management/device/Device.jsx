@@ -137,10 +137,6 @@ const Device = () => {
     const onClickRow = (mode, deviceRow) => {
         const device = state.list.filter((device) => device.row_num === deviceRow);
         handleGridModal(mode, ...device);
-        console.log(device);
-
-        console.log("list", state.list)
-        console.log("devi", state.devices)
     }
 
 
