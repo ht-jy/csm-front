@@ -1,10 +1,45 @@
+/* 부모 컨테이너: 상대적 위치 지정 */
+.pagination-wrapper {
+  position: relative;             /* 자식 요소의 absolute 기준점 */
+  display: flex;
+  justify-content: flex-start;    /* 텍스트는 왼쪽 정렬 */
+  align-items: center;
+  width: 100%;
+  height: 60px;
+  overflow-x: hidden;
+}
+
+/* 왼쪽 정렬 텍스트 */
+.pagination-info {
+  font-size: 16px;
+  color: #333;
+  white-space: nowrap;            /* 줄바꿈 방지 */
+  flex-shrink: 0;                 /* 공간 부족 시 축소 방지 */
+  padding-left: 10px;
+}
+
+@media (max-width: 1020px) {
+  .pagination-info {
+    display: none;               /* 화면이 작아지면 텍스트 숨김 */
+  }
+}
+
+/* 페이지네이션을 부모 기준으로 정확히 중앙 정렬 */
+.pagination-container {
+  position: absolute;             /* 부모 기준으로 절대 위치 지정 */
+  left: 50%;                      /* 수평 중앙 정렬 시작 */
+  transform: translateX(-50%);    /* 정확한 중앙 정렬 완성 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
 .pagination {
   display: flex;
   justify-content: center;
-  width: 100%; /*  테이블과 같은 너비 유지 */
-  margin-top: 15px; /*  테이블과의 간격 */
+  margin: 0 2px;
 }
-
 
 .pagination li {
   margin: 2px;
@@ -16,17 +51,20 @@
   min-width: 35px;
   border-radius: 5px;
   font-size: 16px;
-  position: relative; /* 부모 요소로 설정 */
 }
 
 .pagination li a {
   display: block;
   width: 100%;
   height: 100%;
-  padding: 8px; /* 클릭 가능 영역 확대 */
+  padding: 8px;
   text-align: center;
   text-decoration: none;
   color: inherit;
+}
+
+.pagination li:hover:not(.disabled) {
+  background-color: #c0c0c0;
 }
 
 .pagination .active {
@@ -35,7 +73,37 @@
   border-radius: 5px;
 }
 
+.pagination .active:hover:not(.disabled) {
+  background-color: #007bff;
+}
+
 .pagination .disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 페이지네이션 버튼 일관성 유지 */
+.custom-nav-btn {
+  padding: 0px;
+  margin: 0 0px;
+  background-color: transparent;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 41.6px;
+  width: 33.4px;
+  color: inherit;
+}
+
+.custom-nav-btn:hover:not(.disabled) {
+  background-color: #c0c0c0;
+}
+
+.custom-nav-btn.disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
