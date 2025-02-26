@@ -52,10 +52,10 @@
 }
 
 /* 이전/다음 달 날짜를 연한 회색으로 표시 */
-.neighboring-month {
+ .neighboring-month { 
     color: #bbb !important;
     opacity: 0.5 !important;
-    pointer-events: none; /* 클릭되지 않도록 설정 */
+    /* pointer-events: none; 클릭되지 않도록 설정 */
 }
 
 /* 날짜 기본 스타일 */

@@ -1,0 +1,50 @@
+/* input[type="date"]::-webkit-clear-button  */
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+}
+
+input[type="date"]::-webkit-inner-spin-button { 
+    display: none;
+} 
+
+.date-input {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 5px;
+    margin-left: 5px;
+    cursor: pointer;
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 4px 8px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: all 0.2s ease-in-out;
+}
+
+/* 선택한 날짜 hover 효과 */
+.date-input:hover {
+    background: #e9ecef;
+    border-color: #bbb;
+    color: #007bff;
+}
+
+/* 선택한 날짜 클릭 시 활성화 효과 */
+.date-input:active {
+    background: #dae0e5;
+    border-color: #aaa;
+}
+
+.inputBox {
+    border:0px transparent;
+    background-color: transparent;
+    margin: 2px;
+    text-align: left;
+}
+
+.imgIcon {
+    width: 20px;
+    height: 20px;
+}

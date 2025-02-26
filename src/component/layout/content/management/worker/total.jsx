@@ -13,7 +13,9 @@ import "react-calendar/dist/Calendar.css";
 import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Paginate.css";
 import "../../../../../assets/css/Calendar.css";
-
+import CalendarIcon from "../../../../../assets/image/calendar-icon.png";
+import DateInput from "../../../../module/DateInput";
+import { Tab } from "bootstrap";
 
 /**
  * @description: 전체 근로자 관리
@@ -46,8 +48,8 @@ const Total = () => {
     const [pageNum, setPageNum] = useState(1);
     const [rowSize, setRowSize] = useState(10);
     const [order, setOrder] = useState("");
-    const [searchTime, setSearchTime] = useState(dateUtil.now());
-    const [showCalendar, setShowCalendar] = useState(false);
+    const [searchStartTime, setSearchStartTime] = useState(dateUtil.now());
+    const [searchEndTime, setSearchEndTime] = useState(dateUtil.now());
     const [isLoading, setIsLoading] = useState(false);
     const [isModal, setIsModal] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
@@ -97,12 +99,6 @@ const Total = () => {
         setPageNum(1);
     };
 
-    // 날짜 선택 시 캘린더 숨기기
-    const handleDateChange = (date) => {
-        setSearchTime(dateUtil.format(date));
-        setShowCalendar(false);
-    };
-
     // 테이블 검색 단어 갱신
     const handleSearchChange = (field, value) => {
         setSearchValues(prev => ({
@@ -138,7 +134,7 @@ const Total = () => {
     const getData = async () => {
         setIsLoading(true);
         
-        const res = await Axios.GET(`/worker/total?page_num=${pageNum}&row_size=${rowSize}&order=${order}&search_time=${searchTime}&site_nm=${searchValues.site_nm}&job_name=${searchValues.job_name}&user_nm=${searchValues.user_nm}&department=${searchValues.department}`);
+        const res = await Axios.GET(`/worker/total?page_num=${pageNum}&row_size=${rowSize}&order=${order}&search_time=${searchStartTime}&site_nm=${searchValues.site_nm}&job_name=${searchValues.job_name}&user_nm=${searchValues.user_nm}&department=${searchValues.department}`);
         
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
@@ -150,7 +146,7 @@ const Total = () => {
     // 페이지, 리스트 수, 검색날짜, 정렬 변경시
     useEffect(() => {
         getData();
-    }, [pageNum, rowSize, searchTime, order]);
+    }, [pageNum, rowSize, searchStartTime, order]);
 
     // 테이블 단어 검색시
     useEffect(() => {
@@ -159,6 +155,20 @@ const Total = () => {
             setIsSearchReset(false);
         }
     }, [isSearchReset]);
+
+    // 시작 날짜보다 끝나는 날짜가 빠를 시 : 끝나는 날짜를 변경한 경우 (시작 날짜를 끝나는 날짜로)
+    useEffect(() => {
+        if(searchStartTime > searchEndTime){
+            setSearchStartTime(searchEndTime)
+        }
+    }, [searchEndTime]);
+    
+    // 시작 날짜보다 끝나는 날짜가 빠를 시 : 시작 날짜를 변경한 경우 (끝나는 날짜를 시작 날짜로)
+    useEffect(() => {
+        if(searchStartTime > searchEndTime){
+            setSearchEndTime(searchStartTime)
+        }
+    }, [searchStartTime]);
 
     return(
         <div>
@@ -188,35 +198,8 @@ const Total = () => {
                                 placeholder={"몇줄 보기"}
                             />
 
-                            <div className="calendar-wrapper">
-                                <p
-                                    onClick={() => setShowCalendar((prev) => !prev)}
-                                    className="selected-date"
-                                >
-                                    선택한 날짜: <b>{searchTime}</b>
-                                </p>
-                                {showCalendar && (
-                                    <div className="calendar-popup">
-                                        <Calendar 
-                                            onChange={handleDateChange} 
-                                            value={searchTime} 
-                                            locale="ko" 
-                                            calendarType="hebrew" 
-                                            tileClassName={({ date, view }) => {
-                                                if (view !== 'month') return; // 달력에서만 적용
-                                                const day = date.getDay(); // 0: 일요일, 6: 토요일
-
-                                                if (date.getMonth() !== dateUtil.parseToDate(searchTime).getMonth()) {
-                                                    return "neighboring-month"; // 이전/다음 달은 회색
-                                                }
-
-                                                if (day === 0) return "sunday"; // 일요일
-                                                if (day === 6) return "saturday"; // 토요일
-                                                else return "default";
-                                            }}
-                                        />
-                                    </div>
-                                )}
+                            <div className="calendar-wrapper m-2">
+                                조회기간 <DateInput time={searchStartTime} setTime={setSearchStartTime}></DateInput> ~ <DateInput time={searchEndTime} setTime={setSearchEndTime}></DateInput>
                             </div>
                         </div>
                         
