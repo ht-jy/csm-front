@@ -51,12 +51,12 @@ const CompanySafeManager = ({jno, styles}) => {
                         manager.map((item, idx) => (
                             <tr key={idx}>
                                 <td>
-                                    {`${item.user_name} ${item.duty_name}`}
-                                    {item.team_leader === "Y" && (
-                                        <div
+                                    {
+                                    (item.team_leader === "Y" ) ? 
+                                    <div
                                         style={{
                                             display: "inline-block",
-                                            marginLeft: "10px",
+                                            margin: "0px 5px",
                                             padding: "2px 5px",
                                             borderRadius: "3px",
                                             backgroundColor: "#004377",
@@ -64,9 +64,11 @@ const CompanySafeManager = ({jno, styles}) => {
                                             fontSize: "12px",
                                         }}
                                         >
-                                        팀장
-                                        </div>
-                                    )}
+                                        팀장 
+                                    </div>
+                                    : <div style={{ display:"inline-block", width:"34px", margin:"0px 5px"}}></div>
+                                        }
+                                    {`${item.user_name} ${item.duty_name} (${item.user_id})`}
                                 </td>
                             </tr>
                         ))

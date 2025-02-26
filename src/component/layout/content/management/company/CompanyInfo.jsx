@@ -57,10 +57,10 @@ const CompanyInfo = ({jno, styles}) => {
                         <th colSpan={header.length+5}>협력업체</th>
                     </tr>
                     <tr>
-                        <th style={{width:"230px"}}>업체명</th>
-                        <th style={{width:"160px"}}>아이디</th>      
+                        <th style={{width:"240px"}}>업체명</th>
+                        <th style={{width:"150px"}}>아이디</th>      
                         <th style={{width:"160px"}}>사용자명</th>                                          
-                        <th style={{width:"180px"}}>휴대전화</th>
+                        <th style={{width:"160px"}}>휴대전화</th>
                         <th style={{width:"200px"}}>이메일</th>
                         {
                             header.length === 0 ? null

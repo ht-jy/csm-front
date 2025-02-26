@@ -124,18 +124,18 @@ const Company = () => {
                                     <div>
                                         <div className="company-manager">
                                             {/* 현장소장*/}
-                                            <div style={{ width: "100px" }}>
-                                                <CompanySiteManager jno={jno} styles={{ width: "100px" }} />
+                                            <div style={{ width: "270px" }}>
+                                                <CompanySiteManager jno={jno} styles={{ width: "270px" }} />
                                             </div>
 
                                             {/* 안전관리자*/}
-                                            <div style={{ width: "200px", margin: "0 auto" }}>
-                                                <CompanySafeManager jno={jno} styles={{ width: "200px", marginLeft:"9px" }} />
+                                            <div style={{ width: "265px", margin: "0 auto" }}>
+                                                <CompanySafeManager jno={jno} styles={{ width: "265px", marginLeft:"9px" }} />
                                             </div>
 
                                             {/* 관리감독자*/}
-                                            <div style={{ width: "1350px", marginLeft: "auto" }}>
-                                                <CompanySupervisor jno={jno} styles={{ width: "1350px" }} />
+                                            <div style={{ width: "1130px", marginLeft: "auto" }}>
+                                                <CompanySupervisor jno={jno} styles={{ width: "1130px" }} />
                                             </div>
                                         </div>
 
