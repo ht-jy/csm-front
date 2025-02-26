@@ -83,7 +83,7 @@ const Notice = () => {
         { header: "지역", width: "30px", itemName: "loc_code", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false },
         { header: "현장", width: "120px", itemName: "site_nm", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
         { header: "제목", width: "250px", itemName: "title", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
-        { header: "등록자", width: "60px", itemName: "reg_user", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false },
+        { header: "등록자", width: "60px", itemName: "user_info", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: true},
         { header: "등록일", width: "60px", itemName: "reg_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format" },
     ]
 
@@ -183,7 +183,8 @@ const Notice = () => {
     const getNotices = async () => {
         setIsLoading(true);
 
-        const res = await Axios.GET(`/notice?page_num=${pageNum}&row_size=${rowSize}&order=${order}&&loc_code=${searchValues.loc_code}&site_nm=${searchValues.site_nm}&title=${searchValues.title}&reg_user=${searchValues.reg_user}`);
+        const res = await Axios.GET(`/notice?page_num=${pageNum}&row_size=${rowSize}&order=${order}&&loc_code=${searchValues.loc_code}&site_nm=${searchValues.site_nm}&title=${searchValues.title}&user_info=${searchValues.user_info}`);
+
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
         } else if (res?.data?.result === "Failure") {
@@ -238,7 +239,7 @@ const Notice = () => {
                         </div>
                         <div class="row mt-2">
                             <div class="col-md-1 fw-bold">등록자</div>
-                            <div class="col-md-3">${notice.reg_user}</div>
+                            <div class="col-md-3">${notice.user_info}</div>
                             <div class="col-md-1 fw-bold">등록일</div>
                             <div class="col-md-3">${dateUtil.format(notice.reg_date, "yyyy-MM-dd")}</div>
                             ${dateUtil.format(notice.mod_date, "yyyy-MM-dd") !== "0001-01-01" ? `                                

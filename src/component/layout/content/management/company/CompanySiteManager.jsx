@@ -21,7 +21,7 @@ const CompanySiteManager = ({jno, styles}) => {
     const [manager, setManager] = useState([]);
 
     const columns = [
-        { isSearch: false, isOrder: false, header: "현장소장", itemName: "user_name|duty_name", isItemSplit: true, bodyAlign: "center", isEllipsis: false, isDate: false },
+        { isSearch: false, isOrder: false, header: "현장소장", itemName: "user_info", bodyAlign: "center", isEllipsis: false, isDate: false},
     ];
 
     // 현장소장 정보 조회

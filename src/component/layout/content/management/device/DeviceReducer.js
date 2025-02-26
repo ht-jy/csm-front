@@ -7,7 +7,7 @@ const DeviceReducer = (state, action) => {
             const devices = action.list.map((device) =>  ( {...device} ) )
             devices.forEach( device => {
                 if(device.is_use === "Y"){
-                    device.is_use = "사용 중"
+                    device.is_use = "사용중"
                 }else{
                     device.is_use = "사용안함"
                 }

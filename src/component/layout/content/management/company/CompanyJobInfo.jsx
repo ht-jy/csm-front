@@ -28,7 +28,7 @@ const CompanyJobInfo = ({jno, styles}) => {
         { isSearch: false, isOrder: false, width: "190px", header: "Client", itemName: "order_comp_name", bodyAlign: "center", isEllipsis: false, isDate: false },
         { isSearch: false, isOrder: false, width: "150px", header: "시작일", itemName: "job_sd", bodyAlign: "center", isEllipsis: false, isDate: false },
         { isSearch: false, isOrder: false, width: "150px", header: "종료일", itemName: "job_ed", bodyAlign: "center", isEllipsis: false, isDate: false },
-        { isSearch: false, isOrder: false, width: "130px", header: "PM", itemName: "job_pm_name", bodyAlign: "center", isEllipsis: false, isDate: false },
+        { isSearch: false, isOrder: false, width: "130px", header: "PM", itemName: "job_pm_name|job_pm_duty_name", bodyAlign: "center", isEllipsis: false, isDate: false, isItemSplit: true },
         { isSearch: false, isOrder: false, width: "130px", header: "구분", itemName: "cd_nm", bodyAlign: "center", isEllipsis: false, isDate: false },
     ];
 

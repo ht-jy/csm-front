@@ -275,12 +275,19 @@ const Device = () => {
     const getData = async () => {
         setIsLoading(true);
 
-        let isUse = "";
-        if(searchValues.is_use === "사용 중"){
-            isUse = "Y";
-        }else if(searchValues.is_use==="사용안함"){
-            isUse = "N";
+        let isUse;
+        if("사용중".includes(searchValues.is_use) && "사용안함".includes(searchValues.is_use)){
+            isUse = "";
         }
+        else if("사용중".includes(searchValues.is_use)){
+            isUse = "Y";
+        }
+        else if("사용안함".includes(searchValues.is_use)){
+            isUse = "N";
+        }else {
+            isUse = searchValues.is_use;
+        }
+
         const res = await Axios.GET(`/device?page_num=${pageNum}&row_size=${rowSize}&order=${order}&device_nm=${searchValues.device_nm}&device_sn=${searchValues.device_sn}&site_nm=${searchValues.site_nm}&etc=${searchValues.etc}&is_use=${isUse}`);
 
         if (res?.data?.result === "Success") {

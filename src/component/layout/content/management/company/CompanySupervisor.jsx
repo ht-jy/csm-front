@@ -63,7 +63,7 @@ const CompanySupervisor = ({jno, styles}) => {
                         <th colSpan={header.length+1}>관리감독자</th>
                     </tr>
                     <tr>
-                        <th style={{width:"180px"}}>성명 (ID)</th>
+                        <th style={{width:"190px"}}>성명 (ID)</th>
                         {
                             header.length === 0 ? null
                             :
@@ -82,7 +82,7 @@ const CompanySupervisor = ({jno, styles}) => {
                         :
                         supervisor.map((item, idx) => (
                             <tr key={idx}>
-                                <td>{`${item.user_name} (${item.user_id})`}</td>
+                                <td>{`${item.user_name} ${item.duty_name} (${item.user_id})`}</td>
                                 {
                                     Array.from({length: header.length}, (_, i) => (
                                         item.funcArr.includes(i+1) ?
