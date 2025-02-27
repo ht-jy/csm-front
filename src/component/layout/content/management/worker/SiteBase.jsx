@@ -13,6 +13,7 @@ import "react-calendar/dist/Calendar.css";
 import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Paginate.css";
 import "../../../../../assets/css/Calendar.css";
+import DateInput from "../../../../module/DateInput";
 
 /**
  * @description: 현장 근로자 관리
@@ -26,9 +27,9 @@ import "../../../../../assets/css/Calendar.css";
  * - Select: 셀렉트 박스
  * - Loading: 로딩 스피너
  * - Modal: 알림 모달
- * - Calendar: 캘린더
  * - Table: 테이블
  * - Button: 버튼
+ * - DateInput: 날짜 입력
  * 
  * @additionalInfo
  * - API: 
@@ -45,9 +46,11 @@ const SiteBase = () => {
     const [pageNum, setPageNum] = useState(1);
     const [rowSize, setRowSize] = useState(10);
     const [order, setOrder] = useState("");
-    const [searchTime, setSearchTime] = useState(dateUtil.now());
+    const [searchStartTime, setSearchStartTime] = useState(dateUtil.now());
+    const [searchEndTime, setSearchEndTime] = useState(dateUtil.now());
     const [sno, setSno] = useState(null);
-    const [showCalendar, setShowCalendar] = useState(false);
+
+
     const [isLoading, setIsLoading] = useState(false);
     const [isModal, setIsModal] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
@@ -103,12 +106,6 @@ const SiteBase = () => {
         setPageNum(1);
     }
 
-    // 날짜 선택 시 캘린더 숨기기
-    const handleDateChange = (date) => {
-        setSearchTime(dateUtil.format(date));
-        setShowCalendar(false);
-    };
-
     // 테이블 검색 단어 갱신
     const handleSearchChange = (field, value) => {
         setSearchValues(prev => ({
@@ -145,7 +142,7 @@ const SiteBase = () => {
         if (sno === null) return;
         setIsLoading(true);
         
-        const res = await Axios.GET(`/worker/site-base?page_num=${pageNum}&row_size=${rowSize}&order=${order}&search_time=${searchTime}&sno=${sno}&job_name=${searchValues.job_name}&user_nm=${searchValues.user_nm}&department=${searchValues.department}`);
+        const res = await Axios.GET(`/worker/site-base?page_num=${pageNum}&row_size=${rowSize}&order=${order}&search_time=${searchStartTime}&sno=${sno}&job_name=${searchValues.job_name}&user_nm=${searchValues.user_nm}&department=${searchValues.department}`);
         
         if (res?.data?.result === "Success") {
             if(res?.data?.values?.list.length === 0) {
@@ -179,7 +176,7 @@ const SiteBase = () => {
     // 페이지, 리스트 수, 검색날짜, 정렬, 현장 변경시
     useEffect(() => {
         getData();
-    }, [pageNum, rowSize, searchTime, order, sno]);
+    }, [pageNum, rowSize, searchStartTime, order, sno]);
 
     // 테이블 단어 검색시
     useEffect(() => {
@@ -188,6 +185,21 @@ const SiteBase = () => {
             setIsSearchReset(false);
         }
     }, [isSearchReset]);
+
+    // 시작 날짜보다 끝나는 날짜가 빠를 시: 끝나는 날짜를 변경한 경우 (시작 날짜를 끝나는 날짜로)
+    useEffect(() => {
+        if (searchStartTime > searchEndTime) {
+            setSearchStartTime(searchEndTime)
+        }
+    }, [searchEndTime]);
+
+    // 시작 날짜보다 끝나는 날짜가 빠를 시: 시작 날짜를 변경한 경우 (끝나는 날짜를 시작 날짜로)
+    useEffect(() => {
+        if (searchStartTime > searchEndTime) {
+            setSearchEndTime(searchStartTime)
+        }
+    }, [searchStartTime]);
+
 
     return(
         <div>
@@ -232,7 +244,10 @@ const SiteBase = () => {
                                 />
                             </div>
 
-                            <div className="calendar-wrapper">
+                            <div className="m-2">
+                                조회기간 <DateInput time={searchStartTime} setTime={setSearchStartTime}></DateInput> ~ <DateInput time={searchEndTime} setTime={setSearchEndTime}></DateInput>
+                            </div>
+                            {/* <div className="calendar-wrapper">
                                 <p
                                     onClick={() => setShowCalendar((prev) => !prev)}
                                     className="selected-date"
@@ -261,7 +276,7 @@ const SiteBase = () => {
                                         />
                                     </div>
                                 )}
-                            </div>
+                            </div> */}
                         </div>
                         
                         <div className="table-header-right">
