@@ -1,7 +1,5 @@
 import { useState, useEffect, useReducer } from "react";
-import Select from 'react-select';
-import { Axios } from "../../../../../utils/axios/Axios";
-import CompanyReducer from "./CompanyReducer";
+import { useAuth } from "../../../../context/AuthContext";
 import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
 import CompanyJobInfo from "./CompanyJobInfo";
@@ -20,7 +18,6 @@ import "../../../../../assets/css/Company.css";
  * @modified 최종 수정일: 
  * @modifiedBy 최종 수정자: 
  * @usedComponents
- * - Select: 셀렉트 박스
  * - Loading: 로딩 스피너
  * - Modal: 알림 모달
  * - CompanyJobInfo: jon(프로젝트) 정보 테이블
@@ -31,46 +28,27 @@ import "../../../../../assets/css/Company.css";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /project-nm (프로젝트 이름 조회)
+ *    Http Method - GET : /project/nm (프로젝트 이름 조회)
  */
 const Company = () => {
-    const [state, dispatch] = useReducer(CompanyReducer, {
-        projectList: [],
-    });
+    const { project } = useAuth();
 
     const [jno, setJno] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isModal, setIsModal] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
     const [modalText, setModalText] = useState("");
-    const [showCompanyWrapper, setShowCompanyWrapper] = useState(false);
-
-    // 프로젝트 select 선택
-    const onChangeProjectSelect = (e) => {
-        setJno(e.value);
-    }
-
-    // 프로젝트 조회
-    const getData = async () => {
-        setIsLoading(true);
-        
-        const res = await Axios.GET(`/project-nm`);
-        
-        if (res?.data?.result === "Success") {
-            if(res?.data?.values?.list.length === 0) {
-                setIsModal(true);
-                setModalTitle("프로젝트 조회");
-                setModalText("조회된 프로젝트가 없습니다.");
-            }
-            dispatch({ type: "PROJECT", list: res?.data?.values?.list });
-        }
-
-        setIsLoading(false);
-    };
 
     useEffect(() => {
-        getData();
-    }, []);
+        if(project){
+            setJno(project.jno);
+        }else{
+            setJno(null);
+            setIsModal(true);
+            setModalTitle("협력업체")
+            setModalText("프로젝트를 선택해 주세요.")
+        }
+    }, [project]);
 
     return(
         <div>
@@ -93,20 +71,7 @@ const Company = () => {
 
                     <div className="table-header">
                         <div className="table-header-left" style={{gap:"10px"}}>
-                            <div style={{ width: "500px" }}>
-                                <Select
-                                    onChange={onChangeProjectSelect}
-                                    options={state.projectList}
-                                    placeholder={"프로젝트 선택"}
-                                    styles={{
-                                        menu: (provided) => ({ ...provided, zIndex: 9999 }),
-                                        menuList: (provided) => ({
-                                          ...provided,
-                                          maxHeight: "500px", // 드롭다운 최대 높이 조정
-                                        }),
-                                    }}
-                                />
-                            </div>
+                            
                         </div>
                         
                         <div className="table-header-right">

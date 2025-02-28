@@ -34,7 +34,7 @@ const CompanyJobInfo = ({jno, styles}) => {
 
     // jobInfo에 데이터 추가
     const addJonInfo = (item) => {
-        setJobInfo(items => [item]);
+        setJobInfo([item]);
     }
 
     // jon(프로젝트) 정보 조회
@@ -42,7 +42,7 @@ const CompanyJobInfo = ({jno, styles}) => {
         if (jno != null) {   
             const res = await Axios.GET(`/company/job-info?jno=${jno}`);
             if (res?.data?.result === "Success") {
-                addJonInfo(res?.data?.values?.data);
+                addJonInfo(res.data.values.data); // null 체크 후 데이터 추가
             }
         }
     };
@@ -53,12 +53,14 @@ const CompanyJobInfo = ({jno, styles}) => {
 
     return(
         <>
-            <Table 
-                columns={columns} 
-                data={jobInfo}
-                noDataText={jno === null ? "선택된 프로젝트가 없습니다." : ""}
-                styles={styles}
-            />
+            {
+                <Table 
+                    columns={columns} 
+                    data={jobInfo}
+                    noDataText={jno === null ? "선택된 프로젝트가 없습니다." : ""}
+                    styles={styles}
+                />
+            }
         </>
     );
 }

@@ -26,7 +26,7 @@ body {
   }
     
   th {
-    padding: .1em .5em;
+    padding: .1em .3em;
     vertical-align: middle;
   }
   td {
@@ -43,51 +43,6 @@ body {
   a {
     color: #73685d;
   }
-    
-   /* @media all and (max-width: 768px) {
-      
-    table, thead, tbody, th, td, tr {
-      display: block;
-    }
-    
-    th {
-      text-align: right;
-    }
-    
-    table {
-      position: relative; 
-      padding-bottom: 0;
-      border: none;
-      box-shadow: 0 0 10px rgba(0,0,0,.2);
-    }
-    
-    thead {
-      float: left;
-      white-space: nowrap;
-    }
-    
-    tbody {
-      overflow-x: auto;
-      overflow-y: hidden;
-      position: relative;
-      white-space: nowrap;
-    }
-    
-    tr {
-      display: inline-block;
-      vertical-align: top;
-    }
-    
-    th {
-      border-bottom: 1px solid #a39485;
-    }
-    
-    td {
-      border-bottom: 1px solid #e5e5e5;
-    }
-    
-    
-    } */
 
 /* 테이블과 컨트롤 요소(선택창, 버튼)를 정렬할 부모 컨테이너 */
 .table-header {
@@ -135,13 +90,15 @@ body {
   margin-top: 15px; /* 테이블과 여백 추가 */
 }
 
-/* tbody 안의 행에만 마우스 오버 효과 적용 */
-.table-container tbody tr:hover td {
-  background-color: rgba(0, 123, 255, 0.1);  /* 파란색 강조 */
-  transition: background-color 0.3s ease;
+
+.table-tr {
   cursor: pointer;
 }
 
+.table-tr:hover td {
+  background-color: rgba(0, 123, 255, 0.1) !important;  /* 파란색 강조 */
+  transition: background-color 0.3s ease;
+}
 
 /* 스크롤바의 폭 너비 */
 .table-container::-webkit-scrollbar {
@@ -202,4 +159,36 @@ body {
   width: 13px;               /* 가로 크기 */
   height: 13px;              /* 세로 크기 */
   margin-left: 7px;
+}
+
+/* 아이콘이 글씨 위에 올라올 때 글씨를 가리는 효과 */
+.icon-wrapper {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background-color: #004377; /* th 배경색과 동일하게 설정 */
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease, background-color 0.3s ease;
+  opacity: 0; /* 기본적으로 숨김 */
+  width: 30px; /* 아이콘 영역 크기 */
+}
+
+/* 왼쪽 정렬 아이콘 영역 */
+.sort-icon-wrapper {
+  left: 0;
+  width: 20px; /* 아이콘 크기만큼 너비 확보 */
+}
+
+/* 오른쪽 검색 아이콘 영역 */
+.search-icon-wrapper {
+  right: 0;
+  width: 25px;
+}
+
+.th-hover .icon-wrapper {
+  opacity: 1; /* 마우스 오버 시 보이게 함 */
+  background-color: #004377;
 }
