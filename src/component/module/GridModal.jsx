@@ -107,58 +107,58 @@ const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, d
             {isOpen ? (
                 <div style={overlayStyle}>
                     <div style={modalStyle}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        {/* 왼쪽 - 제목 */}
-                        <h2 style={h2Style}>{title}</h2>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            {/* 왼쪽 - 제목 */}
+                            <h2 style={h2Style}>{title}</h2>
 
-                        {/* 오른쪽 - 버튼 & 닫기 아이콘 */}
-                        <div style={{ display: 'flex', alignItems: 'center', paddingBottom: "15px" }}>
-                            {
-                                gridMode === "SAVE" ?
-                                    <div>
-                                        <button className="btn btn-primary" onClick={handleSave} name="confirm" style={{marginRight:"10px"}}>
-                                            저장
-                                        </button>
-                                    </div>
-                                :
-                                    isEdit ?
+                            {/* 오른쪽 - 버튼 & 닫기 아이콘 */}
+                            <div style={{ display: 'flex', alignItems: 'center', paddingBottom: "15px" }}>
+                                {
+                                    gridMode === "SAVE" ?
                                         <div>
                                             <button className="btn btn-primary" onClick={handleSave} name="confirm" style={{marginRight:"10px"}}>
                                                 저장
-                                            </button>   
-                                            {
-                                                isCancle ?
-                                                    <button className="btn btn-primary" onClick={handleCancel} name="confirm" style={{marginRight:"10px"}}>
-                                                        취소
-                                                    </button> 
-                                                : null
-                                            }
+                                            </button>
                                         </div>
                                     :
-                                        <div>
-                                            {
-                                                editBtn ? 
-                                                    <button className="btn btn-primary" onClick={handleEditMode} name="confirm" style={{marginRight:"10px"}}>
-                                                        수정
-                                                    </button>
-                                                : null
-                                            }
-                                            {
-                                                removeBtn ?
-                                                    <button className="btn btn-primary" onClick={handleRemove} name="confirm" style={{marginRight:"10px"}}>
-                                                        삭제
-                                                    </button>
-                                                : null
-                                            }
-                                        </div>
-                            }
-                            
+                                        isEdit ?
+                                            <div>
+                                                <button className="btn btn-primary" onClick={handleSave} name="confirm" style={{marginRight:"10px"}}>
+                                                    저장
+                                                </button>   
+                                                {
+                                                    isCancle ?
+                                                        <button className="btn btn-primary" onClick={handleCancel} name="confirm" style={{marginRight:"10px"}}>
+                                                            취소
+                                                        </button> 
+                                                    : null
+                                                }
+                                            </div>
+                                        :
+                                            <div>
+                                                {
+                                                    editBtn ? 
+                                                        <button className="btn btn-primary" onClick={handleEditMode} name="confirm" style={{marginRight:"10px"}}>
+                                                            수정
+                                                        </button>
+                                                    : null
+                                                }
+                                                {
+                                                    removeBtn ?
+                                                        <button className="btn btn-primary" onClick={handleRemove} name="confirm" style={{marginRight:"10px"}}>
+                                                            삭제
+                                                        </button>
+                                                    : null
+                                                }
+                                            </div>
+                                }
+                                
 
-                            <div onClick={handleExit} style={{ cursor: "pointer" }}>
-                                <img src={Exit} style={{ width: "35px", paddingBottom: '5px' }} alt="Exit" />
+                                <div onClick={handleExit} style={{ cursor: "pointer" }}>
+                                    <img src={Exit} style={{ width: "35px", paddingBottom: '5px' }} alt="Exit" />
+                                </div>
                             </div>
                         </div>
-                    </div>
 
 
                         <div style={gridStyle}>
@@ -190,6 +190,9 @@ const gridStyle = {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',  // 한 행에 두 개의 열
     gap: '10px',  // 요소 간의 간격 설정
+    border: '2px solid #a5a5a5',
+    borderRadius: '10px',
+    padding: '10px',
 };
 
 const overlayStyle = {
@@ -207,7 +210,7 @@ const overlayStyle = {
 
 const modalStyle = {
     backgroundColor: '#fff',
-    padding: '20px',
+    padding: '10px',
     borderRadius: '8px',
     maxWidth: '1000px',
     width: '100%',
@@ -218,6 +221,7 @@ const modalStyle = {
 const h2Style = {
     minHeight: '50px',
     fontSize: '25px',
+    paddingTop: '5px',
 };
 
 const buttonDivStyle = {

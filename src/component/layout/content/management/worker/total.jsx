@@ -228,6 +228,7 @@ const Total = () => {
                     <div>
                         <PaginationWithCustomButtons 
                             dataCount={state.count}
+                            rowSize={rowSize}
                             fncClickPageNum={onClickPageBtn}
                         />
                     </div>
