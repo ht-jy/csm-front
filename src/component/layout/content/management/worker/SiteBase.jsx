@@ -141,9 +141,12 @@ const SiteBase = () => {
     const getData = async () => {
         if (sno === null) return;
         setIsLoading(true);
-        
-        const res = await Axios.GET(`/worker/site-base?page_num=${pageNum}&row_size=${rowSize}&order=${order}&search_time=${searchStartTime}&sno=${sno}&job_name=${searchValues.job_name}&user_nm=${searchValues.user_nm}&department=${searchValues.department}`);
-        
+
+        const res = await Axios.GET(`/worker/site-base?page_num=${pageNum}&row_size=${rowSize}&order=${order}&search_start_time=${searchStartTime}&search_end_time=${searchEndTime}&sno=${sno}&job_name=${searchValues.job_name}&user_nm=${searchValues.user_nm}&department=${searchValues.department}`);
+        console.log(searchValues)
+        console.log(searchStartTime)
+        console.log(searchEndTime)
+
         if (res?.data?.result === "Success") {
             if(res?.data?.values?.list.length === 0) {
                 setIsModal(true);
@@ -161,7 +164,6 @@ const SiteBase = () => {
         setIsLoading(true);
 
         const res = await Axios.GET("/site-nm");
-        
         if (res?.data?.result === "Success") {
             dispatch({ type: "SITE_NM", list: res?.data?.values?.list });
         }
@@ -176,7 +178,7 @@ const SiteBase = () => {
     // 페이지, 리스트 수, 검색날짜, 정렬, 현장 변경시
     useEffect(() => {
         getData();
-    }, [pageNum, rowSize, searchStartTime, order, sno]);
+    }, [pageNum, rowSize, searchStartTime, searchEndTime, order, sno]);
 
     // 테이블 단어 검색시
     useEffect(() => {
@@ -247,36 +249,7 @@ const SiteBase = () => {
                             <div className="m-2">
                                 조회기간 <DateInput time={searchStartTime} setTime={setSearchStartTime}></DateInput> ~ <DateInput time={searchEndTime} setTime={setSearchEndTime}></DateInput>
                             </div>
-                            {/* <div className="calendar-wrapper">
-                                <p
-                                    onClick={() => setShowCalendar((prev) => !prev)}
-                                    className="selected-date"
-                                >
-                                    선택한 날짜: <b>{searchTime}</b>
-                                </p>
-                                {showCalendar && (
-                                    <div className="calendar-popup">
-                                        <Calendar 
-                                            onChange={handleDateChange} 
-                                            value={searchTime} 
-                                            locale="ko" 
-                                            calendarType="hebrew" 
-                                            tileClassName={({ date, view }) => {
-                                                if (view !== 'month') return; // 달력에서만 적용
-                                                const day = date.getDay(); // 0: 일요일, 6: 토요일
-
-                                                if (date.getMonth() !== dateUtil.parseToDate(searchTime).getMonth()) {
-                                                    return "neighboring-month"; // 이전/다음 달은 회색
-                                                }
-
-                                                if (day === 0) return "sunday"; // 일요일
-                                                if (day === 6) return "saturday"; // 토요일
-                                                else return "default";
-                                            }}
-                                        />
-                                    </div>
-                                )}
-                            </div> */}
+                    
                         </div>
                         
                         <div className="table-header-right">

@@ -13,6 +13,7 @@ import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
 import Table from "../../../../module/Table";
 import TotalReducer from "./TotalReducer";
+import Calendar from "react-calendar";
 
 
 /**
@@ -133,7 +134,7 @@ const Total = () => {
     const getData = async () => {
         setIsLoading(true);
 
-        const res = await Axios.GET(`/worker/total?page_num=${pageNum}&row_size=${rowSize}&order=${order}&search_time=${searchStartTime}&site_nm=${searchValues.site_nm}&job_name=${searchValues.job_name}&user_nm=${searchValues.user_nm}&department=${searchValues.department}`);
+        const res = await Axios.GET(`/worker/total?page_num=${pageNum}&row_size=${rowSize}&order=${order}&search_start_time=${searchStartTime}&search_end_time=${searchEndTime}&site_nm=${searchValues.site_nm}&job_name=${searchValues.job_name}&user_nm=${searchValues.user_nm}&department=${searchValues.department}`);
 
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
@@ -145,7 +146,7 @@ const Total = () => {
     // 페이지, 리스트 수, 검색날짜, 정렬 변경시
     useEffect(() => {
         getData();
-    }, [pageNum, rowSize, searchStartTime, order]);
+    }, [pageNum, rowSize, searchStartTime, searchEndTime, order]);
 
     // 테이블 단어 검색시
     useEffect(() => {

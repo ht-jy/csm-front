@@ -38,25 +38,26 @@
 }
 
 /* 현재 월의 일요일 빨간색 */
-.sunday {
+.react-calendar__month-view__days__day--weekend:nth-child(7n + 1) abbr {
     color: red !important;
 }
 
 /* 현재 월의 토요일 파란색 */
-.saturday {
+.react-calendar__month-view__days__day--weekend:nth-child(7n) abbr{
     color: blue !important;
 }
 
-.default{
-    color: black;
+/* 이전/다음 달 날짜 불투명도 30%로 조정 */
+.react-calendar__month-view__days__day--neighboringMonth {
+    opacity: 0.3;
 }
 
 /* 이전/다음 달 날짜를 연한 회색으로 표시 */
  .neighboring-month { 
     color: #bbb !important;
     opacity: 0.5 !important;
-    /* pointer-events: none; 클릭되지 않도록 설정 */
-}
+    pointer-events: none; /* 클릭되지 않도록 설정 */
+  }
 
 /* 날짜 기본 스타일 */
 .react-calendar__tile {

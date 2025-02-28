@@ -52,23 +52,13 @@ const DateInput = ({time, setTime}) => {
                                 onChange={handleDateChange} 
                                 value={time} 
                                 locale="ko" 
-                                calendarType="hebrew" 
-                                tileClassName={({ date, view }) => {
-                                    if (view !== 'month') return; // 달력에서만 적용
-                                    const day = date.getDay(); // 0: 일요일, 6: 토요일
-                                    
-                                    if (date.getMonth() !== dateUtil.parseToDate(saveTime).getMonth()) {
-                                        return "neighboring-month"; // 이전/다음 달은 회색
-                                    }
-                                    
-                                    if (day === 0) return "sunday"; // 일요일
-                                    if (day === 6) return "saturday"; // 토요일
-                                        else return "default";
-                                    }}
+                                calendarType="gregory" 
+                                // formatDay={(locale, date) => date.toLocaleString('en', { day: 'numeric' })} // "일" 글자 삭제
                                 />
                         </OutsideClick>
                     </div>
                 )}
+
         </span>
   );
 }
