@@ -1,18 +1,18 @@
 import { useState, useEffect, useReducer } from "react";
+import ReactPaginate from "react-paginate";
 import Select from 'react-select';
-import Calendar from "react-calendar";
+import "../../../../../assets/css/Calendar.css";
+import "../../../../../assets/css/Paginate.css";
+import "../../../../../assets/css/Table.css";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { dateUtil } from "../../../../../utils/DateUtil";
-import TotalReducer from "./TotalReducer";
+import Button from "../../../../module/Button";
+import DateInput from "../../../../module/DateInput";
 import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
 import Table from "../../../../module/Table";
-import Button from "../../../../module/Button";
+import TotalReducer from "./TotalReducer";
 import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons ";
-import "react-calendar/dist/Calendar.css";
-import "../../../../../assets/css/Table.css";
-import "../../../../../assets/css/Paginate.css";
-import "../../../../../assets/css/Calendar.css";
 
 
 /**
@@ -20,20 +20,21 @@ import "../../../../../assets/css/Calendar.css";
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-17
- * @modified 최종 수정일: 
- * @modifiedBy 최종 수정자: 
+ * @modified 최종 수정일: 2025-02-27
+ * @modifiedBy 최종 수정자: 정지영
  * @usedComponents
  * - PaginationWithCustomButtons: 페이지 버튼
  * - Select: 셀렉트 박스
  * - Loading: 로딩 스피너
  * - Modal: 알림 모달
- * - Calendar: 캘린더
  * - Table: 테이블
  * - Button: 버튼
+ * - DateInput: 날짜입력
  * 
  * @additionalInfo
  * - API: 
  *    Http Method - GET : /worker/total (전체근로자 조회)
+ * 
  */
 
 const Total = () => {
@@ -46,8 +47,8 @@ const Total = () => {
     const [pageNum, setPageNum] = useState(1);
     const [rowSize, setRowSize] = useState(10);
     const [order, setOrder] = useState("");
-    const [searchTime, setSearchTime] = useState(dateUtil.now());
-    const [showCalendar, setShowCalendar] = useState(false);
+    const [searchStartTime, setSearchStartTime] = useState(dateUtil.now());
+    const [searchEndTime, setSearchEndTime] = useState(dateUtil.now());
     const [isLoading, setIsLoading] = useState(false);
     const [isModal, setIsModal] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
@@ -61,23 +62,23 @@ const Total = () => {
         { isSearch: true, isOrder: true, width: "190px", header: "근로자 이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false, isDate: false },
         { isSearch: true, isOrder: true, width: "480px", header: "현장이름", itemName: "site_nm", bodyAlign: "left", isEllipsis: true, isDate: false },
         { isSearch: true, isOrder: true, width: "480px", header: "프로젝트명", itemName: "job_name", bodyAlign: "left", isEllipsis: true, isDate: false },
-        { isSearch: false, isOrder: true, width: "140px", header: "출근시간", itemName: "in_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: "formatWithTime"},
+        { isSearch: false, isOrder: true, width: "140px", header: "출근시간", itemName: "in_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: "formatWithTime" },
         { isSearch: false, isOrder: true, width: "140px", header: "퇴근시간", itemName: "out_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: "formatWithTime" }
     ];
 
     const defaultSearchValues = columns.reduce((acc, col) => {
-        if (col.isSearch) acc[col.itemName] = ""; 
+        if (col.isSearch) acc[col.itemName] = "";
         return acc;
     }, {});
 
     const [searchValues, setSearchValues] = useState(defaultSearchValues);
     const [activeSearch, setActiveSearch] = useState(
-        columns.reduce((acc, col) => { 
-            if (col.isSearch) acc[col.itemName] = false; 
-            return acc; 
+        columns.reduce((acc, col) => {
+            if (col.isSearch) acc[col.itemName] = false;
+            return acc;
         }, {})
     );
-    
+
 
     const options = [
         { value: 5, label: "5줄 보기" },
@@ -97,17 +98,11 @@ const Total = () => {
         setPageNum(1);
     };
 
-    // 날짜 선택 시 캘린더 숨기기
-    const handleDateChange = (date) => {
-        setSearchTime(dateUtil.format(date));
-        setShowCalendar(false);
-    };
-
     // 테이블 검색 단어 갱신
     const handleSearchChange = (field, value) => {
         setSearchValues(prev => ({
-            ...prev, 
-            [field]: value 
+            ...prev,
+            [field]: value
         }));
     };
 
@@ -120,9 +115,9 @@ const Total = () => {
     // 테이블 검색 초기화
     const onClickSearchInit = () => {
         setSearchValues(defaultSearchValues); // 검색값 초기화
-        setActiveSearch(columns.reduce((acc, col) => { 
-            if (col.isSearch) acc[col.itemName] = false; 
-            return acc; 
+        setActiveSearch(columns.reduce((acc, col) => {
+            if (col.isSearch) acc[col.itemName] = false;
+            return acc;
         }, {})); // 검색창 닫기
 
         setIsSearchInit(false);
@@ -137,9 +132,9 @@ const Total = () => {
     // 전체근로자 조회
     const getData = async () => {
         setIsLoading(true);
-        
-        const res = await Axios.GET(`/worker/total?page_num=${pageNum}&row_size=${rowSize}&order=${order}&search_time=${searchTime}&site_nm=${searchValues.site_nm}&job_name=${searchValues.job_name}&user_nm=${searchValues.user_nm}&department=${searchValues.department}`);
-        
+
+        const res = await Axios.GET(`/worker/total?page_num=${pageNum}&row_size=${rowSize}&order=${order}&search_start_time=${searchStartTime}&search_end_time=${searchEndTime}&site_nm=${searchValues.site_nm}&job_name=${searchValues.job_name}&user_nm=${searchValues.user_nm}&department=${searchValues.department}`);
+
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
         }
@@ -150,7 +145,7 @@ const Total = () => {
     // 페이지, 리스트 수, 검색날짜, 정렬 변경시
     useEffect(() => {
         getData();
-    }, [pageNum, rowSize, searchTime, order]);
+    }, [pageNum, rowSize, searchStartTime, searchEndTime, order]);
 
     // 테이블 단어 검색시
     useEffect(() => {
@@ -160,10 +155,24 @@ const Total = () => {
         }
     }, [isSearchReset]);
 
-    return(
+    // 시작 날짜보다 끝나는 날짜가 빠를 시 : 끝나는 날짜를 변경한 경우 (시작 날짜를 끝나는 날짜로)
+    useEffect(() => {
+        if (searchStartTime > searchEndTime) {
+            setSearchStartTime(searchEndTime)
+        }
+    }, [searchEndTime]);
+
+    // 시작 날짜보다 끝나는 날짜가 빠를 시 : 시작 날짜를 변경한 경우 (끝나는 날짜를 시작 날짜로)
+    useEffect(() => {
+        if (searchStartTime > searchEndTime) {
+            setSearchEndTime(searchStartTime)
+        }
+    }, [searchStartTime]);
+
+    return (
         <div>
             <Loading isOpen={isLoading} />
-            <Modal 
+            <Modal
                 isOpen={isModal}
                 title={modalTitle}
                 text={modalText}
@@ -180,7 +189,7 @@ const Total = () => {
                     </ol>
 
                     <div className="table-header">
-                        <div className="table-header-left" style={{gap:"10px"}}>
+                        <div className="table-header-left" style={{ gap: "10px" }}>
                             <Select
                                 onChange={onChangeSelect}
                                 options={options}
@@ -188,55 +197,28 @@ const Total = () => {
                                 placeholder={"몇줄 보기"}
                             />
 
-                            <div className="calendar-wrapper">
-                                <p
-                                    onClick={() => setShowCalendar((prev) => !prev)}
-                                    className="selected-date"
-                                >
-                                    선택한 날짜: <b>{searchTime}</b>
-                                </p>
-                                {showCalendar && (
-                                    <div className="calendar-popup">
-                                        <Calendar 
-                                            onChange={handleDateChange} 
-                                            value={searchTime} 
-                                            locale="ko" 
-                                            calendarType="hebrew" 
-                                            tileClassName={({ date, view }) => {
-                                                if (view !== 'month') return; // 달력에서만 적용
-                                                const day = date.getDay(); // 0: 일요일, 6: 토요일
-
-                                                if (date.getMonth() !== dateUtil.parseToDate(searchTime).getMonth()) {
-                                                    return "neighboring-month"; // 이전/다음 달은 회색
-                                                }
-
-                                                if (day === 0) return "sunday"; // 일요일
-                                                if (day === 6) return "saturday"; // 토요일
-                                                else return "default";
-                                            }}
-                                        />
-                                    </div>
-                                )}
+                            <div className="m-2">
+                                조회기간 <DateInput time={searchStartTime} setTime={setSearchStartTime}></DateInput> ~ <DateInput time={searchEndTime} setTime={setSearchEndTime}></DateInput>
                             </div>
                         </div>
-                        
+
                         <div className="table-header-right">
                             {
                                 isSearchInit ? <Button text={"초기화"} onClick={onClickSearchInit} /> : null
-                            }                            
+                            }
                         </div>
                     </div>
-                    
+
                     <div className="table-wrapper">
                         <div className="table-container">
-                            <Table 
-                                columns={columns} 
-                                data={state.list} 
+                            <Table
+                                columns={columns}
+                                data={state.list}
                                 searchValues={searchValues}
-                                onSearch={handleTableSearch} 
-                                onSearchChange={handleSearchChange} 
-                                activeSearch={activeSearch} 
-                                setActiveSearch={setActiveSearch} 
+                                onSearch={handleTableSearch}
+                                onSearchChange={handleSearchChange}
+                                activeSearch={activeSearch}
+                                setActiveSearch={setActiveSearch}
                                 resetTrigger={isSearchReset}
                                 onSortChange={handleSortChange}
                             />
