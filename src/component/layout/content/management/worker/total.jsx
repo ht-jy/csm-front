@@ -1,5 +1,4 @@
-import { useEffect, useReducer, useState } from "react";
-import "react-calendar/dist/Calendar.css";
+import { useState, useEffect, useReducer } from "react";
 import ReactPaginate from "react-paginate";
 import Select from 'react-select';
 import "../../../../../assets/css/Calendar.css";
@@ -13,7 +12,7 @@ import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
 import Table from "../../../../module/Table";
 import TotalReducer from "./TotalReducer";
-import Calendar from "react-calendar";
+import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons ";
 
 
 /**
@@ -24,7 +23,7 @@ import Calendar from "react-calendar";
  * @modified 최종 수정일: 2025-02-27
  * @modifiedBy 최종 수정자: 정지영
  * @usedComponents
- * - ReactPaginate: 페이지 버튼
+ * - PaginationWithCustomButtons: 페이지 버튼
  * - Select: 셀렉트 박스
  * - Loading: 로딩 스피너
  * - Modal: 알림 모달
@@ -89,9 +88,9 @@ const Total = () => {
     ];
 
     // 페이지네이션 버튼 클릭
-    const handlePageClick = ({ selected }) => {
-        setPageNum(selected + 1);
-    };
+    const onClickPageBtn = (num) => {
+        setPageNum(num);
+    }
 
     // 리스트 개수 select 선택
     const onChangeSelect = (e) => {
@@ -226,17 +225,10 @@ const Total = () => {
                         </div>
                     </div>
 
-                    <div className="pagination-container">
-                        <ReactPaginate
-                            previousLabel={"<"}
-                            nextLabel={">"}
-                            breakLabel={"..."}
-                            pageCount={Math.ceil(state.count / rowSize)}
-                            marginPagesDisplayed={1}
-                            pageRangeDisplayed={4}
-                            onPageChange={handlePageClick}
-                            containerClassName={"pagination"}
-                            activeClassName={"active"}
+                    <div>
+                        <PaginationWithCustomButtons 
+                            dataCount={state.count}
+                            fncClickPageNum={onClickPageBtn}
                         />
                     </div>
                 </div>
