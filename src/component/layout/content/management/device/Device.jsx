@@ -2,7 +2,6 @@ import { useState, useEffect, useReducer } from "react";
 import ReactPaginate from "react-paginate";
 import Select from 'react-select';
 import { Axios } from "../../../../../utils/axios/Axios";
-import { dateUtil } from "../../../../../utils/DateUtil";
 import { useAuth } from "../../../../context/AuthContext";
 import DeviceReducer from "./DeviceReducer";
 import Loading from "../../../../module/Loading";
@@ -12,6 +11,9 @@ import Button from "../../../../module/Button";
 import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Paginate.css";
 import Table from "../../../../module/Table";
+import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons ";
+import useTableControlState from "../../../../../utils/hooks/useTableControlState";
+import useTableSearch from "../../../../../utils/hooks/useTableSearch";
 
 /**
  * @description: 
@@ -46,9 +48,6 @@ const Device = () => {
 
     const { user } = useAuth();
 
-    const [order, setOrder] = useState("");
-    const [pageNum, setPageNum] = useState(1);
-    const [rowSize, setRowSize] = useState(10);
     const [isLoading, setIsLoading] = useState(false);
     const [isGridModal, setIsGridModal] = useState(false);
     const [gridMode, setGridMode] = useState("");
@@ -76,80 +75,23 @@ const Device = () => {
     ];
 
     const columns = [
-        { header: "순번", width: "10px", itemName: "row_num", bodyAlign: "center", isSearch: false, isOrder: false, isDate: false, isEllipsis: false },
-        { header: "장치명", width: "60px", itemName: "device_nm", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: false },
-        { header: "시리얼번호", width: "80px", itemName: "device_sn", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: false },
-        { header: "현장이름", width: "150px", itemName: "site_nm", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
-        { header: "비고", width: "150px", itemName: "etc", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
-        { header: "사용여부", width: "50px", itemName: "is_use", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false },
-        { header: "최초 생성일시", width: "60px", itemName: "reg_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format" },
-        { header: "최종 수정일시", width: "60px", itemName: "mod_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format" },
+        { isSearch: false, isOrder: true, isSlide: true, header: "순번", width: "10px", itemName: "rnum", bodyAlign: "center", isDate: false, isEllipsis: false },
+        { isSearch: true, isOrder: true, isSlide: false, header: "장치명", width: "60px", itemName: "device_nm", bodyAlign: "left", isDate: false, isEllipsis: false },
+        { isSearch: true, isOrder: true, isSlide: false, header: "시리얼번호", width: "80px", itemName: "device_sn", bodyAlign: "left", isDate: false, isEllipsis: false },
+        { isSearch: true, isOrder: true, isSlide: false, header: "현장이름", width: "150px", itemName: "site_nm", bodyAlign: "left", isDate: false, isEllipsis: true },
+        { isSearch: true, isOrder: true, isSlide: false, header: "비고", width: "150px", itemName: "etc", bodyAlign: "left", isDate: false, isEllipsis: true },
+        { isSearch: true, isOrder: true, isSlide: false, header: "사용여부", width: "50px", itemName: "is_use", bodyAlign: "center", isDate: false, isEllipsis: false },
+        { isSearch: false, isOrder: true, isSlide: false, header: "최초 생성일시", width: "60px", itemName: "reg_date", bodyAlign: "center", isDate: true, isEllipsis: false, dateFormat: "format" },
+        { isSearch: false, isOrder: true, isSlide: false, header: "최종 수정일시", width: "60px", itemName: "mod_date", bodyAlign: "center", isDate: true, isEllipsis: false, dateFormat: "format" },
     ]
 
-    // 검색 필드 초기값
-    const defaultSearchValues = columns.reduce((acc, col) => {
-        if (col.isSearch) acc[col.itemName] = "";
-        return acc
-    }, {});
-
-    const [isSearchInit, setIsSearchInit] = useState(false);
-    const [isSearchReset, setIsSearchReset] = useState(false);
-    const [searchValues, setSearchValues] = useState(defaultSearchValues);
-    const [activeSearch, setActiveSearch] = useState(
-        columns.reduce((acc, col) => {
-            if (col.isSearch) acc[col.itemName] = false;
-            return acc
-        }, {})
-    );
-
-    // 검색 시 실행 함수
-    const handleTableSearch = () => {
-        setIsSearchInit(true);
-        getData();
-    }
-
-    // 검색 단어 갱신
-    const handleSearchChange = (field, value) => {
-        setSearchValues(prev => ({
-            ...prev,
-            [field]: value
-        }))
-    }
-
-    // 검색 초기화
-    const onClickSearchInit = () => {
-        setSearchValues(defaultSearchValues);
-        setActiveSearch(columns.reduce((acc, col) => {
-            if (col.isSearch) acc[col.itemName] = false;
-            return acc;
-        }, {}));
-
-        setIsSearchInit(false);
-        setIsSearchReset(true);
-    }
-
-    // 정렬 이벤트
-    const handleSortChange = (newOrder) => {
-        setOrder(newOrder);
-    }
+    const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(10);
 
     // 상세페이지 클릭 시
     const onClickRow = (mode, deviceRow) => {
         const device = state.list.filter((device) => device.row_num === deviceRow);
         handleGridModal(mode, ...device);
     }
-
-
-    // 페이지네이션 버튼 클릭
-    const handlePageClick = ({ selected }) => {
-        setPageNum(selected + 1);
-    };
-
-    // 리스트 개수 select 선택
-    const onChangeSelect = (e) => {
-        setRowSize(e.value);
-        setPageNum(1);
-    };
 
     // GridModal 띄우기 - 추가 또는 리스트 row 클릭시
     const handleGridModal = (mode, item) => {
@@ -289,7 +231,7 @@ const Device = () => {
         }
 
         const res = await Axios.GET(`/device?page_num=${pageNum}&row_size=${rowSize}&order=${order}&device_nm=${searchValues.device_nm}&device_sn=${searchValues.device_sn}&site_nm=${searchValues.site_nm}&etc=${searchValues.etc}&is_use=${isUse}`);
-
+        console.log(res);
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
         } else if (res?.data?.result === "Failure") {
@@ -303,17 +245,18 @@ const Device = () => {
         setIsLoading(false);
     };
 
-    // 검색 단어 초기화 시
-    useEffect(() => {
-        if (isSearchReset) {
-            getData();
-            setIsSearchReset(false);
-        }
-
-    }, [isSearchReset])
-    useEffect(() => {
-        getData();
-    }, [pageNum, rowSize, order]);
+    const { 
+        searchValues,
+        activeSearch, setActiveSearch, 
+        isSearchReset,
+        isSearchInit,
+        handleTableSearch,
+        handleSearchChange,
+        handleSearchInit,
+        handleSortChange,
+        handleSelectChange,
+        handlePageClick,
+    } = useTableSearch({ columns, getDataFunction: getData, pageNum, setPageNum, rowSize, setRowSize, order, setOrder });
 
     return (
         <div>
@@ -357,7 +300,7 @@ const Device = () => {
                     <div className="table-header">
                         <div className="table-header-left">
                             <Select
-                                onChange={onChangeSelect}
+                                onChange={handleSelectChange}
                                 options={options}
                                 defaultValue={options.find(option => option.value === rowSize)}
                                 placeholder={"몇줄 보기"}
@@ -366,7 +309,7 @@ const Device = () => {
 
                         <div className="table-header-right">
                             {
-                                isSearchInit ? <Button text={"초기화"} onClick={onClickSearchInit} /> : null
+                                isSearchInit ? <Button text={"초기화"} onClick={handleSearchInit} /> : null
                             }
                             <Button text={"추가"} onClick={() => handleGridModal("SAVE")} />
                         </div>
@@ -385,26 +328,19 @@ const Device = () => {
                                 setActiveSearch={setActiveSearch}
                                 resetTrigger={isSearchReset}
                                 onSortChange={handleSortChange}
-                                rowIndexName={"row_num"}
+                                rowIndexName={"rnum"}
                                 onClickRow={onClickRow}
                             />
-
                         </div>
                     </div>
 
-                    <div className="pagination-container">
-                        <ReactPaginate
-                            previousLabel={"<"}
-                            nextLabel={">"}
-                            breakLabel={"..."}
-                            pageCount={Math.ceil(state.count / rowSize)}
-                            marginPagesDisplayed={1}
-                            pageRangeDisplayed={4}
-                            onPageChange={handlePageClick}
-                            containerClassName={"pagination"}
-                            activeClassName={"active"}
+                    <div>
+                        <PaginationWithCustomButtons
+                            dataCount={state.count}
+                            rowSize={rowSize}
+                            fncClickPageNum={handlePageClick}
                         />
-                    </div>
+                    </div>                    
                 </div>
             </div>
         </div>

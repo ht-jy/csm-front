@@ -18,20 +18,20 @@ const SideNav = () => {
                         </a>
                         <div className="collapse" id="collapsePages" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
                             <nav className="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages"> */}
-                                <Link className="nav-link" to="/site">
+                                <Link className="nav-link" to="/site" style={{color: "white"}}>
                                     <div className="sb-nav-link-icon"><img src="/svg/menu/site-management.svg" width='20px' /></div>
                                     현장 관리
                                 </Link>
 
-                                <a className="nav-link collapsed" href="#!" data-bs-toggle="collapse" data-bs-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth">
+                                <a className="nav-link collapsed" href="#!" data-bs-toggle="collapse" data-bs-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth" style={{color: "white"}}>
                                     <div className="sb-nav-link-icon"><img src="/svg/menu/worker-management.svg" width='20px' /></div>
                                     근로자 관리
                                     <div className="sb-sidenav-collapse-arrow"><i className="fas fa-angle-down" /></div>
                                 </a>
                                 <div className="collapse" id="pagesCollapseAuth" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
                                     <nav className="sb-sidenav-menu-nested nav">
-                                        <Link className="nav-link" to="/total">전체 근로자</Link>
-                                        <Link className="nav-link" to="/site-base">현장 근로자</Link>
+                                        <Link className="nav-link" to="/total" style={{color: "white"}}>전체 근로자</Link>
+                                        <Link className="nav-link" to="/site-base" style={{color: "white"}}>현장 근로자</Link>
                                     </nav>
                                 </div>
 
@@ -40,12 +40,12 @@ const SideNav = () => {
                                     장비 관리
                                 </Link>
 
-                                <Link className="nav-link" to="/device">
+                                <Link className="nav-link" to="/device" style={{color: "white"}}>
                                     <div className="sb-nav-link-icon"><img src="/svg/menu/device-management.svg" width='20px' /></div>
                                     근태인식기 관리
                                 </Link>
 
-                                <Link className="nav-link" to="/company">
+                                <Link className="nav-link" to="/company" style={{color: "white"}}>
                                     <div className="sb-nav-link-icon"><img src="/svg/menu/company-management.svg" width='20px' /></div>
                                     협력업체 관리
                                 </Link>
@@ -60,7 +60,7 @@ const SideNav = () => {
                                     일정 관리
                                 </Link>
 
-                                <Link className="nav-link" to="/notice">
+                                <Link className="nav-link" to="/notice" style={{color: "white"}}>
                                     <div className="sb-nav-link-icon"><img src="/svg/menu/notice-management.svg" width='20px' /></div>
                                     공지사항 관리
                                 </Link>
