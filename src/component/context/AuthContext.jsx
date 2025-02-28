@@ -7,6 +7,8 @@ export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState(null);
+    const [project, setProject] = useState(null);
+    const [projectName, setProjectName] = useState("");
 
     const fetchToken = async () => {
         try {
@@ -39,7 +41,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, isLoading, user, fetchToken }}>
+        <AuthContext.Provider value={{ isAuthenticated, isLoading, user, fetchToken, project, setProject, projectName, setProjectName }}>
             {children}
         </AuthContext.Provider>
     );

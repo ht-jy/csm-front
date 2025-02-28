@@ -21,13 +21,14 @@ const CompanySiteManager = ({jno, styles}) => {
     const [manager, setManager] = useState([]);
 
     const columns = [
-        { isSearch: false, isOrder: false, header: "현장소장", itemName: "user_info", bodyAlign: "center", isEllipsis: false, isDate: false},
+        { isSearch: false, isOrder: false, isSlide: false, header: "현장소장", itemName: "user_info", bodyAlign: "center", isEllipsis: false, isDate: false},
     ];
 
     // 현장소장 정보 조회
     const getData = async () => {
         if (jno != null) {   
             const res = await Axios.GET(`/company/site-manager?jno=${jno}`);
+            
             if (res?.data?.result === "Success") {
                 setManager(res?.data?.values?.list);
             }
@@ -36,16 +37,21 @@ const CompanySiteManager = ({jno, styles}) => {
 
     useEffect(() => {
         getData();
-    }, [jno]);
+    }, []);
 
     return(
         <>
-            <Table 
-                columns={columns} 
-                data={manager}
-                noDataText={"-"}
-                styles={styles}
-            />
+            {
+                manager.length === 0 ? null
+                :
+                <Table 
+                    columns={columns} 
+                    data={manager}
+                    noDataText={"-"}
+                    styles={styles}
+                />
+            }
+            
         </>
     );
 }
