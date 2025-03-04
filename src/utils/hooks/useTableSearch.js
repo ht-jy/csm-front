@@ -94,10 +94,8 @@ const useTableSearch = ({ columns = [], getDataFunction, getDataValue, pageNum, 
         if (getDataFunction) {
             if (typeof getDataValue !== "undefined") {
                 getDataFunction(getDataValue);
-                console.log("1");
             } else {
                 getDataFunction();
-                console.log("2");
             }
         }
     }, [getDataValue, pageNum, rowSize, order]);

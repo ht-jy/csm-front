@@ -29,7 +29,15 @@ const DateInput = ({time, setTime}) => {
     const [saveTime, setSaveTime] = useState(time);
     const [showCalendar, setShowCalendar] = useState(false);
 
-        // 날짜 선택 시 캘린더 숨기기
+    // dateUtil의 format으로 인하여 "-"가 들어갈 경우 처리
+    const dateUtilFormat = (time) => {
+        if(time === "-"){
+            return "";
+        }
+        return time;
+    }
+
+    // 날짜 선택 시 캘린더 숨기기
     const handleDateChange = (date) => {
             setTime(dateUtil.format(date));
             setShowCalendar(false);
@@ -50,7 +58,7 @@ const DateInput = ({time, setTime}) => {
                         <OutsideClick setActive={setShowCalendar}>
                             <Calendar 
                                 onChange={handleDateChange} 
-                                value={time} 
+                                value={dateUtilFormat(time)} 
                                 locale="ko" 
                                 calendarType="gregory" 
                                 // formatDay={(locale, date) => date.toLocaleString('en', { day: 'numeric' })} // "일" 글자 삭제

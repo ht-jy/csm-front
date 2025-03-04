@@ -73,7 +73,7 @@ const SearchProjectModal = ({isOpen, fncExit}) => {
     // 공사관리 프로젝트 조회
     const getUsedData = async () => {
         const res = await Axios.GET(`/project/used?page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}`);
-        console.log(res);
+        
         if (res?.data?.result === "Success") {
             setData(res?.data?.values?.list);
             setCount(res?.data?.values?.count);

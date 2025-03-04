@@ -33,7 +33,7 @@ import useTableSearch from "../../../../../utils/hooks/useTableSearch";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /site-nm (현장데이터 조회), /notice (공지사항 조회)
+ *    Http Method - GET : /site/nm (현장데이터 조회), /notice (공지사항 조회)
  *    Http Method - POST : /notice (공지사항 추가)
  *    Http Method - PUT : /notice (공지사항 수정)
  *    Http Method - DELETE :  /notice/${idx} (공지사항 삭제)
@@ -255,7 +255,7 @@ const Notice = () => {
     const getSiteData = async () => {
         setIsLoading(true);
 
-        const res = await Axios.GET(`/site-nm`);
+        const res = await Axios.GET(`/site/nm`);
 
         if (res?.data?.result === "Success") {
             dispatch({ type: "SITE_NM", list: res?.data?.values?.list });
