@@ -6,12 +6,13 @@ import { useAuth } from "../context/AuthContext";
 import { Axios } from "../../utils/axios/Axios";
 import SearchIcon from "../../assets/image/search_9b9d9e.png";
 import Organization from "../../assets/image/organization_chart.png";
+import RefreshIcon from "../../assets/image/refresh-icon.png";
 
 const Header = () => {
     const [isSidebarToggled, setIsSidebarToggled] = useState(false);
     const [isProjectOpen, setIsProjectOpen] = useState(false);
 
-    const { user, projectName } = useAuth();
+    const { user, projectName, setProject, setProjectName } = useAuth();
     const navigete = useNavigate();
 
     // 사이드 메뉴 열고 닫기
@@ -30,6 +31,11 @@ const Header = () => {
     // project modal 열기
     const onClickSearch = () => {
         setIsProjectOpen(true);
+    }
+
+    const handleRefreshProject = () => {
+        setProject(null);
+        setProjectName("");
     }
 
     useEffect(() => {
@@ -75,6 +81,9 @@ const Header = () => {
                 </div>
                 <div className="search-icon-container">
                     <img src={SearchIcon} style={{width: "24px"}}/>
+                </div>
+                <div className="refresh-icon-container" onClick={handleRefreshProject}>
+                    <img src={RefreshIcon} style={{width: "22px"}}/>
                 </div>
                 <div className="organization-icon-container">
                     <img src={Organization} style={{width: "20px"}}/>
