@@ -131,6 +131,11 @@ body {
   white-space: nowrap; /* 줄 바꿈 방지 */
 }
 
+.text-hover:hover {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
 .breadcrumb-icon {
   width: 15px;
   height: 15px;

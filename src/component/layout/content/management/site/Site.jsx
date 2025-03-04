@@ -3,6 +3,7 @@ import "../../../../../assets/css/Table.css";
 import { Axios } from "../../../../../utils/axios/Axios"
 import { dateUtil } from "../../../../../utils/DateUtil";
 import SiteReducer from "./SiteReducer"
+import DetailModal from "./DetailModal";
 
 
 /**
@@ -13,7 +14,7 @@ import SiteReducer from "./SiteReducer"
  * @modified 최종 수정일: 
  * @modifiedBy 최종 수정자: 
  * @usedComponents
- * - 
+ * - DetailModal: 상세화면
  * 
  * @additionalInfo
  * - API:
@@ -26,9 +27,39 @@ const Site = () => {
         code: [],
     })
 
+    const [isDetail, setIsDetail] = useState(false);
+    const [detailTitle, setDetailTitle] = useState("");
+    const [detailData, setDetailData] = useState({});
+
+    const onClickRow = (idx) => {
+        let item;
+        if(state.list[idx].type === "main") {
+            item = state.list[idx];
+        }else{
+            for(let i=idx ; i>-1 ; i--){
+                if(state.list[i].type === "main") {
+                    item = state.list[i];
+                    break;
+                }
+            }
+        }
+
+        setDetailTitle(`${item.site_nm} 상세`)
+        setDetailData(item);
+        setIsDetail(true);
+    }
+
+    const getSiteStatsData = async() => {
+        const res = await Axios.GET(`/site/stats?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}`);
+        
+        if(res?.data?.result === "Success"){
+            dispatch({type: "STATS", list: res?.data?.values?.list});
+        }
+    }
+
     const getData = async() => {
         const res = await Axios.GET(`/site?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}&pCode=SITE_STATUS`);
-
+        
         if(res?.data?.result === "Success"){
             dispatch({type: "INIT", site: res?.data?.values?.site, code: res?.data?.values?.code});
         }
@@ -36,10 +67,27 @@ const Site = () => {
 
     useEffect(() => {
         getData();
+        
+        // 5초 폴링하여 현장상태 변경
+        // 현장별 최소인원 충족(기본 근로자 5명)하는 경우에 현장 상태를 운영으로 하고 아닌 경우는 미운영으로 보여주기로 함.
+        const interval = setInterval(() => {
+            getSiteStatsData();
+        }, 5000);
+        return () => clearInterval(interval);
     }, []);
 
     return(
         <div>
+            {
+                isDetail &&
+                <DetailModal 
+                    isOpen={isDetail}
+                    title={detailTitle}
+                    detailData={detailData}
+                    isEditBtn={true}
+                    exitBtnClick={() => setIsDetail(false)}
+                />
+            }
             <div className="container-fluid px-4">
                 <h2 className="mt-4">현장 관리</h2>
                 <ol className="breadcrumb mb-4">
@@ -67,36 +115,34 @@ const Site = () => {
                 </div>
 
                 <div className="table-container">
-                    <table style={{width: "2000px"}}>
+                    <table>
                         <thead>
                             <tr>
-                                <th rowSpan={2} style={{width: '10px'}}></th>
-                                <th rowSpan={2} style={{width: '150px'}}>발주처</th>
+                                <th rowSpan={2} style={{width: '9.86px'}}></th>
+                                <th rowSpan={2} style={{width: '131.89px'}}>발주처</th>
                                 <th rowSpan={2} style={{width: '390px'}}>현장</th>
-                                <th colSpan={2}>진행현황</th>
-                                <th colSpan={2}>HTENC</th>
-                                <th colSpan={2}>협력사</th>
-                                <th rowSpan={2} style={{width: '50px'}}>소계(M/D)</th>
-                                <th rowSpan={2} style={{width: '60px'}}>Equip.</th>
-                                <th rowSpan={2} style={{width: '450px'}}>작업내용</th>
-                                <th rowSpan={2} style={{width: '100px'}}>현장시작일</th>
-                                <th rowSpan={2} style={{width: '100px'}}>현장종료일</th>
-                                <th rowSpan={2}>날씨</th>
+                                <th colSpan={2} style={{width: '129.28px'}}>진행현황</th>
+                                <th colSpan={2} style={{width: '108.89px'}}>HTENC</th>
+                                <th colSpan={2} style={{width: '110.58px'}}>협력사</th>
+                                <th rowSpan={2} style={{width: '57.1px'}}>소계(M/D)</th>
+                                <th rowSpan={2} style={{width: '53.83px'}}>장비</th>
+                                <th rowSpan={2} style={{width: '356.85px'}}>작업내용</th>
+                                <th rowSpan={2} style={{width: '360.94px'}}>날씨</th>
                             </tr>
                             <tr>
-                                <th rowSpan={2} style={{width: '90px'}}>공정률(%)</th>
-                                <th rowSpan={2} style={{width: '100px'}}>누계(M/D)</th>
-                                <th style={{width: '50px'}}>공사</th>
-                                <th style={{width: '50px'}}>안전</th>
-                                <th style={{width: '50px'}}>관리</th>
-                                <th style={{width: '60px'}}>근로자</th>
+                                <th rowSpan={2} style={{width: '64.36px'}}>공정률<br />(%)</th>
+                                <th rowSpan={2} style={{width: '64.91px'}}>누계<br />(M/D)</th>
+                                <th style={{width: '55.29px'}}>공사</th>
+                                <th style={{width: '53.6px'}}>안전</th>
+                                <th style={{width: '55.29px'}}>관리</th>
+                                <th style={{width: '55.29px'}}>근로자</th>
                             </tr>
                         </thead>
                         <tbody>
                             {
                                 state.list.length == 0 ?
                                 <tr>
-                                    <td className="center" colSpan={15}>현장 관리 내용이 없습니다.</td>
+                                    <td className="center" colSpan={13}>현장 관리 내용이 없습니다.</td>
                                 </tr>
                                 :
                                 state.list.map((item, idx) => (
@@ -115,11 +161,11 @@ const Site = () => {
                                             {/* 발주처 */}
                                             <td className="center" rowSpan={item.rowSpan}>{item.originalOrderCompName || ""}</td>
                                             {/* 현장 */}
-                                            <td className="left ellipsis" style={{maxWidth:'390px'}}>{item.site_nm || ""}</td>
+                                            <td className="left ellipsis text-hover" style={{maxWidth:'390px', cursor: "pointer"}} onClick={()=> onClickRow(idx)}>{item.site_nm || ""}</td>
                                             {/* 공정률 */}
-                                            <td className="center" rowSpan={item.rowSpan}>66%</td>
+                                            <td className="center" rowSpan={item.rowSpan} style={{fontWeight: "bold"}}>66%</td>
                                             {/* 누계 */}
-                                            <td className="right" rowSpan={item.rowSpan}>61</td>
+                                            <td className="right" rowSpan={item.rowSpan} style={{fontWeight: "bold"}}>61</td>
                                             {/* 공사 */}
                                             <td className="right">150</td>
                                             {/* 안전 */}
@@ -129,11 +175,11 @@ const Site = () => {
                                             {/* 근로자 */}
                                             <td className="right">100</td>
                                             {/* 소계 */}
-                                            <td className="right">600</td>
+                                            <td className="right" style={{fontWeight: "bold"}}>600</td>
                                             {/* equip. */}
-                                            <td className="right">61</td>
+                                            <td className="right" style={{fontWeight: "bold"}}>61</td>
                                             {/* 작업내용 */}
-                                            <td className="left ellipsis" style={{maxWidth:'450px'}}>
+                                            <td className="left ellipsis" style={{maxWidth:'356.85px'}}>
                                                 {
                                                     item.project_list.length == 1 ?
                                                         item.project_list[0]?.daily_content_list.length != 0 ?
@@ -149,8 +195,8 @@ const Site = () => {
                                                         </ul>
                                                         :
                                                         <ul>
-                                                            <li style={{ color: "#a5a5a5" }}>
-                                                                당일 작업내용이 없습니다.
+                                                            <li className="center" style={{ color: "#a5a5a5" }}>
+                                                                -
                                                             </li>
                                                         </ul>
                                                     :
@@ -158,17 +204,13 @@ const Site = () => {
                                                 }
                                                 
                                             </td>
-                                            {/* 시작일 */}
-                                            <td className="center">2025-01-01</td>
-                                            {/* 종료일 */}
-                                            <td className="center">2025-02-01</td>
                                             {/* 날씨 */}
                                             <td className="center">날씨....</td>
                                         </tr>
                                     :
                                         <tr key={idx}>
                                             {/* 현장 */}
-                                            <td className="left ellipsis" style={{maxWidth:'390px'}}><li>{item.project_nm}</li></td>
+                                            <td className="left ellipsis text-hover" style={{maxWidth:'390px', cursor: "pointer"}} onClick={() => onClickRow(idx)}><li>{item.project_nm}</li></td>
                                             {/* 공사 */}
                                             <td className="right">150</td>
                                             {/* 안전 */}
@@ -178,11 +220,11 @@ const Site = () => {
                                             {/* 근로자 */}
                                             <td className="right">100</td>
                                             {/* 소계 */}
-                                            <td className="right">600</td>
+                                            <td className="right" style={{fontWeight: "bold"}}>600</td>
                                             {/* equip */}
-                                            <td className="right">61</td>
+                                            <td className="right" style={{fontWeight: "bold"}}>61</td>
                                             {/* 작업내용 */}
-                                            <td className="left ellipsis" style={{maxWidth:'450px'}}>
+                                            <td className="left ellipsis" style={{maxWidth:'356.85px'}}>
                                                 {
                                                     item?.daily_content_list.length != 0 ?
                                                     <ul>
@@ -197,16 +239,12 @@ const Site = () => {
                                                     </ul>
                                                     :
                                                     <ul>
-                                                        <li style={{ color: "#a5a5a5" }}>
-                                                            당일 작업내용이 없습니다.
+                                                        <li className="center" style={{ color: "#a5a5a5" }}>
+                                                            -
                                                         </li>
                                                     </ul>
                                                 }
                                             </td>
-                                            {/* 시작일 */}
-                                            <td className="center">2025-01-01</td>
-                                            {/* 종료일 */}
-                                            <td className="center">2025-02-01</td>
                                             {/* 날씨 */}
                                             <td className="center">날씨....</td>
                                         </tr>
