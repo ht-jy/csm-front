@@ -29,8 +29,7 @@ import useTableSearch from "../../utils/hooks/useTableSearch";
  *    Http Method - GET : /project/used (공사관리 프로젝트 조회)
  */
 const SearchProjectModal = ({isOpen, fncExit}) => {
-    const { setProject, setProjectName } = useAuth();
-
+    const { user, setProject, setProjectName } = useAuth();
     const [selectedValue, setSelectedValue] = useState("1");
     const [data, setData] = useState([]);
     const [count, setCount] = useState(0);
@@ -39,8 +38,8 @@ const SearchProjectModal = ({isOpen, fncExit}) => {
     const columns = [
         { isSearch: false, isOrder: true, isSlide: true, width: "65.34px", header: "JNO", itemName: "jno", bodyAlign: "center", isEllipsis: false, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "168.49px", header: "JOB No.", itemName: "job_no", bodyAlign: "left", isEllipsis: false, isDate: false },
-        { isSearch: true, isOrder: true, isSlide: false, width: "157.75px", header: "End-User", itemName: "comp_name", bodyAlign: "center", isEllipsis: false, isDate: false },
-        { isSearch: true, isOrder: true, isSlide: false, width: "157.75px", header: "Client", itemName: "order_comp_name", bodyAlign: "center", isEllipsis: false, isDate: false },
+        { isSearch: true, isOrder: true, isSlide: false, width: "157.75px", header: "End-User", itemName: "comp_name", bodyAlign: "center", isEllipsis: true, isDate: false },
+        { isSearch: true, isOrder: true, isSlide: false, width: "157.75px", header: "Client", itemName: "order_comp_name", bodyAlign: "center", isEllipsis: true, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "366.18px", header: "PROJECT 명", itemName: "job_name", bodyAlign: "left", isEllipsis: true, isDate: false },
         { isSearch: true, isOrder: true, isSlide: true, width: "70.65px", header: "PM", itemName: "job_pm_name", bodyAlign: "center", isEllipsis: false, isDate: false },
         { isSearch: true, isOrder: true, isSlide: true, width: "107.45px", header: "시작일", itemName: "job_sd", bodyAlign: "center", isEllipsis: false, isDate: false },
@@ -82,16 +81,22 @@ const SearchProjectModal = ({isOpen, fncExit}) => {
 
     // 조직도 프로젝트 조회
     const getStaffData = async () => {
-        // 데이터 조회 로직 추가 필요
-        setData([]);
-        setCount(0);
+        const res = await Axios.GET(`/project/staff/${user.uno}?page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}`);
+        if (res?.data?.result === "Success") {
+            setData(res?.data?.values?.list);
+            setCount(res?.data?.values?.count);
+        }
+        
     };
 
     // 전체 프로젝트 조회
     const getAllData = async () => {
-        // 데이터 조회 로직 추가 필요
-        setData([]);
-        setCount(0);
+
+        const res = await Axios.GET(`/project/all?page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}`);
+        if(res?.data?.result === "Success"){
+            setData(res?.data?.values?.list);
+            setCount(res?.data?.values?.count);            
+        }
     };
 
     // 데이터 조회 분기
