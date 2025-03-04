@@ -35,5 +35,10 @@ export const dateUtil = {
         } catch (error) {
             return null;
         }
+    },
+    // go의 date 기준으로 값이 있는지 없는지 체크
+    isDate(date) {
+        if (date === "0001-01-01T00:00:00Z") return false;
+        return true;
     }
 }

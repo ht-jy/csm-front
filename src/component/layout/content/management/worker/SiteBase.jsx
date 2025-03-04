@@ -36,7 +36,7 @@ import PaginationWithCustomButtons from "../../../../module/PaginationWithCustom
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /site-base (현장 근로자 조회), /site-nm (현장 리스트 조회)
+ *    Http Method - GET : /site-base (현장 근로자 조회), /site/nm (현장 리스트 조회)
  */
 const SiteBase = () => {
     const [state, dispatch] = useReducer(SiteBaseReducer, {
@@ -109,7 +109,7 @@ const SiteBase = () => {
     const getSiteData = async() => {
         setIsLoading(true);
 
-        const res = await Axios.GET("/site-nm");
+        const res = await Axios.GET("/site/nm");
         if (res?.data?.result === "Success") {
             dispatch({ type: "SITE_NM", list: res?.data?.values?.list });
         }

@@ -33,7 +33,7 @@ import useTableSearch from "../../../../../utils/hooks/useTableSearch";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /site-nm (현장데이터 조회), /device (근태인식기 조회)
+ *    Http Method - GET : /site/nm (현장데이터 조회), /device (근태인식기 조회)
  *    Http Method - POST : /device (근태인식기 추가)
  *    Http Method - PUT : /device (근태인식기 수정)
  *    Http Method - DELETE :  /device/${dno} (근태인식기 삭제)
@@ -199,7 +199,7 @@ const Device = () => {
     const getSiteData = async () => {
         setIsLoading(true);
 
-        const res = await Axios.GET(`/site-nm`);
+        const res = await Axios.GET(`/site/nm`);
         if (res?.data?.result === "Success") {
             dispatch({ type: "SITE_NM", list: res?.data?.values?.list });
         } else if (res?.data?.result === "Failure") {
@@ -231,7 +231,7 @@ const Device = () => {
         }
 
         const res = await Axios.GET(`/device?page_num=${pageNum}&row_size=${rowSize}&order=${order}&device_nm=${searchValues.device_nm}&device_sn=${searchValues.device_sn}&site_nm=${searchValues.site_nm}&etc=${searchValues.etc}&is_use=${isUse}`);
-        console.log(res);
+        
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
         } else if (res?.data?.result === "Failure") {
