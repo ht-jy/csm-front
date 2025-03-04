@@ -1,5 +1,4 @@
 import { useEffect, useReducer, useState } from "react";
-import ReactPaginate from "react-paginate";
 import Select from 'react-select';
 import "../../../../../assets/css/Paginate.css";
 import "../../../../../assets/css/Table.css";
@@ -12,7 +11,9 @@ import Loading from "../../../../module/Loading";
 import NoticeReducer from "./NoticeReducer";
 import { useAuth } from "../../../../context/AuthContext";
 import Table from "../../../../module/Table";
-
+import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons .jsx"
+import useTableControlState from "../../../../../utils/hooks/useTableControlState.js";
+import useTableSearch from "../../../../../utils/hooks/useTableSearch";
 
 /**
  * @description: 공지사항 CRUD
@@ -32,10 +33,10 @@ import Table from "../../../../module/Table";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /site-nm (현장데이터 조회), /notice (근태인식기 조회)
- *    Http Method - POST : /notice (근태인식기 추가)
- *    Http Method - PUT : /notice (근태인식기 수정)
- *    Http Method - DELETE :  /notice/${idx} (근태인식기 삭제)
+ *    Http Method - GET : /site-nm (현장데이터 조회), /notice (공지사항 조회)
+ *    Http Method - POST : /notice (공지사항 추가)
+ *    Http Method - PUT : /notice (공지사항 수정)
+ *    Http Method - DELETE :  /notice/${idx} (공지사항 삭제)
  * - 주요 상태 관리: useReducer, useState
 */
 
@@ -48,7 +49,7 @@ const Notice = () => {
     });
 
     const { user } = useAuth();
-
+    const {pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(10);
 
     // [GridModal]
     const [data, setData] = useState([]);
@@ -63,12 +64,6 @@ const Notice = () => {
     const [modalText, setModalText] = useState("")
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [isValidation, setIsValidation] = useState(true);
-
-    // [페이지]
-    const [order, setOrder] = useState("");
-    const [pageNum, setPageNum] = useState(1);
-    const [rowSize, setRowSize] = useState(10);
-
 
     const options = [
         { value: 5, label: "5줄 보기" },
@@ -87,23 +82,7 @@ const Notice = () => {
         { header: "등록일", width: "60px", itemName: "reg_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format" },
     ]
 
-
-    const defaultSearchValues = columns.reduce((acc, col) => {
-        if (col.isSearch) acc[col.itemName] = "";
-        return acc
-    }, {});
-
-    const [isSearchInit, setIsSearchInit] = useState(false);
-    const [isSearchReset, setIsSearchReset] = useState(false);
-    const [searchValues, setSearchValues] = useState(defaultSearchValues);
-    const [activeSearch, setActiveSearch] = useState(
-        columns.reduce((acc, col) => {
-            if (col.isSearch) acc[col.itemName] = false;
-            return acc;
-        }, {})
-    );
-
-
+    
     // [GridModal]
     const gridGetData = [
         { type: "html", span: "full", label: "", value: "" },
@@ -132,38 +111,6 @@ const Notice = () => {
         }
     }
 
-    // [테이블] 검색
-    const handleTableSearch = () => {
-        setIsSearchInit(true);
-        getNotices();
-    }
-
-    // [테이블] 검색 단어 갱신
-    const handleSearchChange = (field, value) => {
-        setSearchValues(prev => ({
-            ...prev,
-            [field]: value
-        }));
-    }
-
-    // [테이블] 검색 초기화
-    const onClickSearchInit = () => {
-
-        setSearchValues(defaultSearchValues);
-        setActiveSearch(columns.reduce((acc, col) => {
-            if (col.isSearch) acc[col.itemName] = false;
-            return acc;
-        }, {}));
-
-        setIsSearchInit(false);
-        setIsSearchReset(true);
-    }
-
-    // [테이블] 정렬 이벤트
-    const handleSortChange = (newOrder) => {
-        setOrder(newOrder);
-    }
-
     // [테이블] 행의 개수 선택
     const onChangeSelect = (e) => {
         setRowSize(e.value);
@@ -178,13 +125,11 @@ const Notice = () => {
         handleGetGridModal("DETAIL", ...notice);
     }
 
-
     // [데이터] 공지사항 전체 조회
     const getNotices = async () => {
         setIsLoading(true);
 
         const res = await Axios.GET(`/notice?page_num=${pageNum}&row_size=${rowSize}&order=${order}&&loc_code=${searchValues.loc_code}&site_nm=${searchValues.site_nm}&title=${searchValues.title}&user_info=${searchValues.user_info}`);
-
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
         } else if (res?.data?.result === "Failure") {
@@ -376,19 +321,18 @@ const Notice = () => {
 
     }
 
-    // [페이지] > 이동 버튼 클릭 시
-    const handlePageClick = ({ selected }) => {
-        setPageNum(selected + 1);
-    }
+    const {
+        searchValues,
+        activeSearch, setActiveSearch,
+        isSearchReset,
+        isSearchInit,
+        handleTableSearch,
+        handleSearchChange,
+        handleSearchInit,
+        handleSortChange,
+        handlePageClick
+     } = useTableSearch ({  columns, getDataFunction: getNotices, pageNum, setPageNum, rowSize, setRowSize, order, setOrder })
 
-    // [테이블] 단어 검색 초기화 시
-    useEffect(() => {
-        if (isSearchReset) {
-            getNotices();
-            setIsSearchReset(false);
-        }
-
-    }, [isSearchReset])
 
     // [GridModal] 모드 변경 시
     useEffect(() => {
@@ -397,11 +341,6 @@ const Notice = () => {
             handlePostGridModal("EDIT", data[0]);
         }
     }, [gridMode])
-
-    // [페이지] 페이지, 행크기, 정렬 변경 시
-    useEffect(() => {
-        getNotices();
-    }, [pageNum, rowSize, order])
 
     return (
         <div>
@@ -463,7 +402,7 @@ const Notice = () => {
 
                         <div className="table-header-right">
                             {
-                                isSearchInit ? <Button text={"초기화"} onClick={onClickSearchInit} /> : null
+                                isSearchInit ? <Button text={"초기화"} onClick={handleSearchInit} /> : null
                             }
                             <Button text={"등록"} onClick={() => handlePostGridModal("SAVE")}></Button>
                         </div>
@@ -486,22 +425,14 @@ const Notice = () => {
                             />
                         </div>
                     </div>
+                        { state.count !== 0 ?
+                            <PaginationWithCustomButtons 
+                                dataCount={state.count}
+                                rowSize={rowSize}
+                                fncClickPageNum={handlePageClick}
+                            /> : null
+                        }
 
-                    {/* TODO: 페이지가 항상 아래 쪽에 위치하도록 */}
-                    <div className="pagination-container">
-                        <ReactPaginate
-                            previousLabel={"<"}
-                            nextLabel={">"}
-                            breakLabel={"..."}
-                            pageCount={Math.ceil(state.count / rowSize)}
-                            marginPagesDisplayed={1}
-                            pageRangeDisplayer={4}
-                            onPageChange={handlePageClick}
-                            containerClassName={"pagination"}
-                            activeClassName={"active"}
-                        />
-
-                    </div>
                 </div>
             </div>
 

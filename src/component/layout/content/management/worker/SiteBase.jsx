@@ -14,6 +14,9 @@ import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Paginate.css";
 import "../../../../../assets/css/Calendar.css";
 import DateInput from "../../../../module/DateInput";
+import useTableSearch from "../../../../../utils/hooks/useTableSearch";
+import useTableControlState from "../../../../../utils/hooks/useTableControlState";
+import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons ";
 
 /**
  * @description: 현장 근로자 관리
@@ -43,20 +46,16 @@ const SiteBase = () => {
         siteNmList: [],
     })
 
-    const [pageNum, setPageNum] = useState(1);
-    const [rowSize, setRowSize] = useState(10);
-    const [order, setOrder] = useState("");
     const [searchStartTime, setSearchStartTime] = useState(dateUtil.now());
     const [searchEndTime, setSearchEndTime] = useState(dateUtil.now());
     const [sno, setSno] = useState(null);
 
+    const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(10);
 
     const [isLoading, setIsLoading] = useState(false);
     const [isModal, setIsModal] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
     const [modalText, setModalText] = useState("");
-    const [isSearchReset, setIsSearchReset] = useState(false);
-    const [isSearchInit, setIsSearchInit] = useState(false);
 
     const columns = [
         { isSearch: false, isOrder: false, width: "70px", header: "순번", itemName: "row_num", bodyAlign: "center", isEllipsis: false, isDate: false },
@@ -68,31 +67,12 @@ const SiteBase = () => {
         { isSearch: false, isOrder: true, width: "140px", header: "퇴근시간", itemName: "out_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: "formatWithTime" }
     ];
 
-    const defaultSearchValues = columns.reduce((acc, col) => {
-        if (col.isSearch) acc[col.itemName] = ""; 
-        return acc;
-    }, {});
-
-    const [searchValues, setSearchValues] = useState(defaultSearchValues);
-    const [activeSearch, setActiveSearch] = useState(
-        columns.reduce((acc, col) => { 
-            if (col.isSearch) acc[col.itemName] = false; 
-            return acc; 
-        }, {})
-    );
-    
-
     const options = [
         { value: 5, label: "5줄 보기" },
         { value: 10, label: "10줄 보기" },
         { value: 15, label: "15줄 보기" },
         { value: 20, label: "20줄 보기" },
     ];
-
-    // 페이지네이션 버튼 클릭
-    const handlePageClick = ({ selected }) => {
-        setPageNum(selected+1);
-    };
 
     // 리스트 개수 select 선택
     const onChangeSelect = (e) => {
@@ -106,46 +86,12 @@ const SiteBase = () => {
         setPageNum(1);
     }
 
-    // 테이블 검색 단어 갱신
-    const handleSearchChange = (field, value) => {
-        setSearchValues(prev => ({
-            ...prev, 
-            [field]: value 
-        }));
-    };
-
-    // 테이블 검색
-    const handleTableSearch = () => {
-        setIsSearchInit(true);
-        getData();
-    };
-
-    // 테이블 검색 초기화
-    const onClickSearchInit = () => {
-        setSearchValues(defaultSearchValues); // 검색값 초기화
-        setActiveSearch(columns.reduce((acc, col) => { 
-            if (col.isSearch) acc[col.itemName] = false; 
-            return acc; 
-        }, {})); // 검색창 닫기
-
-        setIsSearchInit(false);
-        setIsSearchReset(true);
-    };
-
-    // 테이블 정렬 변경시 이벤트
-    const handleSortChange = (newOrder) => {
-        setOrder(newOrder);
-    }
-
     // 현장 근로자 조회
     const getData = async () => {
         if (sno === null) return;
         setIsLoading(true);
 
         const res = await Axios.GET(`/worker/site-base?page_num=${pageNum}&row_size=${rowSize}&order=${order}&search_start_time=${searchStartTime}&search_end_time=${searchEndTime}&sno=${sno}&job_name=${searchValues.job_name}&user_nm=${searchValues.user_nm}&department=${searchValues.department}`);
-        console.log(searchValues)
-        console.log(searchStartTime)
-        console.log(searchEndTime)
 
         if (res?.data?.result === "Success") {
             if(res?.data?.values?.list.length === 0) {
@@ -180,14 +126,6 @@ const SiteBase = () => {
         getData();
     }, [pageNum, rowSize, searchStartTime, searchEndTime, order, sno]);
 
-    // 테이블 단어 검색시
-    useEffect(() => {
-        if (isSearchReset) {
-            getData();
-            setIsSearchReset(false);
-        }
-    }, [isSearchReset]);
-
     // 시작 날짜보다 끝나는 날짜가 빠를 시: 끝나는 날짜를 변경한 경우 (시작 날짜를 끝나는 날짜로)
     useEffect(() => {
         if (searchStartTime > searchEndTime) {
@@ -202,6 +140,18 @@ const SiteBase = () => {
         }
     }, [searchStartTime]);
 
+    const { 
+        searchValues,
+        activeSearch, setActiveSearch, 
+        isSearchReset,
+        isSearchInit,
+        handleTableSearch,
+        handleSearchChange,
+        handleSearchInit,
+        handleSortChange,
+        handleSelectChange,
+        handlePageClick,
+    } = useTableSearch({ columns, getDataFunction: getData, pageNum, setPageNum, rowSize, setRowSize, order, setOrder });
 
     return(
         <div>
@@ -254,7 +204,7 @@ const SiteBase = () => {
                         
                         <div className="table-header-right">
                             {
-                                isSearchInit ? <Button text={"초기화"} onClick={onClickSearchInit} /> : null
+                                isSearchInit ? <Button text={"초기화"} onClick={handleSearchInit} /> : null
                             }                            
                         </div>
                     </div>
@@ -274,23 +224,12 @@ const SiteBase = () => {
                             />
                         </div>
                     </div>
-
-                    <div className="pagination-container">
-                        {
-                            state.list.length === 0 ? null
-                            :
-                                <ReactPaginate
-                                    previousLabel={"<"}
-                                    nextLabel={">"}
-                                    breakLabel={"..."}
-                                    pageCount={Math.ceil(state.count / rowSize)}
-                                    marginPagesDisplayed={1}
-                                    pageRangeDisplayed={4}
-                                    onPageChange={handlePageClick}
-                                    containerClassName={"pagination"}
-                                    activeClassName={"active"}
-                                />
-                        }
+                    <div>
+                        <PaginationWithCustomButtons
+                            dataCount={state.count}
+                            rowSize={rowSize}
+                            fncClickPageNum={handlePageClick}
+                         />
                     </div>
                 </div>
             </div>
