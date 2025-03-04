@@ -36,6 +36,23 @@ const SiteReducer = (state, action) => {
             });
             
             return {...state, list: JSON.parse(JSON.stringify(sites)), code: JSON.parse(JSON.stringify(action.code))};
+        case "STATS":
+            const setColor2 = (code) => {
+                const foundItem = state.code.find(item => item.code == code);
+                return foundItem ? foundItem.code_color : undefined;
+            }
+
+            const stats = action.list;
+            let list = state.list;
+            list = list?.map(site => {
+                const matchingItem = stats.find(item => site.sno === item.sno);
+                if (matchingItem) {
+                    return { ...site, siteStatsColor: setColor2(matchingItem.current_site_stats) };
+                }
+                return site;
+            });
+
+            return {...state, list: JSON.parse(JSON.stringify(list))};
     }
 }
 
