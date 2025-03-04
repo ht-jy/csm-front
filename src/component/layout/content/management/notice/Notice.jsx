@@ -110,13 +110,6 @@ const Notice = () => {
                 return "";
         }
     }
-
-    // [테이블] 행의 개수 선택
-    const onChangeSelect = (e) => {
-        setRowSize(e.value);
-        setPageNum(1);
-    }
-
     // [테이블] 행 클릭 시 상세페이지 
     const onClickRow = (item, mode) => {
         setGridMode(mode);
@@ -330,6 +323,7 @@ const Notice = () => {
         handleSearchChange,
         handleSearchInit,
         handleSortChange,
+        handleSelectChange,
         handlePageClick
      } = useTableSearch ({  columns, getDataFunction: getNotices, pageNum, setPageNum, rowSize, setRowSize, order, setOrder })
 
@@ -392,7 +386,7 @@ const Notice = () => {
                     <div className="table-header">
                         <div className="table-header-left">
                             <Select
-                                onChange={onChangeSelect}
+                                onChange={handleSelectChange}
                                 options={options}
                                 defaultValue={options.find(option => option.value === rowSize)}
                                 placeholder={"몇줄 보기"}
