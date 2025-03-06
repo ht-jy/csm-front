@@ -58,17 +58,27 @@ const CompanySupervisor = ({jno, styles}) => {
     return(
         <>
             <table style={{...styles}}>
+            <colgroup>
+                <col style={{width:"250px"}} />
+                {
+                    header.length === 0 ? null
+                    :
+                    header.map((item, idx) => (
+                        <col style={{width:"50px"}} key={idx}/>
+                    ))
+                }
+            </colgroup>
                 <thead>
                     <tr>
                         <th colSpan={header.length+1}>관리감독자</th>
                     </tr>
                     <tr>
-                        <th style={{width:"190px"}}>성명 (ID)</th>
+                        <th>성명 (ID)</th>
                         {
                             header.length === 0 ? null
                             :
                             header.map((item, idx) => (
-                                <th style={{width:"50px"}} key={idx}>{item.func_name}</th>
+                                <th key={idx}>{item.func_name}</th>
                             ))
                         }
                     </tr>

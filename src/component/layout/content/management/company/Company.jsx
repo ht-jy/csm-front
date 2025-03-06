@@ -89,23 +89,25 @@ const Company = () => {
                                     <div>
                                         <div className="company-manager">
                                             {/* 현장소장*/}
-                                            <div style={{ width: "270px" }}>
-                                                <CompanySiteManager jno={jno} styles={{ width: "270px" }} />
+                                            <div style={{ width: "250px", height: "100%", minWidth: "250px", overflow: "hidden", borderRadius: "5px", boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)" }}>
+                                                <CompanySiteManager jno={jno} styles={{ width: "250px", minWidth: "250px" }} />
                                             </div>
 
                                             {/* 안전관리자*/}
-                                            <div style={{ width: "265px", margin: "0 auto" }}>
-                                                <CompanySafeManager jno={jno} styles={{ width: "265px", marginLeft:"9px" }} />
+                                            <div style={{ width: "265px", height: "100%", minWidth: "265px", margin: "0 auto", overflow: "hidden", borderRadius: "5px", marginLeft:"22px", boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)"  }}>
+                                                <CompanySafeManager jno={jno} styles={{ width: "265px", minWidth: "265px"}} />
                                             </div>
 
                                             {/* 관리감독자*/}
-                                            <div style={{ width: "1130px", marginLeft: "auto" }}>
-                                                <CompanySupervisor jno={jno} styles={{ width: "1130px" }} />
+                                            <div style={{ width: "1155px", height: "100%", minWidth: "1155px", marginLeft: "0", overflow: "hidden", borderRadius: "5px", marginLeft:"22px", boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)" }}>
+                                                <CompanySupervisor jno={jno} styles={{ width: "1155px", minWidth: "1155px" }} />
                                             </div>
                                         </div>
 
                                         {/* 협력업체 */}
-                                        <CompanyInfo jno={jno} styles={{marginBottom: "10px"}}/>
+                                        <div style={{ width:"100%", height: "100%", minWidth: "1710px", overflow: "hidden", borderRadius: "5px", boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)" }}>
+                                            <CompanyInfo jno={jno} styles={{marginBottom: "10px"}}/>
+                                        </div>
                                     </div>
                                 : null
                             }

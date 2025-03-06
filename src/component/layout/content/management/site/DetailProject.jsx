@@ -39,12 +39,12 @@ const DetailProject = ({data, projectNo, projectLength, isMain}) => {
     return(
         <div className="grid-project">
             {/* 첫 번째 열 */}
-            <div className="form-control" style={{ gridColumn: "1 / span 2", gridRow: "1", border: "none" }}>
+            <div className="form-control grid-project-bc" style={{ gridColumn: "1 / span 2", gridRow: "1", border: "none" }}>
                 <div className="grid-project-title">
                     {`프로젝트 상세 ${projectTitle()}`}
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "2" }}>
+            <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "1", gridRow: "2" }}>
                 <div className="text-overflow">
                     <label className="detail-text-label">
                         번호
@@ -54,7 +54,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain}) => {
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "3" }}>
+            <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "1", gridRow: "3" }}>
                 <div className="text-overflow">
                     <label className="detail-text-label">
                         등록일
@@ -64,7 +64,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain}) => {
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "4" }}>
+            <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "1", gridRow: "4" }}>
                 <div className="text-overflow">
                     <label className="detail-text-label">
                         착수년도
@@ -74,7 +74,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain}) => {
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "5" }}>
+            <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "1", gridRow: "5" }}>
                 <div className="text-overflow">
                     <label className="detail-text-label">
                         업무 코드
@@ -84,7 +84,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain}) => {
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "6" }}>
+            <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "1", gridRow: "6" }}>
                 <div className="text-overflow">
                     <label className="detail-text-label">
                         시작(착수)일
@@ -94,7 +94,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain}) => {
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "7" }}>
+            <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "1", gridRow: "7" }}>
                 <div className="text-overflow">
                     <label className="detail-text-label">
                         PM
@@ -104,7 +104,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain}) => {
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "8" }}>
+            <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "1", gridRow: "8" }}>
                 <div className="text-overflow">
                     <label className="detail-text-label">
                         고객사
@@ -116,7 +116,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain}) => {
             </div>
 
             {/* 두번째 열 */}
-            <div className="form-control text-none-border" style={{ gridColumn: "2", gridRow: "2" }}>
+            <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "2", gridRow: "2" }}>
                 <div className="text-overflow">
                     <label className="detail-text-label">
                         진행상태
@@ -126,7 +126,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain}) => {
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "2", gridRow: "3" }}>
+            <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "2", gridRow: "3" }}>
                 <div className="text-overflow">
                     <label className="detail-text-label">
                         프로젝트 명
@@ -136,7 +136,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain}) => {
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "2", gridRow: "4" }}>
+            <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "2", gridRow: "4" }}>
                 <div className="text-overflow">
                     <label className="detail-text-label">
                         사업소
@@ -146,7 +146,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain}) => {
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "2", gridRow: "5" }}>
+            <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "2", gridRow: "5" }}>
                 <div className="text-overflow">
                     <label className="detail-text-label">
                         프로젝트 유형
@@ -156,7 +156,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain}) => {
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "2", gridRow: "6" }}>
+            <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "2", gridRow: "6" }}>
                 <div className="text-overflow">
                     <label className="detail-text-label">
                         종료(예정)일
@@ -166,7 +166,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain}) => {
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "2", gridRow: "7" }}>
+            <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "2", gridRow: "7" }}>
                 <div className="text-overflow">
                     <label className="detail-text-label">
                         PE
@@ -176,7 +176,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain}) => {
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "2", gridRow: "8" }}>
+            <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "2", gridRow: "8" }}>
                 <div className="text-overflow">
                     <label className="detail-text-label">
                         발주처

@@ -12,7 +12,7 @@
 .company-manager {
     display: flex;
     position: relative;
-    width: 1710px;
+    width: 100%;
     height: auto;
     margin-bottom: 40px;
 }

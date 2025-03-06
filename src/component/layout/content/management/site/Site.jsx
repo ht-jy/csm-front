@@ -4,6 +4,15 @@ import { Axios } from "../../../../../utils/axios/Axios"
 import { dateUtil } from "../../../../../utils/DateUtil";
 import SiteReducer from "./SiteReducer"
 import DetailModal from "./DetailModal";
+import Loading from "../../../../module/Loading";
+import whether0 from "../../../../../assets/image/whether/0.png";
+import whether1 from "../../../../../assets/image/whether/1.png";
+import whether2 from "../../../../../assets/image/whether/2.png";
+import whether3 from "../../../../../assets/image/whether/3.png";
+import whether4 from "../../../../../assets/image/whether/4.png";
+import whether5 from "../../../../../assets/image/whether/5.png";
+import whether6 from "../../../../../assets/image/whether/6.png";
+import whether7 from "../../../../../assets/image/whether/7.png";
 
 
 /**
@@ -27,6 +36,7 @@ const Site = () => {
         code: [],
     })
 
+    const [isLoading, setIsLoading] = useState(false);
     const [isDetail, setIsDetail] = useState(false);
     const [detailTitle, setDetailTitle] = useState("");
     const [detailData, setDetailData] = useState({});
@@ -49,6 +59,87 @@ const Site = () => {
         setIsDetail(true);
     }
 
+    // 날씨 api 정보 확인
+    const getIsWhether = (whether) => {
+        if(whether.length === 0) return false;
+        return true;
+    }
+
+    // 날씨(강수형태)
+    const getPtyData = (whether) => {
+        const temp = whether?.filter(item => item.key === "PTY");
+        switch(temp[0]?.value){
+            case "0": 
+                return (
+                    <>
+                        <img src={whether0} style={{width: "19px"}}/> 맑음
+                    </>
+                );
+            case "1": 
+                return (
+                    <>
+                        <img src={whether1} style={{width: "19px"}}/> 비
+                    </>
+                );
+            case "2": 
+                return (
+                    <>
+                        <img src={whether2} style={{width: "19px"}}/> 비/눈
+                    </>
+                );
+            case "3": 
+                return (
+                    <>
+                        <img src={whether3} style={{width: "19px"}}/> 눈
+                    </>
+                );
+            case "4": 
+                return (
+                    <>
+                        <img src={whether4} style={{width: "19px"}}/> 소나기
+                    </>
+                );
+            case "5": 
+                return (
+                    <>
+                        <img src={whether5} style={{width: "19px"}}/> 빗방울
+                    </>
+                );
+            case "6": 
+                return (
+                    <>
+                        <img src={whether6} style={{width: "19px"}}/> 비/눈
+                    </>
+                );
+            case "7": 
+                return (
+                    <>
+                        <img src={whether7} style={{width: "19px"}}/> 눈
+                    </>
+                );
+            default: return "";
+        }
+    }
+
+    // 날씨(강수량)
+    const getRn1Data = (whether) => {
+        const temp = whether?.filter(item => item.key === "RN1");
+        return ` 강수량: ${temp[0]?.value}(㎜) `;
+    }
+
+    // 날씨(기온)
+    const getT1hData = (whether) => {
+        const temp = whether?.filter(item => item.key === "T1H");
+        return ` 기온: ${temp[0]?.value}(°C) `;
+    }
+
+    // 날씨(풍속,풍향)
+    const getWindData = (whether) => {
+        const temp1 = whether?.filter(item => item.key === "WSD");
+        const temp2 = whether?.filter(item => item.key === "VEC");
+        return ` ${temp2[0]?.value} ${temp1[0]?.value}(㎧) `;
+    }
+
     const getSiteStatsData = async() => {
         const res = await Axios.GET(`/site/stats?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}`);
         
@@ -58,26 +149,33 @@ const Site = () => {
     }
 
     const getData = async() => {
+        setIsLoading(true);
+
         const res = await Axios.GET(`/site?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}&pCode=SITE_STATUS`);
         
         if(res?.data?.result === "Success"){
             dispatch({type: "INIT", site: res?.data?.values?.site, code: res?.data?.values?.code});
         }
-    }
 
+        setIsLoading(false);
+    }
+    
     useEffect(() => {
         getData();
-        
-        // 5초 폴링하여 현장상태 변경
-        // 현장별 최소인원 충족(기본 근로자 5명)하는 경우에 현장 상태를 운영으로 하고 아닌 경우는 미운영으로 보여주기로 함.
+
         const interval = setInterval(() => {
             getSiteStatsData();
         }, 5000);
+    
         return () => clearInterval(interval);
     }, []);
+    
 
     return(
         <div>
+            <Loading
+                isOpen={isLoading}
+            />
             {
                 isDetail &&
                 <DetailModal 
@@ -118,24 +216,24 @@ const Site = () => {
                     <table>
                         <thead>
                             <tr>
-                                <th rowSpan={2} style={{width: '9.86px'}}></th>
-                                <th rowSpan={2} style={{width: '131.89px'}}>발주처</th>
-                                <th rowSpan={2} style={{width: '390px'}}>현장</th>
-                                <th colSpan={2} style={{width: '129.28px'}}>진행현황</th>
-                                <th colSpan={2} style={{width: '108.89px'}}>HTENC</th>
-                                <th colSpan={2} style={{width: '110.58px'}}>협력사</th>
-                                <th rowSpan={2} style={{width: '57.1px'}}>소계(M/D)</th>
-                                <th rowSpan={2} style={{width: '53.83px'}}>장비</th>
-                                <th rowSpan={2} style={{width: '356.85px'}}>작업내용</th>
-                                <th rowSpan={2} style={{width: '360.94px'}}>날씨</th>
+                                <th className="fixed-left" rowSpan={2} style={{ width: "10px", left: "0px" }}></th>
+                                <th className="fixed-left" rowSpan={2} style={{ width: "140px", left: "10px" }}>발주처</th>
+                                <th className="fixed-left" rowSpan={2} style={{ width: "280px", left: "150px" }}>현장</th>
+                                <th colSpan={2} style={{ width: "130px" }}>진행현황</th>
+                                <th colSpan={2} style={{ width: "110px" }}>HTENC</th>
+                                <th colSpan={2} style={{ width: "110px" }}>협력사</th>
+                                <th rowSpan={2} style={{ width: "60px" }}>소계<br />(M/D)</th>
+                                <th rowSpan={2} style={{ width: "55px" }}>장비</th>
+                                <th rowSpan={2} style={{ width: "200px" }}>작업내용</th>
+                                <th className="fixed-right" rowSpan={2} style={{ width: "300px", right: 0 }}>날씨</th>
                             </tr>
                             <tr>
-                                <th rowSpan={2} style={{width: '64.36px'}}>공정률<br />(%)</th>
-                                <th rowSpan={2} style={{width: '64.91px'}}>누계<br />(M/D)</th>
-                                <th style={{width: '55.29px'}}>공사</th>
-                                <th style={{width: '53.6px'}}>안전</th>
-                                <th style={{width: '55.29px'}}>관리</th>
-                                <th style={{width: '55.29px'}}>근로자</th>
+                                <th style={{ width: "65px" }}>공정률<br />(%)</th>
+                                <th style={{ width: "65px" }}>누계<br />(M/D)</th>
+                                <th style={{ width: "55px" }}>공사</th>
+                                <th style={{ width: "55px" }}>안전</th>
+                                <th style={{ width: "55px" }}>관리</th>
+                                <th style={{ width: "55px" }}>근로자</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -149,19 +247,20 @@ const Site = () => {
                                     item.type === "main" ?
                                         <tr key={idx}>
                                             {/* 현장구분 */}
-                                            <td rowSpan={item.rowSpan} style={{padding: 0, position: 'relative'}}>
+                                            <td className="fixed-left" rowSpan={item.rowSpan} style={{padding: 0, position: 'sticky', left: "0px"}}>
                                                 <div style={{
                                                     backgroundColor: item.siteStatsColor,
                                                     width: '100%',
                                                     position: 'absolute',
                                                     top: 0,
-                                                    bottom: 0
+                                                    bottom: 0,
+                                                    margin: "0.5px"
                                                 }}></div>
                                             </td>
                                             {/* 발주처 */}
-                                            <td className="center" rowSpan={item.rowSpan}>{item.originalOrderCompName || ""}</td>
+                                            <td className="center fixed-left" rowSpan={item.rowSpan} style={{left: "10px"}}>{item.originalOrderCompName || ""}</td>
                                             {/* 현장 */}
-                                            <td className="left ellipsis text-hover" style={{maxWidth:'390px', cursor: "pointer"}} onClick={()=> onClickRow(idx)}>{item.site_nm || ""}</td>
+                                            <td className="left ellipsis text-hover fixed-left" style={{cursor: "pointer", left: "150px"}} onClick={()=> onClickRow(idx)}>{item.site_nm || ""}</td>
                                             {/* 공정률 */}
                                             <td className="center" rowSpan={item.rowSpan} style={{fontWeight: "bold"}}>66%</td>
                                             {/* 누계 */}
@@ -179,7 +278,7 @@ const Site = () => {
                                             {/* equip. */}
                                             <td className="right" style={{fontWeight: "bold"}}>61</td>
                                             {/* 작업내용 */}
-                                            <td className="left ellipsis" style={{maxWidth:'356.85px'}}>
+                                            <td className="left ellipsis">
                                                 {
                                                     item.project_list.length == 1 ?
                                                         item.project_list[0]?.daily_content_list.length != 0 ?
@@ -205,12 +304,26 @@ const Site = () => {
                                                 
                                             </td>
                                             {/* 날씨 */}
-                                            <td className="center">날씨....</td>
+                                            <td className="center fixed-right" rowSpan={item.rowSpan}>
+                                                {
+                                                    getIsWhether(item.whether) ?
+                                                        <>
+                                                            <>{getPtyData(item.whether)}</>
+                                                            /
+                                                            <>{getRn1Data(item.whether)}</>
+                                                            /
+                                                            <>{getT1hData(item.whether)}</>
+                                                            /
+                                                            <>{getWindData(item.whether)}</>
+                                                        </>                                                         
+                                                    : "날씨 정보가 없습니다."
+                                                }
+                                            </td>
                                         </tr>
                                     :
                                         <tr key={idx}>
                                             {/* 현장 */}
-                                            <td className="left ellipsis text-hover" style={{maxWidth:'390px', cursor: "pointer"}} onClick={() => onClickRow(idx)}><li>{item.project_nm}</li></td>
+                                            <td className="left ellipsis text-hover fixed-left" style={{cursor: "pointer", left: "150px"}} onClick={() => onClickRow(idx)}><li>{item.project_nm}</li></td>
                                             {/* 공사 */}
                                             <td className="right">150</td>
                                             {/* 안전 */}
@@ -224,7 +337,7 @@ const Site = () => {
                                             {/* equip */}
                                             <td className="right" style={{fontWeight: "bold"}}>61</td>
                                             {/* 작업내용 */}
-                                            <td className="left ellipsis" style={{maxWidth:'356.85px'}}>
+                                            <td className="left ellipsis">
                                                 {
                                                     item?.daily_content_list.length != 0 ?
                                                     <ul>
@@ -246,7 +359,7 @@ const Site = () => {
                                                 }
                                             </td>
                                             {/* 날씨 */}
-                                            <td className="center">날씨....</td>
+                                            {/* <td className="center">날씨....</td> */}
                                         </tr>
                                 ))
                             }
