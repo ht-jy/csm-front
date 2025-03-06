@@ -34,7 +34,7 @@ const SiteReducer = (state, action) => {
                     })
                 }
             });
-            
+            console.log(sites);
             return {...state, list: JSON.parse(JSON.stringify(sites)), code: JSON.parse(JSON.stringify(action.code))};
         case "STATS":
             const setColor2 = (code) => {

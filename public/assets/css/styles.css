@@ -4269,7 +4269,7 @@ form.d-flex {
   background-clip: border-box;
   border: var(--bs-card-border-width) solid var(--bs-card-border-color);
   border-radius: var(--bs-card-border-radius);
-  width: 1710px;
+  /* width: 1710px; */
 }
 .card > hr {
   margin-right: 0;

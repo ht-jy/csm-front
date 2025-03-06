@@ -74,11 +74,11 @@ const Notice = () => {
 
     // [테이블]
     const columns = [
-        { header: "순번", width: "10px", itemName: "row_num", bodyAlign: "center", isSearch: false, isOrder: false, isDate: false, isEllipsis: false },
-        { header: "지역", width: "30px", itemName: "loc_code", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false },
+        { header: "순번", width: "30px", itemName: "row_num", bodyAlign: "center", isSearch: false, isOrder: false, isDate: false, isEllipsis: false },
+        {isSlide:true, header: "지역", width: "30px", itemName: "loc_code", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false },
         { header: "현장", width: "120px", itemName: "site_nm", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
         { header: "제목", width: "250px", itemName: "title", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
-        { header: "등록자", width: "60px", itemName: "user_info", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: true},
+        { header: "등록자", width: "70px", itemName: "user_info", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: true},
         { header: "등록일", width: "60px", itemName: "reg_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format" },
     ]
 
