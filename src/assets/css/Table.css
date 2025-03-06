@@ -237,6 +237,15 @@ td {
 }
 
 /* 좌측 고정 헤더 컬럼 */
+thead.fixed {
+  position: sticky;
+  top: 0;
+  background: #004377; 
+  color: #fff;
+  z-index: 4;
+}
+
+/* 좌측 고정 헤더 컬럼 */
 thead .fixed-left {
   position: sticky;
   left: 0;
