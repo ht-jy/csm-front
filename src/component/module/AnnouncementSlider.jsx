@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../../assets/css/slider.css";
 import arrorRight from "../../assets/image/arrow-right.png";
 import arrorLeft from "../../assets/image/arrow-left.png";
+import upAndDown from "../../assets/image/up-and-down.png";
 
 const announcements = [
   "공지 1: 시스템 점검 예정",
@@ -24,6 +25,18 @@ function AnnouncementSlider() {
   const resetAutoSlide = () => {
     clearInterval(window.autoSlide);
     window.autoSlide = setInterval(handleNext, 3000);
+  };
+
+  const handleClick = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickY = e.clientY - rect.top;
+    const imageHeight = rect.height;
+
+    if (clickY < imageHeight / 2) {
+      handleNext();
+    } else {
+      handlePrev();
+    }
   };
 
   const handlePrev = () => {
@@ -54,7 +67,7 @@ function AnnouncementSlider() {
   return (
     <div className="announcement-slider">
       {/* 왼쪽 화살표 버튼 */}
-      <img
+      {/* <img
             src={arrorLeft}
             onClick={handlePrev}
             style={{ 
@@ -65,8 +78,14 @@ function AnnouncementSlider() {
             marginRight: "10px"
             }}
             alt="left arrow"
+        /> */}
+      <div style={{width: "30px", height: "30px", textAlign: "center", cursor: "pointer"}} onClick={handleClick}>
+        <img 
+          src={upAndDown}
+          style={{width: "20px"}}
         />
-
+      </div>
+      
       {/* 슬라이드 텍스트 */}
       <div className="slides-container">
         <div className="slide">
@@ -82,7 +101,7 @@ function AnnouncementSlider() {
       </div>
 
       {/* 오른쪽 화살표 버튼 */}
-      <img
+      {/* <img
             src={arrorRight}
             onClick={handleNext}
             style={{ 
@@ -93,7 +112,7 @@ function AnnouncementSlider() {
                 marginLeft: "10px"
             }}
             alt="right arrow"
-        />
+        /> */}
     </div>
   );
 }

@@ -2512,6 +2512,7 @@ form.d-flex {
   align-items: center;
   max-width: 500px; /* 검색창 너비 조절 */
   margin-left: auto;
+  position: "relative"
 }
 
 .input-group.search-input label {
