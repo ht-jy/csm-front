@@ -29,9 +29,10 @@ import "../../assets/css/Table.css";
  *  resetTrigger: 검색어 초기화 트리거
  *  onSortChange: 정렬시 부모 컴포넌트 실행 함수
  *  onClickRow: 행클릭 시 부모 컴포넌트 실행 함수 // 인자: ("DETAIL", 해당 행의 rowIndexName의 정보)
+ *  isHeaderFixed: 헤더 부분 스크롤시 고정 여부 true|false
  *  styles: 테이블 스타일 추가 적용
  */
-const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchChange, activeSearch=[], setActiveSearch, resetTrigger, onSortChange, onClickRow, styles }) => {
+const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchChange, activeSearch=[], setActiveSearch, resetTrigger, onSortChange, onClickRow, isHeaderFixed, styles }) => {
     const [localSearchValues, setLocalSearchValues] = useState(searchValues); // 로컬 상태 유지
     const [orderState, setOrderState] = useState({}); // 각 컬럼별 정렬 상태 관리
     const [orderStateList, setOrderStateList] = useState([]);
@@ -101,7 +102,7 @@ const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchC
 
     return (
         <table style={{...styles}}>
-            <thead>
+            <thead className={isHeaderFixed ? "fixed" : ""}>
                 <tr>
                     {columns.map(col => (
                         <th

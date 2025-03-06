@@ -45,7 +45,7 @@ const Total = () => {
     });
 
     const [pageNum, setPageNum] = useState(1);
-    const [rowSize, setRowSize] = useState(10);
+    const [rowSize, setRowSize] = useState(100);
     const [order, setOrder] = useState("");
     const [searchStartTime, setSearchStartTime] = useState(dateUtil.now());
     const [searchEndTime, setSearchEndTime] = useState(dateUtil.now());
@@ -79,13 +79,10 @@ const Total = () => {
         }, {})
     );
 
-
-    const options = [
-        { value: 5, label: "5줄 보기" },
-        { value: 10, label: "10줄 보기" },
-        { value: 15, label: "15줄 보기" },
-        { value: 20, label: "20줄 보기" },
-    ];
+    // const options = [
+    //     { value: 5, label: "5줄 보기" },
+    //     { value: 100, label: "10줄 보기" },
+    // ];
 
     // 페이지네이션 버튼 클릭
     const onClickPageBtn = (num) => {
@@ -181,21 +178,18 @@ const Total = () => {
             />
             <div>
                 <div className="container-fluid px-4">
-                    <h2 className="mt-4">전체 근로자</h2>
-                    <ol className="breadcrumb mb-4">
-                        <img className="breadcrumb-icon" src="/assets/img/icon-house.png" />
-                        <li className="breadcrumb-item active">관리 메뉴</li>
-                        <li className="breadcrumb-item active">전체 근로자</li>
+                    <ol className="breadcrumb mb-4" style={{display: "flex", alignItems: "flex-end", height: "100%"}}>
+                        <li className="breadcrumb-item " style={{fontSize:"28px"}}>전체 근로자</li>
+                        <li className="breadcrumb-item active" style={{paddingBottom: "4px"}}>근로자 관리</li>
                     </ol>
-
                     <div className="table-header">
                         <div className="table-header-left" style={{ gap: "10px" }}>
-                            <Select
+                            {/* <Select
                                 onChange={onChangeSelect}
                                 options={options}
                                 defaultValue={options.find(option => option.value === rowSize)}
                                 placeholder={"몇줄 보기"}
-                            />
+                            /> */}
 
                             <div className="m-2">
                                 조회기간 <DateInput time={searchStartTime} setTime={setSearchStartTime}></DateInput> ~ <DateInput time={searchEndTime} setTime={setSearchEndTime}></DateInput>
@@ -210,7 +204,7 @@ const Total = () => {
                     </div>
 
                     <div className="table-wrapper">
-                        <div className="table-container">
+                        <div className="table-container" style={{overflow: "auto", maxHeight: "calc(100vh - 350px)"}}>
                             <Table
                                 columns={columns}
                                 data={state.list}
@@ -221,6 +215,7 @@ const Total = () => {
                                 setActiveSearch={setActiveSearch}
                                 resetTrigger={isSearchReset}
                                 onSortChange={handleSortChange}
+                                isHeaderFixed={true}
                             />
                         </div>
                     </div>

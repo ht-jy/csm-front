@@ -50,7 +50,7 @@ const SiteBase = () => {
     const [searchEndTime, setSearchEndTime] = useState(dateUtil.now());
     const [sno, setSno] = useState(null);
 
-    const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(10);
+    const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(100);
 
     const [isLoading, setIsLoading] = useState(false);
     const [isModal, setIsModal] = useState(false);
@@ -67,12 +67,12 @@ const SiteBase = () => {
         { isSearch: false, isOrder: true, width: "140px", header: "퇴근시간", itemName: "out_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: "formatWithTime" }
     ];
 
-    const options = [
-        { value: 5, label: "5줄 보기" },
-        { value: 10, label: "10줄 보기" },
-        { value: 15, label: "15줄 보기" },
-        { value: 20, label: "20줄 보기" },
-    ];
+    // const options = [
+    //     { value: 5, label: "5줄 보기" },
+    //     { value: 10, label: "10줄 보기" },
+    //     { value: 15, label: "15줄 보기" },
+    //     { value: 20, label: "20줄 보기" },
+    // ];
 
     // 리스트 개수 select 선택
     const onChangeSelect = (e) => {
@@ -165,21 +165,19 @@ const SiteBase = () => {
             />
             <div>
                 <div className="container-fluid px-4">
-                    <h2 className="mt-4">현장 근로자</h2>
-                    <ol className="breadcrumb mb-4">
-                        <img className="breadcrumb-icon" src="/assets/img/icon-house.png" />
-                        <li className="breadcrumb-item active">관리 메뉴</li>
-                        <li className="breadcrumb-item active">현장 근로자</li>
+                    <ol className="breadcrumb mb-4" style={{display: "flex", alignItems: "flex-end", height: "100%"}}>
+                        <li className="breadcrumb-item " style={{fontSize:"28px"}}>현장 근로자</li>
+                        <li className="breadcrumb-item active" style={{paddingBottom: "4px"}}>근로자 관리</li>
                     </ol>
 
                     <div className="table-header">
                         <div className="table-header-left" style={{gap:"10px"}}>
-                            <Select
+                            {/* <Select
                                 onChange={onChangeSelect}
                                 options={options}
                                 defaultValue={options.find(option => option.value === rowSize)}
                                 placeholder={"몇줄 보기"}
-                            />
+                            /> */}
 
                             <div style={{ width: "500px" }}>
                                 <Select
@@ -210,7 +208,7 @@ const SiteBase = () => {
                     </div>
                     
                     <div className="table-wrapper">
-                        <div className="table-container">
+                        <div className="table-container" style={{overflow: "auto", maxHeight: "calc(100vh - 350px)"}}>
                             <Table 
                                 columns={columns} 
                                 data={state.list} 
@@ -221,6 +219,7 @@ const SiteBase = () => {
                                 setActiveSearch={setActiveSearch} 
                                 resetTrigger={isSearchReset}
                                 onSortChange={handleSortChange}
+                                isHeaderFixed={true}
                             />
                         </div>
                     </div>
