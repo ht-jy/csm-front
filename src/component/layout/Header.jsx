@@ -7,6 +7,9 @@ import { Axios } from "../../utils/axios/Axios";
 import SearchIcon from "../../assets/image/search_9b9d9e.png";
 import Organization from "../../assets/image/organization_chart.png";
 import RefreshIcon from "../../assets/image/refresh-icon.png";
+import CancelIcon from "../../assets/image/cancel.png";
+import ExitIcon from "../../assets/image/exit.png";
+import { ObjChk } from "../../utils/ObjChk";
 
 const Header = () => {
     const [isSidebarToggled, setIsSidebarToggled] = useState(false);
@@ -74,7 +77,24 @@ const Header = () => {
                 </div>
                 <div className="input-group search-input">
                     <label htmlFor="project-search">PROJECT NAME</label>
-                    <input className="form-control" type="text" value={projectName} placeholder="project를 선택하세요" aria-label="project를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearch} readOnly/>
+                    <input className="form-control" style={{paddingRight: "40px"}} type="text" value={projectName} placeholder="project를 선택하세요" aria-label="project를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearch} readOnly/>
+                    {
+                        !ObjChk.all(projectName) && (
+                            <img 
+                                src={CancelIcon}
+                                alt="취소"
+                                style={{
+                                    position: "absolute",
+                                    top: "52%",
+                                    right: "41px",
+                                    transform: "translateY(-50%)",
+                                    cursor: "pointer",
+                                    width: "40px"
+                                }}
+                                onClick={handleRefreshProject}
+                            />
+                        )
+                    }
                     <button className="btn btn-primary" id="btnNavbarSearch" type="button"  onClick={onClickSearch}>
                         <i className="fas fa-search" />
                     </button>
