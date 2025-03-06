@@ -88,9 +88,8 @@ const Device = () => {
     const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(10);
 
     // 상세페이지 클릭 시
-    const onClickRow = (mode, deviceRow) => {
-        const device = state.list.filter((device) => device.row_num === deviceRow);
-        handleGridModal(mode, ...device);
+    const onClickRow = (deviceRow, mode) => {
+        handleGridModal(mode, deviceRow);
     }
 
     // GridModal 띄우기 - 추가 또는 리스트 row 클릭시
@@ -103,7 +102,7 @@ const Device = () => {
             arr[1].value = item.device_nm;
             arr[2].value = item.device_sn;
             arr[3].value = item.sno;
-            arr[4].value = item.is_use;
+            arr[4].value = item.is_use === "사용중" ? "Y" : "N" ;
             arr[5].value = item.etc;
         }
 
