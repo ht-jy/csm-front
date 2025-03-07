@@ -280,3 +280,10 @@ tbody .fixed-right {
   color: #333;
   z-index: 3;
 }
+
+.sub-title{
+  background-color: beige;
+  color: black;
+  padding-left: 10px;
+  text-align: left;
+}

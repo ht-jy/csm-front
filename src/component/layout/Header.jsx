@@ -10,10 +10,12 @@ import RefreshIcon from "../../assets/image/refresh-icon.png";
 import CancelIcon from "../../assets/image/cancel.png";
 import ExitIcon from "../../assets/image/exit.png";
 import { ObjChk } from "../../utils/ObjChk";
+import OrganizationModal from "../module/OrganizationModal";
 
 const Header = () => {
     const [isSidebarToggled, setIsSidebarToggled] = useState(false);
     const [isProjectOpen, setIsProjectOpen] = useState(false);
+    const [isOrganizationOpen, setIsOrganizationOpen] = useState(false);
 
     const { user, projectName, setProject, setProjectName } = useAuth();
     const navigete = useNavigate();
@@ -34,6 +36,11 @@ const Header = () => {
     // project modal 열기
     const onClickSearch = () => {
         setIsProjectOpen(true);
+    }
+
+    // 조직도 열기
+    const onClickOrganization = () => {
+        setIsOrganizationOpen(true)
     }
 
     const handleRefreshProject = () => {
@@ -65,6 +72,11 @@ const Header = () => {
             <SearchProjectModal
                 isOpen={isProjectOpen}
                 fncExit={() => setIsProjectOpen(false)}
+            />
+            {/* 조직도 모달 */}
+            <OrganizationModal 
+                isOpen={isOrganizationOpen}
+                fncExit={() => setIsOrganizationOpen(false)}
             />
             {/* Navbar Brand*/}
             <a className="navbar-brand ps-3" href="/site">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;공사관리시스템</a>
@@ -99,15 +111,19 @@ const Header = () => {
                         <i className="fas fa-search" />
                     </button>
                 </div>
+                
                 <div className="search-icon-container">
                     <img src={SearchIcon} style={{width: "24px"}}/>
                 </div>
+                
                 <div className="refresh-icon-container" onClick={handleRefreshProject}>
                     <img src={RefreshIcon} style={{width: "22px"}}/>
                 </div>
-                <div className="organization-icon-container">
+
+                <div className="organization-icon-container" onClick={onClickOrganization}>
                     <img src={Organization} style={{width: "20px"}}/>
                 </div>
+                
             </form>
             {/* Navbar*/}
             <ul className="navbar-nav ms-auto me-0 me-md-3 my-2 my-md-0">
