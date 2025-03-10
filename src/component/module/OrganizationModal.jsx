@@ -43,8 +43,6 @@ const OrganizationModal = ({isOpen, fncExit}) => {
                 setClient(res?.data?.values?.client)
                 setHitech(res?.data?.values?.hitech)
             }
-            console.log(res)
-
         }
     }
 

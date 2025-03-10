@@ -17,6 +17,7 @@ import DateInput from "../../../../module/DateInput";
 import useTableSearch from "../../../../../utils/hooks/useTableSearch";
 import useTableControlState from "../../../../../utils/hooks/useTableControlState";
 import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons ";
+import { useAuth } from "../../../../context/AuthContext";
 
 /**
  * @description: 현장 근로자 관리
@@ -48,7 +49,7 @@ const SiteBase = () => {
 
     const [searchStartTime, setSearchStartTime] = useState(dateUtil.now());
     const [searchEndTime, setSearchEndTime] = useState(dateUtil.now());
-    const [sno, setSno] = useState(null);
+    const {project} = useAuth();
 
     const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(100);
 
@@ -67,31 +68,20 @@ const SiteBase = () => {
         { isSearch: false, isOrder: true, width: "140px", header: "퇴근시간", itemName: "out_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: "formatWithTime" }
     ];
 
-    // const options = [
-    //     { value: 5, label: "5줄 보기" },
-    //     { value: 10, label: "10줄 보기" },
-    //     { value: 15, label: "15줄 보기" },
-    //     { value: 20, label: "20줄 보기" },
-    // ];
-
-    // 리스트 개수 select 선택
-    const onChangeSelect = (e) => {
-        setRowSize(e.value);
-        setPageNum(1);
-    };
-
-    // 현장 select 선택
-    const onChangeSiteSelect = (e) => {
-        setSno(e.value);
-        setPageNum(1);
-    }
-
     // 현장 근로자 조회
     const getData = async () => {
-        if (sno === null) return;
+        if (project === null) {
+            setIsModal(true);
+            setModalTitle("현장 근로자 조회");
+            setModalText("프로젝트를 선택해주세요.");
+            return;
+        }
+
         setIsLoading(true);
 
-        const res = await Axios.GET(`/worker/site-base?page_num=${pageNum}&row_size=${rowSize}&order=${order}&search_start_time=${searchStartTime}&search_end_time=${searchEndTime}&sno=${sno}&job_name=${searchValues.job_name}&user_nm=${searchValues.user_nm}&department=${searchValues.department}`);
+        if (project.sno == null) return;
+
+        const res = await Axios.GET(`/worker/site-base?page_num=${pageNum}&row_size=${rowSize}&order=${order}&search_start_time=${searchStartTime}&search_end_time=${searchEndTime}&sno=${project.sno}&job_name=${searchValues.job_name}&user_nm=${searchValues.user_nm}&department=${searchValues.department}`);
 
         if (res?.data?.result === "Success") {
             if(res?.data?.values?.list.length === 0) {
@@ -105,26 +95,10 @@ const SiteBase = () => {
         setIsLoading(false);
     };
 
-    // 현장 리스트 조회
-    const getSiteData = async() => {
-        setIsLoading(true);
-
-        const res = await Axios.GET("/site/nm");
-        if (res?.data?.result === "Success") {
-            dispatch({ type: "SITE_NM", list: res?.data?.values?.list });
-        }
-
-        setIsLoading(false);
-    }
-
-    useEffect(() => {
-        getSiteData();
-    }, []);
-
     // 페이지, 리스트 수, 검색날짜, 정렬, 현장 변경시
     useEffect(() => {
         getData();
-    }, [pageNum, rowSize, searchStartTime, searchEndTime, order, sno]);
+    }, [pageNum, rowSize, searchStartTime, searchEndTime, order, project]);
 
     // 시작 날짜보다 끝나는 날짜가 빠를 시: 끝나는 날짜를 변경한 경우 (시작 날짜를 끝나는 날짜로)
     useEffect(() => {
@@ -172,27 +146,6 @@ const SiteBase = () => {
 
                     <div className="table-header">
                         <div className="table-header-left" style={{gap:"10px"}}>
-                            {/* <Select
-                                onChange={onChangeSelect}
-                                options={options}
-                                defaultValue={options.find(option => option.value === rowSize)}
-                                placeholder={"몇줄 보기"}
-                            /> */}
-
-                            <div style={{ width: "500px" }}>
-                                <Select
-                                    onChange={onChangeSiteSelect}
-                                    options={state.siteNmList}
-                                    placeholder={"현장 선택"}
-                                    styles={{
-                                        menu: (provided) => ({ ...provided, zIndex: 9999 }),
-                                        menuList: (provided) => ({
-                                          ...provided,
-                                          maxHeight: "500px", // 드롭다운 최대 높이 조정
-                                        }),
-                                    }}
-                                />
-                            </div>
 
                             <div className="m-2">
                                 조회기간 <DateInput time={searchStartTime} setTime={setSearchStartTime}></DateInput> ~ <DateInput time={searchEndTime} setTime={setSearchEndTime}></DateInput>
