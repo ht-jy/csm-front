@@ -75,14 +75,13 @@ const Notice = () => {
     // [테이블]
     const columns = [
         { header: "순번", width: "30px", itemName: "row_num", bodyAlign: "center", isSearch: false, isOrder: false, isDate: false, isEllipsis: false },
-        {isSlide:true, header: "지역", width: "30px", itemName: "loc_code", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false },
-        { header: "현장", width: "120px", itemName: "site_nm", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
+        { header: "지역", width: "30px", itemName: "loc_name", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false, isSlide:true },
+        { header: "현장(공개범위)", width: "120px", itemName: "site_nm", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
         { header: "제목", width: "250px", itemName: "title", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
         { header: "등록자", width: "70px", itemName: "user_info", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: true},
         { header: "등록일", width: "60px", itemName: "reg_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format" },
     ]
 
-    
     // [GridModal]
     const gridGetData = [
         { type: "html", span: "full", label: "", value: "" },
@@ -92,8 +91,8 @@ const Notice = () => {
 
     const gridPostData = [
         { type: "text", span: "full", label: "제목", value: "" },
-        { type: "select", span: "double", label: "현장", value: 0, selectName: "siteNm" },
-        { type: "select", span: "double", label: "공개범위", value: 0, selectName: "visibility" },
+        { type: "select", span: "double", label: "현장(공개범위)", value: 0, selectName: "siteNm" },
+        { type: "select", span: "double", label: "공개기간", value: "1", selectName: "noticeNm" },
         { type: "html", span: "full", label: "내용", vlaue: "" },
         { type: "hidden", value: "" },
     ]
@@ -122,7 +121,7 @@ const Notice = () => {
     const getNotices = async () => {
         setIsLoading(true);
 
-        const res = await Axios.GET(`/notice?page_num=${pageNum}&row_size=${rowSize}&order=${order}&&loc_code=${searchValues.loc_code}&site_nm=${searchValues.site_nm}&title=${searchValues.title}&user_info=${searchValues.user_info}`);
+        const res = await Axios.GET(`/notice?page_num=${pageNum}&row_size=${rowSize}&order=${order}&&loc_name=${searchValues.loc_name}&site_nm=${searchValues.site_nm}&title=${searchValues.title}&user_info=${searchValues.user_info}`);
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
         } else if (res?.data?.result === "Failure") {
@@ -145,16 +144,19 @@ const Notice = () => {
         }
 
         if (mode === "EDIT") {
+            console.log("notcice",notice)
+            console.log("select", state)
             arr[0].value = notice.title;
             arr[1].value = notice.sno;
-            //            arr[2].value = notice.show_yn; // TODO: 공개범위 설정
+            arr[2].value = notice.period_code;
             arr[3].value = notice.content;
             arr[4].value = notice.idx;
 
         }
-
+        
         setDetail(arr);
         getSiteData();
+        getPeriodData();
         setIsPostGridModal(true);
     }
 
@@ -171,15 +173,15 @@ const Notice = () => {
                         </div>
                         <div class="row">
                             <div class="col-md-1 fw-bold">지역</div>
-                            <div class="col-md-3">${notice.loc_code}</div>
-                            <div class="col-md-1 fw-bold">현장</div>
-                            <div class="col-md-6">${notice.site_nm}</div>
+                            <div class="col-md-3">${notice.loc_name}</div>
+                            <div class="col-md-2 fw-bold">현장(공개범위)</div>
+                            <div class="col-md-5">${notice.site_nm}</div>
                         </div>
                         <div class="row mt-2">
                             <div class="col-md-1 fw-bold">등록자</div>
                             <div class="col-md-3">${notice.user_info}</div>
-                            <div class="col-md-1 fw-bold">등록일</div>
-                            <div class="col-md-3">${dateUtil.format(notice.reg_date, "yyyy-MM-dd")}</div>
+                            <div class="col-md-1 fw-bold">게시일</div>
+                            <div class="col-md-3">${dateUtil.format(notice.reg_date, "yyyy-MM-dd")} ~ ${dateUtil.format(notice.posting_date, "yyyy-MM-dd")}</div>
                             ${dateUtil.format(notice.mod_date, "yyyy-MM-dd") !== "0001-01-01" ? `                                
                                 <div class="col-md-1 fw-bold">수정일</div>
                                 <div class="col-md-3 ">${dateUtil.format(notice.mod_date, "yyyy-MM-dd")}</div>
@@ -244,15 +246,27 @@ const Notice = () => {
         setIsPostGridModal(false);
     }
 
-    // [GridModal-Post] 현장데이터 리스트 조회
+    // [GridModal-Post] 현장데이터 조회
     const getSiteData = async () => {
         setIsLoading(true);
 
         const res = await Axios.GET(`/site/nm`);
 
         if (res?.data?.result === "Success") {
-            dispatch({ type: "SITE_NM", list: res?.data?.values?.list });
+            dispatch({ type: "SITE_NM", site: res?.data?.values?.list });
         }
+        setIsLoading(false);
+    }
+
+    // [GridModal-Post] 공지기간 리스트 조회
+    const getPeriodData = async () => {
+        setIsLoading(true);
+        const res = await Axios.GET(`/notice/period`);
+        
+        if (res?.data?.result === "Success") {
+            dispatch({type: "NOTICE_NM", period: res?.data?.values?.periods})
+        }
+
         setIsLoading(false);
     }
 
@@ -282,8 +296,9 @@ const Notice = () => {
                 title: item[0].value || "",
                 content: item[3].value || "",
                 show_yn: "Y", //item[2].value || "Y",
+                period_code: item[2].value || "1",
                 reg_uno: Number(user.uno) || 0,
-                reg_user: user.userName || ""
+                reg_user: user.userName || "",
             }
 
             let res;
@@ -294,6 +309,7 @@ const Notice = () => {
                 notice.idx = item[4].value;
                 notice.mod_user = user.userName || "";
                 notice.mod_uno = Number(user.uno) || 0;
+
                 res = await Axios.PUT(`/notice`, notice);
             }
 
@@ -311,7 +327,6 @@ const Notice = () => {
             setIsPostGridModal(false);
             setIsOpenModal(true);
         }
-
     }
 
     const {
