@@ -139,9 +139,9 @@ const SiteBase = () => {
             />
             <div>
                 <div className="container-fluid px-4">
-                    <ol className="breadcrumb mb-4" style={{display: "flex", alignItems: "flex-end", height: "100%"}}>
-                        <li className="breadcrumb-item " style={{fontSize:"28px"}}>현장 근로자</li>
-                        <li className="breadcrumb-item active" style={{paddingBottom: "4px"}}>근로자 관리</li>
+                    <ol className="breadcrumb mb-4 content-title-box">
+                        <li className="breadcrumb-item content-title">현장 근로자</li>
+                        <li className="breadcrumb-item active content-title-sub">근로자 관리</li>
                     </ol>
 
                     <div className="table-header">

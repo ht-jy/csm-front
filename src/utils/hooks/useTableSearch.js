@@ -22,7 +22,7 @@ import { useState, useEffect } from "react";
  *   order: 정렬 문자열 값
  *   setOrder: 정렬 문자열 값 stter
  */
-const useTableSearch = ({ columns = [], getDataFunction, getDataValue, pageNum, setPageNum, rowSize, setRowSize, order, setOrder }) => {
+const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySearchText, pageNum, setPageNum, rowSize, setRowSize, order, setOrder }) => {
     // 기본 검색값 초기화: isSearch가 true인 컬럼에 대해 빈 문자열 할당
     const defaultSearchValues = columns.reduce((acc, col) => {
         if (col.isSearch) acc[col.itemName] = "";
@@ -98,7 +98,7 @@ const useTableSearch = ({ columns = [], getDataFunction, getDataValue, pageNum, 
                 getDataFunction();
             }
         }
-    }, [getDataValue, pageNum, rowSize, order]);
+    }, [getDataValue, retrySearchText, pageNum, rowSize, order]);
 
     // 테이블 단어 검색시 이벤트
     useEffect(() => {
