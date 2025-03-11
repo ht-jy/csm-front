@@ -6,24 +6,32 @@ const NoticeReducer = (state, action) => {
         case "SITE_NM":
 
             const siteNm = [];
-            action.list.map((item, idx) => {
+            siteNm.push({value: 0, label: "전체"});
+            action.site.map((item, idx) => {
                 siteNm.push({ value: item.sno, label: item.site_nm });
             })
-            // FIXME: 프로젝트에 전체, 지역을 넣을 것인지 아니면 공개여부로 선택할 것인지. 
-            // siteNm.push({value: 0, label: "전체"});
 
-            const visibility = [
-                { value: 0, label: "전체공개" },
-                { value: 1, label: "해당지역" },
-                { value: 2, label: "프로젝트" }
-            ]
-
-            const selectList = {
-                siteNm: siteNm,
-                visibility: visibility
+            const siteList = {
+                ...state.selectList,
+                siteNm: siteNm
             }
-            return { ...state, selectList: JSON.parse(JSON.stringify(selectList)) };
+
+            return { ...state, selectList: JSON.parse(JSON.stringify(siteList)) };
+            
+        case "NOTICE_NM":
+            const noticeNm = [];
+            action.period.map((item, idx) => {
+                noticeNm.push({value:item.period_code, label:item.notice_nm});
+            })
+
+            const periodList = {
+                ...state.selectList,
+                noticeNm: noticeNm
+            }
+
+            return {...state, selectList: JSON.parse(JSON.stringify(periodList))}
     }
+    
 }
 
 export default NoticeReducer;

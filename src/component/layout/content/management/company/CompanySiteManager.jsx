@@ -37,7 +37,7 @@ const CompanySiteManager = ({jno, styles}) => {
 
     useEffect(() => {
         getData();
-    }, []);
+    }, [jno]);
 
     return(
         <>

@@ -56,6 +56,7 @@ const DateInput = ({time, setTime}) => {
                 {showCalendar && (
                     <div className="calendar-popup">
                         <OutsideClick setActive={setShowCalendar}>
+                            {/* FIXME: 공휴일 문제 */}
                             <Calendar 
                                 onChange={handleDateChange} 
                                 value={dateUtilFormat(time)} 

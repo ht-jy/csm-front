@@ -44,7 +44,7 @@ const SearchProjectModal = ({isOpen, fncExit}) => {
         { isSearch: true, isOrder: true, isSlide: true, width: "70.65px", header: "PM", itemName: "job_pm_name", bodyAlign: "center", isEllipsis: false, isDate: false },
         { isSearch: true, isOrder: true, isSlide: true, width: "107.45px", header: "시작일", itemName: "job_sd", bodyAlign: "center", isEllipsis: false, isDate: false },
         { isSearch: true, isOrder: true, isSlide: true, width: "107.45px", header: "종료일", itemName: "job_ed", bodyAlign: "center", isEllipsis: false, isDate: false },
-        { isSearch: true, isOrder: true, isSlide: true, width: "88.15px", header: "진행현황", itemName: "cd_nm", bodyAlign: "center", isEllipsis: false, isDate: false },
+        { isSearch: true, isOrder: true, isSlide: true, width: "88.15px", header: "진행현황", itemName: "cd_nm", bodyAlign: "center", isEllipsis: true, isDate: false },
     ];
 
     // 테이블 조작 커스텀 훅
