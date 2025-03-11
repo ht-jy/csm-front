@@ -1,5 +1,4 @@
 import { useState, useEffect, useReducer } from "react";
-import ReactPaginate from "react-paginate";
 import Select from 'react-select';
 import { Axios } from "../../../../../utils/axios/Axios";
 import { useAuth } from "../../../../context/AuthContext";
@@ -8,12 +7,14 @@ import Loading from "../../../../module/Loading";
 import GridModal from "../../../../module/GridModal";
 import Modal from "../../../../module/Modal";
 import Button from "../../../../module/Button";
-import "../../../../../assets/css/Table.css";
-import "../../../../../assets/css/Paginate.css";
 import Table from "../../../../module/Table";
 import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons ";
 import useTableControlState from "../../../../../utils/hooks/useTableControlState";
 import useTableSearch from "../../../../../utils/hooks/useTableSearch";
+import Search from "../../../../module/search/Search";
+import "../../../../../assets/css/Table.css";
+import "../../../../../assets/css/Paginate.css";
+
 
 /**
  * @description: 
@@ -30,6 +31,7 @@ import useTableSearch from "../../../../../utils/hooks/useTableSearch";
  * - Modal: 알림 모달
  * - Button: 버튼
  * - Table: 테이블
+ * - Search: 검색 컴포넌트
  * 
  * @additionalInfo
  * - API: 
@@ -57,12 +59,20 @@ const Device = () => {
     const [isModal2, setIsModal2] = useState(false);
     const [modal2Title, setModal2Title] = useState("");
     const [modal2Text, setModal2Text] = useState("");
+    const [retrySearchText, setRetrySearchText] = useState("");
 
     const options = [
         { value: 5, label: "5줄 보기" },
         { value: 10, label: "10줄 보기" },
         { value: 15, label: "15줄 보기" },
         { value: 20, label: "20줄 보기" },
+    ];
+
+    const searchOptions = [
+        { value: "ALL", label: "전체" },
+        { value: "DEVICE_NM", label: "장치명" },
+        { value: "DEVICE_SN", label: "시리얼번호" },
+        { value: "SITE_NM", label: "현장이름" },
     ];
 
     const gridData = [
@@ -194,6 +204,12 @@ const Device = () => {
         }
     }
 
+    // 결과내 검색 텍스트
+    const searchKeywords = (text) => {
+        console.log(text);
+        setRetrySearchText(text);
+    }
+
     // 현장데이터 리스트 조회 - GridModal select 용도
     const getSiteData = async () => {
         setIsLoading(true);
@@ -229,8 +245,8 @@ const Device = () => {
             isUse = searchValues.is_use;
         }
 
-        const res = await Axios.GET(`/device?page_num=${pageNum}&row_size=${rowSize}&order=${order}&device_nm=${searchValues.device_nm}&device_sn=${searchValues.device_sn}&site_nm=${searchValues.site_nm}&etc=${searchValues.etc}&is_use=${isUse}`);
-        
+        const res = await Axios.GET(`/device?page_num=${pageNum}&row_size=${rowSize}&order=${order}&device_nm=${searchValues.device_nm}&device_sn=${searchValues.device_sn}&site_nm=${searchValues.site_nm}&etc=${searchValues.etc}&is_use=${isUse}&retry_search_text=${retrySearchText}`);
+        console.log(res);
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
         } else if (res?.data?.result === "Failure") {
@@ -255,7 +271,7 @@ const Device = () => {
         handleSortChange,
         handleSelectChange,
         handlePageClick,
-    } = useTableSearch({ columns, getDataFunction: getData, pageNum, setPageNum, rowSize, setRowSize, order, setOrder });
+    } = useTableSearch({ columns, getDataFunction: getData, pageNum, retrySearchText, setPageNum, rowSize, setRowSize, order, setOrder });
 
     return (
         <div>
@@ -289,15 +305,27 @@ const Device = () => {
             />
             <div>
                 <div className="container-fluid px-4">
-                    <h2 className="mt-4">근태인식기 관리</h2>
-                    <ol className="breadcrumb mb-4">
-                        <img className="breadcrumb-icon" src="/assets/img/icon-house.png" />
-                        <li className="breadcrumb-item active">관리 메뉴</li>
-                        <li className="breadcrumb-item active">근태인식기 관리</li>
-                    </ol>
+                    <div className="table-header" style={{marginBottom: "0px"}}>
+                        <ol className="breadcrumb mb-4 content-title-box">
+                            <li className="breadcrumb-item content-title">근태인식기 관리</li>
+                            <li className="breadcrumb-item active content-title-sub">관리</li>
+                        </ol>
+                        <div className="table-header-right">
+                            <Button text={"추가"} onClick={() => handleGridModal("SAVE")} />
+                        </div>
+                    </div>
 
+                    {/* <div className="table-header">
+                        <div className="table-header-right">
+                            <Search 
+                                searchOptions={searchOptions}
+                                width={"150px"}
+                                fncSearchKeywords={searchKeywords}
+                            />
+                        </div>
+                    </div> */}
                     <div className="table-header">
-                        <div className="table-header-left">
+                        <div className="table-header-left" style={{gap: "10px"}}>
                             <Select
                                 onChange={handleSelectChange}
                                 options={options}
@@ -307,10 +335,20 @@ const Device = () => {
                         </div>
 
                         <div className="table-header-right">
+                            <Search 
+                                searchOptions={searchOptions}
+                                width={"230px"}
+                                fncSearchKeywords={searchKeywords}
+                            />
                             {
                                 isSearchInit ? <Button text={"초기화"} onClick={handleSearchInit} /> : null
                             }
-                            <Button text={"추가"} onClick={() => handleGridModal("SAVE")} />
+                            {/* <Button text={"추가"} onClick={() => handleGridModal("SAVE")} /> */}
+                        </div>
+                    </div>
+                    <div className="table-header">
+                        <div className="table-header-right">
+                            <div id="search-keyword-portal"></div>
                         </div>
                     </div>
 

@@ -178,9 +178,9 @@ const Total = () => {
             />
             <div>
                 <div className="container-fluid px-4">
-                    <ol className="breadcrumb mb-4" style={{display: "flex", alignItems: "flex-end", height: "100%"}}>
-                        <li className="breadcrumb-item " style={{fontSize:"28px"}}>전체 근로자</li>
-                        <li className="breadcrumb-item active" style={{paddingBottom: "4px"}}>근로자 관리</li>
+                    <ol className="breadcrumb mb-4 content-title-box">
+                        <li className="breadcrumb-item content-title">전체 근로자</li>
+                        <li className="breadcrumb-item active content-title-sub">근로자 관리</li>
                     </ol>
                     <div className="table-header">
                         <div className="table-header-left" style={{ gap: "10px" }}>
