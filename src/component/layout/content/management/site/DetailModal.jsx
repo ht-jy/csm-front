@@ -3,6 +3,7 @@ import Exit from "../../../../../assets/image/exit.png";
 import "../../../../../assets/css/SiteDetail.css";
 import DetailSite from "./DetailSite";
 import DetailProject from "./DetailProject";
+import AddressSearchModal from "../../../../module/AddressSearchModal";
 
 /**
  * @description: 현장관리 전용 상세화면 모달 컴포넌트
@@ -29,6 +30,8 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData, exitBtnClick, saveB
     const [isEdit, setIsEdit] = useState(false);
     const [formData, setFormData] = useState(null);
     const [initialData, setInitialData] = useState({}); // 원본 데이터 저장
+    const [addressSearchOpen, setAddressSearchOpen] = useState(false);
+    const [address, setAddress] = useState(null);
 
     // "X"
     const handleExit = () => {
@@ -53,7 +56,7 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData, exitBtnClick, saveB
     };
 
     const handelChangeValue = (data) => {
-        console.log(data);
+       setAddressSearchOpen((prev) => !prev)
     }
 
     useEffect(() => {
@@ -69,11 +72,22 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData, exitBtnClick, saveB
         }
     }, [isOpen]);
 
+    useEffect(() => {
+        console.log("modal", address)
+    }, [addressSearchOpen, address])
+
     return (
         <div>
+            
+
             {isOpen ? (
                 <div className="overlayStyle">
                     <div className="modalStyle">
+                    <AddressSearchModal 
+                        isOpen={addressSearchOpen} 
+                        fncExit={() => setAddressSearchOpen(false)}
+                        fncChangeData={(data) => {setAddress(data)}}
+                     />
                         <div className="modalHeader">
                             {/* 왼쪽 - 제목 */}
                             <h2 style={h2Style}>{title}</h2>
@@ -116,11 +130,14 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData, exitBtnClick, saveB
                         <div className="grid-wrapper">
                             {
                                 formData !== null &&
-                                    <DetailSite 
-                                        isEdit={isEdit}
-                                        detailData={formData}
-                                        handelChangeValue={handelChangeValue}
-                                    />
+                                <DetailSite 
+                                isEdit={isEdit}
+                                detailData={formData}
+                                handelChangeValue={handelChangeValue}
+                                addressData={address}
+                                />
+                                
+                                
                             }
 
                             {

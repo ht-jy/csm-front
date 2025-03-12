@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import DateInput from "../../../../module/DateInput";
+import Button from "../../../../module/Button";
 
 /**
  * @description: 현장 상세 컴포넌트
@@ -14,12 +15,13 @@ import DateInput from "../../../../module/DateInput";
  * - DateInput: 커스텀 캘린더
  * 
  */
-const DetailSite = ({isEdit, detailData, handelChangeValue}) => {
+const DetailSite = ({isEdit, detailData, handelChangeValue, addressData}) => {
     const [data, setData] = useState(null);
     const [openingDate, setOpeningDate] = useState(dateUtil.now());
     const [closingPlanDate, setClosingPlanDate] = useState(dateUtil.now());
     const [closingForecastDate, setClosingForecastDate] = useState(dateUtil.now());
     const [closingActualDate, setClosingActualDate] = useState(dateUtil.now());
+
 
     // 현장 데이터 변경 이벤트
     const handelChange = (name, value) => {
@@ -33,16 +35,18 @@ const DetailSite = ({isEdit, detailData, handelChangeValue}) => {
         setClosingForecastDate(dateUtil.format(detailData.site_date.closing_forecast_date));
         setClosingActualDate(dateUtil.format(detailData.site_date.closing_actual_date));
     }
-
     useEffect(() => {
-        console.log(detailData);
         setData(detailData);
         setDateInit();
     }, [isEdit]);
 
-    return (
-        data !== null &&
-        <div className="grid-site">
+    useEffect(() => {
+        console.log("하위컴포넌트", addressData)
+    }, [addressData])
+
+    return ( data !== null &&
+        <>
+            <div className="grid-site">
             {/* 첫 번째 열 */}
             <div className="form-control text-none-border" style={{ gridColumn: "1 / span 2", gridRow: "1" }}>
                 <div className="grid-site-title">
@@ -60,17 +64,17 @@ const DetailSite = ({isEdit, detailData, handelChangeValue}) => {
                         </div>
                         {/* {isEdit ? (
                             <input
-                                style={{ width: "100%", padding: "0.5rem" }}
-                                type="text"
-                                name={"loc_name"}
-                                value={data.loc_name + ` (${data.loc_code||"-"})`}      
-                                onChange={(e) => handelChange(e.target.name, e.target.value)}
+                            style={{ width: "100%", padding: "0.5rem" }}
+                            type="text"
+                            name={"loc_name"}
+                            value={data.loc_name + ` (${data.loc_code||"-"})`}      
+                            onChange={(e) => handelChange(e.target.name, e.target.value)}
                             />
-                        ) : (
-                            <div className="read-only-input">
+                            ) : (
+                                <div className="read-only-input">
                                 {data.loc_name}{`(${data.loc_code||"-"})`}
-                            </div>
-                        )} */}
+                                </div>
+                                )} */}
                     </div>
                 </div>
             </div>
@@ -85,17 +89,17 @@ const DetailSite = ({isEdit, detailData, handelChangeValue}) => {
                         </div>
                         {/* {isEdit ? (
                             <input
-                                style={{ width: "100%", padding: "0.5rem" }}
-                                type="text"
-                                name={"site_nm"}
-                                value={data.site_nm}
-                                onChange={(e) => handelChange(e.target.name, e.target.value)}
+                            style={{ width: "100%", padding: "0.5rem" }}
+                            type="text"
+                            name={"site_nm"}
+                            value={data.site_nm}
+                            onChange={(e) => handelChange(e.target.name, e.target.value)}
                             />
-                        ) : (
-                            <div className="read-only-input">
+                            ) : (
+                                <div className="read-only-input">
                                 {data.site_nm}
-                            </div>
-                        )} */}
+                                </div>
+                                )} */}
                     </div>
                 </div>
             </div>
@@ -174,17 +178,17 @@ const DetailSite = ({isEdit, detailData, handelChangeValue}) => {
                         </div>
                         {/* {isEdit ? (
                             <input
-                                style={{ width: "100%", padding: "0.5rem" }}
-                                type="text"
-                                name={"default_project_name"}
-                                value={data.default_project_name}
-                                onChange={(e) => handelChange(e.target.name, e.target.value)}
+                            style={{ width: "100%", padding: "0.5rem" }}
+                            type="text"
+                            name={"default_project_name"}
+                            value={data.default_project_name}
+                            onChange={(e) => handelChange(e.target.name, e.target.value)}
                             />
-                        ) : (
-                            <div className="read-only-input">
+                            ) : (
+                                <div className="read-only-input">
                                 {data.default_project_name}
-                            </div>
-                        )} */}
+                                </div>
+                                )} */}
                     </div>
                 </div>
             </div>
@@ -195,21 +199,26 @@ const DetailSite = ({isEdit, detailData, handelChangeValue}) => {
                     </label>
                     <div className="form-input" style={{ flex: 1 }}>
                         <div className="read-only-input">
-                            {`${data.site_pos.address_name_depth1} ${data.site_pos.address_name_depth2} ${data.site_pos.address_name_depth3} ${data.site_pos.address_name_depth4} ${data.site_pos.address_name_depth5}`}
+                            { 
+                            addressData != null ?
+                            `${addressData?.roadAddress}` 
+                            :
+                            // {`${data.site_pos.address_name_depth1} ${data.site_pos.address_name_depth2} ${data.site_pos.address_name_depth3} ${data.site_pos.address_name_depth4} ${data.site_pos.address_name_depth5}`}
+                                `${data.site_pos.road_address}`
+                            }
+                            {isEdit ? (
+                                <Button
+                                text={"변경"}
+                                onClick={() => {
+                                    handelChangeValue(true)
+                                }}
+                                style={{width : "50px", padding:"0.25rem"}}
+                                ></Button>
+                            ) : (
+                                <></>
+                            )}
+
                         </div>
-                        {/* {isEdit ? (
-                            <input
-                                style={{ width: "100%", padding: "0.5rem" }}
-                                type="text"
-                                name={"address"}
-                                value={`${data.site_pos.address_name_depth1} ${data.site_pos.address_name_depth2} ${data.site_pos.address_name_depth3} ${data.site_pos.address_name_depth4} ${data.site_pos.address_name_depth5}`}
-                                onChange={(e) => handelChange(e.target.name, e.target.value)}
-                            />
-                        ) : (
-                            <div className="read-only-input">
-                                {`${data.site_pos.address_name_depth1} ${data.site_pos.address_name_depth2} ${data.site_pos.address_name_depth3} ${data.site_pos.address_name_depth4} ${data.site_pos.address_name_depth5}`}
-                            </div>
-                        )} */}
                     </div>
                 </div>
             </div>
@@ -255,6 +264,7 @@ const DetailSite = ({isEdit, detailData, handelChangeValue}) => {
                 지도
             </div>
         </div>
+    </>
     );
 }
 export default DetailSite;
