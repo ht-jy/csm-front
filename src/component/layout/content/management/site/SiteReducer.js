@@ -34,7 +34,7 @@ const SiteReducer = (state, action) => {
                     })
                 }
             });
-            console.log(sites);
+            
             return {...state, list: JSON.parse(JSON.stringify(sites)), code: JSON.parse(JSON.stringify(action.code))};
         case "STATS":
             const setColor2 = (code) => {
@@ -53,6 +53,37 @@ const SiteReducer = (state, action) => {
             });
 
             return {...state, list: JSON.parse(JSON.stringify(list))};
+        case "COUNT":
+            const count = action.list;
+            let list2 = state.list;
+            list2 = list2?.map(site => {
+                if(site.type === "main"){
+                    const matchingItems = count.filter(item => item.sno === site.sno);
+                    site.project_list.map(item => {
+                        const matchingItem = matchingItems.find(obj => obj.jno === item.jno);
+                        item.worker_count_all = matchingItem.worker_count_all;
+                        item.worker_count_date = matchingItem.worker_count_date;
+                        item.worker_count_htenc = matchingItem.worker_count_htenc;
+                        item.worker_count_manager = matchingItem.worker_count_manager;
+                        item.worker_count_not_manager = matchingItem.worker_count_not_manager;
+                        item.worker_count_safe = matchingItem.worker_count_safe;
+                        item.worker_count_work = matchingItem.worker_count_work;
+                        return item;
+                    })
+                }else{
+                    const matchingItem = count.find(obj => obj.jno === site.jno);
+                    site.worker_count_all = matchingItem.worker_count_all;
+                    site.worker_count_date = matchingItem.worker_count_date;
+                    site.worker_count_htenc = matchingItem.worker_count_htenc;
+                    site.worker_count_manager = matchingItem.worker_count_manager;
+                    site.worker_count_not_manager = matchingItem.worker_count_not_manager;
+                    site.worker_count_safe = matchingItem.worker_count_safe;
+                    site.worker_count_work = matchingItem.worker_count_work;
+                }
+                return site;
+            });
+
+            return {...state, list: JSON.parse(JSON.stringify(list2))};
     }
 }
 
