@@ -206,7 +206,6 @@ const Device = () => {
 
     // 결과내 검색 텍스트
     const searchKeywords = (text) => {
-        console.log(text);
         setRetrySearchText(text);
     }
 
@@ -246,7 +245,7 @@ const Device = () => {
         }
 
         const res = await Axios.GET(`/device?page_num=${pageNum}&row_size=${rowSize}&order=${order}&device_nm=${searchValues.device_nm}&device_sn=${searchValues.device_sn}&site_nm=${searchValues.site_nm}&etc=${searchValues.etc}&is_use=${isUse}&retry_search_text=${retrySearchText}`);
-        console.log(res);
+        
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
         } else if (res?.data?.result === "Failure") {

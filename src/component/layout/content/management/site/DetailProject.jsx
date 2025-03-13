@@ -47,7 +47,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain}) => {
             <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "1", gridRow: "2" }}>
                 <div className="text-overflow">
                     <label className="detail-text-label">
-                        번호
+                        코드
                     </label>
                     <div className="read-only-input">
                         {data.project_no}

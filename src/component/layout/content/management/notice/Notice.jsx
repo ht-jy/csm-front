@@ -144,8 +144,6 @@ const Notice = () => {
         }
 
         if (mode === "EDIT") {
-            console.log("notcice",notice)
-            console.log("select", state)
             arr[0].value = notice.title;
             arr[1].value = notice.sno;
             arr[2].value = notice.period_code;
