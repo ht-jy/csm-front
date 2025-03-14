@@ -10,11 +10,12 @@ import AddressSearchModal from "../../../../module/AddressSearchModal";
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-24
- * @modified 최종 수정일: 
- * @modifiedBy 최종 수정자: 
+ * @modified 최종 수정일: 2025-03-14
+ * @modifiedBy 최종 수정자: 정지영
  * @usedComponents
  * - DetailSite: 현장 상세
  * - DetailProject: 프로젝트 상세
+ * - AddressSearchModal : 주소 입력 모달
  * 
  * @additionalInfo
  * - props: 
@@ -40,8 +41,11 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData, exitBtnClick, saveB
 
     // "취소" 버튼 클릭 시 원래 데이터로 복구
     const handleCancel = () => {
+        setAddress(null);
         setFormData(initialData); // 초기 데이터로 되돌리기
         setIsEdit(false);
+
+
     };
 
     // 수정모드로 변경
@@ -49,14 +53,22 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData, exitBtnClick, saveB
         setIsEdit(true);
     }
 
-    // 수정
+    // 저장
     const handleSave = (e) => {
         document.body.style.overflow = 'unset';
-        saveBtnClick(formData);        
+        saveBtnClick(formData); 
+        exitBtnClick();     
     };
 
-    const handelChangeValue = (data) => {
-       setAddressSearchOpen((prev) => !prev)
+    const handleChangeValue = (name, data) => {
+
+        if(name === "searchOpen"){
+            setAddressSearchOpen((prev) => !prev)
+        }else{
+            setFormData((prev) => (
+                {...prev, [name]: data}
+             ))
+        }
     }
 
     useEffect(() => {
@@ -73,7 +85,7 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData, exitBtnClick, saveB
     }, [isOpen]);
 
     useEffect(() => {
-        console.log("modal", address)
+
     }, [addressSearchOpen, address])
 
     return (
@@ -133,7 +145,7 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData, exitBtnClick, saveB
                                 <DetailSite 
                                 isEdit={isEdit}
                                 detailData={formData}
-                                handelChangeValue={handelChangeValue}
+                                handleChangeValue={handleChangeValue}
                                 addressData={address}
                                 />
                                 

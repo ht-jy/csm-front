@@ -8,41 +8,91 @@ import Button from "../../../../module/Button";
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-03-04
- * @modified 최종 수정일: 
- * @modifiedBy 최종 수정자: 
+ * @modified 최종 수정일: 2025-03-14
+ * @modifiedBy 최종 수정자: 정지영
  * @usedComponents
  * - dateUtil: 날짜 포맷
  * - DateInput: 커스텀 캘린더
  * 
  */
-const DetailSite = ({isEdit, detailData, handelChangeValue, addressData}) => {
+const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
     const [data, setData] = useState(null);
+    const [initialData, setInitialData] = useState({});
     const [openingDate, setOpeningDate] = useState(dateUtil.now());
     const [closingPlanDate, setClosingPlanDate] = useState(dateUtil.now());
     const [closingForecastDate, setClosingForecastDate] = useState(dateUtil.now());
     const [closingActualDate, setClosingActualDate] = useState(dateUtil.now());
+    const [etc, setEtc] = useState("")
 
 
     // 현장 데이터 변경 이벤트
-    const handelChange = (name, value) => {
-        // 어떤 데이터를 수정이 가능하고 안되는지 정해지지 않아 구현하지 않음.
+    const handleChange = (name, value) => {
+        if (data === null) return
+
+        if(name === "site_pos"){
+
+            const sitePos = {
+                road_address: value.roadAddress,
+                building_name: value.buildingName,
+                zone_code: value.zonecode,
+                address_name_depth1: value.sido,
+                address_name_depth2: value.sigungu,
+                address_name_depth3: value.bname1,
+                address_name_depth4: value.bname,
+                address_name_depth5: value.jibunAddress.replace(value.sido, "").replace(value.sigungu, "").replace(value.bname1, "").replace(value.bname, "").trim(),
+                road_address_name_depth1: value.sido,
+                road_address_name_depth2: value.sigungu,
+                road_address_name_depth3: value.bname1,
+                road_address_name_depth4: value.roadname,
+                road_address_name_depth5: value.roadAddress.replace(value.sido, "").replace(value.sigungu, "").replace(value.bname1, "").replace(value.roadname, "").trim(),                
+            }
+            handleChangeValue(name, sitePos)
+        }else if (name === "site_date"){   
+            
+            const siteDate = {
+                opening_date : dateUtil.parseToGo(openingDate),
+                closing_plan_date : dateUtil.parseToGo(closingPlanDate),
+                closing_forecast_date: dateUtil.parseToGo(closingForecastDate),
+                closing_actual_date: dateUtil.parseToGo(closingActualDate),
+                reg_date: detailData.site_date.reg_date,
+                reg_uno:detailData.site_date.reg_uno,
+                reg_user: detailData.site_date.reg_user,
+            } 
+            handleChangeValue(name, siteDate)
+            
+        }else if (name === "etc") {
+
+            handleChangeValue(name, etc.replace(/\n/g, "\\n"))
+        }
+
     }
 
-    // 캘린더에 사용할 수 있도록 날짜 데이터 초기화
+    // 캘린더에 사용할 수 있도록 날짜 데이터 초기화 및 textarea 반영을 위해 비고 초기화
     const setDateInit = () => {
         setOpeningDate(dateUtil.format(detailData.site_date.opening_date));
         setClosingPlanDate(dateUtil.format(detailData.site_date.closing_plan_date));
         setClosingForecastDate(dateUtil.format(detailData.site_date.closing_forecast_date));
         setClosingActualDate(dateUtil.format(detailData.site_date.closing_actual_date));
+        setEtc(detailData.etc)
     }
     useEffect(() => {
         setData(detailData);
+        setInitialData(detailData);
         setDateInit();
+
     }, [isEdit]);
 
     useEffect(() => {
-        console.log("하위컴포넌트", addressData)
+        if(addressData !== null){
+            handleChange("site_pos", addressData)
+        }
     }, [addressData])
+
+    useEffect(() => {
+        if (data !== null){
+            handleChange("site_date")
+        }
+    }, [openingDate, closingPlanDate, closingForecastDate, closingActualDate])
 
     return ( data !== null &&
         <>
@@ -200,17 +250,16 @@ const DetailSite = ({isEdit, detailData, handelChangeValue, addressData}) => {
                     <div className="form-input" style={{ flex: 1 }}>
                         <div className="read-only-input">
                             { 
-                            addressData != null ?
+                            addressData !== null ?
                             `${addressData?.roadAddress}` 
                             :
-                            // {`${data.site_pos.address_name_depth1} ${data.site_pos.address_name_depth2} ${data.site_pos.address_name_depth3} ${data.site_pos.address_name_depth4} ${data.site_pos.address_name_depth5}`}
                                 `${data.site_pos.road_address}`
                             }
                             {isEdit ? (
                                 <Button
                                 text={"변경"}
                                 onClick={() => {
-                                    handelChangeValue(true)
+                                    handleChangeValue("searchOpen", true)
                                 }}
                                 style={{width : "50px", padding:"0.25rem"}}
                                 ></Button>
@@ -241,13 +290,13 @@ const DetailSite = ({isEdit, detailData, handelChangeValue, addressData}) => {
                         {isEdit ? (
                             <textarea
                             rows={4}
-                            value={data.etc?.replace(/\\n/g, "\n")}
+                            value={(data !== null ? etc.replace(/\\n/g, "\n") : "")}
                             name={"etc"}
                             onChange={(e) => {
                                 // 실제 개행문자 '\n'을 '\\n'으로 치환하여 상태에 저장
-                                const replaced = e.target.value.replace(/\n/g, "\\n");
-                                handelChange(e.target.name, replaced);
+                                setEtc(e.target.value);
                             }}
+                            onBlur={() => handleChange("etc")}
                             />
                         ) : (
                             /* 보기 모드 */

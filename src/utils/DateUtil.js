@@ -36,6 +36,17 @@ export const dateUtil = {
             return null;
         }
     },
+    // go의 date 포맷으로 변경 ("yyyy-MM-dd"의 경우에)
+    parseToGo(dateStr) {
+        if (!dateStr) return null;
+        try {
+            return format(dateStr, "yyyy-MM-dd") + "T00:00:00+09:00"  
+
+        }catch (error){
+            return null;
+        }
+
+    },
     // go의 date 기준으로 값이 있는지 없는지 체크
     isDate(date) {
         if (date === "0001-01-01T00:00:00Z") return false;

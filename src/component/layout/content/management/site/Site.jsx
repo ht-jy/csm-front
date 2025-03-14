@@ -13,21 +13,23 @@ import whether4 from "../../../../../assets/image/whether/4.png";
 import whether5 from "../../../../../assets/image/whether/5.png";
 import whether6 from "../../../../../assets/image/whether/6.png";
 import whether7 from "../../../../../assets/image/whether/7.png";
-
+import Modal from "../../../../module/Modal";
 
 /**
  * @description: 현장 관리 페이지
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-10
- * @modified 최종 수정일: 
- * @modifiedBy 최종 수정자: 
+ * @modified 최종 수정일: 2025-03-14
+ * @modifiedBy 최종 수정자: 정지영
  * @usedComponents
  * - DetailModal: 상세화면
+ * - Modal: 요청 성공/실패 모달
  * 
  * @additionalInfo
  * - API:
  *    Http Method - GET : /site (현장관리 조회)
+ *    Http Method - PUT : /site (현장관리 수정)
  * - 주요 상태 관리: useReducer
  */
 const Site = () => {
@@ -36,6 +38,8 @@ const Site = () => {
         code: [],
     })
 
+    const [isOpenModal, setIsOpenModal] = useState(false);
+    const [isMod, setIsMod] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isDetail, setIsDetail] = useState(false);
     const [detailTitle, setDetailTitle] = useState("");
@@ -63,6 +67,21 @@ const Site = () => {
     const getIsWhether = (whether) => {
         if(whether.length === 0) return false;
         return true;
+    }
+
+    const saveData = async (data) => {
+        const res  = await Axios.PUT("/site", data)
+
+        if( res?.data?.result === "Success"){
+            setIsMod(true);
+            setIsOpenModal(true);
+            getData()
+        }else {
+            setIsMod(false);
+            setIsOpenModal(true);
+        }
+
+
     }
 
     // 날씨(강수형태)
@@ -176,6 +195,13 @@ const Site = () => {
             <Loading
                 isOpen={isLoading}
             />
+            <Modal
+                isOpen={isOpenModal}
+                title={isMod ? "요청 성공" : "요청 실패"}
+                text={isMod ? "성공하였습니다." : "실패하였습니다."}
+                confirm={"확인"}
+                fncConfirm={() => setIsOpenModal(false)}
+            />
             {
                 isDetail &&
                 <DetailModal 
@@ -184,6 +210,7 @@ const Site = () => {
                     detailData={detailData}
                     isEditBtn={true}
                     exitBtnClick={() => setIsDetail(false)}
+                    saveBtnClick={(data) => saveData(data)}
                 />
             }
             <div className="container-fluid px-4">
@@ -199,7 +226,7 @@ const Site = () => {
                         <div className="square-title">현장 목록</div>
                         <div className="square-container">
                             {
-                                state.code.length == 0 ?
+                                state.code.length === 0 ?
                                 <></>
                                 :
                                 state.code.map((item, idx) => (
@@ -238,7 +265,7 @@ const Site = () => {
                         </thead>
                         <tbody>
                             {
-                                state.list.length == 0 ?
+                                state.list.length === 0 ?
                                 <tr>
                                     <td className="center" colSpan={13}>현장 관리 내용이 없습니다.</td>
                                 </tr>
@@ -280,8 +307,8 @@ const Site = () => {
                                             {/* 작업내용 */}
                                             <td className="left ellipsis">
                                                 {
-                                                    item.project_list.length == 1 ?
-                                                        item.project_list[0]?.daily_content_list.length != 0 ?
+                                                    item.project_list.length === 1 ?
+                                                        item.project_list[0]?.daily_content_list.length !== 0 ?
                                                         <ul>
                                                             <li>
                                                                 {
@@ -339,7 +366,7 @@ const Site = () => {
                                             {/* 작업내용 */}
                                             <td className="left ellipsis">
                                                 {
-                                                    item?.daily_content_list.length != 0 ?
+                                                    item?.daily_content_list.length === 0 ?
                                                     <ul>
                                                         <li>
                                                             {
