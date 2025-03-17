@@ -3,17 +3,19 @@ import Exit from "../../../../../assets/image/exit.png";
 import "../../../../../assets/css/SiteDetail.css";
 import DetailSite from "./DetailSite";
 import DetailProject from "./DetailProject";
+import AddressSearchModal from "../../../../module/AddressSearchModal";
 
 /**
  * @description: 현장관리 전용 상세화면 모달 컴포넌트
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-24
- * @modified 최종 수정일: 
- * @modifiedBy 최종 수정자: 
+ * @modified 최종 수정일: 2025-03-14
+ * @modifiedBy 최종 수정자: 정지영
  * @usedComponents
  * - DetailSite: 현장 상세
  * - DetailProject: 프로젝트 상세
+ * - AddressSearchModal : 주소 입력 모달
  * 
  * @additionalInfo
  * - props: 
@@ -29,6 +31,8 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData, exitBtnClick, saveB
     const [isEdit, setIsEdit] = useState(false);
     const [formData, setFormData] = useState(null);
     const [initialData, setInitialData] = useState({}); // 원본 데이터 저장
+    const [addressSearchOpen, setAddressSearchOpen] = useState(false);
+    const [address, setAddress] = useState(null);
 
     // "X"
     const handleExit = () => {
@@ -37,8 +41,11 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData, exitBtnClick, saveB
 
     // "취소" 버튼 클릭 시 원래 데이터로 복구
     const handleCancel = () => {
+        setAddress(null);
         setFormData(initialData); // 초기 데이터로 되돌리기
         setIsEdit(false);
+
+
     };
 
     // 수정모드로 변경
@@ -46,14 +53,21 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData, exitBtnClick, saveB
         setIsEdit(true);
     }
 
-    // 수정
+    // 저장
     const handleSave = (e) => {
         document.body.style.overflow = 'unset';
-        saveBtnClick(formData);        
+        saveBtnClick(formData);    
     };
 
-    const handelChangeValue = (data) => {
-        console.log(data);
+    const handleChangeValue = (name, data) => {
+
+        if(name === "searchOpen"){
+            setAddressSearchOpen((prev) => !prev)
+        }else{
+            setFormData((prev) => (
+                {...prev, [name]: data}
+             ))
+        }
     }
 
     useEffect(() => {
@@ -69,11 +83,22 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData, exitBtnClick, saveB
         }
     }, [isOpen]);
 
+    useEffect(() => {
+
+    }, [addressSearchOpen, address])
+
     return (
         <div>
+            
+
             {isOpen ? (
                 <div className="overlayStyle">
                     <div className="modalStyle">
+                    <AddressSearchModal 
+                        isOpen={addressSearchOpen} 
+                        fncExit={() => setAddressSearchOpen(false)}
+                        fncChangeData={(data) => {setAddress(data)}}
+                     />
                         <div className="modalHeader">
                             {/* 왼쪽 - 제목 */}
                             <h2 style={h2Style}>{title}</h2>
@@ -116,11 +141,14 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData, exitBtnClick, saveB
                         <div className="grid-wrapper">
                             {
                                 formData !== null &&
-                                    <DetailSite 
-                                        isEdit={isEdit}
-                                        detailData={formData}
-                                        handelChangeValue={handelChangeValue}
-                                    />
+                                <DetailSite 
+                                isEdit={isEdit}
+                                detailData={formData}
+                                handleChangeValue={handleChangeValue}
+                                addressData={address}
+                                />
+                                
+                                
                             }
 
                             {
