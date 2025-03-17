@@ -38,6 +38,7 @@ const Site = () => {
         code: [],
     })
 
+    const [isValidation, setIsValidation] = useState(true);
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [isMod, setIsMod] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -70,12 +71,20 @@ const Site = () => {
     }
 
     const saveData = async (data) => {
+
+        if (data?.site_pos?.road_address === null || data?.site_pos?.road_address == "") {
+            setIsValidation(false);
+            setIsOpenModal(true);
+            return
+        }
+        
         const res  = await Axios.PUT("/site", data)
 
         if( res?.data?.result === "Success"){
             setIsMod(true);
             setIsOpenModal(true);
-            getData()
+            setIsDetail(false);
+            getData();
         }else {
             setIsMod(false);
             setIsOpenModal(true);
@@ -197,8 +206,8 @@ const Site = () => {
             />
             <Modal
                 isOpen={isOpenModal}
-                title={isMod ? "요청 성공" : "요청 실패"}
-                text={isMod ? "성공하였습니다." : "실패하였습니다."}
+                title={isValidation ?  (isMod ? "요청 성공" : "요청 실패") : "입력 오류" }
+                text={ isValidation ?  (isMod ? "성공하였습니다." : "실패하였습니다.") : "주소를 입력해주세요."}
                 confirm={"확인"}
                 fncConfirm={() => setIsOpenModal(false)}
             />

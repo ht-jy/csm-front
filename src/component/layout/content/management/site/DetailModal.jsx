@@ -56,8 +56,7 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData, exitBtnClick, saveB
     // 저장
     const handleSave = (e) => {
         document.body.style.overflow = 'unset';
-        saveBtnClick(formData); 
-        exitBtnClick();     
+        saveBtnClick(formData);    
     };
 
     const handleChangeValue = (name, data) => {
