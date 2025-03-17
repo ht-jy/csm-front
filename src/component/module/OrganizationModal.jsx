@@ -39,7 +39,7 @@ const OrganizationModal = ({isOpen, fncExit}) => {
     const getOrganization = async () => {
         if (project?.jno != null) {
             const res = await Axios.GET(`/project/organization/${project.jno}`)
-            if(res?.data?.result == "Success"){
+            if(res?.data?.result === "Success"){
                 setClient(res?.data?.values?.client)
                 setHitech(res?.data?.values?.hitech)
             }
@@ -48,7 +48,11 @@ const OrganizationModal = ({isOpen, fncExit}) => {
 
     useEffect (() => {
         getOrganization()
-    }, [project])
+        if (project === null){
+            setClient([])
+            setHitech([])
+        }
+    }, [project, isOpen])
 
     return <>
     {
@@ -62,116 +66,129 @@ const OrganizationModal = ({isOpen, fncExit}) => {
                                 <img src={Exit} style={{ width: "30px", paddingBottom: '0px', marginRight: "5px" }} alt="Exit" />
                             </div>
                         </div>
+                        
                         <div className="table-container" style={tableStyle}>
-                            <table>
-                                <thead className="fixed">
-                                    <tr>
-                                        <th        >공종</th>
-                                        <th style={{width: "120px"}}>담당</th>
-                                        <th style={{width: "140px"}}>담당상세</th>
-                                        <th style={{width: "110px"}}>이름</th>
-                                        <th style={{width: "110px"}}>직위</th>
-                                        <th style={{width: "145px"}}>소속</th>
-                                        <th style={{width: "125px"}}>핸드폰</th>
-                                        <th style={{width: "125px"}}>전화</th>
-                                        <th className="fixed-left">이메일</th>
-                                    </tr>
-                                    <tr>
+                            {
+                                client.length === 0  && hitech.length === 0 ?
+                                <h5 style={nonProjectStyle}>PROJECT를 선택하세요.</h5>
+                                :
+                                <table>
+                                    <thead className="fixed">
+                                        <tr>
+                                            <th        >공종</th>
+                                            <th style={{width: "120px"}}>담당</th>
+                                            <th style={{width: "140px"}}>담당상세</th>
+                                            <th style={{width: "110px"}}>이름</th>
+                                            <th style={{width: "110px"}}>직위</th>
+                                            <th style={{width: "145px"}}>소속</th>
+                                            <th style={{width: "125px"}}>핸드폰</th>
+                                            <th style={{width: "125px"}}>전화</th>
+                                            <th className="fixed-left">이메일</th>
+                                        </tr>
+                                        <tr>
+                                            {
+                                                client?.organizations?.length ?
+                                                <th colSpan={9} className="sub-title">{client?.organizations[0]?.dept_name || ""}</th>
+                                                :
+                                                null
+                                            }
+                                        </tr>
+                                    </thead>                                
+                                    <tbody>
                                         {
-                                            client?.organizations?.length ?
-                                            <th colSpan={9} className="sub-title">{client?.organizations[0]?.dept_name || ""}</th>
-                                            :
-                                            null
-                                        }
-                                    </tr>
-                                </thead>                                
-                                <tbody>
+                                            client?.organizations?.length ? 
+                                            client?.organizations?.map((item, idx) => {
+                                                return  <tr key={idx}>
+                                                        { idx === 0 ? 
+                                                            <td rowSpan={client.organizations.length}> {client.func_name}</td>
+                                                            :
+                                                            <></>
+                                                        }
+                                                        {/* 담당 */}
+                                                        <td className="center">{item.cd_nm}</td>
+                                                        {/* 담당상세 */}
+                                                        <td className="center">{item.charge_detail}</td>
+                                                        {/* 이름 */}
+                                                        <td className="center">{item.user_name}</td>
+                                                        {/* 직위 */}
+                                                        <td className="center">{item.duty_name}</td>
+                                                        {/* 소속 */}
+                                                        <td className="center">{item.dept_name}</td>                                                            
+                                                        {/* 핸드폰 */}
+                                                        <td className="center">{item.cell}</td>                                                            
+                                                        {/* 전화 */}
+                                                        <td className="center">{item.tel}</td>                                                            
+                                                        {/* 이메일 */}
+                                                        <td className="left">{item.email}</td>                                                            
+                                                    </tr>
+                                                })   
+                                                :   
+                                                null
+                                                
+                                            }
+                                    </tbody>
+                                    <thead className="fixed" style={{top:'40px'}}>
+                                        <tr>
+                                            <th colSpan={7} className="sub-title">(주)하이테크엔지니어링</th>
+                                            <th colSpan={2} className="sub-title">
+                                                <div style = {legend}>
+                                                    <div style={{fontWeight:"bold"}}>내부직원</div>
+                                                    <div style={{color : "lightgray"}}>퇴사직원</div>
+                                                    <div>외부직원</div>
+                                                    <div style={{backgroundColor : "beige"}}>협력업체직원</div>
+                                                </div> 
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
                                     {
-                                        client?.organizations?.length ? 
-                                        client?.organizations?.map((item, idx) => {
-                                            return  <tr key={idx}>
+                                        hitech.map((arr, arrIdx) => {
+                                            return arr.organizations.map((item, idx) => {
+                                                return  <tr key={idx}>
                                                     { idx === 0 ? 
-                                                        <td rowSpan={client.organizations.length}> {client.func_name}</td>
+                                                        <td rowSpan={arr.organizations.length}> {arr.func_name}</td>
                                                         :
-                                                        <></>
+                                                        null
                                                     }
-                                                    {/* 담당 */}
-                                                    <td className="center">{item.cd_nm}</td>
-                                                    {/* 담당상세 */}
-                                                    <td className="center">{item.charge_detail}</td>
-                                                    {/* 이름 */}
-                                                    <td className="center">{item.user_name}</td>
-                                                    {/* 직위 */}
-                                                    <td className="center">{item.duty_name}</td>
-                                                    {/* 소속 */}
-                                                    <td className="center">{item.dept_name}</td>                                                            
-                                                    {/* 핸드폰 */}
-                                                    <td className="center">{item.cell}</td>                                                            
-                                                    {/* 전화 */}
-                                                    <td className="center">{item.tel}</td>                                                            
-                                                    {/* 이메일 */}
-                                                    <td className="left">{item.email}</td>                                                            
+
+                                                        {/* 담당 */}
+                                                        <td className="center" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.cd_nm}</td>
+                                                        {/* 담당상세 */}
+                                                        <td className="center" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.charge_detail}</td>
+                                                        {/* 이름 */}
+                                                        <td 
+                                                            className="center" 
+                                                            style={ item.is_use === 'N' ? 
+                                                                        {color: "lightgray"} // 퇴사자  
+                                                                    :  
+                                                                        item.co_id === null  ? {} // 외부직원 
+                                                                        : 
+                                                                        item.co_id === '1' ?  
+                                                                            {fontWeight: "bold"} // 내부직원
+                                                                            : 
+                                                                            {backgroundColor: "beige"} // 협력사
+                                                                    }>
+                                                                {item.user_name}
+                                                        </td>
+                                                        {/* 직위 */}
+                                                        <td className="center" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.duty_name}</td>
+                                                        {/* 소속 */}
+                                                        <td className="center" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.dept_name}</td>                                                            
+                                                        {/* 핸드폰 */}
+                                                        <td className="center" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.cell}</td>                                                            
+                                                        {/* 전화 */}
+                                                        <td className="center" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.tel}</td>                                                            
+                                                        {/* 이메일 */}
+                                                        <td className="left" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.email}</td>  
                                                 </tr>
-                                            })   
-                                            :   
-                                            null
+                                                })
+                                                
+                                            }) 
                                             
                                         }
-                                </tbody>
-                                <thead className="fixed" style={{top:'40px'}}>
-                                    <tr>
-                                        {/* TODO: 직원표시 범례 추가 */}
-                                        <th colSpan={9} className="sub-title">(주)하이테크엔지니어링</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                {
-                                    hitech.map((arr, arrIdx) => {
-                                        return arr.organizations.map((item, idx) => {
-                                            return  <tr key={idx}>
-                                                { idx === 0 ? 
-                                                    <td rowSpan={arr.organizations.length}> {arr.func_name}</td>
-                                                    :
-                                                    null
-                                                }
-
-                                                    {/* 담당 */}
-                                                    <td className="center" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.cd_nm}</td>
-                                                    {/* 담당상세 */}
-                                                    <td className="center" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.charge_detail}</td>
-                                                    {/* 이름 */}
-                                                    <td 
-                                                        className="center" 
-                                                        style={ item.is_use === 'N' ? 
-                                                                    {color: "lightgray"} // 퇴사자  
-                                                                :  
-                                                                    item.co_id === null  ? {} // 외부직원 
-                                                                    : 
-                                                                    item.co_id === '1' ?  
-                                                                        {fontWeight: "bold"} // 내부직원
-                                                                        : 
-                                                                        {backgroundColor: "beige"} // 협력사
-                                                                }>
-                                                            {item.user_name}
-                                                    </td>
-                                                    {/* 직위 */}
-                                                    <td className="center" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.duty_name}</td>
-                                                    {/* 소속 */}
-                                                    <td className="center" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.dept_name}</td>                                                            
-                                                    {/* 핸드폰 */}
-                                                    <td className="center" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.cell}</td>                                                            
-                                                    {/* 전화 */}
-                                                    <td className="center" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.tel}</td>                                                            
-                                                    {/* 이메일 */}
-                                                    <td className="left" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.email}</td>  
-                                            </tr>
-                                            })
-                                            
-                                        }) 
-                                        
-                                    }
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
+                            }
                         </div>
                     </div>
                 </div>
@@ -211,5 +228,22 @@ const tableStyle = {
     height: "calc(100% - 60px)",
     overflow: "scroll",
 };
+
+const nonProjectStyle = {
+    backgroundColor: 'beige',
+    color: 'black',
+    padding: '1rem',
+    textAlign: 'center',
+
+}
+
+const legend = {
+    backgroundColor :'white',
+    display: 'flex',
+    border : '1px solid black',
+    margin : '2px 5px',
+    justifyContent : 'space-around',
+    padding : '4px 0px'
+}
 
 export default OrganizationModal
