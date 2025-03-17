@@ -28,7 +28,7 @@ import Modal from "../../../../module/Modal";
  * 
  * @additionalInfo
  * - API:
- *    Http Method - GET : /site (현장관리 조회)
+ *    Http Method - GET : /site (현장관리 조회), /site/stats (현장상태 조회), /project/count (프로젝트별 근로자 수 조회)
  *    Http Method - PUT : /site (현장관리 수정)
  * - 주요 상태 관리: useReducer
  */
@@ -168,6 +168,7 @@ const Site = () => {
         return ` ${temp2[0]?.value} ${temp1[0]?.value}(㎧) `;
     }
 
+    // 현장상태 조회
     const getSiteStatsData = async() => {
         const res = await Axios.GET(`/site/stats?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}`);
         
@@ -176,6 +177,17 @@ const Site = () => {
         }
     }
 
+    // 프로젝트별 근로자 수 조회
+    const getWorkerCountData = async() => {
+        const res = await Axios.GET(`/project/count?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}`);
+        
+        if(res?.data?.result === "Success"){
+            dispatch({type: "COUNT", list: res?.data?.values?.list});
+        }
+    }
+
+
+    // 현장 정보 조회
     const getData = async() => {
         setIsLoading(true);
 
@@ -188,11 +200,21 @@ const Site = () => {
         setIsLoading(false);
     }
     
+    // 현장상태 5초마다 갱신
     useEffect(() => {
         getData();
 
         const interval = setInterval(() => {
             getSiteStatsData();
+        }, 5000);
+    
+        return () => clearInterval(interval);
+    }, []);
+
+    // 프로젝트별 근로자 수 5초마다 갱신
+    useEffect(() => {
+        const interval = setInterval(() => {
+            getWorkerCountData();
         }, 5000);
     
         return () => clearInterval(interval);
@@ -253,23 +275,23 @@ const Site = () => {
                         <thead>
                             <tr>
                                 <th className="fixed-left" rowSpan={2} style={{ width: "10px", left: "0px" }}></th>
-                                <th className="fixed-left" rowSpan={2} style={{ width: "140px", left: "10px" }}>발주처</th>
-                                <th className="fixed-left" rowSpan={2} style={{ width: "280px", left: "150px" }}>현장</th>
-                                <th colSpan={2} style={{ width: "130px" }}>진행현황</th>
-                                <th colSpan={2} style={{ width: "110px" }}>HTENC</th>
-                                <th colSpan={2} style={{ width: "110px" }}>협력사</th>
-                                <th rowSpan={2} style={{ width: "60px" }}>소계<br />(M/D)</th>
-                                <th rowSpan={2} style={{ width: "55px" }}>장비</th>
-                                <th rowSpan={2} style={{ width: "200px" }}>작업내용</th>
-                                <th className="fixed-right" rowSpan={2} style={{ width: "300px", right: 0 }}>날씨</th>
+                                <th className="fixed-left" rowSpan={2} style={{ width: "100px", left: "10px" }}>발주처</th>
+                                <th className="fixed-left" rowSpan={2} style={{ width: "250px", left: "110px" }}>현장</th>
+                                <th colSpan={2} style={{ width: "100px" }}>진행현황</th>
+                                <th colSpan={2} style={{ width: "80px" }}>HTENC</th>
+                                <th colSpan={2} style={{ width: "80px" }}>협력사</th>
+                                <th rowSpan={2} style={{ width: "40px" }}>소계<br />(M/D)</th>
+                                <th rowSpan={2} style={{ width: "40px" }}>장비</th>
+                                <th rowSpan={2} style={{ width: "400px" }}>작업내용</th>
+                                <th className="fixed-right" rowSpan={2} style={{ width: "180px", right: 0 }}>날씨</th>
                             </tr>
                             <tr>
-                                <th style={{ width: "65px" }}>공정률<br />(%)</th>
-                                <th style={{ width: "65px" }}>누계<br />(M/D)</th>
-                                <th style={{ width: "55px" }}>공사</th>
-                                <th style={{ width: "55px" }}>안전</th>
-                                <th style={{ width: "55px" }}>관리</th>
-                                <th style={{ width: "55px" }}>근로자</th>
+                                <th style={{ width: "50px" }}>공정률<br />(%)</th>
+                                <th style={{ width: "50px" }}>누계<br />(M/D)</th>
+                                <th style={{ width: "40px" }}>공사</th>
+                                <th style={{ width: "40px" }}>안전</th>
+                                <th style={{ width: "40px" }}>관리</th>
+                                <th style={{ width: "40px" }}>근로자</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -296,23 +318,47 @@ const Site = () => {
                                             {/* 발주처 */}
                                             <td className="center fixed-left" rowSpan={item.rowSpan} style={{left: "10px"}}>{item.originalOrderCompName || ""}</td>
                                             {/* 현장 */}
-                                            <td className="left ellipsis text-hover fixed-left" style={{cursor: "pointer", left: "150px"}} onClick={()=> onClickRow(idx)}>{item.site_nm || ""}</td>
+                                            <td className="left ellipsis text-hover fixed-left" style={{cursor: "pointer", left: "110px"}} onClick={()=> onClickRow(idx)}>{item.site_nm || ""}</td>
                                             {/* 공정률 */}
                                             <td className="center" rowSpan={item.rowSpan} style={{fontWeight: "bold"}}>66%</td>
                                             {/* 누계 */}
-                                            <td className="right" rowSpan={item.rowSpan} style={{fontWeight: "bold"}}>61</td>
+                                            <td className="right" rowSpan={item.rowSpan} style={{fontWeight: "bold"}}>
+                                                {
+                                                    item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_all), 0)
+                                                }
+                                            </td>
                                             {/* 공사 */}
-                                            <td className="right">150</td>
+                                            <td className="right">
+                                                {
+                                                    item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_work), 0)
+                                                }
+                                            </td>
                                             {/* 안전 */}
-                                            <td className="right">50</td>
+                                            <td className="right">
+                                                {
+                                                    item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_safe), 0)
+                                                }
+                                            </td>
                                             {/* 관리 */}
-                                            <td className="right">300</td>
+                                            <td className="right">
+                                                {
+                                                    item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_manager), 0)
+                                                }
+                                            </td>
                                             {/* 근로자 */}
-                                            <td className="right">100</td>
+                                            <td className="right">
+                                                {
+                                                    item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_not_manager), 0)
+                                                }
+                                            </td>
                                             {/* 소계 */}
-                                            <td className="right" style={{fontWeight: "bold"}}>600</td>
-                                            {/* equip. */}
-                                            <td className="right" style={{fontWeight: "bold"}}>61</td>
+                                            <td className="right" style={{fontWeight: "bold"}}>
+                                                {
+                                                    item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_date), 0)
+                                                }
+                                            </td>
+                                            {/* 장비 */}
+                                            <td className="right" style={{fontWeight: "bold"}}>0</td>
                                             {/* 작업내용 */}
                                             <td className="left ellipsis">
                                                 {
@@ -347,7 +393,7 @@ const Site = () => {
                                                             <>{getPtyData(item.whether)}</>
                                                             /
                                                             <>{getRn1Data(item.whether)}</>
-                                                            /
+                                                            <br />
                                                             <>{getT1hData(item.whether)}</>
                                                             /
                                                             <>{getWindData(item.whether)}</>
@@ -359,19 +405,19 @@ const Site = () => {
                                     :
                                         <tr key={idx}>
                                             {/* 현장 */}
-                                            <td className="left ellipsis text-hover fixed-left" style={{cursor: "pointer", left: "150px"}} onClick={() => onClickRow(idx)}><li>{item.project_nm}</li></td>
+                                            <td className="left ellipsis text-hover fixed-left" style={{cursor: "pointer", left: "110px"}} onClick={() => onClickRow(idx)}><li>{item.project_nm}</li></td>
                                             {/* 공사 */}
-                                            <td className="right">150</td>
+                                            <td className="right">{item.worker_count_work}</td>
                                             {/* 안전 */}
-                                            <td className="right">50</td>
+                                            <td className="right">{item.worker_count_safe}</td>
                                             {/* 관리 */}
-                                            <td className="right">300</td>
+                                            <td className="right">{item.worker_count_manager}</td>
                                             {/* 근로자 */}
-                                            <td className="right">100</td>
+                                            <td className="right">{item.worker_count_not_manager}</td>
                                             {/* 소계 */}
-                                            <td className="right" style={{fontWeight: "bold"}}>600</td>
-                                            {/* equip */}
-                                            <td className="right" style={{fontWeight: "bold"}}>61</td>
+                                            <td className="right" style={{fontWeight: "bold"}}>{item.worker_count_date}</td>
+                                            {/* 장비 */}
+                                            <td className="right" style={{fontWeight: "bold"}}>0</td>
                                             {/* 작업내용 */}
                                             <td className="left ellipsis">
                                                 {

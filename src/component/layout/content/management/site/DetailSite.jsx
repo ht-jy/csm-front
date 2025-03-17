@@ -2,6 +2,14 @@ import { useState, useEffect } from "react";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import DateInput from "../../../../module/DateInput";
 import Button from "../../../../module/Button";
+import whether0 from "../../../../../assets/image/whether/0.png";
+import whether1 from "../../../../../assets/image/whether/1.png";
+import whether2 from "../../../../../assets/image/whether/2.png";
+import whether3 from "../../../../../assets/image/whether/3.png";
+import whether4 from "../../../../../assets/image/whether/4.png";
+import whether5 from "../../../../../assets/image/whether/5.png";
+import whether6 from "../../../../../assets/image/whether/6.png";
+import whether7 from "../../../../../assets/image/whether/7.png";
 
 /**
  * @description: 현장 상세 컴포넌트
@@ -75,6 +83,89 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
         setClosingActualDate(dateUtil.format(detailData.site_date.closing_actual_date));
         setEtc(detailData.etc)
     }
+
+
+    // 날씨 api 정보 확인
+    const getIsWhether = (whether) => {
+        if(whether.length === 0) return false;
+        return true;
+    }
+
+    // 날씨(강수형태)
+    const getPtyData = (whether) => {
+        const temp = whether?.filter(item => item.key === "PTY");
+        switch(temp[0]?.value){
+            case "0": 
+                return (
+                    <>
+                        <img src={whether0} style={{width: "19px"}}/> 맑음
+                    </>
+                );
+            case "1": 
+                return (
+                    <>
+                        <img src={whether1} style={{width: "19px"}}/> 비
+                    </>
+                );
+            case "2": 
+                return (
+                    <>
+                        <img src={whether2} style={{width: "19px"}}/> 비/눈
+                    </>
+                );
+            case "3": 
+                return (
+                    <>
+                        <img src={whether3} style={{width: "19px"}}/> 눈
+                    </>
+                );
+            case "4": 
+                return (
+                    <>
+                        <img src={whether4} style={{width: "19px"}}/> 소나기
+                    </>
+                );
+            case "5": 
+                return (
+                    <>
+                        <img src={whether5} style={{width: "19px"}}/> 빗방울
+                    </>
+                );
+            case "6": 
+                return (
+                    <>
+                        <img src={whether6} style={{width: "19px"}}/> 비/눈
+                    </>
+                );
+            case "7": 
+                return (
+                    <>
+                        <img src={whether7} style={{width: "19px"}}/> 눈
+                    </>
+                );
+            default: return "";
+        }
+    }
+
+    // 날씨(강수량)
+    const getRn1Data = (whether) => {
+        const temp = whether?.filter(item => item.key === "RN1");
+        return ` 강수량: ${temp[0]?.value}(㎜) `;
+    }
+
+    // 날씨(기온)
+    const getT1hData = (whether) => {
+        const temp = whether?.filter(item => item.key === "T1H");
+        return ` 기온: ${temp[0]?.value}(°C) `;
+    }
+
+    // 날씨(풍속,풍향)
+    const getWindData = (whether) => {
+        const temp1 = whether?.filter(item => item.key === "WSD");
+        const temp2 = whether?.filter(item => item.key === "VEC");
+        return ` ${temp2[0]?.value} ${temp1[0]?.value}(㎧) `;
+    }
+
     useEffect(() => {
         setData(detailData);
         setInitialData(detailData);
@@ -278,7 +369,19 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
                     </label>
                     <div className="form-input" style={{ flex: 1 }}>
                         <div className="read-only-input">
-                            {"-"}
+                            {
+                                getIsWhether(data.whether) ?
+                                <>
+                                    <>{getPtyData(data.whether)}</>
+                                    /
+                                    <>{getRn1Data(data.whether)}</>
+                                    /
+                                    <>{getT1hData(data.whether)}</>
+                                    /
+                                    <>{getWindData(data.whether)}</>
+                                </>                                                         
+                                : "날씨 정보가 없습니다."
+                            }
                         </div>
                     </div>
                 </div>
