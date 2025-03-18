@@ -219,6 +219,20 @@ td {
   width: 30px; /* 아이콘 영역 크기 */
 }
 
+.left-box-shadow {
+  box-shadow: 
+    inset 0.5px 0 0 0 #ccc,   /* 왼쪽 */
+	  inset 0 0.5px 0 0 #ccc,   /* 상단 */
+	  inset 0 -0.5px 0 0 #ccc;  /* 하단 */
+}
+
+.right-box-shadow {
+  box-shadow: 
+    inset -0.5px 0 0 0 #ccc,  /* 오른쪽 */
+    inset 0 0.5px 0 0 #ccc,   /* 상단 */
+    inset 0 -0.5px 0 0 #ccc;  /* 하단 */
+}
+
 /* 왼쪽 정렬 아이콘 영역 */
 .sort-icon-wrapper {
   left: 0;

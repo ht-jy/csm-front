@@ -24,7 +24,7 @@ import OutsideClick from "./OutsideClick.jsx";
  *  time: 처음 표시될 시간
  *  setTime: 달력에서 날짜 선택 시 시간을 변경할 함수
  */
-const DateInput = ({time, setTime}) => {
+const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle}) => {
 
     const [saveTime, setSaveTime] = useState(time);
     const [showCalendar, setShowCalendar] = useState(false);
@@ -48,13 +48,13 @@ const DateInput = ({time, setTime}) => {
     }, [time])
 
     return (
-            <span className="calendar-wrapper">
-            <div className="date-input">
+        <span className="calendar-wrapper">
+            <div className="date-input" style={{...dateInputStyle}}>
                 <input type="date" id="inputDate" value={time} max="9999-12-31" className="inputBox" onChange={(e) => setTime(e.target.value)} />
                 <input type="image" value="" src={CalendarIcon} className="imgIcon" onClick={() => setShowCalendar(prev => !prev)}/>               
             </div>
                 {showCalendar && (
-                    <div className="calendar-popup">
+                    <div className="calendar-popup" style={{...calendarPopupStyle}}>
                         <OutsideClick setActive={setShowCalendar}>
                             {/* FIXME: 공휴일 문제 */}
                             <Calendar 
@@ -63,11 +63,10 @@ const DateInput = ({time, setTime}) => {
                                 locale="ko" 
                                 calendarType="gregory" 
                                 // formatDay={(locale, date) => date.toLocaleString('en', { day: 'numeric' })} // "일" 글자 삭제
-                                />
+                            />
                         </OutsideClick>
                     </div>
                 )}
-
         </span>
   );
 }

@@ -46,11 +46,28 @@ const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, d
 
     // 입력값 변경 핸들러
     const handleInputChange = (index, newValue) => {
-        setFormData(prevFormData =>
-            prevFormData.map((item, idx) => 
-                idx === index ? { ...item, value: newValue } : item
-            )
-        );
+        setFormData((prevFormData) => {
+            // 변경된 항목 값 변경
+            const updatedData = prevFormData.map((item, idx) =>
+              idx === index ? { ...item, value: newValue } : item
+            );
+        
+            // 체크박스에 의존된 Input컴포넌트 숨김/보이기 처리
+            const changedItem = prevFormData[index];
+            if (changedItem && changedItem.triggerHideId) {
+              const parentId = changedItem.triggerHideId;
+              return updatedData.map((item) => {
+                if (item.dependency && item.dependency[1] === parentId) {
+                  const newDependency = [...item.dependency];
+                  newDependency[2] = newValue === 'Y' ? 'N' : newValue === 'N' ? 'Y' : newDependency[2];
+                  return { ...item, dependency: newDependency };
+                }
+                return item;
+              });
+            }
+        
+            return updatedData;
+        });
     };
 
     // 수정모드로 변경
@@ -81,8 +98,29 @@ const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, d
     // detailData가 변경될 때 상태를 업데이트 (최초 데이터 저장)
     useEffect(() => {
         if (detailData && detailData.length > 0) {
-            setFormData(detailData);
-            setInitialData(detailData); // 초기 데이터 저장
+            const newData = detailData.map(item => {
+                if (item.dependency) {
+                  const depTriggerId = item.dependency[1];
+                  const targetItem = detailData.find(otherItem => otherItem.triggerHideId === depTriggerId);
+                  
+                  if (targetItem) {
+                    let newDepValue = "Y";
+                    if (targetItem.value === "Y") {
+                      newDepValue = "N";
+                    } else if (targetItem.value === "N") {
+                      newDepValue = "Y";
+                    }
+                    return {
+                      ...item,
+                      dependency: [item.dependency[0], item.dependency[1], newDepValue],
+                    };
+                  }
+                }
+                return item;
+            });
+        
+            setFormData(newData);
+            setInitialData(newData); // 초기 데이터 저장
         }
     }, [detailData]);
 
@@ -102,17 +140,37 @@ const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, d
         }
     }, [gridMode]);
 
+    useEffect(() => {
+            if (isOpen) {
+                document.body.style.overflow = "hidden";
+    
+                // 엔터 키 이벤트 핸들러
+                const handleKeyDown = (event) => {
+                    if (event.key === "Escape") {
+                        handleExit();
+                    }
+                };
+    
+                document.addEventListener("keydown", handleKeyDown);
+    
+                return () => {
+                    document.body.style.overflow = "unset";
+                    document.removeEventListener("keydown", handleKeyDown);
+                };
+            }
+        }, [isOpen]);
+
     return (
         <div>
             {isOpen ? (
                 <div style={overlayStyle}>
                     <div style={modalStyle}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ height: "50px", display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: "0px", marginRight: "5px", marginLeft: "5px" }}>
                             {/* 왼쪽 - 제목 */}
                             <h2 style={h2Style}>{title}</h2>
 
                             {/* 오른쪽 - 버튼 & 닫기 아이콘 */}
-                            <div style={{ display: 'flex', alignItems: 'center', paddingBottom: "15px" }}>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
                                 {
                                     gridMode === "SAVE" ?
                                         <div>
@@ -155,12 +213,12 @@ const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, d
                                 
 
                                 <div onClick={handleExit} style={{ cursor: "pointer" }}>
-                                    <img src={Exit} style={{ width: "35px", paddingBottom: '5px' }} alt="Exit" />
+                                    <img src={Exit} style={{ width: "35px" }} alt="Exit" />
                                 </div>
                             </div>
                         </div>
 
-
+                        <div style={{ flex: 1, overflow: 'auto' }}>
                         <div style={gridStyle}>
                             {formData.length === 0 ? null : 
                                 formData.map((item, idx) => (
@@ -174,10 +232,16 @@ const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, d
                                             value={item.value}
                                             onValueChange={(newValue) => handleInputChange(idx, newValue)}
                                             selectData={item.type === "select" ? selectList[item.selectName] : null}
+                                            checkedLabels={item.checkedLabels}
+                                            radioValues={item.radioValues}
+                                            radioLabels={item.radioLabels}
+                                            textFormat={item.format}
+                                            isHide={item.dependency && item.dependency[2] === 'Y' ? true : false}
                                         />
                                     )
                                 ))
                             }
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -193,6 +257,11 @@ const gridStyle = {
     border: '2px solid #a5a5a5',
     borderRadius: '10px',
     padding: '10px',
+    width: '100%', 
+    // height: 'calc(100% - 60px)',  // 버튼과 라디오 영역을 제외한 높이
+    overflowX: 'auto',            // 가로 스크롤
+    overflowY: 'auto',            // 세로 스크롤
+    marginTop: "5px",
 };
 
 const overlayStyle = {
@@ -205,23 +274,27 @@ const overlayStyle = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: '9998'
+    zIndex: '9998',
 };
 
 const modalStyle = {
     backgroundColor: '#fff',
-    padding: '10px',
+    padding: '5px',
     borderRadius: '8px',
-    maxWidth: '1000px',
-    width: '100%',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    maxWidth: '1200px',
+    width: '95%',
+    height: 'auto',
+    maxHeight: '90vh',
+    boxShadow: '15px 15px 1px rgba(0, 0, 0, 0.3)',
     margin: '10px',
+    display: 'flex',
+    flexDirection: 'column',
 };
 
 const h2Style = {
-    minHeight: '50px',
+    // minHeight: '50px',
     fontSize: '25px',
-    paddingTop: '5px',
+    // paddingTop: '5px',
 };
 
 const buttonDivStyle = {

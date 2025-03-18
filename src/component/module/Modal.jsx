@@ -101,7 +101,7 @@ const modalStyle = {
     borderRadius: '8px',
     maxWidth: '500px',
     width: '100%',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    boxShadow: '15px 15px 1px rgba(0, 0, 0, 0.3)',
     margin: '10px',
 };
 

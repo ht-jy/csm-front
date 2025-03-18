@@ -1,4 +1,4 @@
-.form-input input[type="email"], .form-input input[type="password"], .form-input input[type="text"] {
+.grid-input input[type="email"], .grid-input input[type="password"], .grid-input input[type="text"] {
     background: #fff;
     border: none;
     outline: none;
@@ -12,20 +12,20 @@
     border-radius: 4px;
 }
 
-.form-input input[type="email"]:focus, .form-input input[type="password"]:focus, .form-input input[type="text"]:focus {
+.grid-input input[type="email"]:focus, .grid-input input[type="password"]:focus, .grid-input input[type="text"]:focus {
     background: #fff;
     color: #090909;
     border: 1px solid #1976d2;
     border-radius: 4px;
 }
 
-.form-input {
-    margin: 10px 0 10px 0;
+.grid-input {
+    /* margin: 3px 0px 0px 6px; */
     background: rgba(249, 250, 255, 0.09);
     display: grid;
     align-items: center;
     border: 0px solid #dcdcdc;
     border-radius: 4px;
-
+    height: 40px;
     font-size: 16px;
 }
