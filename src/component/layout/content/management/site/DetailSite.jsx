@@ -10,6 +10,7 @@ import whether4 from "../../../../../assets/image/whether/4.png";
 import whether5 from "../../../../../assets/image/whether/5.png";
 import whether6 from "../../../../../assets/image/whether/6.png";
 import whether7 from "../../../../../assets/image/whether/7.png";
+import Map from "../../../../module/Map";
 
 /**
  * @description: 현장 상세 컴포넌트
@@ -25,7 +26,6 @@ import whether7 from "../../../../../assets/image/whether/7.png";
  */
 const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
     const [data, setData] = useState(null);
-    const [initialData, setInitialData] = useState({});
     const [openingDate, setOpeningDate] = useState(dateUtil.now());
     const [closingPlanDate, setClosingPlanDate] = useState(dateUtil.now());
     const [closingForecastDate, setClosingForecastDate] = useState(dateUtil.now());
@@ -39,6 +39,7 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
 
         if(name === "site_pos"){
 
+            console.log(value)
             const sitePos = {
                 road_address: value.roadAddress,
                 building_name: value.buildingName,
@@ -168,9 +169,7 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
 
     useEffect(() => {
         setData(detailData);
-        setInitialData(detailData);
         setDateInit();
-
     }, [isEdit]);
 
     useEffect(() => {
@@ -413,7 +412,7 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
 
             {/* 두 번째 열 */}
             <div className="form-control" style={{ gridColumn: "2", gridRow: "2 / span 9" }}>
-                지도
+                 <Map roadAddress={data.site_pos.road_address}></Map>
             </div>
         </div>
     </>
