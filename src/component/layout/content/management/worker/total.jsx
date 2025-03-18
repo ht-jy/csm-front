@@ -1,19 +1,22 @@
 import { useState, useEffect, useReducer } from "react";
-import ReactPaginate from "react-paginate";
-import Select from 'react-select';
-import "../../../../../assets/css/Calendar.css";
-import "../../../../../assets/css/Paginate.css";
-import "../../../../../assets/css/Table.css";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { dateUtil } from "../../../../../utils/DateUtil";
+import { useAuth } from "../../../../context/AuthContext";
 import Button from "../../../../module/Button";
-import DateInput from "../../../../module/DateInput";
 import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
 import Table from "../../../../module/Table";
 import TotalReducer from "./TotalReducer";
 import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons ";
-
+import useTableControlState from "../../../../../utils/hooks/useTableControlState";
+import useTableSearch from "../../../../../utils/hooks/useTableSearch";
+import Search from "../../../../module/search/Search";
+import GridModal from "../../../../module/GridModal";
+import useGridModalControlState from "../../../../../utils/hooks/useGridModalControlState";
+import useGridModalSearch from "../../../../../utils/hooks/useGridModalSearch";
+import "../../../../../assets/css/Calendar.css";
+import "../../../../../assets/css/Paginate.css";
+import "../../../../../assets/css/Table.css";
 
 /**
  * @description: 전체 근로자 관리
@@ -30,141 +33,249 @@ import PaginationWithCustomButtons from "../../../../module/PaginationWithCustom
  * - Table: 테이블
  * - Button: 버튼
  * - DateInput: 날짜입력
+ * - Search: 검색 컴포넌트
+ * - GridModal: 상세 화면 모달
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /worker/total (전체근로자 조회)
- * 
+ *    Http Method - GET : /worker/total (전체근로자 조회), /site/nm (현장데이터 조회), /project/nm (프로젝트 조회), /code (코드조회)
+ *    Http Method - POST : /worker/total (근로자 추가)
+ *    Http Method - PUT : /worker/total (근로자 수정)
  */
 
 const Total = () => {
     const [state, dispatch] = useReducer(TotalReducer, {
         list: [],
         count: 0,
+        workerTypeCodes: [],
         initialList: [],
+        selectList: [],
     });
 
-    const [pageNum, setPageNum] = useState(1);
-    const [rowSize, setRowSize] = useState(100);
-    const [order, setOrder] = useState("");
-    const [searchStartTime, setSearchStartTime] = useState(dateUtil.now());
-    const [searchEndTime, setSearchEndTime] = useState(dateUtil.now());
+    const { user } = useAuth();
+
+    // 로딩
     const [isLoading, setIsLoading] = useState(false);
+    // 모달
     const [isModal, setIsModal] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
     const [modalText, setModalText] = useState("");
-    const [isSearchReset, setIsSearchReset] = useState(false);
-    const [isSearchInit, setIsSearchInit] = useState(false);
+    // 상세모달
+    const gridData = [
+        { type: "select", span: "full", label: "현장", value: "", selectName: "siteNm" },
+        { type: "select", span: "full", label: "프로젝트", value: "", selectName: "projectNm" },
+        { type: "text", span: "double", label: "아이디", value: "" },
+        { type: "text", span: "double", label: "이름", value: "" },
+        { type: "text", span: "double", label: "부서/조직명", value: "" },
+        { type: "text", span: "double", label: "핸드폰 번호", value: "", format: "formatMobileNumber" },
+        { type: "radio", span: "full", label: "근로자 구분", value: "", radioValues: state.workerTypeCodes.map(item => item.code)||[], radioLabels: state.workerTypeCodes.map(item => item.code_nm)||[] },
+        { type: "checkbox", span: "double", label: "퇴직여부", value: "", checkedLabels: ["퇴직자", "재직자"], triggerHideId : "retire" },
+        { type: "date", span: "double", label: "퇴직날짜", value: "", dependency: [true, "retire", "Y"] },
+    ];
+    const {isGridModal, setIsGridModal, gridMode, setGridMode, detail, setDetail, isMod, setIsMod} = useGridModalControlState();
 
     const columns = [
-        { isSearch: false, isOrder: false, width: "70px", header: "순번", itemName: "row_num", bodyAlign: "center", isEllipsis: false, isDate: false },
-        { isSearch: true, isOrder: true, width: "210px", header: "부서/조직명", itemName: "department", bodyAlign: "left", isEllipsis: false, isDate: false },
-        { isSearch: true, isOrder: true, width: "190px", header: "근로자 이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false, isDate: false },
-        { isSearch: true, isOrder: true, width: "480px", header: "현장이름", itemName: "site_nm", bodyAlign: "left", isEllipsis: true, isDate: false },
-        { isSearch: true, isOrder: true, width: "480px", header: "프로젝트명", itemName: "job_name", bodyAlign: "left", isEllipsis: true, isDate: false },
-        { isSearch: false, isOrder: true, width: "140px", header: "출근시간", itemName: "in_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: "formatWithTime" },
-        { isSearch: false, isOrder: true, width: "140px", header: "퇴근시간", itemName: "out_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: "formatWithTime" }
+        { isSearch: false, isOrder: true, isSlide: true, width: "50px", header: "순번", itemName: "rnum", bodyAlign: "center", isEllipsis: false, isDate: false },
+        { isSearch: true, isOrder: true, isSlide: false, width: "100px", header: "아이디", itemName: "user_id", bodyAlign: "center", isEllipsis: false, isDate: false, isFormat: true, format: "maskResidentNumber", valid: "isValidResidentNumber" },
+        { isSearch: true, isOrder: true, isSlide: false, width: "150px", header: "근로자 이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false, isDate: false },
+        { isSearch: true, isOrder: true, isSlide: false, width: "150px", header: "부서/조직명", itemName: "department", bodyAlign: "left", isEllipsis: false, isDate: false },
+        { isSearch: true, isOrder: true, isSlide: false, width: "300px", header: "프로젝트명", itemName: "job_name", bodyAlign: "left", isEllipsis: true, isDate: false },
+        { isSearch: true, isOrder: true, isSlide: false, width: "150px", header: "핸드폰 번호", itemName: "phone", bodyAlign: "center", isEllipsis: false, isDate: false, isFormat: true, format: "formatMobileNumber", valid: "isValidMobileNumber" },
+        { isSearch: true, isOrder: true, isSlide: false, width: "100px", header: "근로자구분", itemName: "worker_type_nm", bodyAlign: "center", isEllipsis: false, isDate: false },
+        { isSearch: false, isOrder: true, isSlide: false, width: "100px", header: "퇴사 여부", itemName: "is_retire", bodyAlign: "center", isEllipsis: false, isDate: false, isChecked: true },
     ];
 
-    const defaultSearchValues = columns.reduce((acc, col) => {
-        if (col.isSearch) acc[col.itemName] = "";
-        return acc;
-    }, {});
+    const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder, retrySearchText, setRetrySearchText } = useTableControlState(100);
+    
 
-    const [searchValues, setSearchValues] = useState(defaultSearchValues);
-    const [activeSearch, setActiveSearch] = useState(
-        columns.reduce((acc, col) => {
-            if (col.isSearch) acc[col.itemName] = false;
-            return acc;
-        }, {})
-    );
+    const searchOptions = [
+        { value: "ALL", label: "전체" },
+        { value: "JOB_NAME", label: "프로젝트명" },
+        { value: "USER_NM", label: "근로자 이름" },
+        { value: "DEPARTMENT", label: "부서/조직명" },
+    ];
 
-    // const options = [
-    //     { value: 5, label: "5줄 보기" },
-    //     { value: 100, label: "10줄 보기" },
-    // ];
+    // 테이블 row 클릭
+    const onClickTableRow = (item, mode) => {
+        // getSiteData();
+        // getProjectData();
+        
+        const arr = [
+            item.sno, item.jno, item.user_id, item.user_nm, item.department, item.phone, item.worker_type, item.is_retire, dateUtil.format(item.retire_date)
+        ];
 
-    // 페이지네이션 버튼 클릭
-    const onClickPageBtn = (num) => {
-        setPageNum(num);
+        handleGridModalOn(mode, arr);
     }
 
-    // 리스트 개수 select 선택
-    const onChangeSelect = (e) => {
-        setRowSize(e.value);
-        setPageNum(1);
-    };
+    // GridModal의 저장 버튼 이벤트 - (저장, 수정)
+    const onClicklModalSave = async (item, mode) => {
+        setIsLoading(true);
+        setGridMode(mode)
+        
+        let retireDate = null;
+        if (item[7].value !== 'Y'){
+            retireDate = null;
+        }else{
+            retireDate = dateUtil.parseToGo(item[8].value);
+        }
+        
+        const worker = {
+            sno: item[0].value || 0,
+            jno: item[1].value || 0,
+            user_id: item[2].value || "",
+            user_nm: item[3].value || "",
+            department: item[4].value || "",
+            phone: item[5].value || "",
+            worker_type: item[6].value || "00",
+            is_retire: item[7].value || "N",
+            retire_date: retireDate,
+            reg_user: user.userName || "",
+            reg_uno: user.uno || 0,
+            mod_user: user.userName || "",
+            mod_uno: user.uno || 0,
+        }
+        
+        let res;
+        if (gridMode === "SAVE") {
+            res = await Axios.POST(`/worker/total`, worker);
+        } else {
+            res = await Axios.PUT(`/worker/total`, worker);
+        }
+        
+        if (res?.data?.result === "Success") {
+            setModalTitle(`근로자 ${getModeString()}`);
+            setModalText(`근로자 ${getModeString()}에 성공하였습니다.`);
+            setIsMod(true);
+            getData();
+        } else {
+            setModalTitle(`근로자 ${getModeString()}`);
+            setModalText(`근로자 ${getModeString()}에 실패하였습니다. \n잠시 후에  다시 시도하여 주시기 바랍니다.`);
+            setIsMod(false);
+        }
 
-    // 테이블 검색 단어 갱신
-    const handleSearchChange = (field, value) => {
-        setSearchValues(prev => ({
-            ...prev,
-            [field]: value
-        }));
-    };
-
-    // 테이블 검색
-    const handleTableSearch = () => {
-        setIsSearchInit(true);
-        getData();
-    };
-
-    // 테이블 검색 초기화
-    const onClickSearchInit = () => {
-        setSearchValues(defaultSearchValues); // 검색값 초기화
-        setActiveSearch(columns.reduce((acc, col) => {
-            if (col.isSearch) acc[col.itemName] = false;
-            return acc;
-        }, {})); // 검색창 닫기
-
-        setIsSearchInit(false);
-        setIsSearchReset(true);
-    };
-
-    // 테이블 정렬 변경시 이벤트
-    const handleSortChange = (newOrder) => {
-        setOrder(newOrder);
+        setIsLoading(false);
+        setIsGridModal(false);
+        setIsModal(true);
     }
 
+    // 현장 리스트 조회 - GridModal select 용도
+    const getSiteData = async () => {
+        setIsLoading(true);
+
+        const res = await Axios.GET(`/site/nm`);
+        if (res?.data?.result === "Success") {
+            dispatch({ type: "SITE_NM", list: res?.data?.values?.list });
+        } else if (res?.data?.result === "Failure") {
+            setIsModal(true);
+            setModalTitle("현장명 조회");
+            setModalText(`현장명을 조회하는데 실패하였습니다. \n잠시 후에  다시 시도하여 주시기 바랍니다.`);
+            return false;
+        }
+
+        setIsLoading(false);
+        return true;
+    }
+
+    // 프로젝트 리스트 조회 - GridModal select 용도
+    const getProjectData = async () => {
+        setIsLoading(true);
+
+        const res = await Axios.GET(`/project/nm`);
+        if (res?.data?.result === "Success") {
+            dispatch({ type: "PROJECT_NM", list: res?.data?.values?.list });
+        } else if (res?.data?.result === "Failure") {
+            setIsModal(true);
+            setModalTitle("프로젝트명 조회");
+            setModalText(`프로젝트명을 조회하는데 실패하였습니다. \n잠시 후에  다시 시도하여 주시기 바랍니다.`);
+            return false;
+        }
+
+        setIsLoading(false);
+        return true;
+    }
+
+    // 근로자 구분 코드로 변환
+    const convertWorkerTypeToCode = (workerTypeNm) => {
+        if (workerTypeNm === "" || state.workerTypeCodes.length === 0){
+            return "";
+        }
+
+        const code = state?.workerTypeCodes?.find(item => item.code_nm?.includes(workerTypeNm));
+        if (!code){
+            return "99";
+        }
+        return code.code;
+    }
+
+    // 코드 조회
+    const getCodeData = async () => {
+        setIsLoading(true);
+
+        const res = await Axios.GET(`/code?p_code=WORKER_TYPE`);
+        if (res?.data?.result === "Success") {
+            dispatch({ type: "CODE", code: res?.data?.values?.list });
+            return res?.data?.values?.list;
+        } else if (res?.data?.result === "Failure") {
+            return [];
+        }
+
+        setIsLoading(false);
+        return true;
+    }
+    
     // 전체근로자 조회
     const getData = async () => {
         setIsLoading(true);
 
-        const res = await Axios.GET(`/worker/total?page_num=${pageNum}&row_size=${rowSize}&order=${order}&search_start_time=${searchStartTime}&search_end_time=${searchEndTime}&site_nm=${searchValues.site_nm}&job_name=${searchValues.job_name}&user_nm=${searchValues.user_nm}&department=${searchValues.department}`);
+        const params = {
+            page_num: pageNum,
+            row_size: rowSize,
+            order: order,
+            user_id: searchValues.user_id,
+            user_nm: searchValues.user_nm,
+            department: searchValues.department,
+            phone: searchValues.phone,
+            worker_type: convertWorkerTypeToCode(searchValues.worker_type_nm),
+            retry_search: retrySearchText
+          };
+          
+          const queryString = Object.entries(params)
+            .filter(([key, value]) => value !== '' && value != null)
+            .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+            .join('&');
+          
+          const res = await Axios.GET(`/worker/total?${queryString}`);
 
+        // const res = await Axios.GET(`/worker/total?page_num=${pageNum}&row_size=${rowSize}&order=${order}&user_id=${searchValues.user_id}&user_nm=${searchValues.user_nm}&department=${searchValues.department}&phone=${searchValues.phone}&worker_type=${convertWorkerTypeToCode(searchValues.worker_type_nm)}&retry_search=${retrySearchText}`);
+        
         if (res?.data?.result === "Success") {
-            dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
+            if(state.workerTypeCodes.length === 0) {
+                const code = await getCodeData();
+                dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count, code: code });
+            }else{
+                dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count, code: state.workerTypeCodes });
+            }
+            
         }
 
         setIsLoading(false);
     };
 
-    // 페이지, 리스트 수, 검색날짜, 정렬 변경시
-    useEffect(() => {
-        getData();
-    }, [pageNum, rowSize, searchStartTime, searchEndTime, order]);
-
-    // 테이블 단어 검색시
-    useEffect(() => {
-        if (isSearchReset) {
-            getData();
-            setIsSearchReset(false);
-        }
-    }, [isSearchReset]);
-
-    // 시작 날짜보다 끝나는 날짜가 빠를 시 : 끝나는 날짜를 변경한 경우 (시작 날짜를 끝나는 날짜로)
-    useEffect(() => {
-        if (searchStartTime > searchEndTime) {
-            setSearchStartTime(searchEndTime)
-        }
-    }, [searchEndTime]);
-
-    // 시작 날짜보다 끝나는 날짜가 빠를 시 : 시작 날짜를 변경한 경우 (끝나는 날짜를 시작 날짜로)
-    useEffect(() => {
-        if (searchStartTime > searchEndTime) {
-            setSearchEndTime(searchStartTime)
-        }
-    }, [searchStartTime]);
+    // 테이블 조작
+    const { 
+        searchValues,
+        activeSearch, setActiveSearch, 
+        isSearchReset,
+        isSearchInit,
+        handleTableSearch,
+        handleRetrySearch,
+        handleSearchChange,
+        handleSearchInit,
+        handleSortChange,
+        handlePageClick,
+    } = useTableSearch({ columns, getDataFunction: getData, pageNum, retrySearchText, setRetrySearchText, setPageNum, rowSize, setRowSize, order, setOrder });
+    // 상세 모달 조작
+    const {handleGridModalOn, handleModeSet, getModeString, handleExitBtnClick} = useGridModalSearch({gridData, getSelectOptionData:[getSiteData, getProjectData], setIsGridModal, gridMode, setGridMode, setDetail});
 
     return (
         <div>
@@ -176,12 +287,29 @@ const Total = () => {
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
             />
+            <GridModal
+                isOpen={isGridModal}
+                gridMode={gridMode}
+                funcModeSet={handleModeSet}
+                editBtn={true}
+                removeBtn={false}
+                title={`근로자 관리 ${getModeString()}`}
+                exitBtnClick={handleExitBtnClick}
+                detailData={detail}
+                selectList={state.selectList}
+                saveBtnClick={onClicklModalSave}
+            />
             <div>
                 <div className="container-fluid px-4">
-                    <ol className="breadcrumb mb-4 content-title-box">
-                        <li className="breadcrumb-item content-title">전체 근로자</li>
-                        <li className="breadcrumb-item active content-title-sub">근로자 관리</li>
-                    </ol>
+                    <div className="table-header" style={{marginBottom: "0px"}}>
+                        <ol className="breadcrumb mb-4 content-title-box">
+                            <li className="breadcrumb-item content-title">전체 근로자</li>
+                            <li className="breadcrumb-item active content-title-sub">근로자 관리</li>
+                        </ol>
+                        <div className="table-header-right">
+                            <Button text={"추가"} onClick={() => handleGridModalOn("SAVE")} />
+                        </div>
+                    </div>
                     <div className="table-header">
                         <div className="table-header-left" style={{ gap: "10px" }}>
                             {/* <Select
@@ -191,15 +319,25 @@ const Total = () => {
                                 placeholder={"몇줄 보기"}
                             /> */}
 
-                            <div className="m-2">
+                            {/* <div className="m-2">
                                 조회기간 <DateInput time={searchStartTime} setTime={setSearchStartTime}></DateInput> ~ <DateInput time={searchEndTime} setTime={setSearchEndTime}></DateInput>
-                            </div>
+                            </div> */}
                         </div>
 
                         <div className="table-header-right">
                             {
-                                isSearchInit ? <Button text={"초기화"} onClick={onClickSearchInit} /> : null
+                                isSearchInit ? <Button text={"초기화"} onClick={handleSearchInit} style={{marginRight: "2px"}}/> : null
                             }
+                            <Search 
+                                searchOptions={searchOptions}
+                                width={"230px"}
+                                fncSearchKeywords={handleRetrySearch}
+                            />                            
+                        </div>
+                    </div>
+                    <div className="table-header">
+                        <div className="table-header-right">
+                            <div id="search-keyword-portal"></div>
                         </div>
                     </div>
 
@@ -216,6 +354,7 @@ const Total = () => {
                                 resetTrigger={isSearchReset}
                                 onSortChange={handleSortChange}
                                 isHeaderFixed={true}
+                                onClickRow={onClickTableRow}
                             />
                         </div>
                     </div>
@@ -224,7 +363,7 @@ const Total = () => {
                         <PaginationWithCustomButtons 
                             dataCount={state.count}
                             rowSize={rowSize}
-                            fncClickPageNum={onClickPageBtn}
+                            fncClickPageNum={handlePageClick}
                         />
                     </div>
                 </div>

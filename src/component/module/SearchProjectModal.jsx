@@ -236,7 +236,7 @@ const modalStyle = {
     width: '95%',
     maxHeight: '650px',
     height: '90%',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    boxShadow: '15px 15px 1px rgba(0, 0, 0, 0.3)',
     margin: '10px',
 };
 

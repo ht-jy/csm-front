@@ -1,4 +1,4 @@
-import { useState, useEffect, useReducer } from "react";
+import { useState, useReducer } from "react";
 import Select from 'react-select';
 import { Axios } from "../../../../../utils/axios/Axios";
 import { useAuth } from "../../../../context/AuthContext";
@@ -59,7 +59,6 @@ const Device = () => {
     const [isModal2, setIsModal2] = useState(false);
     const [modal2Title, setModal2Title] = useState("");
     const [modal2Text, setModal2Text] = useState("");
-    const [retrySearchText, setRetrySearchText] = useState("");
 
     const options = [
         { value: 5, label: "5줄 보기" },
@@ -80,7 +79,7 @@ const Device = () => {
         { type: "text", span: "double", label: "장치명", value: "" },
         { type: "text", span: "double", label: "시리얼번호", value: "" },
         { type: "select", span: "double", label: "현장이름", value: "", selectName: "siteNm" },
-        { type: "checkbox", span: "double", label: "사용여부", value: "" },
+        { type: "checkbox", span: "double", label: "사용여부", value: "", checkedLabel: "사용중|사용안함" },
         { type: "text", span: "full", label: "비고", value: "" },
     ];
 
@@ -95,7 +94,7 @@ const Device = () => {
         { isSearch: false, isOrder: true, isSlide: true, header: "최종 수정일시", width: "60px", itemName: "mod_date", bodyAlign: "center", isDate: true, isEllipsis: false, dateFormat: "format" },
     ]
 
-    const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(10);
+    const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder, retrySearchText, setRetrySearchText } = useTableControlState(10);
 
     // 상세페이지 클릭 시
     const onClickRow = (deviceRow, mode) => {
@@ -204,11 +203,6 @@ const Device = () => {
         }
     }
 
-    // 결과내 검색 텍스트
-    const searchKeywords = (text) => {
-        setRetrySearchText(text);
-    }
-
     // 현장데이터 리스트 조회 - GridModal select 용도
     const getSiteData = async () => {
         setIsLoading(true);
@@ -265,12 +259,13 @@ const Device = () => {
         isSearchReset,
         isSearchInit,
         handleTableSearch,
+        handleRetrySearch,
         handleSearchChange,
         handleSearchInit,
         handleSortChange,
         handleSelectChange,
         handlePageClick,
-    } = useTableSearch({ columns, getDataFunction: getData, pageNum, retrySearchText, setPageNum, rowSize, setRowSize, order, setOrder });
+    } = useTableSearch({ columns, getDataFunction: getData, pageNum, retrySearchText, setRetrySearchText, setPageNum, rowSize, setRowSize, order, setOrder });
 
     return (
         <div>
@@ -337,7 +332,7 @@ const Device = () => {
                             <Search 
                                 searchOptions={searchOptions}
                                 width={"230px"}
-                                fncSearchKeywords={searchKeywords}
+                                fncSearchKeywords={handleRetrySearch}
                             />
                             {
                                 isSearchInit ? <Button text={"초기화"} onClick={handleSearchInit} /> : null

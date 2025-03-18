@@ -137,6 +137,7 @@ const Search = ({searchOptions=[], width, fncSearchKeywords }) => {
                     container: (provided) => ({
                       ...provided,
                       width: width,
+                      zIndex: 100,
                     }),
                 }}
             />

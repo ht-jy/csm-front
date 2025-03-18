@@ -22,7 +22,7 @@ import { useState, useEffect } from "react";
  *   order: 정렬 문자열 값
  *   setOrder: 정렬 문자열 값 stter
  */
-const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySearchText, pageNum, setPageNum, rowSize, setRowSize, order, setOrder }) => {
+const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySearchText, setRetrySearchText, pageNum, setPageNum, rowSize, setRowSize, order, setOrder }) => {
     // 기본 검색값 초기화: isSearch가 true인 컬럼에 대해 빈 문자열 할당
     const defaultSearchValues = columns.reduce((acc, col) => {
         if (col.isSearch) acc[col.itemName] = "";
@@ -40,6 +40,21 @@ const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySear
     const [isSearchReset, setIsSearchReset] = useState(false);  // 검색된 단어 초기화 플래그
     const [isSearchInit, setIsSearchInit] = useState(false);    // 초기화 버튼 플래그(검색)
 
+    // 테이블 검색어 없을시 초기화 버튼 숨기기
+    const searchValuesEmpty = () => {
+        let nonEmptyArr = [];
+        for (let key in searchValues) {
+            if(searchValues[key] !== ""){
+                nonEmptyArr.push(key);
+            }
+        }
+        
+        if(nonEmptyArr.length === 0){
+            return true;
+        }
+        return false;
+    }
+
     // 테이블 검색
     const handleTableSearch = () => {
         setIsSearchInit(true);
@@ -50,7 +65,20 @@ const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySear
                 getDataFunction();
             }
         }
+        
+        if(searchValuesEmpty()) {
+            setIsSearchInit(false);
+        }
     };
+
+    // 통합 검색
+    const handleRetrySearch = (text) => {
+        setIsSearchInit(true);
+        setRetrySearchText(text);
+        if(text === ""){
+            setIsSearchInit(false);
+        }
+    }
 
     // 테이블 검색 단어 갱신
     const handleSearchChange = (field, value) => {
@@ -100,7 +128,7 @@ const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySear
         }
     }, [getDataValue, retrySearchText, pageNum, rowSize, order]);
 
-    // 테이블 단어 검색시 이벤트
+    // 초기화 버튼 클릭
     useEffect(() => {
         if (isSearchReset) {
             if (getDataFunction) {
@@ -111,7 +139,7 @@ const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySear
                 }
             }
             setIsSearchReset(false);
-        }
+        }        
     }, [isSearchReset]);
 
     return { 
@@ -120,6 +148,7 @@ const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySear
         isSearchReset,
         isSearchInit,
         handleTableSearch,
+        handleRetrySearch,
         handleSearchChange,
         handleSearchInit,
         handleSortChange,

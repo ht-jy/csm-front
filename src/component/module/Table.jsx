@@ -6,8 +6,10 @@ import SortIcon from "../../assets/image/sort-icon.png";
 import UpIcon from "../../assets/image/up-icon.png";
 import DownIcon from "../../assets/image/down-icon.png";
 import HiddenLeftArrowIcon from "../../assets/image/hidden-left-arrow.png";
+import CheckSquareIcon from "../../assets/image/check-square-icon.png";
 import { ObjChk } from "../../utils/ObjChk";
 import "../../assets/css/Table.css";
+import { Common } from "../../utils/Common";
 
 /**
  * @description: 
@@ -124,7 +126,7 @@ const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchC
                                 <>
                                     {/* 정렬 아이콘 - 조건 충족 시에만 마우스 오버로 표시 */}
                                     {hoverState === col.itemName && col.isOrder && (
-                                        <div className="icon-wrapper sort-icon-wrapper">
+                                        <div className="icon-wrapper sort-icon-wrapper left-box-shadow">
                                             <img
                                                 src={
                                                     orderState[col.itemName] === "asc" ? UpIcon :
@@ -192,7 +194,7 @@ const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchC
                                             </>
                                         ) : (
                                             hoverState === col.itemName && col.isSearch && (
-                                                <div className="icon-wrapper search-icon-wrapper">
+                                                <div className="icon-wrapper search-icon-wrapper right-box-shadow">
                                                     <img
                                                         src={SearchIcon}
                                                         alt="검색"
@@ -370,6 +372,17 @@ const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchC
                                             .split("|")
                                             .map(itemName => item[itemName])
                                             .join(' ')
+                                        : col.isChecked ?
+                                            item[col.itemName] === 'Y' ?
+                                                <img 
+                                                    src={CheckSquareIcon}
+                                                    style={{width: "18px"}}
+                                                />
+                                            : null
+                                        : col.isFormat ?
+                                            Common[col.valid](item[col.itemName]) ?
+                                                Common[col.format](item[col.itemName])
+                                            :   item[col.itemName]
                                         : item[col.itemName]
                                     }
                                 </td>
