@@ -61,12 +61,10 @@ const Company = () => {
                 fncConfirm={() => setIsModal(false)}
             />
             <div>
-                <div className="container-fluid px-4">
-                    <h2 className="mt-4">협력업체</h2>
-                    <ol className="breadcrumb mb-4">
-                        <img className="breadcrumb-icon" src="/assets/img/icon-house.png" />
-                        <li className="breadcrumb-item active">관리 메뉴</li>
-                        <li className="breadcrumb-item active">협력업체 관리</li>
+                <div className="border-box container-fluid px-4">
+                    <ol className="breadcrumb mb-4 content-title-box">
+                        <li className="breadcrumb-item content-title">협력업체 관리</li>
+                        <li className="breadcrumb-item active content-title-sub">관리</li>
                     </ol>
 
                     <div className="table-header">
@@ -89,24 +87,24 @@ const Company = () => {
                                     <div>
                                         <div className="company-manager">
                                             {/* 현장소장*/}
-                                            <div style={{ width: "250px", height: "100%", minWidth: "250px", overflow: "hidden", borderRadius: "5px", boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)" }}>
-                                                <CompanySiteManager jno={jno} styles={{ width: "250px", minWidth: "250px" }} />
+                                            <div style={{ width: "220px", height: "100%", minWidth: "220px", overflow: "hidden", borderRadius: "5px", boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)" }}>
+                                                <CompanySiteManager jno={jno} styles={{ width: "220px", minWidth: "220px" }} />
                                             </div>
 
                                             {/* 안전관리자*/}
-                                            <div style={{ width: "265px", height: "100%", minWidth: "265px", margin: "0 auto", overflow: "hidden", borderRadius: "5px", marginLeft:"22px", boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)"  }}>
-                                                <CompanySafeManager jno={jno} styles={{ width: "265px", minWidth: "265px"}} />
+                                            <div style={{ width: "250px", height: "100%", minWidth: "250px", margin: "0 auto", overflow: "hidden", borderRadius: "5px", marginLeft:"15px", boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)"  }}>
+                                                <CompanySafeManager jno={jno} styles={{ width: "250px", minWidth: "250px"}} />
                                             </div>
 
                                             {/* 관리감독자*/}
-                                            <div style={{ width: "1155px", height: "100%", minWidth: "1155px", marginLeft: "0", overflow: "hidden", borderRadius: "5px", marginLeft:"22px", boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)" }}>
-                                                <CompanySupervisor jno={jno} styles={{ width: "1155px", minWidth: "1155px" }} />
+                                            <div style={{ width: "100%", height: "100%", minWidth: "970px", marginRight: "5px", overflow: "hidden", borderRadius: "5px", marginLeft:"15px", boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)" }}>
+                                                <CompanySupervisor jno={jno} styles={{ width: "100%", minWidth: "970px" }} />
                                             </div>
                                         </div>
 
                                         {/* 협력업체 */}
-                                        <div style={{ width:"100%", height: "100%", minWidth: "1710px", overflow: "hidden", borderRadius: "5px", boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)" }}>
-                                            <CompanyInfo jno={jno} styles={{marginBottom: "10px"}}/>
+                                        <div style={{ width:"100%", height: "100%", minWidth: "1485px", overflow: "hidden", borderRadius: "5px", boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)", marginBottom: "10px" }}>
+                                            <CompanyInfo jno={jno}  styles={{ width: "100%", minWidth: "1485px" }}/>
                                         </div>
                                     </div>
                                 : null
