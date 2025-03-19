@@ -1,26 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import "../../assets/css/slider.css";
 import arrorRight from "../../assets/image/arrow-right.png";
 import arrorLeft from "../../assets/image/arrow-left.png";
 import upAndDown from "../../assets/image/up-and-down.png";
+import { Axios } from "../../utils/axios/Axios";
+import NoticeReducer from "../layout/content/management/notice/NoticeReducer";
+import { useAuth } from "../context/AuthContext";
+import { dateUtil } from "../../utils/DateUtil";
 
-const announcements = [
-  "공지 1: 시스템 점검 예정",
-  "공지 2: 신규 기능 추가",
-  "공지 3: 이벤트 참여 안내",
-  "공지 4: 업데이트 소식1111111111111111111111111111111111111111111111111",
-];
 
 function AnnouncementSlider() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const {user} = useAuth();
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      handleNext();
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [currentIndex]);
+  const [state, dispatch] = useReducer(NoticeReducer, {
+    noticesHeader: [],
+    count : 0,
+   });
+   const getNotices = async () => {  
+          const res = await Axios.GET(`/notice/${user.uno}?page_num=${1}&row_size=${10}`);
+          if (res?.data?.result === "Success") {
+              dispatch({ type: "HEADER", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
+          }
+          console.log(state.noticesHeader)
+      }
 
   const resetAutoSlide = () => {
     clearInterval(window.autoSlide);
@@ -43,7 +47,7 @@ function AnnouncementSlider() {
     if (isAnimating) return;
     setIsAnimating(true);
     setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? announcements.length - 1 : prevIndex - 1
+      prevIndex === 0 ? state.noticesHeader.length - 1 : prevIndex - 1
     );
     resetAutoSlide();
   };
@@ -51,17 +55,36 @@ function AnnouncementSlider() {
   const handleNext = () => {
     if (isAnimating) return;
     setIsAnimating(true);
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % announcements.length);
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % (state.noticesHeader.length === 0 ? 10 : state.noticesHeader.length ) );
     resetAutoSlide();
   };
 
   const handleAnnouncementClick = () => {
-    alert(`현재 공지사항: ${announcements[currentIndex]}`);
+    alert(`현재 공지사항: ${state.noticesHeader[currentIndex]}`);
   };
+
+  useEffect(() => {
+    if (state.noticesHeader.length > 0) {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % state.noticesHeader.length);
+    }
+  }, [state.noticesHeader]);
+
+  useEffect(() => {
+    getNotices()
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handleNext();
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [currentIndex]);
+
 
   useEffect(() => {
     const timeout = setTimeout(() => setIsAnimating(false), 500);
     return () => clearTimeout(timeout);
+
   }, [currentIndex]);
 
   return (
@@ -79,10 +102,11 @@ function AnnouncementSlider() {
             }}
             alt="left arrow"
         /> */}
+        
       <div style={{width: "30px", height: "30px", textAlign: "center", cursor: "pointer"}} onClick={handleClick}>
         <img 
           src={upAndDown}
-          style={{width: "20px"}}
+          style={{width: "15px"}}
         />
       </div>
       
@@ -95,7 +119,8 @@ function AnnouncementSlider() {
               cursor: "pointer",
             }}
           >
-            {announcements[currentIndex]}
+            {state.noticesHeader[currentIndex]} 
+            {/* {currentIndex} {Date()} */}
           </span>
         </div>
       </div>

@@ -33,7 +33,7 @@ import useTableSearch from "../../../../../utils/hooks/useTableSearch";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /site/nm (현장데이터 조회), /notice (공지사항 조회)
+ *    Http Method - GET : /project/nm (프로젝트데이터 조회), /notice (공지사항 조회), /notice/period (공개기간)
  *    Http Method - POST : /notice (공지사항 추가)
  *    Http Method - PUT : /notice (공지사항 수정)
  *    Http Method - DELETE :  /notice/${idx} (공지사항 삭제)
@@ -49,7 +49,7 @@ const Notice = () => {
     });
 
     const { user } = useAuth();
-    const {pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(10);
+    const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(10);
 
     // [GridModal]
     const [data, setData] = useState([]);
@@ -74,11 +74,11 @@ const Notice = () => {
 
     // [테이블]
     const columns = [
-        { header: "순번", width: "30px", itemName: "row_num", bodyAlign: "center", isSearch: false, isOrder: false, isDate: false, isEllipsis: false },
-        { header: "지역", width: "30px", itemName: "loc_name", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false, isSlide:true },
-        { header: "현장(공개범위)", width: "120px", itemName: "site_nm", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
+        { header: "순번", width: "25px", itemName: "row_num", bodyAlign: "center", isSearch: false, isOrder: false, isDate: false, isEllipsis: false },
+        { header: "지역", width: "35px", itemName: "job_loc_name", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false, isSlide:true },
+        { header: "현장(공개범위)", width: "120px", itemName: "job_name", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
         { header: "제목", width: "250px", itemName: "title", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
-        { header: "등록자", width: "70px", itemName: "user_info", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: true},
+        { header: "등록자", width: "60px", itemName: "user_info", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: true},
         { header: "등록일", width: "60px", itemName: "reg_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format" },
     ]
 
@@ -91,7 +91,7 @@ const Notice = () => {
 
     const gridPostData = [
         { type: "text", span: "full", label: "제목", value: "" },
-        { type: "select", span: "double", label: "현장(공개범위)", value: 0, selectName: "siteNm" },
+        { type: "select", span: "double", label: "현장(공개범위)", value: 0, selectName: "projectNm" },
         { type: "select", span: "double", label: "공개기간", value: "1", selectName: "noticeNm" },
         { type: "html", span: "full", label: "내용", vlaue: "" },
         { type: "hidden", value: "" },
@@ -121,7 +121,7 @@ const Notice = () => {
     const getNotices = async () => {
         setIsLoading(true);
 
-        const res = await Axios.GET(`/notice?page_num=${pageNum}&row_size=${rowSize}&order=${order}&&loc_name=${searchValues.loc_name}&site_nm=${searchValues.site_nm}&title=${searchValues.title}&user_info=${searchValues.user_info}`);
+        const res = await Axios.GET(`/notice/${user.uno}?page_num=${pageNum}&row_size=${rowSize}&order=${order}&&job_loc_name=${searchValues.job_loc_name}&job_name=${searchValues.job_name}&title=${searchValues.title}&user_info=${searchValues.user_info}`);
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
         } else if (res?.data?.result === "Failure") {
@@ -145,11 +145,10 @@ const Notice = () => {
 
         if (mode === "EDIT") {
             arr[0].value = notice.title;
-            arr[1].value = notice.sno;
+            arr[1].value = notice.jno;
             arr[2].value = notice.period_code;
             arr[3].value = notice.content;
             arr[4].value = notice.idx;
-
         }
         
         setDetail(arr);
@@ -171,9 +170,9 @@ const Notice = () => {
                         </div>
                         <div class="row">
                             <div class="col-md-1 fw-bold">지역</div>
-                            <div class="col-md-3">${notice.loc_name}</div>
+                            <div class="col-md-3">${notice.job_loc_name}</div>
                             <div class="col-md-2 fw-bold">현장(공개범위)</div>
-                            <div class="col-md-5">${notice.site_nm}</div>
+                            <div class="col-md-5">${notice.job_name}</div>
                         </div>
                         <div class="row mt-2">
                             <div class="col-md-1 fw-bold">등록자</div>
@@ -248,10 +247,11 @@ const Notice = () => {
     const getSiteData = async () => {
         setIsLoading(true);
 
-        const res = await Axios.GET(`/site/nm`);
+        const res = await Axios.GET(`/project/nm`);
 
         if (res?.data?.result === "Success") {
-            dispatch({ type: "SITE_NM", site: res?.data?.values?.list });
+            console.log(res)
+            dispatch({ type: "PROJECT_NM", site: res?.data?.values?.list });
         }
         setIsLoading(false);
     }
@@ -290,7 +290,7 @@ const Notice = () => {
             setIsValidation(true);
 
             const notice = {
-                sno: Number(item[1].value) || 0,
+                jno: Number(item[1].value) || 0,
                 title: item[0].value || "",
                 content: item[3].value || "",
                 show_yn: "Y", //item[2].value || "Y",
