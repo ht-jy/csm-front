@@ -101,7 +101,8 @@ const Header = () => {
                                     right: "41px",
                                     transform: "translateY(-50%)",
                                     cursor: "pointer",
-                                    width: "40px"
+                                    width: "20px",
+                                    margin: "0px 0.5rem"
                                 }}
                                 onClick={handleRefreshProject}
                             />
