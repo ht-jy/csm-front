@@ -73,7 +73,7 @@ const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, d
     // 수정모드로 변경
     const handleEditMode = () => {
         funcModeSet("EDIT");
-        setIsEdit(true);
+        // setIsEdit(true);
     }
 
     // 저장, 수정
@@ -196,7 +196,7 @@ const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, d
                                             <div>
                                                 {
                                                     editBtn ? 
-                                                        <button className="btn btn-primary" onClick={handleEditMode} name="confirm" style={{marginRight:"10px"}}>
+                                                        <button type="button" className="btn btn-primary" onClick={handleEditMode} name="confirm" style={{marginRight:"10px"}}>
                                                             수정
                                                         </button>
                                                     : null

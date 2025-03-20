@@ -4,14 +4,9 @@ const NoticeReducer = (state, action) => {
         case "HEADER":
             const headerList = [];
             action.notices.map((item, idx) => {
-                if (item.job_name === "전체"){
-                    headerList.push(`전사 - ${item.title}`)
-                }else {
-                    headerList.push(`PROJ - ${item.title}`)
-                }
+                    headerList.push({job_name : item.job_name, title: item.title})
             })
-            console.log("action.count ", action.count)
-            return {...state, notices: JSON.parse(JSON.stringify(action.notices)), count: action.count, noticesHeader: headerList}
+            return {...state, noticesHeader: JSON.parse(JSON.stringify(action.notices)), count: action.count, headerList: headerList}
         
         // 공지사항 데이터
         case "INIT":
