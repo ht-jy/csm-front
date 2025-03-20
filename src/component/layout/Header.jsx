@@ -78,15 +78,21 @@ const Header = () => {
                 isOpen={isOrganizationOpen}
                 fncExit={() => setIsOrganizationOpen(false)}
             />
+
             {/* Navbar Brand*/}
             <a className="navbar-brand ps-3" href="/site">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;공사관리시스템</a>
+
             {/* Sidebar Toggle*/}
             <button className="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" onClick={handleSidebarToggle}><i className="fas fa-bars" /></button>
+
             {/* Navbar Search*/}
             <form className="d-flex justify-content-between align-items-center w-100">
+                {/* 공지사항 슬라이더 */}
                 <div className="announcement-slider-container">
                     <AnnouncementSlider />
                 </div>
+
+
                 <div className="input-group search-input">
                     <label htmlFor="project-search">PROJECT NAME</label>
                     <input className="form-control" style={{paddingRight: "40px"}} type="text" value={projectName} placeholder="project를 선택하세요" aria-label="project를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearch} readOnly/>

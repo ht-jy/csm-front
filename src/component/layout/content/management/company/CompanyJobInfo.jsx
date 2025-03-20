@@ -21,15 +21,15 @@ const CompanyJobInfo = ({jno, styles}) => {
     const [jobInfo, setJobInfo] = useState([]);
 
     const columns = [
-        { isSearch: false, isOrder: false, width: "100px", header: "JNO", itemName: "jno", bodyAlign: "center", isEllipsis: false, isDate: false },
+        { isSearch: false, isOrder: false, width: "70px", header: "JNO", itemName: "jno", bodyAlign: "center", isEllipsis: false, isDate: false },
         { isSearch: false, isOrder: false, width: "460px", header: "JOB명", itemName: "job_name", bodyAlign: "left", isEllipsis: true, isDate: false },
-        { isSearch: false, isOrder: false, width: "210px", header: "JOB No.", itemName: "job_no", bodyAlign: "left", isEllipsis: false, isDate: false },
-        { isSearch: false, isOrder: false, width: "190px", header: "End-User", itemName: "comp_name", bodyAlign: "center", isEllipsis: false, isDate: false },
-        { isSearch: false, isOrder: false, width: "190px", header: "Client", itemName: "order_comp_name", bodyAlign: "center", isEllipsis: false, isDate: false },
-        { isSearch: false, isOrder: false, width: "150px", header: "시작일", itemName: "job_sd", bodyAlign: "center", isEllipsis: false, isDate: false },
-        { isSearch: false, isOrder: false, width: "150px", header: "종료일", itemName: "job_ed", bodyAlign: "center", isEllipsis: false, isDate: false },
+        { isSearch: false, isOrder: false, width: "150px", header: "JOB No.", itemName: "job_no", bodyAlign: "left", isEllipsis: false, isDate: false },
+        { isSearch: false, isOrder: false, width: "180px", header: "End-User", itemName: "comp_name", bodyAlign: "center", isEllipsis: false, isDate: false },
+        { isSearch: false, isOrder: false, width: "180px", header: "Client", itemName: "order_comp_name", bodyAlign: "center", isEllipsis: false, isDate: false },
+        { isSearch: false, isOrder: false, width: "110px", header: "시작일", itemName: "job_sd", bodyAlign: "center", isEllipsis: false, isDate: false },
+        { isSearch: false, isOrder: false, width: "110px", header: "종료일", itemName: "job_ed", bodyAlign: "center", isEllipsis: false, isDate: false },
         { isSearch: false, isOrder: false, width: "130px", header: "PM", itemName: "job_pm_name|job_pm_duty_name", bodyAlign: "center", isEllipsis: false, isDate: false, isItemSplit: true },
-        { isSearch: false, isOrder: false, width: "130px", header: "구분", itemName: "cd_nm", bodyAlign: "center", isEllipsis: false, isDate: false },
+        { isSearch: false, isOrder: false, width: "90px", header: "구분", itemName: "cd_nm", bodyAlign: "center", isEllipsis: false, isDate: false },
     ];
 
     // jobInfo에 데이터 추가
@@ -49,6 +49,11 @@ const CompanyJobInfo = ({jno, styles}) => {
 
     useEffect(() => {
         getData();
+
+        if (jno === null) {
+            setJobInfo([]);
+        }
+
     }, [jno]);
 
     return(

@@ -54,15 +54,15 @@ const CompanyInfo = ({jno, styles}) => {
             <table style={{...styles}}>
                 <colgroup>
                     <col style={{width:"160px"}} />
+                    <col style={{width:"90px"}} />
                     <col style={{width:"110px"}} />
-                    <col style={{width:"140px"}} />
-                    <col style={{width:"135px"}} />
-                    <col style={{width:"170px"}} />
+                    <col style={{width:"100px"}} />
+                    <col style={{width:"160px"}} />
                     {
                         header.length === 0 ? null
                         :
                         header.map((item, idx) => (
-                            <col style={{width:"50px"}} key={idx}/>
+                            <col style={{ boxSizing: "border-box", width: item.func_name.length >= 3 ? "3rem" : "2.8rem"}} key={idx}/>
                         ))
                     }
                 </colgroup>

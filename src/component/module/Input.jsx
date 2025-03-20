@@ -85,7 +85,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
     const containerStyle = {
         gridColumn: span === 'full' ? 'span 2' : 'auto',
         padding: '10px',
-        height: '86px'
+        // height: '86px'
     };
 
     return (

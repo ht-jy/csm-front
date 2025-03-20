@@ -1,23 +1,34 @@
 const NoticeReducer = (state, action) => {
     switch (action.type) {
+
+        case "HEADER":
+            const headerList = [];
+            action.notices.map((item, idx) => {
+                    headerList.push({job_name : item.job_name, title: item.title})
+            })
+            return {...state, noticesHeader: JSON.parse(JSON.stringify(action.notices)), count: action.count, headerList: headerList}
+        
+        // 공지사항 데이터
         case "INIT":
             return { ...state, notices: JSON.parse(JSON.stringify(action.notices)), count: action.count };
 
-        case "SITE_NM":
-
-            const siteNm = [];
-            siteNm.push({value: 0, label: "전체"});
+        
+        // 등록 및 수정 시 프로젝트 선택 리스트
+        case "PROJECT_NM":
+            const projectNm = [];
+            projectNm.push({value: 0, label: "전체"});
             action.site.map((item, idx) => {
-                siteNm.push({ value: item.sno, label: item.site_nm });
+                projectNm.push({ value: item.jno, label: item.project_nm });
             })
 
-            const siteList = {
+            const projectList = {
                 ...state.selectList,
-                siteNm: siteNm
+                projectNm: projectNm
             }
 
-            return { ...state, selectList: JSON.parse(JSON.stringify(siteList)) };
+            return { ...state, selectList: JSON.parse(JSON.stringify(projectList)) };
             
+        // 등록 및 수정 시 공지기간 선택 리스트 
         case "NOTICE_NM":
             const noticeNm = [];
             action.period.map((item, idx) => {
