@@ -120,9 +120,9 @@ const Header = () => {
                 </div>
                 
                 <div className="search-icon-container">
-                    <img src={SearchIcon} style={{width: "24px"}}/>
+
+                    <img src={SearchIcon} style={{width: "24px"}} onClick={onClickSearch}/>
                 </div>
-                
                 <div className="refresh-icon-container" onClick={handleRefreshProject}>
                     <img src={RefreshIcon} style={{width: "22px"}}/>
                 </div>
@@ -130,7 +130,7 @@ const Header = () => {
                 <div className="organization-icon-container" onClick={onClickOrganization}>
                     <img src={Organization} style={{width: "20px"}}/>
                 </div>
-                
+            
             </form>
             {/* Navbar*/}
             <ul className="navbar-nav ms-auto me-0 me-md-3 my-2 my-md-0">
