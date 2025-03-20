@@ -2516,13 +2516,14 @@ form.d-flex {
 }
 
 .input-group.search-input label {
+  box-sizing: border-box;
   margin-right: 10px; /* label과 input 사이 간격 조절 */
   white-space: nowrap; /* 줄바꿈 방지 */
   font-weight: 500;
   color: white; /* label 색상 (부트스트랩 기본 색상) */
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1200px) {
   .input-group.search-input label {
       display: none !important;
   }
@@ -2546,16 +2547,9 @@ form.d-flex {
   margin-right: 10px;
 }
 
-/* 화면 크기가 720px 이하일 때 공지 슬라이더 숨기기 */
-@media (max-width: 720px) {
-  .announcement-slider-container {
-      display: none !important;
-      margin-left: auto;
-  }
-}
 
-/* 화면 크기가 900px 이하일 때 검색창 숨기기 */
-@media (max-width: 900px) {
+/* 화면 크기가 768px 이하일 때 검색창 숨기기 */
+@media (max-width: 768px) {
   .input-group.search-input {
       display: none !important;
       margin-left: auto;
@@ -2567,7 +2561,7 @@ form.d-flex {
   }
 }
 
-@media (min-width: 901px) {
+@media (min-width: 768px) {
   .search-icon-container {
       display: none !important; /* 큰 화면에서는 이미지 숨기기 */
   }

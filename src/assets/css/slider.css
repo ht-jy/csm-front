@@ -1,15 +1,24 @@
 .announcement-slider {
     position: relative;
-    display: flex;
+    display : flex;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
-    max-width: 50vw;
+    width: 30vw;
+    max-width: 500px;
     padding: 16px;
     background-color: transparent;
     height: 60px;
     overflow: hidden;
 }
+
+
+/* 1200px 이하부터 사라짐 */
+@media (max-width : 1200px) {
+    .announcement-slider {
+        display: none;
+ }   
+}
+
 
 .slides-container {
     flex: 1;
@@ -21,7 +30,7 @@
 
 .slide {
     width: 100%;
-    text-align: center;
+    text-align: left;
     color: white;
 }
 
