@@ -17,8 +17,8 @@ const NoticeReducer = (state, action) => {
         case "PROJECT_NM":
             const projectNm = [];
             projectNm.push({value: 0, label: "전체"});
-            action.site.map((item, idx) => {
-                projectNm.push({ value: item.jno, label: item.project_nm });
+            action.projectNm.map((item, idx) => {
+                projectNm.push({ value: Number(item.jno), label: item.project_nm });
             })
 
             const projectList = {

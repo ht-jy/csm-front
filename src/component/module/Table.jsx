@@ -10,6 +10,7 @@ import CheckSquareIcon from "../../assets/image/check-square-icon.png";
 import { ObjChk } from "../../utils/ObjChk";
 import "../../assets/css/Table.css";
 import { Common } from "../../utils/Common";
+import ImportantIcon from "../../assets/image/important.png";
 
 /**
  * @description: 
@@ -361,7 +362,7 @@ const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchC
                             {columns.map(col => (
                                 <td
                                     key={col.itemName}
-                                    className={`${col.bodyAlign} ${col.isEllipsis ? "ellipsis" : ""}`}
+                                    className={`${col.bodyAlign} ${col.isEllipsis ? "ellipsis" : ""} ${item[col.boldItemName] === 'Y' || item[col.boldItemName] === true ? "fw-bold" : ""}`}
                                     style={{ maxWidth: col.width }}
                                 >
                                     {
@@ -383,6 +384,16 @@ const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchC
                                             Common[col.valid](item[col.itemName]) ?
                                                 Common[col.format](item[col.itemName])
                                             :   item[col.itemName]
+                                        : col.importantName ? 
+                                            item[col.importantName] === 'Y' ?
+                                            <>
+                                                <img
+                                                    src={ImportantIcon}
+                                                    style={{width:"18px"}}
+                                                    />
+                                                {item[col.itemName]}
+                                            </>
+                                            : item[col.itemName]
                                         : item[col.itemName]
                                     }
                                 </td>

@@ -86,14 +86,14 @@ const Header = () => {
             <button className="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" onClick={handleSidebarToggle}><i className="fas fa-bars" /></button>
 
             {/* Navbar Search*/}
-            <form className="d-flex justify-content-between align-items-center w-100">
+            <div className="d-flex justify-content-between align-items-center w-100">
                 {/* 공지사항 슬라이더 */}
                 <div className="announcement-slider-container">
                     <AnnouncementSlider />
                 </div>
 
 
-                <div className="input-group search-input">
+                <form className="input-group search-input">
                     <label htmlFor="project-search">PROJECT NAME</label>
                     <input className="form-control" style={{paddingRight: "40px"}} type="text" value={projectName} placeholder="project를 선택하세요" aria-label="project를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearch} readOnly/>
                     {
@@ -117,7 +117,7 @@ const Header = () => {
                     <button className="btn btn-primary" id="btnNavbarSearch" type="button"  onClick={onClickSearch}>
                         <i className="fas fa-search" />
                     </button>
-                </div>
+                </form>
                 
                 <div className="search-icon-container">
 
@@ -131,7 +131,7 @@ const Header = () => {
                     <img src={Organization} style={{width: "20px"}}/>
                 </div>
             
-            </form>
+            </div>
             {/* Navbar*/}
             <ul className="navbar-nav ms-auto me-0 me-md-3 my-2 my-md-0">
                 <li className="nav-item dropdown">

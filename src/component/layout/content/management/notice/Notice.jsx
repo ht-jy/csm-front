@@ -32,7 +32,7 @@ import NoticeReducer from "./NoticeReducer";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /project/nm (프로젝트데이터 조회), /notice (공지사항 조회), /notice/period (공개기간)
+ *    Http Method - GET : /project/nm/{uno} (프로젝트데이터 조회), /notice (공지사항 조회), /notice/period (공개기간)
  *    Http Method - POST : /notice (공지사항 추가)
  *    Http Method - PUT : /notice (공지사항 수정)
  *    Http Method - DELETE :  /notice/${idx} (공지사항 삭제)
@@ -70,12 +70,12 @@ const Notice = () => {
     // [테이블]
     const columns = [
         { header: "순번", width: "25px", itemName: "row_num", bodyAlign: "center", isSearch: false, isOrder: false, isDate: false, isEllipsis: false },
-        { header: "지역", width: "35px", itemName: "job_loc_name", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false, isSlide: true },
-        { header: "현장(공개범위)", width: "120px", itemName: "job_name", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
-        { header: "제목", width: "190px", itemName: "title", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
-        { header: "등록자", width: "60px", itemName: "user_info", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
-        { header: "게시시작일", width: "60px", itemName: "reg_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format" },
-        { header: "게시마감일", width: "60px", itemName: "posting_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format" },
+        { header: "지역", width: "35px", itemName: "job_loc_name", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false, isSlide: true},
+        { header: "프로젝트", width: "120px", itemName: "job_name", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true},
+        { header: "제목", width: "190px", itemName: "title", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true, boldItemName: "is_important", importantName: "is_important"},
+        { header: "등록자", width: "60px", itemName: "user_info", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: true},
+        { header: "게시시작일", width: "60px", itemName: "reg_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format"},
+        { header: "게시마감일", width: "60px", itemName: "posting_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format"},
     ]
 
     // [테이블] 행 클릭 시 상세페이지 
@@ -122,14 +122,12 @@ const Notice = () => {
         handlePageClick
     } = useTableSearch({ columns, getDataFunction: getNotices, pageNum, setPageNum, rowSize, setRowSize, order, setOrder })
 
-
     useEffect(() => {
         if (isDetail === false) {
             getNotices()
         }
     }, [isDetail])
 
-    
     return (
         <div>
             <Loading isOpen={isLoading} />
