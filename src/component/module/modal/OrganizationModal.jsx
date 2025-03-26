@@ -1,9 +1,9 @@
 
 import { useEffect, useState } from "react";
-import Exit from "../../assets/image/exit.png";
-import { Axios } from "../../utils/axios/Axios";
-import { useAuth } from "../context/AuthContext";
-import "../../assets/css/Table.css"
+import Exit from "../../../assets/image/exit.png";
+import { Axios } from "../../../utils/axios/Axios";
+import { useAuth } from "../../context/AuthContext";
+import "../../../assets/css/Table.css"
 
 // 조직도 모달
 const OrganizationModal = ({isOpen, fncExit}) => {

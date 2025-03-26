@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import Exit from "../../assets/image/exit.png"
+import Exit from "../../../assets/image/exit.png"
 
 
 /**

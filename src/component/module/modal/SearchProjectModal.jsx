@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import { Axios } from "../../utils/axios/Axios";
-import Radio from "./Radio";
-import Exit from "../../assets/image/exit.png";
-import Table from "./Table";
-import PaginationWithCustomButtons from "./PaginationWithCustomButtons ";
-import Button from "./Button";
-import { useAuth } from "../context/AuthContext";
-import useTableControlState from "../../utils/hooks/useTableControlState";
-import useTableSearch from "../../utils/hooks/useTableSearch";
+import { Axios } from "../../../utils/axios/Axios"; 
+import Radio from "../Radio";
+import Exit from "../../../assets/image/exit.png";
+import Table from "../Table";
+import PaginationWithCustomButtons from "../PaginationWithCustomButtons ";
+import Button from "../Button";
+import { useAuth } from "../../context/AuthContext";
+import useTableControlState from "../../../utils/hooks/useTableControlState";
+import useTableSearch from "../../../utils/hooks/useTableSearch";
 
 /**
  * @description: 화면 상단의 검색창을 클릭시 나오는 프로젝트 선택 모달. 프로젝트 선택시 AuthContext에 값을 담아서 다른 화면에서 사용 목적
