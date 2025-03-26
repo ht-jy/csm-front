@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { dateUtil } from "../../utils/DateUtil";
 import SearchIcon from "../../assets/image/search.png";
 import ExitIcon from "../../assets/image/exit.png";
@@ -6,11 +6,21 @@ import SortIcon from "../../assets/image/sort-icon.png";
 import UpIcon from "../../assets/image/up-icon.png";
 import DownIcon from "../../assets/image/down-icon.png";
 import HiddenLeftArrowIcon from "../../assets/image/hidden-left-arrow.png";
-import CheckSquareIcon from "../../assets/image/check-square-icon.png";
+import CheckIcon from "../../assets/image/check-icon.png";
+import NonCheckIcon from "../../assets/image/non-check-icon.png";
 import { ObjChk } from "../../utils/ObjChk";
 import "../../assets/css/Table.css";
 import { Common } from "../../utils/Common";
 import ImportantIcon from "../../assets/image/important.png";
+import DateInput from "./DateInput";
+import Time12Input from "./Time12Input";
+import ToggleInput from "./ToggleInput";
+import TextInput from "./TextInput";
+import CheckInput from "./CheckInput";
+import SearchInput from "./SearchInput";
+import Button from "./Button";
+import RadioInput from "./RadioInput";
+import Time24Input from "./Time24Input";
 
 /**
  * @description: 
@@ -34,12 +44,23 @@ import ImportantIcon from "../../assets/image/important.png";
  *  onClickRow: 행클릭 시 부모 컴포넌트 실행 함수 // 인자: ("DETAIL", 해당 행의 rowIndexName의 정보)
  *  isHeaderFixed: 헤더 부분 스크롤시 고정 여부 true|false
  *  styles: 테이블 스타일 추가 적용
+ *  isEdit: 수정폼 변환 true|false
+ *  editInfo: 수정폼 정보 리스트
+ *  onChangeEditList:  수정한 데이터 리스트 반환 함수
  */
-const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchChange, activeSearch=[], setActiveSearch, resetTrigger, onSortChange, onClickRow, isHeaderFixed, styles }) => {
+const Table = forwardRef(({ 
+    columns, data=[], noDataText, searchValues={}, onSearch, onSearchChange, activeSearch=[], setActiveSearch, resetTrigger, onSortChange, onClickRow, isHeaderFixed, styles,
+    isEdit, editInfo, onChangeEditList
+}, ref) => {
     const [localSearchValues, setLocalSearchValues] = useState(searchValues); // 로컬 상태 유지
     const [orderState, setOrderState] = useState({}); // 각 컬럼별 정렬 상태 관리
     const [orderStateList, setOrderStateList] = useState([]);
     const [hoverState, setHoverState] = useState(null); // 마우스 오버 상태 관리
+    const [tableData, setTableData] = useState([]);
+    const [initTableData, setInitTableData] = useState([]);
+    const [editList, setEditList] = useState([]);
+    const [addRowIdx, setAddRowIdx] = useState([]);
+    const [editAddList, setEditAddList] = useState([]);
 
     // 정렬 아이콘 클릭 시 상태 변경 및 정렬 함수 실행
     const handleSortChange = (itemName) => {
@@ -90,12 +111,273 @@ const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchC
           .join(", ");
     };
 
+    /***** edit *****/
+    // 테이블 값 변경 이벤트
+    const onChangeTableData = (idx, col, value) => {
+        if(idx === undefined || col === undefined || value === undefined){
+            return;
+        }
+        const initRow = initTableData.find(item => item.index === idx);
+        const updatedRow = tableData.find(item => item.index === idx);
+        const updatedRowCopy = { ...updatedRow };
+        let tableNewData = [];
+        let newEditList = [];
+
+        // 테이블 리스트 데이터 변경
+        if(updatedRow !== undefined){
+            updatedRowCopy[col.itemName] = value;
+            tableNewData = tableData.map(item => {
+                if(item.index === idx){
+                    return { ...item, [col.itemName]: value };
+                }
+                return item;
+            });
+            setTableData(tableNewData);
+        }
+        
+        // editList(추가/수정 row) 수정
+        const editRow = editList.find(item => item.index === idx)
+        if(initRow === undefined){
+            // 추가 리스트
+            if(editRow === undefined){
+                // 수정리스트에 추가
+                newEditList = [...editList, updatedRowCopy];
+            }else{
+                // 수정리스트의 객체값 변경
+                newEditList = editList.map(item => {
+                    if(item.index === idx){
+                        return { ...item, [col.itemName]: value };
+                    }
+                    return item;
+                });
+            }
+            setEditList(newEditList);
+        }else{
+            // 수정 리스트
+            if (editCompareInit(value, initRow[col.itemName], col.editType)) {
+                // 수정한 값이 기존과 동일한 경우 수정리스트에서 삭제
+                newEditList = editList.filter(item => item.index !== idx);
+                setEditList(newEditList);
+            } else {
+                if(editRow === undefined){
+                    // 수정한 값이 기존과 다르고 수정리스트에 없는 경우 리스트에 추가
+                    newEditList = [...editList, updatedRowCopy];
+                } else{
+                    // 수정한 값이 기존과 다르고 수정리스트에 있는 경우 해당 객체값 변경
+                    newEditList = editList.map(item => {
+                        if(item.index === idx){
+                            return { ...item, [col.itemName]: value };
+                        }
+                        return item;
+                    });
+                }
+                setEditList(newEditList);
+            }
+        }
+        
+        onChangeEditList(newEditList);
+    };
+
+
+    //item.index, col_idx, values
+    // 테이블 값 변경 이벤트 - editType: "searchModal"
+    const onChangeTableDataByDependency = (rowIdex, colIdx, values) => {
+        const editMainCol = editInfo[colIdx];
+        const selectedModal = editInfo[colIdx].selectedModal;
+
+        const itemNames = editInfo
+                            .filter(item => item.dependencyModal === selectedModal)
+                            .map(item => item.itemName);
+        itemNames.push(editMainCol.itemName);
+
+        const updateData = tableData.find(item => item.index === rowIdex);
+        const updatedData = { ...updateData };
+
+        itemNames.forEach(key => {
+            updatedData[key] = values[key];
+        });
+
+        const newTableData = tableData.map(item => {
+            if(item.index === rowIdex){
+                return updatedData;
+            }
+            return item;
+        });
+        setTableData(newTableData);
+
+        let newEditList = [];
+        const findEditList = editList.find(item => item.index === updatedData.index);
+        if(findEditList !== undefined){
+            newEditList = editList.map(item => {
+                if(item.index === updatedData.index){
+                    return {...updatedData};
+                }
+                return item;
+            });
+        }else{
+            newEditList = [...editList, updatedData];
+        }
+        setEditList(newEditList);
+        onChangeEditList(newEditList);
+
+    }
+
+    // 원본데이터와 수정한 데이터 비교 
+    // *** date와 time은 go의 time.Time 타입에 따른 비교이기 때문에 다른 언어를 사용한다면 에러가 발생할 수 있다.
+    const editCompareInit = (editData, initData, type) => {
+        if(initData && type === "date"){
+            if(editData.split("T")[0] === initData.split("T")[0]){
+                return true;
+            }
+            return false;
+        }else if(initData && type === "time"){
+            if(editData.split("T")[1].split(":")[0] === initData.split("T")[1].split(":")[0] && editData.split("T")[1].split(":")[1] === initData.split("T")[1].split(":")[1]){
+                if(editData.split("T")[0] === "2006-01-02"){
+                    if((editData.split("T")[0] === initData.split("T")[0])){
+                        return true;
+                    }else{
+                        return false;
+                    }   
+                }
+                return true;
+            }
+            return false;
+        }else{
+            if(editData === initData){
+                return true;
+            }
+            return false;
+        }
+    }
+
+    // 테이블 td 스타일 
+    const tdEditStyle = (column, editCol) => {
+        if(isEdit && editCol?.editType !== ""){
+            return {maxWidth: column.width, padding: 0}
+        }else{
+            return {maxWidth: column.width}
+        }
+    }
+
+    // 수정모드 변경. 최상단에 추가 버튼만 있는 row 생성
+    const editTableMode = (addFieldName) => {
+        let tableDataCopy = [...tableData];
+        const copiedObject = { ...tableDataCopy[0] };
+        Object.keys(copiedObject).forEach(key => {
+            if (typeof copiedObject[key] === 'number') {
+                copiedObject[key] = 0;
+            } else if (typeof copiedObject[key] === 'string') {
+                copiedObject[key] = "";
+            }
+        });
+
+        if(addFieldName) {
+            copiedObject[addFieldName] = "ADD_BTN";
+            copiedObject["index"] = -1;
+            copiedObject["tableAddRow"] = true;
+        }
+
+        tableDataCopy.unshift(copiedObject);
+        setTableData([...tableDataCopy]);
+        
+        setEditAddList([copiedObject]);
+    }
+
+    // 테이블 상단 두번째에 입력 row 추가
+    const addTableEmptyRow = () => {
+        let tableDataCopy = [...tableData];
+        const copiedObject = { ...tableDataCopy[1] };
+        Object.keys(copiedObject).forEach(key => {
+            const findEditinfo = editInfo.find(item => item.itemName === key);
+            if (findEditinfo !== undefined && findEditinfo.defaultValue !== undefined) {
+                copiedObject[key] = findEditinfo.defaultValue;
+            } else if(typeof copiedObject[key] === 'number') {
+                copiedObject[key] = 0;
+            } else if (typeof copiedObject[key] === 'string') {
+                copiedObject[key] = "";
+            }
+        });
+        copiedObject["index"] = addRowIdx+1;
+        copiedObject["edit_type"] = "ADD";
+        setAddRowIdx(copiedObject["index"]);
+
+        const deleteFieldName = editInfo.find(item => item.editType === "delete").itemName;
+        
+        if(deleteFieldName) {
+            copiedObject[deleteFieldName] = "ADD_ROW";
+        }
+
+        const newEditList = [
+            ...tableDataCopy.slice(0, 1),
+            copiedObject,
+            ...tableDataCopy.slice(1)
+        ];
+        setTableData([...newEditList]);
+        
+        const editAddListCopy = [...editAddList];
+        const newEditAddList = [
+            ...editAddListCopy.slice(0, 1),
+            copiedObject,
+            ...editAddListCopy.slice(1)
+        ];
+        setEditAddList(newEditAddList);
+    }
+
+    // 추가한 row 삭제
+    const editDeleteRow = (index) => {
+        // 테이블 데이터 삭제
+        const nonDeleteRows = tableData.filter(item => item.index !== index);
+        setTableData([...nonDeleteRows]);
+
+        // edit 테이블 데이터 삭제
+        const newEditList = editList.filter(item => item.index !== index);
+        setEditList([...newEditList]);
+        onChangeEditList([...newEditList]);
+    }
+
+    // 수정모드 취소
+    const editModeCancel = () => {
+        setTableData(initTableData);
+        setEditList([]);
+        setEditAddList([]);
+        onChangeEditList([]);
+    }
+
+    /***** useImperativeHandle *****/
+
+    useImperativeHandle(ref, () => ({
+        addTableEmptyRow, editModeCancel, editTableMode, editModeCancel
+    }));
+
+    /***** useEffect *****/
+
     // 부모 컴포넌트에 정렬 값 전달
     useEffect(() => {
         if(onSortChange !== undefined){
             onSortChange(convertToQueryString(orderStateList).toUpperCase());
         }
     }, [orderStateList]);
+
+    // 데이터 초기화
+    useEffect(() => {
+        let dataCopy = [];
+        if(isEdit){
+            dataCopy = structuredClone(data);
+            dataCopy.unshift(...editAddList);
+        }else{
+            dataCopy = structuredClone(data);
+        }
+        setTableData(structuredClone(dataCopy));
+        setInitTableData(structuredClone(data));     
+        setAddRowIdx(dataCopy.length);
+    }, [data]);
+
+    // 수정모드 취소
+    useEffect(() => {
+        if(isEdit !== undefined && !isEdit){
+            setTableData(initTableData);
+        }
+    }, [isEdit]);
 
     // 정렬, 검색 상태값 초기화
     useEffect(() => {
@@ -336,7 +618,7 @@ const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchC
                 </tr>
             </thead>
             <tbody>
-                {data.length === 0 ? (
+                {tableData.length === 0 ? (
                     <tr>
                         <td className="center" colSpan={columns.length}>
                             {
@@ -348,7 +630,7 @@ const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchC
                         </td>
                     </tr>
                 ) : (
-                    data.map((item, idx) => (
+                    tableData.map((item, idx) => (
                         <tr 
                             className={ObjChk.all(onClickRow) ? "" : "table-tr"}
                             key={idx}
@@ -358,15 +640,83 @@ const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchC
                                 : 
                                     () => onClickRow(item, "DETAIL")
                             }
+                            // style={{height: "36px"}}
                         >
-                            {columns.map(col => (
+                            {columns.map((col, col_idx) => (
                                 <td
-                                    key={col.itemName}
+                                    key={`cell-${idx}-${col.itemName}`}
                                     className={`${col.bodyAlign} ${col.isEllipsis ? "ellipsis" : ""} ${item[col.boldItemName] === 'Y' || item[col.boldItemName] === true ? "fw-bold" : ""}`}
-                                    style={{ maxWidth: col.width }}
+                                    style={editInfo ? tdEditStyle(col, editInfo[col_idx]) : {maxWidth: col.width}}
                                 >
                                     {
-                                        col.isDate ?
+                                        /***** Edit *****/
+                                        isEdit ?
+                                            item["tableAddRow"] !== undefined && item["tableAddRow"]?
+                                                item[col.itemName] === "ADD_BTN" ?
+                                                    <Button
+                                                        text={"추가"}
+                                                        onClick={addTableEmptyRow}
+                                                        style={{height: "28px", padding: 0, fontSize: "13px", paddingLeft: "5px", paddingRight: "5px"}}
+                                                    />
+                                                :   null
+                                            :   editInfo[col_idx].editType === "delete" && item[col.itemName] === "ADD_ROW" ?
+                                                    <Button
+                                                        text={"삭제"}
+                                                        onClick={() => editDeleteRow(item.index)}
+                                                        style={{height: "28px", padding: 0, fontSize: "13px", paddingLeft: "5px", paddingRight: "5px"}}
+                                                    />
+                                            :   editInfo[col_idx].editType === "toggleText" ?
+                                                    <ToggleInput
+                                                        initText={item[col.itemName]}
+                                                        toggleTexts={editInfo[col_idx].toggleTexts}
+                                                        setToggleText={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
+                                                    />
+                                            :   editInfo[col_idx].editType === "text" ?
+                                                    <TextInput 
+                                                        initText={item[col.itemName]}
+                                                        setText={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
+                                                    />
+                                            :   editInfo[col_idx].editType === "searchModal"  && JSON.stringify(item).includes("ADD_ROW") ?
+                                                    <SearchInput
+                                                        selectedModal={editInfo[col_idx].selectedModal}
+                                                        inputText={item[col.itemName]}
+                                                        inputItemName={editInfo[col_idx].itemName}
+                                                        setSearchText={(values) => onChangeTableDataByDependency(item.index, col_idx, values)}
+                                                    />
+                                            :   editInfo[col_idx].editType === "radio" ?
+                                                    <RadioInput
+                                                        itemName={editInfo[col_idx].itemName + idx}
+                                                        selectedValue={item[col.itemName]}
+                                                        values={editInfo[col_idx].radioValues}
+                                                        labels={editInfo[col_idx].radioLabels}
+                                                        disabled={false}
+                                                        setRadio={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
+                                                        checked={[true, false]}
+                                                    />                                            
+                                            :   col.isDate ?
+                                                    editInfo[col_idx].editType === "date" ?                                                    
+                                                        <DateInput 
+                                                            time={formatDate(item[col.itemName], col.dateFormat)} 
+                                                            setTime={(value) => onChangeTableData(item.index, editInfo[col_idx], dateUtil.parseToGo(value))} 
+                                                            dateInputStyle={{margin: "0px", height: "28px", fontSize: "15px"}}
+                                                            isCalendarHide={true}
+                                                        ></DateInput>
+                                                    : editInfo[col_idx].editType === "time24" ?
+                                                        <Time24Input 
+                                                            time={item[col.itemName]}
+                                                            setTime={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
+                                                        />
+                                                    : editInfo[col_idx].editType === "time12" ?
+                                                        <Time12Input 
+                                                            time={item[col.itemName]}
+                                                            setTime={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
+                                                        />
+                                                    : formatDate(item[col.itemName], col.dateFormat)
+                                            :   col.isChecked ?
+                                                    <CheckInput checkFlag={item[col.itemName]} setCheckFlag={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}/>
+                                            : item[col.itemName]
+                                        /***** Non Edit *****/
+                                        : col.isDate ?
                                             formatDate(item[col.itemName], col.dateFormat)
                                         : col.isItemSplit ? 
                                             col.itemName
@@ -376,10 +726,13 @@ const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchC
                                         : col.isChecked ?
                                             item[col.itemName] === 'Y' ?
                                                 <img 
-                                                    src={CheckSquareIcon}
+                                                    src={CheckIcon}
                                                     style={{width: "18px"}}
                                                 />
-                                            : null
+                                            :   <img 
+                                                    src={NonCheckIcon}
+                                                    style={{width: "16px"}}
+                                                />
                                         : col.isFormat ?
                                             Common[col.valid](item[col.itemName]) ?
                                                 Common[col.format](item[col.itemName])
@@ -394,7 +747,17 @@ const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchC
                                                 {item[col.itemName]}
                                             </>
                                             : item[col.itemName]
+                                        : col.isRadio ?
+                                            <RadioInput
+                                                itemName={col.itemName + idx}
+                                                selectedValue={item[col.itemName]}
+                                                values={col.radioValues}
+                                                labels={col.radioLabels}
+                                                disabled={true}
+                                                // setRadio={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
+                                            />
                                         : item[col.itemName]
+                                        
                                     }
                                 </td>
                             ))}
@@ -404,6 +767,6 @@ const Table = ({ columns, data, noDataText, searchValues={}, onSearch, onSearchC
             </tbody>
         </table>
     );
-};
+});
 
 export default Table;
