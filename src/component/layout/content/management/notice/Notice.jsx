@@ -32,7 +32,7 @@ import NoticeReducer from "./NoticeReducer";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /project/nm (프로젝트데이터 조회), /notice (공지사항 조회), /notice/period (공개기간)
+ *    Http Method - GET : /project/nm/{uno} (프로젝트데이터 조회), /notice (공지사항 조회), /notice/period (공개기간)
  *    Http Method - POST : /notice (공지사항 추가)
  *    Http Method - PUT : /notice (공지사항 수정)
  *    Http Method - DELETE :  /notice/${idx} (공지사항 삭제)
@@ -47,7 +47,7 @@ const Notice = () => {
         selectList: {},
     });
 
-    const { user } = useAuth();
+    const { user, project } = useAuth();
     const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(10);
 
     const [isLoading, setIsLoading] = useState(false);
@@ -70,12 +70,12 @@ const Notice = () => {
     // [테이블]
     const columns = [
         { header: "순번", width: "25px", itemName: "row_num", bodyAlign: "center", isSearch: false, isOrder: false, isDate: false, isEllipsis: false },
-        { header: "지역", width: "35px", itemName: "job_loc_name", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false, isSlide: true },
-        { header: "현장(공개범위)", width: "120px", itemName: "job_name", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
-        { header: "제목", width: "190px", itemName: "title", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
-        { header: "등록자", width: "60px", itemName: "user_info", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: true },
-        { header: "게시시작일", width: "60px", itemName: "reg_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format" },
-        { header: "게시마감일", width: "60px", itemName: "posting_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format" },
+        { header: "지역", width: "35px", itemName: "job_loc_name", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false, isSlide: true},
+        { header: "프로젝트", width: "120px", itemName: "job_name", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true},
+        { header: "제목", width: "190px", itemName: "title", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true, boldItemName: "is_important", importantName: "is_important"},
+        { header: "등록자", width: "60px", itemName: "user_info", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: true},
+        { header: "게시시작일", width: "60px", itemName: "reg_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format"},
+        { header: "게시마감일", width: "60px", itemName: "posting_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format"},
     ]
 
     // [테이블] 행 클릭 시 상세페이지 
@@ -94,8 +94,8 @@ const Notice = () => {
     // [데이터] 공지사항 전체 조회
     const getNotices = async () => {
         setIsLoading(true);
-
-        const res = await Axios.GET(`/notice/${user.uno}?page_num=${pageNum}&row_size=${rowSize}&order=${order}&&job_loc_name=${searchValues.job_loc_name}&job_name=${searchValues.job_name}&title=${searchValues.title}&user_info=${searchValues.user_info}`);
+        // FIXME: 관리자 권한인 경우 분리해서 요청 보내기.
+        const res = await Axios.GET(`/notice/${user.uno}?role=ADMIN&page_num=${pageNum}&row_size=${rowSize}&order=${order}&jno=${project?.jno}&job_loc_name=${searchValues.job_loc_name}&job_name=${searchValues.job_name}&title=${searchValues.title}&user_info=${searchValues.user_info}`);
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
         } else if (res?.data?.result === "Failure") {
@@ -122,14 +122,12 @@ const Notice = () => {
         handlePageClick
     } = useTableSearch({ columns, getDataFunction: getNotices, pageNum, setPageNum, rowSize, setRowSize, order, setOrder })
 
-
     useEffect(() => {
         if (isDetail === false) {
             getNotices()
         }
-    }, [isDetail])
+    }, [isDetail, project])
 
-    
     return (
         <div>
             <Loading isOpen={isLoading} />

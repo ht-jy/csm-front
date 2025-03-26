@@ -28,7 +28,8 @@ function AnnouncementSlider() {
 
   // 공지사항 데이터 불러오기
   const getNotices = async () => {
-    const res = await Axios.GET(`/notice/${user.uno}?page_num=${1}&row_size=${10}`);
+    // FIXME: 관리자 권한에 따라 변경하기
+    const res = await Axios.GET(`/notice/${user.uno}?role=ADMIN&page_num=${1}&row_size=${20}`);
     if (res?.data?.result === "Success") {
       dispatch({ type: "HEADER", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
     }
