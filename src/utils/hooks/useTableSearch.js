@@ -22,7 +22,7 @@ import { useState, useEffect } from "react";
  *   order: 정렬 문자열 값
  *   setOrder: 정렬 문자열 값 stter
  */
-const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySearchText, setRetrySearchText, pageNum, setPageNum, rowSize, setRowSize, order, setOrder }) => {
+const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySearchText, setRetrySearchText, pageNum, setPageNum, rowSize, setRowSize, order, setOrder, rnumOrder, setRnumOrder, setEditList }) => {
     // 기본 검색값 초기화: isSearch가 true인 컬럼에 대해 빈 문자열 할당
     const defaultSearchValues = columns.reduce((acc, col) => {
         if (col.isSearch) acc[col.itemName] = "";
@@ -74,10 +74,13 @@ const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySear
     // 통합 검색
     const handleRetrySearch = (text) => {
         setIsSearchInit(true);
-        setRetrySearchText(text);
-        if(text === ""){
-            setIsSearchInit(false);
+        if(setRetrySearchText !== undefined){
+            setRetrySearchText(text);
+            if(text === ""){
+                setIsSearchInit(false);
+            }
         }
+        
     }
 
     // 테이블 검색 단어 갱신
@@ -98,12 +101,48 @@ const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySear
 
         setIsSearchInit(false);
         setIsSearchReset(true);
-        setOrder("")
+        if(setOrder !== undefined){
+            setOrder("")
+        }
+        if(setRetrySearchText !== undefined){
+            setRetrySearchText("")
+        }
     };
 
     // 테이블 정렬 변경시 이벤트
     const handleSortChange = (newOrder) => {
-        setOrder(newOrder);
+        // order 문자열 분리
+        const tokens = newOrder.split(',').map(token => token.trim());
+        if (tokens.length === 0){
+            if(setOrder !== undefined){
+                setOrder("");
+            }
+            if(typeof setRnumOrder === 'function'){
+                setRnumOrder("ASC")
+            }            
+        }
+        // rnum을 제거한 정렬 문자열
+        const nonRnumOrders = tokens.filter(token => !/^RNUM\s+(ASC|DESC)$/i.test(token));
+        if(nonRnumOrders.length === 0){
+            if(setOrder !== undefined){
+                setOrder("");
+            }
+        }else{
+            if(setOrder !== undefined){
+                setOrder(nonRnumOrders.join(', '));
+            }
+        }        
+
+        // rnum 정렬값 추출
+        if(typeof setRnumOrder === 'function'){
+            const rnumToken = tokens.find(token => /^RNUM\s+(ASC|DESC)$/i.test(token));
+            if (rnumToken) {
+                const match = rnumToken.match(/^RNUM\s+(ASC|DESC)$/i);
+                setRnumOrder(match ? match[1].toUpperCase() : "ASC");
+            }else{
+                setRnumOrder("ASC")
+            }        
+        }
     }
 
     // 테이블 리스트 수 셀렉트 박스 변경
@@ -117,6 +156,13 @@ const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySear
         setPageNum(num);
     };
 
+    // 테이블 수정/추가 리스트
+    const handleEditList = (value) => {
+        setEditList(value);
+    }
+    
+    /***** useEffect *****/
+
     // 페이지 숫자, 리스트 수, 정렬 또는 호출 상태값 변경시 데이터 호출
     useEffect(() => {
         if (getDataFunction) {
@@ -126,7 +172,7 @@ const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySear
                 getDataFunction();
             }
         }
-    }, [getDataValue, retrySearchText, pageNum, rowSize, order]);
+    }, [getDataValue, retrySearchText, pageNum, rowSize, order, rnumOrder]);
 
     // 초기화 버튼 클릭
     useEffect(() => {
@@ -154,6 +200,7 @@ const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySear
         handleSortChange,
         handleSelectChange,
         handlePageClick,
+        handleEditList,
     };
 };
 

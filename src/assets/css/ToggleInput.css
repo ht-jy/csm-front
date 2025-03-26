@@ -1,0 +1,26 @@
+.toggle-input {
+    border: 1px solid #ccc;
+    /* width: 30px; */
+    padding-left: 5px;
+    padding-right: 5px;
+    height: 28px;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.toggle-input:hover {
+    background: #e9ecef;
+    border-color: #bbb;
+    border-color: #007bff;
+}
+
+.toggle-input:active {
+    background: #dae0e5;
+    border-color: #aaa;
+}

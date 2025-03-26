@@ -12,9 +12,11 @@ const useTableControlState = (row) => {
     const [pageNum, setPageNum] = useState(1);
     const [rowSize, setRowSize] = useState(row);
     const [order, setOrder] = useState("");
+    const [rnumOrder, setRnumOrder] = useState("ASC");
     const [retrySearchText, setRetrySearchText] = useState("");
+    const [editList, setEditList] = useState([]);
 
-    return { pageNum, setPageNum, rowSize, setRowSize, order, setOrder, retrySearchText, setRetrySearchText };
+    return { pageNum, setPageNum, rowSize, setRowSize, order, setOrder, rnumOrder, setRnumOrder, retrySearchText, setRetrySearchText, editList, setEditList };
 };
 
 export default useTableControlState;
