@@ -47,7 +47,7 @@ const Notice = () => {
         selectList: {},
     });
 
-    const { user } = useAuth();
+    const { user, project } = useAuth();
     const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(10);
 
     const [isLoading, setIsLoading] = useState(false);
@@ -94,8 +94,8 @@ const Notice = () => {
     // [데이터] 공지사항 전체 조회
     const getNotices = async () => {
         setIsLoading(true);
-
-        const res = await Axios.GET(`/notice/${user.uno}?page_num=${pageNum}&row_size=${rowSize}&order=${order}&&job_loc_name=${searchValues.job_loc_name}&job_name=${searchValues.job_name}&title=${searchValues.title}&user_info=${searchValues.user_info}`);
+        // FIXME: 관리자 권한인 경우 분리해서 요청 보내기.
+        const res = await Axios.GET(`/notice/${user.uno}?role=ADMIN&page_num=${pageNum}&row_size=${rowSize}&order=${order}&jno=${project?.jno}&job_loc_name=${searchValues.job_loc_name}&job_name=${searchValues.job_name}&title=${searchValues.title}&user_info=${searchValues.user_info}`);
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
         } else if (res?.data?.result === "Failure") {
@@ -126,7 +126,7 @@ const Notice = () => {
         if (isDetail === false) {
             getNotices()
         }
-    }, [isDetail])
+    }, [isDetail, project])
 
     return (
         <div>

@@ -148,7 +148,8 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
     const getSiteData = async () => {
         setIsLoading(true);
 
-        const res = await Axios.GET(`/project/nm/${user.uno}`);
+        // FIXME : 관리자권한
+        const res = await Axios.GET(`/project/nm/${user.uno}?role=ADMIN`);
 
         if (res?.data?.result === "Success") {
             dispatch({ type: "PROJECT_NM", projectNm: res?.data?.values?.project_nm });
@@ -206,7 +207,6 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
                 reg_user: user.userName || "",
             }
 
-            //TODO: scrollbar 너무 길어서 crob 형태로 안바뀌는 오류 발생. 해당 오류 개선
             let res;
 
             if (gridMode === "SAVE") {
