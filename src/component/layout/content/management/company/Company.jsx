@@ -62,7 +62,7 @@ const Company = () => {
             />
             <div>
                 <div className="border-box container-fluid px-4">
-                    <ol className="breadcrumb mb-4 content-title-box">
+                    <ol className="breadcrumb mb-3 content-title-box">
                         <li className="breadcrumb-item content-title">협력업체 관리</li>
                         <li className="breadcrumb-item active content-title-sub">관리</li>
                     </ol>

@@ -9,8 +9,8 @@ import ReactDOM from 'react-dom';
  * @modifiedBy 최종 수정자: 
  * @additionalInfo
  */
-const KeywordPortal = ({ children }) => {
-  const container = document.getElementById('search-keyword-portal');
+const KeywordPortal = ({ children, potalId="search-keyword-portal" }) => {
+  const container = document.getElementById(potalId);
   if (!container) return null;
   return ReactDOM.createPortal(children, container);
 };

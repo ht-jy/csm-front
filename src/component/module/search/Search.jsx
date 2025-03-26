@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Select from 'react-select';
 import SearchIcon from "../../../assets/image/search.png";
 import cancelIcon1 from "../../../assets/image/cancel-white.png";
@@ -22,7 +22,7 @@ import KeywordPortal from './KeywordPortal';
  * - width: 셀렉트박스 좌우길이
  * - fncSearchKeywords: 검색시 부모컴포넌트에서 값을 전달받기 위한 함수(~, :, | 의 구분자를 사용하여 하나의 텍스트로 전달 ex) "ALL:test|abc~column1:black|red|white~column2:react")
  */
-const Search = ({searchOptions=[], width, fncSearchKeywords }) => {
+const Search = ({searchOptions=[], width, fncSearchKeywords, retrySearchText, potalId }) => {
     const [keyword, setKeyword] = useState([]);
     const [selectKey, setSelectKey] = useState("ALL");
     const [text, setText] = useState("");
@@ -93,9 +93,15 @@ const Search = ({searchOptions=[], width, fncSearchKeywords }) => {
         fncSearchKeywords(setSearchKeyword(updatedKeywords));
     }
 
+    useEffect(() => {
+        if(retrySearchText === ""){
+            setKeyword([]);
+        }        
+    }, [retrySearchText]);
+
     return(
         <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
-            <KeywordPortal>
+            <KeywordPortal potalId={potalId}>
                 <div className="search-keyword-box">
                     {
                         keyword.length !== 0 ? 
@@ -136,6 +142,7 @@ const Search = ({searchOptions=[], width, fncSearchKeywords }) => {
                 styles={{
                     container: (provided) => ({
                       ...provided,
+                      textAlign: "left",
                       width: width,
                       zIndex: 100,
                     }),

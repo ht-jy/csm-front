@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AnnouncementSlider from "../module/AnnouncementSlider";
-import SearchProjectModal from "../module/SearchProjectModal";
+import SearchProjectModal from "../module/modal/SearchProjectModal";
 import { useAuth } from "../context/AuthContext";
 import { Axios } from "../../utils/axios/Axios";
 import SearchIcon from "../../assets/image/search_9b9d9e.png";
@@ -10,7 +10,7 @@ import RefreshIcon from "../../assets/image/refresh-icon.png";
 import CancelIcon from "../../assets/image/cancel.png";
 import ExitIcon from "../../assets/image/exit.png";
 import { ObjChk } from "../../utils/ObjChk";
-import OrganizationModal from "../module/OrganizationModal";
+import OrganizationModal from "../module/modal/OrganizationModal";
 
 const Header = () => {
     const [isSidebarToggled, setIsSidebarToggled] = useState(false);

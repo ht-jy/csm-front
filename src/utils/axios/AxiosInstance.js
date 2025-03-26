@@ -15,7 +15,6 @@ const AxiosInstance = (params, options) => {
     // 요청시
     // instance.interceptors.request.use(
     //     (config) => {
-    //         console.log(config);
     //         // const token = localStorage.getItem('jwtToken');
     //         // if (token) {
     //         // config.headers['Authorization'] = `Bearer ${token}`;

@@ -3,7 +3,7 @@ import Exit from "../../../../../assets/image/exit.png";
 import "../../../../../assets/css/SiteDetail.css";
 import DetailSite from "./DetailSite";
 import DetailProject from "./DetailProject";
-import AddressSearchModal from "../../../../module/AddressSearchModal";
+import AddressSearchModal from "../../../../module/modal/AddressSearchModal";
 
 /**
  * @description: 현장관리 전용 상세화면 모달 컴포넌트
