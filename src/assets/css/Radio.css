@@ -1,0 +1,36 @@
+/* enabled 상태: 브라우저 기본 스타일 그대로 사용 */
+input[type="radio"]:not(:disabled) {
+  /* 별도의 커스텀 스타일을 지정하지 않음 */
+}
+
+/* disabled 상태의 radio 버튼에 대해 custom 스타일 적용 */
+input[type="radio"]:disabled {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  background-color: #eee;
+  position: relative;
+}
+
+/* disabled 상태에서 선택된 경우: 초록색으로 표시 */
+input[type="radio"]:disabled:checked {
+  border-color: green;
+  background-color: green;
+}
+
+/* disabled 상태이면서 선택된 경우, 중앙에 흰색 원 표시 */
+input[type="radio"]:disabled:checked::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #004377;
+}

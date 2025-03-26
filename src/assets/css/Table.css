@@ -67,7 +67,15 @@ td {
 	  inset 0 -0.4px 0 0 #ccc;  /* 하단 */
 }
 
+td {
+  height: 31px;
+}
 
+@media (min-width: 1200px) {
+  td {
+    height: 36px;
+  }
+}
 
 
   @media screen and (max-width: 1200px) {
@@ -85,9 +93,8 @@ td {
   display: flex;
   justify-content: space-between; /* 왼쪽-오른쪽 배치 */
   align-items: center;
-  margin-bottom: 15px;
-  width: 100%;
-  
+  margin-bottom: 3px;
+  width: 100%;  
 }
 
 /* 왼쪽 정렬: "10줄 보기" 드롭다운 */

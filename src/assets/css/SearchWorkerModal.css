@@ -1,0 +1,18 @@
+.text-input {
+    border: 1px solid #bbb;
+    width: 250px;
+    height: 35px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.text-input:hover {
+    background: #eee;
+    border-color: #bbb;
+    border-color: #007bff;
+}
+
+.text-input:active {
+    background: #dae0e5;
+    border-color: #aaa;
+}

@@ -12,13 +12,14 @@ const AxiosInstance = (params, options) => {
         ...options
     })
 
-    // 요청시 Authorization 헤더에 JWT가 추가
+    // 요청시
     // instance.interceptors.request.use(
     //     (config) => {
-    //         const token = localStorage.getItem('jwtToken');
-    //         if (token) {
-    //         config.headers['Authorization'] = `Bearer ${token}`;
-    //         }
+    //         console.log(config);
+    //         // const token = localStorage.getItem('jwtToken');
+    //         // if (token) {
+    //         // config.headers['Authorization'] = `Bearer ${token}`;
+    //         // }
     //         return config;
     //     },
     //     (error) => {
