@@ -224,7 +224,6 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
                 setIsDetail(false);
 
             } else {
-                console.log(res);
                 setIsMod(false);
                 setIsDetail(false);
             }

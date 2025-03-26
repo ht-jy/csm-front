@@ -38,8 +38,6 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
         if (data === null) return
 
         if(name === "site_pos"){
-
-            console.log(value)
             const sitePos = {
                 road_address: value.roadAddress,
                 building_name: value.buildingName,

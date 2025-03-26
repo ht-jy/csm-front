@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {Axios} from "../../utils/axios/Axios"
 import markerIcon from "../../assets/image/marker.png"
+import Modal from "./Modal";
 /**
  * @description: vworld의 지도 보여주는 컴포넌트
  * 
@@ -9,7 +10,7 @@ import markerIcon from "../../assets/image/marker.png"
  * @modified 최종 수정일: 
  * @modifiedBy 최종 수정자: 
  * @usedComponents
- * - 
+ * - Modal
  * 
  * @additionalInfo
  * - vw.ol3.MAP, vw.ol3.layer.Marker: vworld에서 제공하는 지도 이용
@@ -22,6 +23,7 @@ const Map = ( {roadAddress} ) => {
 
     const [point, setPoint] = useState(null);
     const [map, setMap] = useState(null);
+    const [isModal, setIsModal] = useState(false);
 
     const getPoint = async () => {
         // vworld상 좌표값을 얻기 위한 요청
@@ -29,7 +31,7 @@ const Map = ( {roadAddress} ) => {
         if (res?.data?.result === "Success") {
             setPoint(res?.data?.values?.point)
         }else {
-            console.log("지도를 불러올 수 없습니다.")
+            setIsModal(true);
         }
     }
     useEffect( () => {
@@ -86,6 +88,16 @@ const Map = ( {roadAddress} ) => {
         getPoint()
     }, [roadAddress])
 
-    return <div id="vMap"  style={{width:"100%", height:"100%", left:"0px", top:"0px"}}/>        
+    return (
+        <> 
+            <Modal
+                isOpen={isModal}
+                text={"지도를 불러올 수 없습니다."}
+                confirm={"확인"}
+                fncConfirm={() => setIsModal(false)}
+            />
+            <div id="vMap"  style={{width:"100%", height:"100%", left:"0px", top:"0px"}}/>        
+        </>
+    );
 }
 export default Map;

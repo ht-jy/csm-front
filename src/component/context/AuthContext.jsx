@@ -28,7 +28,6 @@ export const AuthProvider = ({ children }) => {
                 setUser(null);
             }
         } catch (error) {
-            console.error("fetchToken 실패:", error);
             setIsAuthenticated(false);
             setUser(null);
         } finally {

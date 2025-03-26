@@ -245,11 +245,9 @@ const Site = () => {
                 />
             }
             <div className="container-fluid px-4">
-                <h2 className="mt-4">현장 관리</h2>
-                <ol className="breadcrumb mb-4">
-                    <img className="breadcrumb-icon" src="/assets/img/icon-house.png" />
-                    <li className="breadcrumb-item active">관리 메뉴</li>
-                    <li className="breadcrumb-item active">현장 관리</li>
+                <ol className="breadcrumb mb-2 content-title-box">
+                    <li className="breadcrumb-item content-title">현장 관리</li>
+                    <li className="breadcrumb-item active content-title-sub">관리</li>
                 </ol>
 
                 <div className="card mb-4">

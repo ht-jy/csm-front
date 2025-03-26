@@ -52,7 +52,7 @@ const Modal = ({isOpen, title, text, confirm, fncConfirm, cancel, fncCancel}) =>
                         }
                         
                         <div style={pStyle}>
-                            {text.split("\n").map((line, index) => (
+                            {text?.split("\n").map((line, index) => (
                                 <div key={index}>
                                     {line}
                                     <br />

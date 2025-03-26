@@ -299,15 +299,13 @@ const Device = () => {
             />
             <div>
                 <div className="container-fluid px-4">
-                    <div className="table-header" style={{marginBottom: "0px"}}>
-                        <ol className="breadcrumb mb-4 content-title-box">
-                            <li className="breadcrumb-item content-title">근태인식기 관리</li>
-                            <li className="breadcrumb-item active content-title-sub">관리</li>
-                        </ol>
+                    <ol className="breadcrumb mb-2 content-title-box">
+                        <li className="breadcrumb-item content-title">근태인식기 관리</li>
+                        <li className="breadcrumb-item active content-title-sub">관리</li>
                         <div className="table-header-right">
                             <Button text={"추가"} onClick={() => handleGridModal("SAVE")} />
                         </div>
-                    </div>
+                    </ol>
 
                     {/* <div className="table-header">
                         <div className="table-header-right">
@@ -329,14 +327,16 @@ const Device = () => {
                         </div>
 
                         <div className="table-header-right">
+                            {
+                                isSearchInit ? <Button text={"초기화"} onClick={handleSearchInit} /> : null
+                            }
                             <Search 
                                 searchOptions={searchOptions}
                                 width={"230px"}
                                 fncSearchKeywords={handleRetrySearch}
+                                retrySearchText={retrySearchText}
                             />
-                            {
-                                isSearchInit ? <Button text={"초기화"} onClick={handleSearchInit} /> : null
-                            }
+                            
                             {/* <Button text={"추가"} onClick={() => handleGridModal("SAVE")} /> */}
                         </div>
                     </div>

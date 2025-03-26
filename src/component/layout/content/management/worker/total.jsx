@@ -301,15 +301,15 @@ const Total = () => {
             />
             <div>
                 <div className="container-fluid px-4">
-                    <div className="table-header" style={{marginBottom: "0px"}}>
-                        <ol className="breadcrumb mb-4 content-title-box">
-                            <li className="breadcrumb-item content-title">전체 근로자</li>
-                            <li className="breadcrumb-item active content-title-sub">근로자 관리</li>
-                        </ol>
+                    
+                    <ol className="breadcrumb mb-2 content-title-box">
+                        <li className="breadcrumb-item content-title">전체 근로자</li>
+                        <li className="breadcrumb-item active content-title-sub">근로자 관리</li>
                         <div className="table-header-right">
                             <Button text={"추가"} onClick={() => handleGridModalOn("SAVE")} />
                         </div>
-                    </div>
+                    </ol>
+                    
                     <div className="table-header">
                         <div className="table-header-left" style={{ gap: "10px" }}>
                             {/* <Select
@@ -332,6 +332,7 @@ const Total = () => {
                                 searchOptions={searchOptions}
                                 width={"230px"}
                                 fncSearchKeywords={handleRetrySearch}
+                                retrySearchText={retrySearchText}
                             />                            
                         </div>
                     </div>
