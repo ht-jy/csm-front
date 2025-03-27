@@ -1,6 +1,8 @@
 import { useState, useEffect, useReducer, useRef } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { dateUtil } from "../../../../../utils/DateUtil";
+import { ObjChk } from "../../../../../utils/ObjChk";
+import { useAuth } from "../../../../context/AuthContext";
 import SiteBaseReducer from "./SiteBaseReducer";
 import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
@@ -10,14 +12,14 @@ import DateInput from "../../../../module/DateInput";
 import useTableSearch from "../../../../../utils/hooks/useTableSearch";
 import useTableControlState from "../../../../../utils/hooks/useTableControlState";
 import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons ";
-import { useAuth } from "../../../../context/AuthContext";
 import Search from "../../../../module/search/Search";
 import EditTable from "../../../../module/EditTable";
+import SearchProjectModal from "../../../../module/modal/SearchProjectModal";
 import "react-calendar/dist/Calendar.css";
 import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Paginate.css";
 import "../../../../../assets/css/Calendar.css";
-import { ObjChk } from "../../../../../utils/ObjChk";
+
 
 /**
  * @description: 현장 근로자 관리
@@ -37,7 +39,8 @@ import { ObjChk } from "../../../../../utils/ObjChk";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /site-base (현장 근로자 조회)
+ *    Http Method - GET : /worker/site-base (현장 근로자 조회)
+ *    Http Method - POST : /worker/site-base (현장 근로자 추가/수정), /worker/site-base/deadline (일괄마감)
  */
 const SiteBase = () => {
     const [state, dispatch] = useReducer(SiteBaseReducer, {
@@ -47,10 +50,11 @@ const SiteBase = () => {
         siteNmList: [],
     })
 
-    const [searchStartTime, setSearchStartTime] = useState(dateUtil.now());
-    const [searchEndTime, setSearchEndTime] = useState(dateUtil.now());
     const { user, project } = useAuth();
     const tableRef = useRef();
+
+    const [searchStartTime, setSearchStartTime] = useState(dateUtil.now());
+    const [searchEndTime, setSearchEndTime] = useState(dateUtil.now());    
 
     const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder, rnumOrder, setRnumOrder, retrySearchText, setRetrySearchText, editList, setEditList } = useTableControlState(100);
 
@@ -58,12 +62,19 @@ const SiteBase = () => {
     const [isModal, setIsModal] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
     const [modalText, setModalText] = useState("");
+    // 테이블 편집 모드 관련 state
     const [isEdit, setIsEdit] = useState(false);
     const [isEditTable, setIsEditTable] = useState(false);
     const [isEditTableOpen, setIsEditTableOpen] = useState(true);
+    // 프로젝트 변경 관련 state
+    const [isProjectModal, setIsProjectModal] = useState(false);
+    const [selectedProject, setSelectedProject] = useState({});
+    const [isModal2, setIsModal2] = useState(false);
+    const [modalText2, setModalText2] = useState("");
 
     // 테이블 컬럼 정보
     const columns = [
+        { isRowCheck: true, checked: "N", checkType: "reverse", width: "35px", bodyAlign: "center" },
         { isSearch: false, isOrder: true, width: "70px", header: "순번", itemName: "rnum", bodyAlign: "center", isEllipsis: false},
         { isSearch: true, isOrder: true, width: "190px", header: "아이디", itemName: "user_id", bodyAlign: "center", isEllipsis: false },
         { isSearch: true, isOrder: true, width: "190px", header: "근로자 이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false },
@@ -77,6 +88,7 @@ const SiteBase = () => {
 
     // 테이블 수정 정보
     const editInfo = [
+        {itemName: "row_check", editType: ""},
         {itemName: "rnum", editType: "delete"},
         {itemName: "user_id", editType: "searchModal", selectedModal: "workerByUserId"},
         {itemName: "user_nm", editType: "", dependencyModal: "workerByUserId"},
@@ -113,12 +125,124 @@ const SiteBase = () => {
         }
     }
 
-    // 테이블 수정상태 - 추가버튼클릭 
-    // const onClickEditAddBtn = () => {
-    //     if (tableRef.current) {
-    //         tableRef.current.addTableEmptyRow("rnum");
-    //     }
-    // }
+    // 마감버튼 클릭
+    const onClickDeadLineBtn = async() => {
+        if(tableRef.current){
+            setModalTitle("근로자 마감");
+            const forwradRes = tableRef.current.getCheckedItemList();
+
+            if(forwradRes.length === 0){
+                setModalText("마감처리할 근로자를 선택하세요.");
+                setIsModal(true);
+                return;
+            }
+
+            const deadlines = [];
+            forwradRes.map(item => {
+                const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
+                const deadline = {
+                    sno: item.sno,
+                    jno: item.jno,
+                    user_id: item.user_id,
+                    record_date: dateUtil.goTime(record_date),
+                    mod_uno: user.uno,
+                    mod_user: user.user_nm,
+                }
+                deadlines.push(deadline);
+            });
+            
+
+            setIsLoading(true);
+            const res = await Axios.POST("worker/site-base/deadline", deadlines);
+            
+            if (res?.data?.result === "Success") {
+                setIsModal(true);
+                setModalText("근로자 마감에 성공하였습니다.");
+                await getData();
+            }else {
+                setIsModal(true);
+                setModalText("근로자 마감에 실패하였습니다.");
+            }
+            setIsLoading(false);
+        }
+    }
+
+    // 프로젝트 변경
+    // 체크한 근로자가 있는지 확인하고 변경할 프로젝트를 선택할 모달창 오픈.
+    // 실제 변경시도하는 로직은 다른 함수에 구현
+    const onClickModProjectBtn = () => {
+        if(tableRef.current){
+            setModalTitle("근로자 프로젝트 변경");
+            const forwradRes = tableRef.current.getCheckedItemList();
+
+            if(forwradRes.length === 0){
+                setModalText("프로젝트를 변경할 근로자를 선택하세요.");
+                setIsModal(true);
+                return;
+            }
+        }
+
+        setIsProjectModal(true);
+    }
+
+    // 프로젝트 모달의 row 클릭 이벤트
+    const handleProjectRowClick = (item) => {
+        setSelectedProject(item);
+        setModalText2(`${item.job_name} 으로 변경하시겠습니까?`);
+        setIsModal2(true);
+    }
+
+    // 프로젝트 선택용 모달 "예" 클릭
+    const handleProjectModConfirm = async() => {
+        setIsModal2(false);
+        if(tableRef.current){
+            setModalTitle("근로자 프로젝트 변경");
+            const forwradRes = tableRef.current.getCheckedItemList();
+
+            const checkJno = forwradRes.filter(item => item.jno === selectedProject.jno);
+            if(checkJno.length !== 0){
+                setModalText("선택한 프로젝트와 근로자의 프로젝트가 동일합니다.");
+                setIsModal(true);
+                return;
+            }
+            
+            const workers = [];
+            forwradRes.map(item => {
+                const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
+                const worker = {
+                    sno: item.sno,
+                    jno: item.jno,
+                    after_jno: selectedProject.jno,
+                    user_id: item.user_id,
+                    record_date: dateUtil.goTime(record_date),
+                    mod_uno: user.uno,
+                    mod_user: user.user_nm,
+                }
+                workers.push(worker);
+            });
+            
+            setIsLoading(true);
+            const res = await Axios.POST("worker/site-base/project", workers);
+            console.log(res);
+            if (res?.data?.result === "Success") {
+                setIsModal(true);
+                setModalText("프로젝트 변경에 성공하였습니다.");
+                await getData();
+            }else {
+                setIsModal(true);
+                setModalText("프로젝트 변경에 실패하였습니다.\n해당 날짜 프로젝트에 등록되어 었는지 확인하시기 바랍니다.");
+            }
+            setIsLoading(false);
+        }
+    }
+
+    // 프로젝트 선택용 모달 "아니요" 클릭
+    const handleProjectModCancel = () => {
+        setIsModal2(false);
+        setModalTitle("근로자 프로젝트 변경");
+        setModalText("프로젝트 변경을 취소하였습니다.");
+        setIsModal(true);
+    }
 
     // 시작날짜 선택 이벤트
     const onChangeSearchStartTime = (value) => {
@@ -178,13 +302,15 @@ const SiteBase = () => {
         let params = [];
         editList.forEach(item => {
             const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
+            const in_recog_time = item.in_recog_time === "0001-01-01T00:00:00Z" ? item.in_recog_time : dateUtil.goTime(record_date + "T" + item.in_recog_time.split("T")[1]);
+            const out_recog_time = item.out_recog_time === "0001-01-01T00:00:00Z" ? item.out_recog_time : dateUtil.goTime(record_date + "T" + item.out_recog_time.split("T")[1]);
             const param = {
                 sno: project.sno,
                 jno: project.jno,
                 user_id: item.user_id,
                 record_date: dateUtil.goTime(record_date),
-                in_recog_time: dateUtil.goTime(record_date + "T" + item.in_recog_time.split("T")[1]),
-                out_recog_time: dateUtil.goTime(record_date + "T" + item.out_recog_time.split("T")[1]),
+                in_recog_time: in_recog_time,
+                out_recog_time: out_recog_time,
                 is_deadline: item.is_deadline,
                 mod_user: user.user_nm,
                 mod_uno: user.uno,
@@ -201,6 +327,7 @@ const SiteBase = () => {
             if(tableRef.current){
                 tableRef.current.editModeCancel();
             }
+            setIsEdit(false);
             getData();
         }else {
             setIsModal(true);
@@ -216,6 +343,7 @@ const SiteBase = () => {
             setIsModal(true);
             setModalTitle("현장 근로자 조회");
             setModalText("프로젝트를 선택해주세요.");
+            dispatch({type: "EMPTY"});
             return;
         }
 
@@ -290,6 +418,20 @@ const SiteBase = () => {
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
             />
+            <Modal 
+                isOpen={isModal2}
+                title={"근로자 프로젝트 변경"}
+                text={modalText2}
+                confirm={"예"}
+                fncConfirm={handleProjectModConfirm}
+                cancel={"아니요"}
+                fncCancel={handleProjectModCancel}
+            />
+            <SearchProjectModal
+                isOpen={isProjectModal}
+                fncExit={() => setIsProjectModal(false)}
+                onClickRow={handleProjectRowClick}
+            />
             <div>
                 <div className="container-fluid px-4">
                     <ol className="breadcrumb mb-2 content-title-box">
@@ -340,8 +482,16 @@ const SiteBase = () => {
 
                             <div>
                                 조회기간 <DateInput time={searchStartTime} setTime={(value) => onChangeSearchStartTime(value)}></DateInput> ~ <DateInput time={searchEndTime} setTime={(value) => onChangeSearchEndTime(value)}></DateInput>
+                                {
+                                    !isEdit && state.list.length > 0 ?
+                                        <>
+                                            <Button text={"일괄마감"} onClick={onClickDeadLineBtn} />
+                                            <Button text={"프로젝트 변경"} onClick={onClickModProjectBtn} />
+                                        </>
+                                    : null
+                                }
                             </div>
-                    
+                        
                         </div>
                         
                         <div className="table-header-right">

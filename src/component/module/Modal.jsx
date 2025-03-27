@@ -20,6 +20,8 @@ const Modal = ({isOpen, title, text, confirm, fncConfirm, cancel, fncCancel}) =>
 
             // 엔터 키 이벤트 핸들러
             const handleKeyDown = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
                 if (event.key === "Enter" || event.key === "Escape") {
                     if (ObjChk.all(cancel)) {
                         fncConfirm(); // cancel이 없으면 confirm 실행

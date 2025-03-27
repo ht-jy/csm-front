@@ -11,6 +11,7 @@ import useTableSearch from "../../../utils/hooks/useTableSearch";
 
 /**
  * @description: 화면 상단의 검색창을 클릭시 나오는 프로젝트 선택 모달. 프로젝트 선택시 AuthContext에 값을 담아서 다른 화면에서 사용 목적
+ *               또는 프로젝트 선택용 모달
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-25
@@ -23,12 +24,13 @@ import useTableSearch from "../../../utils/hooks/useTableSearch";
  * - Button 버튼
  * - useTableControlState 테이블 state 커스텀 훅
  * - useTableSearch 테이블 이벤트 커스텀 훅
+ * - onClickRow 가 있을시에는 상단 검색창에 클릭과는 다르게 현장근태에 등록되어 있는 프로젝트만 적용이 됨. 선택한 아이템을 반환받을 함수
  * 
  * @additionalInfo
  * - API: 
  *    Http Method - GET : /project/used (공사관리 프로젝트 조회)
  */
-const SearchProjectModal = ({isOpen, fncExit}) => {
+const SearchProjectModal = ({isOpen, fncExit, onClickRow}) => {
     const { user, setProject, setProjectName } = useAuth();
     const [selectedValue, setSelectedValue] = useState("1");
     const [data, setData] = useState([]);
@@ -64,8 +66,14 @@ const SearchProjectModal = ({isOpen, fncExit}) => {
     }
     // 테이블 리스트 클릭
     const handleRowClick = (item) => {
-        setProject(item);
-        setProjectName(item.job_name);
+        if(onClickRow === undefined){
+            // 화면 상단의 클릭시 실행
+            setProject(item);
+            setProjectName(item.job_name);
+        }else{
+            // 현장근태 프로젝트 조회/선택 목적의 실행
+            onClickRow(item);
+        }
         fncExit();
     }
 
