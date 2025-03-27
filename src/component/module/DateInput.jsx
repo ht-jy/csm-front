@@ -62,13 +62,13 @@ const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalenda
                     showCalendar && (
                         <div className="calendar-popup" style={{...calendarPopupStyle}}>
                             <OutsideClick setActive={setShowCalendar}>
-                                {/* FIXME: 공휴일 문제 */}
+                                {/* FIXME: 공휴일 문제, 오늘로 날짜 돌리기 */}
                                 <Calendar 
                                     onChange={handleDateChange} 
                                     value={dateUtilFormat(time)} 
                                     locale="ko" 
                                     calendarType="gregory" 
-                                    // formatDay={(locale, date) => date.toLocaleString('en', { day: 'numeric' })} // "일" 글자 삭제
+                                    formatDay={(locale, date) => date.toLocaleString('en', { day: 'numeric' })}
                                 />
                             </OutsideClick>
                         </div>
