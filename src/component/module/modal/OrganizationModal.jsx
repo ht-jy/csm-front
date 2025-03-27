@@ -75,9 +75,9 @@ const OrganizationModal = ({isOpen, fncExit}) => {
                                 <table>
                                     <thead className="fixed">
                                         <tr>
-                                            <th        >공종</th>
+                                            <th style={{width: "120px" }}>공종</th>
                                             <th style={{width: "120px"}}>담당</th>
-                                            <th style={{width: "140px"}}>담당상세</th>
+                                            <th style={{width: "200px"}}>담당상세</th>
                                             <th style={{width: "110px"}}>이름</th>
                                             <th style={{width: "110px"}}>직위</th>
                                             <th style={{width: "145px"}}>소속</th>
@@ -100,26 +100,26 @@ const OrganizationModal = ({isOpen, fncExit}) => {
                                             client?.organizations?.map((item, idx) => {
                                                 return  <tr key={idx}>
                                                         { idx === 0 ? 
-                                                            <td rowSpan={client.organizations.length}> {client.func_name}</td>
+                                                            <td style={{...wrapText , ...tdStyle}} rowSpan={client.organizations.length}> {client.func_name}</td>
                                                             :
                                                             <></>
                                                         }
                                                         {/* 담당 */}
-                                                        <td className="center">{item.cd_nm}</td>
+                                                        <td style={{...wrapText , ...tdStyle}} className="center">{item.cd_nm}</td>
                                                         {/* 담당상세 */}
-                                                        <td className="center">{item.charge_detail}</td>
+                                                        <td style={{...wrapText , ...tdStyle}} className="left">{item.charge_detail}</td>
                                                         {/* 이름 */}
-                                                        <td className="center">{item.user_name}</td>
+                                                        <td style={{...wrapText , ...tdStyle}} className="center">{item.user_name}</td>
                                                         {/* 직위 */}
-                                                        <td className="center">{item.duty_name}</td>
+                                                        <td style={{...wrapText , ...tdStyle}} className="center">{item.duty_name}</td>
                                                         {/* 소속 */}
-                                                        <td className="center">{item.dept_name}</td>                                                            
+                                                        <td style={{...wrapText , ...tdStyle}} className="center">{item.dept_name}</td>                                                            
                                                         {/* 핸드폰 */}
-                                                        <td className="center">{item.cell}</td>                                                            
+                                                        <td style={{...wrapText , ...tdStyle}} className="center">{item.cell}</td>                                                            
                                                         {/* 전화 */}
-                                                        <td className="center">{item.tel}</td>                                                            
+                                                        <td style={{...wrapText , ...tdStyle}} className="center">{item.tel}</td>                                                            
                                                         {/* 이메일 */}
-                                                        <td className="left">{item.email}</td>                                                            
+                                                        <td style={{...wrapText , ...tdStyle}} className="left">{item.email}</td>                                                            
                                                     </tr>
                                                 })   
                                                 :   
@@ -146,40 +146,35 @@ const OrganizationModal = ({isOpen, fncExit}) => {
                                             return arr.organizations.map((item, idx) => {
                                                 return  <tr key={idx}>
                                                     { idx === 0 ? 
-                                                        <td rowSpan={arr.organizations.length}> {arr.func_name}</td>
+                                                        <td style={{...wrapText, ...tdStyle}} rowSpan={arr.organizations.length}> {arr.func_name}</td>
                                                         :
                                                         null
                                                     }
 
                                                         {/* 담당 */}
-                                                        <td className="center" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.cd_nm}</td>
+                                                        <td className="center" style={{...wrapText, ...tdStyle, color : item.is_use === 'N' ?  "lightgray" : ""}}>{item.cd_nm}</td>
                                                         {/* 담당상세 */}
-                                                        <td className="center" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.charge_detail}</td>
+                                                        <td className="left" style={{...wrapText, ...tdStyle, color : item.is_use === 'N' ?  "lightgray" : ""}}>{item.charge_detail}</td>
                                                         {/* 이름 */}
                                                         <td 
                                                             className="center" 
-                                                            style={ item.is_use === 'N' ? 
-                                                                        {color: "lightgray"} // 퇴사자  
-                                                                    :  
-                                                                        item.co_id === null  ? {} // 외부직원 
-                                                                        : 
-                                                                        item.co_id === '1' ?  
-                                                                            {fontWeight: "bold"} // 내부직원
-                                                                            : 
-                                                                            {backgroundColor: "beige"} // 협력사
-                                                                    }>
+                                                            style={{...wrapText, ...tdStyle, 
+                                                                    color: item.is_use === 'N' ? "lightgray"  :  "",// 퇴사자  
+                                                                    fontWeight : item.is_use === "Y" ? item.co_id === "1" ? "bold" : "" : "", // 내부직원
+                                                                    backgroundColor : item.is_use === "Y" ? item.co_id !== "1" && item.co_id !== null ? "beige" : "" : "" // 협력사
+                                                                    }}>
                                                                 {item.user_name}
                                                         </td>
                                                         {/* 직위 */}
-                                                        <td className="center" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.duty_name}</td>
+                                                        <td className="center" style={{...wrapText, ...tdStyle, color : item.is_use === 'N' ?  "lightgray" : ""}}>{item.duty_name}</td>
                                                         {/* 소속 */}
-                                                        <td className="center" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.dept_name}</td>                                                            
+                                                        <td className="center" style={{...wrapText, ...tdStyle, color : item.is_use === 'N' ?  "lightgray" : ""}}>{item.dept_name}</td>                                                            
                                                         {/* 핸드폰 */}
-                                                        <td className="center" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.cell}</td>                                                            
+                                                        <td className="center" style={{...wrapText, ...tdStyle, color : item.is_use === 'N' ?  "lightgray" : ""}}>{item.cell}</td>                                                            
                                                         {/* 전화 */}
-                                                        <td className="center" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.tel}</td>                                                            
+                                                        <td className="center" style={{...wrapText, ...tdStyle, color : item.is_use === 'N' ?  "lightgray" : ""}}>{item.tel}</td>                                                            
                                                         {/* 이메일 */}
-                                                        <td className="left" style={item.is_use === 'N' ? {color : "lightgray"} : {}}>{item.email}</td>  
+                                                        <td className="left" style={{...wrapText, ...tdStyle, color : item.is_use === 'N' ?  "lightgray" : ""}}>{item.email}</td>  
                                                 </tr>
                                                 })
                                                 
@@ -217,8 +212,7 @@ const modalStyle = {
     borderRadius: '8px',
     maxWidth: '1300px',
     width: '95%',
-    maxHeight: '650px',
-    height: '90%',
+    height: '80%',
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
     margin: '10px',
 };
@@ -245,5 +239,19 @@ const legend = {
     justifyContent : 'space-around',
     padding : '4px 0px'
 }
+
+
+const wrapText = {
+    whiteSpace : "normal",
+    textOverflow : "unset",
+    textWrap : "wrap"
+}
+
+const tdStyle = {
+    height : "28px",
+    padding : "5px 8px",
+    fontSize : "13px"
+}
+
 
 export default OrganizationModal
