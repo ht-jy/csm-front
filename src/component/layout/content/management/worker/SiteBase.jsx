@@ -74,7 +74,7 @@ const SiteBase = () => {
 
     // 테이블 컬럼 정보
     const columns = [
-        { isRowCheck: true, checked: "N", checkType: "reverse", width: "35px", bodyAlign: "center" },
+        { itemName: "row_checked", checked: "N", checkType: "all", width: "35px", bodyAlign: "center" },
         { isSearch: false, isOrder: true, width: "70px", header: "순번", itemName: "rnum", bodyAlign: "center", isEllipsis: false},
         { isSearch: true, isOrder: true, width: "190px", header: "아이디", itemName: "user_id", bodyAlign: "center", isEllipsis: false },
         { isSearch: true, isOrder: true, width: "190px", header: "근로자 이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false },

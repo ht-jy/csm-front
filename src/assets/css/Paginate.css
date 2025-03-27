@@ -107,3 +107,15 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.pagination .previous,
+.pagination .next {
+  pointer-events: none;
+}
+
+/* 내부 span만 클릭 이벤트를 받을 수 있도록 활성화 */
+.pagination .previous span,
+.pagination .next span {
+  pointer-events: auto;
+  cursor: pointer;
+}
