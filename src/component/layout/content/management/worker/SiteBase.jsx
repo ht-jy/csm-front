@@ -223,7 +223,7 @@ const SiteBase = () => {
             
             setIsLoading(true);
             const res = await Axios.POST("worker/site-base/project", workers);
-            console.log(res);
+            
             if (res?.data?.result === "Success") {
                 setIsModal(true);
                 setModalText("프로젝트 변경에 성공하였습니다.");
@@ -430,6 +430,7 @@ const SiteBase = () => {
             <SearchProjectModal
                 isOpen={isProjectModal}
                 fncExit={() => setIsProjectModal(false)}
+                isUsedProject={true}
                 onClickRow={handleProjectRowClick}
             />
             <div>

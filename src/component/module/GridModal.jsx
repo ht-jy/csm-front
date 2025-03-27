@@ -30,7 +30,7 @@ const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, d
     const [isEdit, setIsEdit] = useState(false);
     const [formData, setFormData] = useState([]);
     const [initialData, setInitialData] = useState([]); // 원본 데이터 저장
-
+    
     // "X"
     const handleExit = () => {
         setFormData(initialData); // 초기 데이터로 되돌리기
@@ -225,7 +225,7 @@ const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, d
                                     item.type === "hidden" ? null : (
                                         <Input
                                             key={idx}
-                                            editMode={isEdit}
+                                            editMode={item.isKey ? gridMode === "SAVE" && isEdit ? true : false : isEdit}
                                             type={item.type}
                                             span={item.span}
                                             label={item.label}
@@ -237,6 +237,8 @@ const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, d
                                             radioLabels={item.radioLabels}
                                             textFormat={item.format}
                                             isHide={item.dependency && item.dependency[2] === 'Y' ? true : false}
+                                            labelWidth={item.width}
+                                            item={item}
                                         />
                                     )
                                 ))

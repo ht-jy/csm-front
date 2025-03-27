@@ -17,6 +17,7 @@ import useGridModalSearch from "../../../../../utils/hooks/useGridModalSearch";
 import "../../../../../assets/css/Calendar.css";
 import "../../../../../assets/css/Paginate.css";
 import "../../../../../assets/css/Table.css";
+import { Common } from "../../../../../utils/Common";
 
 /**
  * @description: 전체 근로자 관리
@@ -62,15 +63,16 @@ const Total = () => {
     const [modalText, setModalText] = useState("");
     // 상세모달
     const gridData = [
-        { type: "select", span: "full", label: "현장", value: "", selectName: "siteNm" },
-        { type: "select", span: "full", label: "프로젝트", value: "", selectName: "projectNm" },
-        { type: "text", span: "double", label: "아이디", value: "" },
-        { type: "text", span: "double", label: "이름", value: "" },
-        { type: "text", span: "double", label: "부서/조직명", value: "" },
-        { type: "text", span: "double", label: "핸드폰 번호", value: "", format: "formatMobileNumber" },
-        { type: "radio", span: "full", label: "근로자 구분", value: "", radioValues: state.workerTypeCodes.map(item => item.code)||[], radioLabels: state.workerTypeCodes.map(item => item.code_nm)||[] },
-        { type: "checkbox", span: "double", label: "퇴직여부", value: "", checkedLabels: ["퇴직자", "재직자"], triggerHideId : "retire" },
-        { type: "date", span: "double", label: "퇴직날짜", value: "", dependency: [true, "retire", "Y"] },
+        { type: "select", span: "full", label: "현장", width: "110px", value: "", selectName: "siteNm", isKey: true },
+        { type: "select", span: "full", label: "프로젝트", width: "110px", value: "", selectName: "projectNm", isKey: true },
+        { type: "text", span: "double", label: "아이디", width: "110px", value: "", isKey: true },
+        { type: "text", span: "double", label: "이름", width: "110px", value: "" },
+        { type: "text", span: "double", label: "부서/조직명", width: "110px", value: "" },
+        { type: "text", span: "double", label: "핸드폰 번호", width: "110px", value: "", format: "formatMobileNumber" },
+        { type: "text-regidentMask", span: "double", label: "주민등록번호", width: "110px", value: "", format: "maskResidentNumber" },
+        { type: "radio", span: "double", label: "근로자 구분", width: "110px", value: "", radioValues: state.workerTypeCodes.map(item => item.code)||[], radioLabels: state.workerTypeCodes.map(item => item.code_nm)||[] },
+        { type: "checkbox", span: "double", label: "퇴직여부", width: "110px", value: "", checkedLabels: ["퇴직자", "재직자"], triggerHideId : "retire" },
+        { type: "date", span: "double", label: "퇴직날짜", width: "110px", value: "", dependency: [true, "retire", "Y"] },
     ];
     const {isGridModal, setIsGridModal, gridMode, setGridMode, detail, setDetail, isMod, setIsMod} = useGridModalControlState();
 
@@ -85,7 +87,7 @@ const Total = () => {
         { isSearch: false, isOrder: true, isSlide: false, width: "100px", header: "퇴사 여부", itemName: "is_retire", bodyAlign: "center", isEllipsis: false, isDate: false, isChecked: true },
     ];
 
-    const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder, retrySearchText, setRetrySearchText } = useTableControlState(100);
+    const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder, retrySearchText, setRetrySearchText, rnumOrder, setRnumOrder } = useTableControlState(100);
     
 
     const searchOptions = [
@@ -97,11 +99,18 @@ const Total = () => {
 
     // 테이블 row 클릭
     const onClickTableRow = (item, mode) => {
-        // getSiteData();
-        // getProjectData();
         
         const arr = [
-            item.sno, item.jno, item.user_id, item.user_nm, item.department, item.phone, item.worker_type, item.is_retire, dateUtil.format(item.retire_date)
+            item.sno, 
+            item.jno,
+            item.user_id, 
+            item.user_nm, 
+            item.department, 
+            item.phone, 
+            item.reg_no,
+            item.worker_type, 
+            item.is_retire,
+            dateUtil.format(item.retire_date)
         ];
 
         handleGridModalOn(mode, arr);
@@ -109,7 +118,7 @@ const Total = () => {
 
     // GridModal의 저장 버튼 이벤트 - (저장, 수정)
     const onClicklModalSave = async (item, mode) => {
-        setIsLoading(true);
+        
         setGridMode(mode)
         
         let retireDate = null;
@@ -125,23 +134,26 @@ const Total = () => {
             user_id: item[2].value || "",
             user_nm: item[3].value || "",
             department: item[4].value || "",
-            phone: item[5].value || "",
-            worker_type: item[6].value || "00",
-            is_retire: item[7].value || "N",
+            phone: Common.formatMobileNumber(item[5].value) || "",
+            reg_no: item[6].value || "",
+            worker_type: item[7].value || "00",
+            is_retire: item[8].value || "N",
             retire_date: retireDate,
             reg_user: user.userName || "",
             reg_uno: user.uno || 0,
             mod_user: user.userName || "",
             mod_uno: user.uno || 0,
         }
-        
+        console.log(worker);
+        // return;
+        setIsLoading(true);
         let res;
         if (gridMode === "SAVE") {
             res = await Axios.POST(`/worker/total`, worker);
         } else {
             res = await Axios.PUT(`/worker/total`, worker);
         }
-        
+        console.log(res);
         if (res?.data?.result === "Success") {
             setModalTitle(`근로자 ${getModeString()}`);
             setModalText(`근로자 ${getModeString()}에 성공하였습니다.`);
@@ -231,6 +243,7 @@ const Total = () => {
             page_num: pageNum,
             row_size: rowSize,
             order: order,
+            rnum_order: rnumOrder,
             user_id: searchValues.user_id,
             user_nm: searchValues.user_nm,
             department: searchValues.department,
@@ -273,7 +286,7 @@ const Total = () => {
         handleSearchInit,
         handleSortChange,
         handlePageClick,
-    } = useTableSearch({ columns, getDataFunction: getData, pageNum, retrySearchText, setRetrySearchText, setPageNum, rowSize, setRowSize, order, setOrder });
+    } = useTableSearch({ columns, getDataFunction: getData, pageNum, retrySearchText, setRetrySearchText, setPageNum, rowSize, setRowSize, order, setOrder, rnumOrder, setRnumOrder });
     // 상세 모달 조작
     const {handleGridModalOn, handleModeSet, getModeString, handleExitBtnClick} = useGridModalSearch({gridData, getSelectOptionData:[getSiteData, getProjectData], setIsGridModal, gridMode, setGridMode, setDetail});
 

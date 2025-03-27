@@ -121,21 +121,43 @@ export const Common = {
     },
     // 주민번호 마스킹
     maskResidentNumber(jumin) {
-        const cleaned = jumin.replace(/-/g, '');
-        
-        // 숫자 13자리가 아니라면 원본 반환
-        if (cleaned.length !== 13) {
-          return jumin;
+        // 모든 숫자가 아닌 문자는 제거
+        let cleaned = jumin.replace(/[^0-9*]/g, '');
+
+        // 주민번호 최대 길이 13자리로 제한
+          if (cleaned.length > 13) {
+            cleaned = cleaned.slice(0, 13);
         }
-        
-        // 앞 6자리와 뒷자리 분리
-        const front = cleaned.slice(0, 6);
-        const back = cleaned.slice(6);
-        
-        // 뒷자리의 첫 번째 숫자만 남기고 나머지는 '*'로 마스킹
-        const maskedBack = back.charAt(0) + '*'.repeat(6);
-        
-        // '-'를 구분자로 하여 반환
-        return `${front}-${maskedBack}`;
+
+          // 생년월일(6자리) 미만이면 그대로 반환
+          if (cleaned.length < 6) {
+              return cleaned;
+          }
+          
+          // 6자리이면 하이픈만 붙여서 반환 (예: "250327" -> "250327-")
+          if (cleaned.length === 6) {
+              return cleaned + '-';
+          }
+          
+          // 6자리보다 길면 앞 6자리는 그대로, 그 이후 첫 자리는 노출, 나머지는 마스킹 처리
+          const birth = cleaned.slice(0, 6);
+          const remainder = cleaned.slice(6);
+
+          const visible = remainder.charAt(0);
+          const masked = '*'.repeat(remainder.length > 1 ? remainder.length - 1 : 0);
+          
+          return `${birth}-${visible}${masked}`;
+    },
+    // 특정길이 반환
+    clipToMaxLength(size, str){
+        if(typeof size === Number){
+            return str;
+        }
+
+        if(str.length > size){
+            return str.slice(0, size);
+        }else{
+            return str;
+        }
     }
-}
+} 

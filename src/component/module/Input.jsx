@@ -32,12 +32,36 @@ import Radio from "./Radio";
  *  textFormat: text Format function name
  *  isHide: false: 보이기, true: 숨김
  */
-const Input = ({ editMode, type, span, label, value, onValueChange, selectData, checkedLabels=["", ""], radioValues=[], radioLabels=[], textFormat, isHide=false }) => {
+const Input = ({ editMode, type, span, label, value, onValueChange, selectData, checkedLabels=["", ""], radioValues=[], radioLabels=[], textFormat, isHide=false, labelWidth="100px", item }) => {
     const [isValid, setIsValid] = useState(true);
     const [isChecked, setIsChecked] = useState(false);
     const [selectedOption, setSelectedOption] = useState(null); // 초기값을 null로 설정
     const [searchStartTime, setSearchStartTime] = useState(value);
+    
+    const [maskValue, setMaskValue] = useState("");
 
+    // input 마스킹 이벤트
+    const inputChangeRegidentMasking = (event) => {
+        // 마스킹 값 변경
+        const newMaskValue = event.target.value;
+        setIsValid(newMaskValue.trim() !== "");
+        setMaskValue(newMaskValue);
+
+        // 실제 값 변경
+        let newValue;
+        const formattedValue = Common.maskResidentNumber(value);
+        
+        if (newMaskValue.length < formattedValue.length) {
+            newValue = value.slice(0, -1);
+        } else {
+            let cleaned = newMaskValue.replace(/[^0-9*]/g, '');
+            newValue = value + cleaned.slice(-1);
+        }
+    
+        newValue = Common.clipToMaxLength(13, newValue);
+        
+        onValueChange(newValue);
+    };
     // input 체인지 이벤트
     const inputChangeHandler = (event) => {
         const newValue = event.target.value;
@@ -63,15 +87,19 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
         onValueChange(e.target.value);
     }
 
+    /***** useEffect *****/
     // date 체인지 이벤트
     useEffect(() => {
         onValueChange(searchStartTime);
     }, [searchStartTime]);
 
-    // value가 변경될 때 체크박스 상태 업데이트
+    // 체크박스, 주민번호 상태 업데이트
     useEffect(() => {
         if (type === "checkbox") {
             setIsChecked(value === "Y"); // "Y"면 true, "N"이면 false
+        }
+        if(type === "text-regidentMask"){
+            setMaskValue(value);
         }
     }, [value]); // value가 변경될 때마다 실행
 
@@ -86,6 +114,8 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
         gridColumn: span === 'full' ? 'span 2' : 'auto',
         padding: '10px',
         // height: '86px'
+        display: "flex",
+        alignItems: "center"
     };
 
     return (
@@ -93,11 +123,13 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
         :
         <div className="form-control" style={containerStyle}>
             {label.length > 0 &&
-                <label style={{ color: !isValid ? "red" : "black", marginRight: "5px", fontWeight: "bold" }}>
+                <label style={{ color: !isValid ? "red" : "black", marginRight: "5px", fontWeight: "bold", width: labelWidth }}>
                     {label}
                 </label>}
             {
-                type === "text" ? (
+                type === "hidden" ? (
+                    null
+                ) : type === "text" ? (
                     <div className="grid-input">
                         {
                             editMode ? (
@@ -116,6 +148,31 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                                 : value
                         }
                     </div>
+                ) : type === "text-regidentMask" ? (
+                    <div className="grid-input">
+                        {
+                            editMode ? (
+                                <>
+                                    <input
+                                        style={{ width: "100%", padding: "0.5rem" }}
+                                        type="text"
+                                        value={
+                                            textFormat ? 
+                                                Common[textFormat](maskValue)
+                                            : maskValue
+                                        }
+                                        onChange={inputChangeRegidentMasking}
+                                    />
+                                    <input 
+                                        type="hidden"
+                                        value={value}
+                                    />
+                                </>
+                            ) : textFormat ? 
+                                    Common[textFormat](value)
+                                : value
+                        }
+                    </div>
                 ) : type === "checkbox" ? (
                     <div style={{height: "40px", display: "flex", alignItems: "center" }}>
                         <FormCheckInput checked={isChecked} onChange={checkboxChangeHandler} disabled={!editMode} />
@@ -123,7 +180,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                     </div>
                 ) : type === "select" ? (
                     editMode ? (
-                        <div style={{height: "40px", display: "flex", alignItems: "center", width: "100%" }}>
+                        <div style={{height: "40px", display: "flex", alignItems: "center", width: "100%", marginLeft: "10px" }}>
                             <Select
                                 onChange={selectChangeHandler}
                                 options={selectData || []} // selectData가 undefined일 경우 빈 배열 제공
@@ -179,7 +236,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                         <div style={{ height: "40px", display: 'flex', gap: "30px", fontSize: "15px"}}>
                             {
                                 radioValues.map((item, idx) => (
-                                    <Radio text={radioLabels[idx]} value={item} name="group1" defaultChecked={value === item} onChange={handleRadioChange} key={idx}/>
+                                    <Radio text={radioLabels[idx]} value={item} name="group1" checked={value === item} onChange={handleRadioChange} key={idx}/>
                                 ))
                             }
                         </div>
