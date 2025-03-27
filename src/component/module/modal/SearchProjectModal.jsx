@@ -24,13 +24,16 @@ import useTableSearch from "../../../utils/hooks/useTableSearch";
  * - Button 버튼
  * - useTableControlState 테이블 state 커스텀 훅
  * - useTableSearch 테이블 이벤트 커스텀 훅
- * - onClickRow 가 있을시에는 상단 검색창에 클릭과는 다르게 현장근태에 등록되어 있는 프로젝트만 적용이 됨. 선택한 아이템을 반환받을 함수
+ * 
+ * - props
+ *   isUsedProject true 인 경우는 상단의 선택처럼 3가지의 프로젝트 경우의 수가 아닌 공사관리시스템에 등록된 프로젝트만 나오게 됨
+ *   onClickRow 가 있을시에는 상단 검색창에 클릭과는 다르게 현장근태에 등록되어 있는 프로젝트만 적용이 됨. 선택한 아이템을 반환받을 함수
  * 
  * @additionalInfo
  * - API: 
  *    Http Method - GET : /project/used (공사관리 프로젝트 조회)
  */
-const SearchProjectModal = ({isOpen, fncExit, onClickRow}) => {
+const SearchProjectModal = ({isOpen, fncExit, isUsedProject, onClickRow}) => {
     const { user, setProject, setProjectName } = useAuth();
     const [selectedValue, setSelectedValue] = useState("1");
     const [data, setData] = useState([]);
@@ -165,20 +168,31 @@ const SearchProjectModal = ({isOpen, fncExit, onClickRow}) => {
                                 <img src={Exit} style={{ width: "30px", paddingBottom: '0px', marginRight: "5px" }} alt="Exit" />
                             </div>
                         </div>
+                        
+                        {
+                            isUsedProject ?
+                                <div style={{ display: 'flex', alignItems: 'center', borderRadius: "5px", padding: "0px", marginTop: "5px" }}>
+                                    <div style={{marginLeft: "auto"}}>
+                                        {
+                                            isSearchInit || order != "" ? <Button text={"초기화"} onClick={handleSearchInit}/> : null
+                                        }
+                                    </div>
+                                </div>
+                                
+                            :   <div style={{ display: 'flex', alignItems: 'center', borderRadius: "5px", border: "Solid #aaa 1px", padding: "10px", marginTop: "5px", height: "60px" }}>
+                                    <div style={{ display: 'flex', gap: "30px", fontSize: "15px"}}>
+                                        <Radio text="공사관리시스템 Used" value="1" name="group1" defaultChecked={selectedValue === "1"} onChange={handleRadioChange}/>
+                                        <Radio text="조직도(STAFF)" value="2" name="group1" defaultChecked={selectedValue === "2"} onChange={handleRadioChange}/>
+                                        <Radio text="전체(ALL)" value="3" name="group1" defaultChecked={selectedValue === "3"} onChange={handleRadioChange}/>
+                                    </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', borderRadius: "5px", border: "Solid #aaa 1px", padding: "10px", marginTop: "5px", height: "60px" }}>
-                            <div style={{ display: 'flex', gap: "30px", fontSize: "15px"}}>
-                                <Radio text="공사관리시스템 Used" value="1" name="group1" defaultChecked={selectedValue === "1"} onChange={handleRadioChange}/>
-                                <Radio text="조직도(STAFF)" value="2" name="group1" defaultChecked={selectedValue === "2"} onChange={handleRadioChange}/>
-                                <Radio text="전체(ALL)" value="3" name="group1" defaultChecked={selectedValue === "3"} onChange={handleRadioChange}/>
-                            </div>
-
-                            <div style={{marginLeft: "auto"}}>
-                                {
-                                    isSearchInit || order != "" ? <Button text={"초기화"} onClick={handleSearchInit}/> : null
-                                }
-                            </div>
-                        </div>
+                                    <div style={{marginLeft: "auto"}}>
+                                        {
+                                            isSearchInit || order != "" ? <Button text={"초기화"} onClick={handleSearchInit}/> : null
+                                        }
+                                    </div>
+                                </div>
+                        }
 
                         <div style={{ 
                             width: '100%', 
