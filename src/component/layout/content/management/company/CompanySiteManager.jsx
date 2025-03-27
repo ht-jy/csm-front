@@ -40,19 +40,12 @@ const CompanySiteManager = ({jno, styles}) => {
     }, [jno]);
 
     return(
-        <>
-            {
-                manager.length === 0 ? null
-                :
                 <Table 
                     columns={columns} 
                     data={manager}
                     noDataText={"-"}
                     styles={styles}
                 />
-            }
-            
-        </>
     );
 }
 export default CompanySiteManager;
