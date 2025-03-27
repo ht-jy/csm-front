@@ -26,6 +26,25 @@ const PaginationWithCustomButtons = ({ dataCount, rowSize=10, fncClickPageNum })
         fncClickPageNum(selected + 1);
     };
 
+    // 이전 버튼 커스텀 핸들러: 10페이지 뒤로 점프
+const handlePrevClick = (e) => {
+    // 기본 이벤트 막기
+    e.preventDefault();
+    e.stopPropagation();
+    const newPage = Math.max(pageNum - 10, 0);
+    setPageNum(newPage);
+    fncClickPageNum(newPage + 1);
+  };
+  
+  // 다음 버튼 커스텀 핸들러: 10페이지 앞으로 점프
+  const handleNextClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const newPage = Math.min(pageNum + 10, pageCount - 1);
+    setPageNum(newPage);
+    fncClickPageNum(newPage + 1);
+  };
+
     // 첫번째 페이지로 이동
     const goToFirstPage = () => {
         setPageNum(0);
@@ -84,8 +103,8 @@ const PaginationWithCustomButtons = ({ dataCount, rowSize=10, fncClickPageNum })
 
                         <ReactPaginate
                             forcePage={pageNum}
-                            previousLabel={"<"}
-                            nextLabel={">"}
+                            previousLabel={<span onClick={handlePrevClick}>{"<"}</span>}
+                            nextLabel={<span onClick={handleNextClick}>{">"}</span>}
                             breakLabel={null}
                             pageCount={pageCount}
                             pageRangeDisplayed={pageRange}

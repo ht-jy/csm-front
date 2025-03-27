@@ -438,10 +438,10 @@ const Table = forwardRef(({
         // data = data.map(item => {
         //     return {...item, row_checked: "N"}
         // });
-
+        console.log(1);
         // 체크모드
-        if(columns[0].isRowCheck && !isEdit){
-            columns[0].itemName = "row_checked";
+        if(columns[0].itemName === "row_checked" && !isEdit){
+            // columns[0].itemName = "row_checked";
             data = data.map(item => {
                 return {...item, row_checked: "N"}
             });
@@ -467,6 +467,7 @@ const Table = forwardRef(({
         if(isEdit !== undefined && !isEdit){
             setTableData(initTableData);
         }
+        console.log(initTableData);
     }, [isEdit]);
 
     // 정렬, 검색 상태값 초기화
@@ -492,7 +493,7 @@ const Table = forwardRef(({
                             onMouseLeave={() => col.isSlide && setHoverState(null)}
                         >
                             {
-                                col.isRowCheck && !isEdit ?
+                                col.itemName === "row_checked" && !isEdit ?
                                     <div>
                                         <CheckInput checkFlag={col.checked} setCheckFlag={(value) => onClickHeaderChecked(value, col.checkType)}/>
                                     </div>
@@ -756,6 +757,8 @@ const Table = forwardRef(({
                                                         style={{height: "28px", padding: 0, fontSize: "13px", paddingLeft: "5px", paddingRight: "5px"}}
                                                     />
                                                 :   null
+                                            :   col.itemName === "row_checked" ?
+                                                    null                                            
                                             :   editInfo[col_idx].editType === "delete" && item[col.itemName] === "ADD_ROW" ?
                                                     <Button
                                                         text={"삭제"}
@@ -813,7 +816,7 @@ const Table = forwardRef(({
                                                     <CheckInput checkFlag={item[col.itemName]} setCheckFlag={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}/>
                                             : item[col.itemName]
                                         /***** Non Edit *****/
-                                        : col.isRowCheck && !isEdit ?
+                                        : col.itemName === "row_checked" ?
                                             <div>
                                                 <CheckInput checkFlag={item[col.itemName]} setCheckFlag={(value) => onClickRowCheck(value, item)}/>
                                             </div>
