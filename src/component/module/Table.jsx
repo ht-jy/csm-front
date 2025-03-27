@@ -61,6 +61,7 @@ const Table = forwardRef(({
     const [editList, setEditList] = useState([]);
     const [addRowIdx, setAddRowIdx] = useState([]);
     const [editAddList, setEditAddList] = useState([]);
+    const [checkedItemList, setCheckedItemList] = useState([]);
 
     // 정렬 아이콘 클릭 시 상태 변경 및 정렬 함수 실행
     const handleSortChange = (itemName) => {
@@ -110,6 +111,79 @@ const Table = forwardRef(({
           .map(item => `${item.name} ${item.order}`)
           .join(", ");
     };
+
+    // header 체크박스 클릭
+    const onClickHeaderChecked = (value, type) => {
+        if(type === "reverse"){
+            onClickReverseCheck(value);
+        }else{
+            onClickAllCheck(value);
+        }
+    }
+
+    // header 체크박스 클릭 - 전체 선택/해제
+    const onClickAllCheck = (value) => {
+        const tableDataCopy = structuredClone(tableData);
+        let newTableData = [];
+        if(value === 'Y'){
+            newTableData = tableDataCopy.map(item => {
+                return {...item, row_checked: "Y"};
+            });
+            setCheckedItemList(newTableData);
+        }else{
+            newTableData = tableDataCopy.map(item => {
+                return {...item, row_checked: "N"};
+            });
+            setCheckedItemList([]);
+        }
+        setTableData(newTableData);
+    }
+
+    // header 체크박스 클릭 - 체크 반전
+    const onClickReverseCheck = (value) => {
+        const tableDataCopy = structuredClone(tableData);
+        let newTableData = [];
+
+        newTableData = tableDataCopy.map(item => {
+            if(item.row_checked === 'Y'){
+                return {...item, row_checked: "N"};
+            }else{
+                return {...item, row_checked: "Y"};
+            }
+            
+        });
+
+        const newCheckedItem = newTableData.filter(item => item.row_checked === "Y");
+        setCheckedItemList(newCheckedItem);
+        setTableData(newTableData);
+    }
+
+    // row 체크박스 클릭
+    const onClickRowCheck = (checked, item) => {
+        const checkedItemListCopy = structuredClone(checkedItemList);
+        let newCheckedItem = [];
+        if(checked === "Y"){
+            newCheckedItem = [...checkedItemList, item];
+        }else{
+            newCheckedItem = checkedItemList.filter(obj => obj.index !== item.index);
+        }
+        setCheckedItemList(newCheckedItem);
+
+        const tableDataCopy = structuredClone(tableData);
+        let newTableData = [];
+        newTableData = tableDataCopy.map(obj => {
+            if(obj.index === item.index){
+                return {...obj, row_checked: checked}
+            }
+            return obj;
+        });
+        setTableData(newTableData);
+    }
+
+    // 체크 선택된 아이템 리스트 반환
+    const getCheckedItemList = () => {
+        return checkedItemList;
+    }
 
     /***** edit *****/
     // 테이블 값 변경 이벤트
@@ -346,7 +420,7 @@ const Table = forwardRef(({
     /***** useImperativeHandle *****/
 
     useImperativeHandle(ref, () => ({
-        addTableEmptyRow, editModeCancel, editTableMode, editModeCancel
+        addTableEmptyRow, editModeCancel, editTableMode, editModeCancel, getCheckedItemList
     }));
 
     /***** useEffect *****/
@@ -360,16 +434,32 @@ const Table = forwardRef(({
 
     // 데이터 초기화
     useEffect(() => {
+        // 수정 금지
+        // data = data.map(item => {
+        //     return {...item, row_checked: "N"}
+        // });
+
+        // 체크모드
+        if(columns[0].isRowCheck && !isEdit){
+            columns[0].itemName = "row_checked";
+            data = data.map(item => {
+                return {...item, row_checked: "N"}
+            });
+        }
+
         let dataCopy = [];
         if(isEdit){
+            /***** 수정 모드 *****/
             dataCopy = structuredClone(data);
             dataCopy.unshift(...editAddList);
         }else{
             dataCopy = structuredClone(data);
         }
+
         setTableData(structuredClone(dataCopy));
         setInitTableData(structuredClone(data));     
         setAddRowIdx(dataCopy.length);
+        setCheckedItemList([]);
     }, [data]);
 
     // 수정모드 취소
@@ -389,9 +479,9 @@ const Table = forwardRef(({
         <table style={{...styles}}>
             <thead className={isHeaderFixed ? "fixed" : ""}>
                 <tr>
-                    {columns.map(col => (
+                    {columns.map((col, idx) => (
                         <th
-                            key={col.itemName}
+                            key={`${col.itemName}${idx}`}
                             className={hoverState === col.itemName ? "th-hover" : ""}
                             style={{
                                 width: col.width,
@@ -401,6 +491,13 @@ const Table = forwardRef(({
                             onMouseEnter={() => col.isSlide && setHoverState(col.itemName)}
                             onMouseLeave={() => col.isSlide && setHoverState(null)}
                         >
+                            {
+                                col.isRowCheck && !isEdit ?
+                                    <div>
+                                        <CheckInput checkFlag={col.checked} setCheckFlag={(value) => onClickHeaderChecked(value, col.checkType)}/>
+                                    </div>
+                                : null
+                            }
                             {/* 검색창이 활성화되지 않은 경우에만 텍스트 표시 */}
                             {!activeSearch[col.itemName] && <span>{col.header}</span>}
                         
@@ -650,7 +747,7 @@ const Table = forwardRef(({
                                 >
                                     {
                                         /***** Edit *****/
-                                        isEdit ?
+                                        isEdit && !item["editState"] ?
                                             item["tableAddRow"] !== undefined && item["tableAddRow"]?
                                                 item[col.itemName] === "ADD_BTN" ?
                                                     <Button
@@ -716,6 +813,10 @@ const Table = forwardRef(({
                                                     <CheckInput checkFlag={item[col.itemName]} setCheckFlag={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}/>
                                             : item[col.itemName]
                                         /***** Non Edit *****/
+                                        : col.isRowCheck && !isEdit ?
+                                            <div>
+                                                <CheckInput checkFlag={item[col.itemName]} setCheckFlag={(value) => onClickRowCheck(value, item)}/>
+                                            </div>
                                         : col.isDate ?
                                             formatDate(item[col.itemName], col.dateFormat)
                                         : col.isItemSplit ? 

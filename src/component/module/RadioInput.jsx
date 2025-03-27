@@ -17,8 +17,7 @@ import Radio from "./Radio";
  * setRadio: 선택 value 반환 받는 함수
  * style: 스타일 객체
  */
-const RadioInput = ({itemName, selectedValue, values, labels, disabled, setRadio, style, temp}) => {
-    // console.log("temp: ", temp, " | selectedValue: ", selectedValue, " | itemName: ", itemName);
+const RadioInput = ({itemName, selectedValue, values, labels, disabled, setRadio, style}) => {
     const [checkedValue, setCheckedValue] = useState("");
 
     const onChangeRadio = (e) => {

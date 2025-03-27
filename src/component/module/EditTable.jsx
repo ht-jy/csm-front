@@ -38,7 +38,7 @@ const EditTable = ({isOpen, columns, data=[]}) => {
                                         textAlign: "center"
                                     }}
                                 >
-                                    {idx === 0 ? "종류" : col.header}
+                                    {columns[0].isRowCheck ? idx === 1 ? "종류" : col.header : idx === 0 ? "종류" : col.header }
                                 </th>
                             ))
                         }
@@ -77,8 +77,16 @@ const EditTable = ({isOpen, columns, data=[]}) => {
                                                     Common[col.valid](item[col.itemName]) ?
                                                         Common[col.format](item[col.itemName])
                                                     :   item[col.itemName]
-                                                : col_idx === 0 ?
-                                                    item[col.itemName] === "ADD_ROW" ? <span style={{color: "blue", fontWeight: "bold"}}>추가</span> : <span style={{color: "green", fontWeight: "bold"}}>수정</span>
+                                                : columns[0].isRowCheck ?
+                                                        col_idx === 1 ?
+                                                            item[col.itemName] === "ADD_ROW" ? 
+                                                                <span style={{color: "blue", fontWeight: "bold"}}>추가</span> 
+                                                            : 
+                                                                <span style={{color: "green", fontWeight: "bold"}}>수정</span>
+                                                        :   item[col.itemName]
+                                                    :
+                                                        col_idx === 0 ?
+                                                        item[col.itemName] === "ADD_ROW" ? <span style={{color: "blue", fontWeight: "bold"}}>추가</span> : <span style={{color: "green", fontWeight: "bold"}}>수정</span>    
                                                 : item[col.itemName]
                                             }
                                         </td>
