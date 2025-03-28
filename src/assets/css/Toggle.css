@@ -1,0 +1,25 @@
+.ToggleWrap {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.Toggle {
+    transition: all 0.3s;
+    position: relative;
+    width: 34px;
+    height: 18px;
+    border-radius: 10px;
+    outline: none;
+    padding: 0 2px;
+}
+
+.ToggleButton {
+    transition: all 0.3s;
+    display: block;
+    width: 14px;
+    height: 14px;
+    border-radius: 8px;
+    margin-top: 2px;
+    background-color: white;
+}
