@@ -19,6 +19,7 @@ import "react-calendar/dist/Calendar.css";
 import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Paginate.css";
 import "../../../../../assets/css/Calendar.css";
+import { use } from "react";
 
 
 /**
@@ -48,6 +49,7 @@ const SiteBase = () => {
         count: 0,
         initialList: [],
         siteNmList: [],
+        workStateCodes: [],
     })
 
     const { user, project } = useAuth();
@@ -81,22 +83,22 @@ const SiteBase = () => {
         { isSearch: true, isOrder: true, width: "190px", header: "부서/조직명", itemName: "department", bodyAlign: "left", isEllipsis: false },
         { isSearch: false, isOrder: true, width: "190px", header: "날짜", itemName: "record_date", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'format' },
         { isSearch: false, isOrder: true, width: "190px", header: "출근시간", itemName: "in_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'formatTime24' },
-        { isSearch: false, isOrder: true, width: "190px", header: "퇴근시간", itemName: "out_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'formatTime12' },
-        { isSearch: false, isOrder: true, width: "190px", header: "상태", itemName: "commute", bodyAlign: "center", isEllipsis: false, isRadio: true, radioValues: ["출근", "퇴근"], radioLabels: ["출근", "퇴근"] },
+        { isSearch: false, isOrder: true, width: "190px", header: "퇴근시간", itemName: "out_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'formatTime24' },
+        { isSearch: false, isOrder: true, width: "190px", header: "상태", itemName: "work_state", bodyAlign: "center", isEllipsis: false, isRadio: true, radioValues: state.workStateCodes.map(item => item.code), radioLabels: state.workStateCodes.map(item => item.code_nm), code: state.workStateCodes },
         { isSearch: false, isOrder: true, width: "190px", header: "마감여부", itemName: "is_deadline", bodyAlign: "center", isEllipsis: false, isChecked: true },
     ];
 
     // 테이블 수정 정보
     const editInfo = [
-        {itemName: "row_check", editType: ""},
+        {itemName: "row_checked", editType: ""},
         {itemName: "rnum", editType: "delete"},
         {itemName: "user_id", editType: "searchModal", selectedModal: "workerByUserId"},
         {itemName: "user_nm", editType: "", dependencyModal: "workerByUserId"},
         {itemName: "department", editType: "", dependencyModal: "workerByUserId"},
         {itemName: "record_date", editType: "", dependencyModal: "workerByUserId"},
         {itemName: "in_recog_time", editType: "time24", defaultValue: "2006-01-02T08:00:00+09:00"},
-        {itemName: "out_recog_time", editType: "time12", defaultValue: "2006-01-02T17:00:00+09:00"},
-        {itemName: "commute", editType: "radio", radioValues: ["출근", "퇴근"], radioLabels: ["출근", "퇴근"], defaultValue: "퇴근"},
+        {itemName: "out_recog_time", editType: "time24", defaultValue: "2006-01-02T17:00:00+09:00"},
+        {itemName: "work_state", editType: "radio", radioValues: state.workStateCodes.map(item => item.code), radioLabels: state.workStateCodes.map(item => item.code_nm), defaultValue: "02"},
         // {itemName: "commute", editType: "toggleText", toggleTexts: ["출근", "퇴근"]},
         {itemName: "is_deadline", editType: "check"},
     ];
@@ -284,6 +286,10 @@ const SiteBase = () => {
     
             } else if(ObjChk.all(item.out_recog_time)){   // 퇴근시간
     
+            } else if(ObjChk.all(item.work_state)){
+                setIsModal(true);
+                setModalText("출퇴근 상태를 선택하세요.");
+                return;
             } else if(item.is_deadline === "Y"){   // 마감여부
                 if(ObjChk.all(item.in_recog_time)){
                     setIsModal(true);
@@ -312,15 +318,18 @@ const SiteBase = () => {
                 in_recog_time: in_recog_time,
                 out_recog_time: out_recog_time,
                 is_deadline: item.is_deadline,
+                work_state: item.work_state,
                 mod_user: user.user_nm,
                 mod_uno: user.uno,
             }
             params.push(param);
         });
+        console.log(params);
+        // return;
         
         setIsLoading(true);
         const res = await Axios.POST("/worker/site-base", params);
-        
+        console.log(res);
         if (res?.data?.result === "Success") {
             setIsModal(true);
             setModalText("근로자 추가/수정에 성공하였습니다.");
@@ -332,6 +341,18 @@ const SiteBase = () => {
         }else {
             setIsModal(true);
             setModalText("근로자 추가/수정에 실패하였습니다.");
+        }
+
+        setIsLoading(false);
+    }
+
+    // 출퇴근상태 코드 조회
+    const getWorkStateDate = async() => {
+        setIsLoading(true);
+
+        const res = await Axios.GET(`/code?p_code=WORK_STATE`);
+        if (res?.data?.result === "Success") {
+            dispatch({ type: "WORK_STATE_CODE", code: res?.data?.values?.list });
         }
 
         setIsLoading(false);
@@ -380,6 +401,10 @@ const SiteBase = () => {
     } = useTableSearch({ columns, getDataFunction: getData, retrySearchText, setRetrySearchText, pageNum, setPageNum, rowSize, setRowSize, order, setOrder, rnumOrder, setRnumOrder, setEditList });
 
     /***** useEffect *****/
+
+    useEffect(() => {
+        getWorkStateDate();
+    }, []);
 
     // 상단 프로젝트 변경
     useEffect(() => {
