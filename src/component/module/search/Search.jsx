@@ -3,8 +3,9 @@ import Select from 'react-select';
 import SearchIcon from "../../../assets/image/search.png";
 import cancelIcon1 from "../../../assets/image/cancel-white.png";
 import cancelIcon2 from "../../../assets/image/cancel-circle.png";
-import "../../../assets/css/Search.css";
 import KeywordPortal from './KeywordPortal';
+import Toggle from '../Toggle';
+import "../../../assets/css/Search.css";
 
 /**
  * @description: 통합검색 컴포넌트
@@ -26,6 +27,7 @@ const Search = ({searchOptions=[], width, fncSearchKeywords, retrySearchText, po
     const [keyword, setKeyword] = useState([]);
     const [selectKey, setSelectKey] = useState("ALL");
     const [text, setText] = useState("");
+    const [isReSearch, setIsReSerach] = useState(false);
 
     // 검색조건 select 변경
     const handleSelectChange = (e) => {
@@ -36,31 +38,66 @@ const Search = ({searchOptions=[], width, fncSearchKeywords, retrySearchText, po
     const handleChangeValue = (e) => {
         setText(e.target.value);
     }
+    
+    // 결과 내 재검색
+    const onClickToggle = (value) => {
+        const keywordCopy = structuredClone(keyword);
+        let newKeyword = [];
+        if(value){
+            newKeyword = keywordCopy.filter(item => item.key !== "TOGGLE");
+        }else{
+            newKeyword = [
+                ...keywordCopy
+                , {
+                    key: "TOGGLE",
+                    label: "결과내재검색",
+                    value: [""],
+                }
+            ];
+        }
+        setKeyword(newKeyword);
+        fncSearchKeywords(setSearchKeyword(newKeyword));
+        setText("");
+    }
 
     // 검색
     const handleSearchValue = () => {
         if (text === "") return;
 
-        let temp;
-        const existingEntry = keyword.find((entry) => entry.key === selectKey);
-        if (existingEntry) {
-            if (existingEntry.value.includes(text)) {
-                temp = keyword;
+        let newKeyword;
+        if(isReSearch){
+            // 결과내재검색
+            const existingEntry = keyword.find((entry) => entry.key === selectKey);
+            if (existingEntry) {
+                if (existingEntry.value.includes(text)) {
+                    newKeyword = keyword;
+                } else {
+                    const updatedEntry = {
+                        ...existingEntry,
+                        value: [...existingEntry.value, text],
+                    };
+                    newKeyword = keyword.map((entry) =>
+                        entry.key === selectKey ? updatedEntry : entry
+                    );
+                }
             } else {
-                const updatedEntry = {
-                    ...existingEntry,
-                    value: [...existingEntry.value, text],
-                };
-                temp = keyword.map((entry) =>
-                    entry.key === selectKey ? updatedEntry : entry
-                );
+                const foundItem = searchOptions.find(item => item.value === selectKey);
+                newKeyword = [...keyword, { key: selectKey, label: foundItem.label, value: [text] }];
             }
-        } else {
+        }else{
+            //일반검색
             const foundItem = searchOptions.find(item => item.value === selectKey);
-            temp = [...keyword, { key: selectKey, label: foundItem.label, value: [text] }];
+            newKeyword = [
+                {
+                    key: selectKey,
+                    label: foundItem.label,
+                    value: [text],
+                }
+            ]
         }
-        setKeyword(temp);
-        fncSearchKeywords(setSearchKeyword(temp));
+        
+        setKeyword(newKeyword);
+        fncSearchKeywords(setSearchKeyword(newKeyword));
         setText("");
     };
 
@@ -96,15 +133,19 @@ const Search = ({searchOptions=[], width, fncSearchKeywords, retrySearchText, po
     useEffect(() => {
         if(retrySearchText === ""){
             setKeyword([]);
-        }        
+        }  
     }, [retrySearchText]);
+
+    // useEffect(() => {
+    //     onClickToggle(isReSearch);
+    // }, []);
 
     return(
         <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
             <KeywordPortal potalId={potalId}>
                 <div className="search-keyword-box">
                     {
-                        keyword.length !== 0 ? 
+                        keyword.length !== 0 && isReSearch ? 
                             keyword.map((item, idx) => (
                                 <div key={idx} className="search-keyword">
                                     <div className="search-label">
@@ -135,6 +176,10 @@ const Search = ({searchOptions=[], width, fncSearchKeywords, retrySearchText, po
                     }
                 </div>
             </KeywordPortal>
+            <div style={{display: "flex", alignItems:"center", marginRight: "10px", marginLeft: "5px"}}>
+                <span style={{width: "90px", fontSize: "13px"}}>결과 내 재검색</span>
+                <Toggle onClickValue={(value) => setIsReSerach(value)}/>
+            </div>
             <Select
                 options={searchOptions}
                 onChange={handleSelectChange}
