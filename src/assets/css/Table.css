@@ -30,7 +30,8 @@ body {
     vertical-align: middle;
   }
   td {
-    padding: .5em .5em;
+    padding-left: 10px;
+    padding-right: 10px;
     vertical-align: middle;
     white-space: pre-line;
     border-bottom: 1px solid rgba(0,0,0,.1);
