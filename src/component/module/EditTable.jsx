@@ -38,7 +38,7 @@ const EditTable = ({isOpen, columns, data=[]}) => {
                                         textAlign: "center"
                                     }}
                                 >
-                                    {columns[0].isRowCheck ? idx === 1 ? "종류" : col.header : idx === 0 ? "종류" : col.header }
+                                    {columns[0].itemName === "row_checked" ? idx === 1 ? "종류" : col.header : idx === 0 ? "종류" : col.header }
                                 </th>
                             ))
                         }
@@ -77,7 +77,7 @@ const EditTable = ({isOpen, columns, data=[]}) => {
                                                     Common[col.valid](item[col.itemName]) ?
                                                         Common[col.format](item[col.itemName])
                                                     :   item[col.itemName]
-                                                : columns[0].isRowCheck ?
+                                                : columns[0].itemName === "row_checked" ?
                                                         col_idx === 1 ?
                                                             item[col.itemName] === "ADD_ROW" ? 
                                                                 <span style={{color: "blue", fontWeight: "bold"}}>추가</span> 
@@ -87,6 +87,10 @@ const EditTable = ({isOpen, columns, data=[]}) => {
                                                     :
                                                         col_idx === 0 ?
                                                         item[col.itemName] === "ADD_ROW" ? <span style={{color: "blue", fontWeight: "bold"}}>추가</span> : <span style={{color: "green", fontWeight: "bold"}}>수정</span>    
+                                                : col.code !== undefined ?
+                                                    col.code.map(code => (
+                                                        item[col.itemName] === code.code ? code.code_nm : null
+                                                    ))                                             
                                                 : item[col.itemName]
                                             }
                                         </td>

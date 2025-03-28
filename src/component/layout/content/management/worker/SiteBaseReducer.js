@@ -15,6 +15,8 @@ const SiteBaseReducer = (state, action) => {
             })
 
             return {...state, siteNmList: JSON.parse(JSON.stringify(siteNmList))};            
+        case "WORK_STATE_CODE":
+            return {...state, workStateCodes: structuredClone(action.code)};
     }
 }
 

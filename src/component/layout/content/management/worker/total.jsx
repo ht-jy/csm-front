@@ -144,8 +144,7 @@ const Total = () => {
             mod_user: user.userName || "",
             mod_uno: user.uno || 0,
         }
-        console.log(worker);
-        // return;
+        
         setIsLoading(true);
         let res;
         if (gridMode === "SAVE") {
@@ -153,7 +152,7 @@ const Total = () => {
         } else {
             res = await Axios.PUT(`/worker/total`, worker);
         }
-        console.log(res);
+        
         if (res?.data?.result === "Success") {
             setModalTitle(`근로자 ${getModeString()}`);
             setModalText(`근로자 ${getModeString()}에 성공하였습니다.`);

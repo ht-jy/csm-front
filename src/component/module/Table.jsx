@@ -62,7 +62,7 @@ const Table = forwardRef(({
     const [addRowIdx, setAddRowIdx] = useState([]);
     const [editAddList, setEditAddList] = useState([]);
     const [checkedItemList, setCheckedItemList] = useState([]);
-
+    
     // 정렬 아이콘 클릭 시 상태 변경 및 정렬 함수 실행
     const handleSortChange = (itemName) => {
         const newOrder = orderState[itemName] === "asc" ? "desc" : orderState[itemName] === "desc" ? null : "asc";
@@ -434,11 +434,6 @@ const Table = forwardRef(({
 
     // 데이터 초기화
     useEffect(() => {
-        // 수정 금지
-        // data = data.map(item => {
-        //     return {...item, row_checked: "N"}
-        // });
-        console.log(1);
         // 체크모드
         if(columns[0].itemName === "row_checked" && !isEdit){
             // columns[0].itemName = "row_checked";
@@ -467,7 +462,6 @@ const Table = forwardRef(({
         if(isEdit !== undefined && !isEdit){
             setTableData(initTableData);
         }
-        console.log(initTableData);
     }, [isEdit]);
 
     // 정렬, 검색 상태값 초기화
