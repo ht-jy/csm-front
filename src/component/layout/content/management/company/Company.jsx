@@ -97,14 +97,14 @@ const Company = () => {
                                             </div>
 
                                             {/* 관리감독자*/}
-                                            <div style={{ width: "100%", height: "100%", minWidth: "970px", marginRight: "5px", overflow: "hidden", borderRadius: "5px", marginLeft:"15px", boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)" }}>
-                                                <CompanySupervisor jno={jno} styles={{ width: "100%", minWidth: "970px" }} />
+                                            <div style={{ width: "100%", height: "100%", minWidth: "1030px", marginRight: "5px", overflow: "hidden", borderRadius: "5px", marginLeft:"15px", boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)" }}>
+                                                <CompanySupervisor jno={jno} styles={{ width: "100%", minWidth: "1030px" }} />
                                             </div>
                                         </div>
 
                                         {/* 협력업체 */}
-                                        <div style={{ width:"100%", height: "100%", minWidth: "1485px", overflow: "hidden", borderRadius: "5px", boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)", marginBottom: "10px" }}>
-                                            <CompanyInfo jno={jno}  styles={{ width: "100%", minWidth: "1485px" }}/>
+                                        <div style={{ width:"100%", height: "100%", minWidth: "1530px", overflow: "hidden", borderRadius: "5px", boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)", marginBottom: "10px" }}>
+                                            <CompanyInfo jno={jno}  styles={{ width: "100%", minWidth: "1530px" }}/>
                                         </div>
                                     </div>
                                 : null

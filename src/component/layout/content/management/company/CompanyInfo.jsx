@@ -53,16 +53,16 @@ const CompanyInfo = ({jno, styles}) => {
         <>
             <table style={{...styles}}>
                 <colgroup>
-                    <col style={{width:"160px"}} />
-                    <col style={{width:"90px"}} />
-                    <col style={{width:"110px"}} />
-                    <col style={{width:"100px"}} />
-                    <col style={{width:"160px"}} />
+                    <col style={{width:"210px"}} />
+                    <col style={{width:"130px"}} />
+                    <col style={{width:"130px"}} />
+                    <col style={{width:"130px"}} />
+                    <col style={{width:"200px"}} />
                     {
                         header.length === 0 ? null
                         :
                         header.map((item, idx) => (
-                            <col style={{ boxSizing: "border-box", width: item.func_name.length >= 3 ? "3rem" : "2.8rem"}} key={idx}/>
+                            <col style={{ boxSizing: "border-box", width: "auto"}} key={idx}/>
                         ))
                     }
                 </colgroup>
@@ -94,11 +94,11 @@ const CompanyInfo = ({jno, styles}) => {
                         :
                         company.map((item, idx) => (
                             <tr key={idx}>
-                                <td>{item.comp_name_kr}</td>
+                                <td style={{padding:"5px 15px"}}>{item.comp_name_kr}</td>
                                 <td className="center">{item.id}</td>
-                                <td>{item.worker_name}</td>
+                                <td style={{padding:"5px 15px"}}>{item.worker_name}</td>
                                 <td className="center">{item.cellphone}</td>
-                                <td>{item.email}</td>
+                                <td style={{padding:"5px 15px"}}>{item.email}</td>
                                 {
                                     Array.from({length: header.length}, (_, i) => (
                                         item.work_infos.includes(i+1) ?

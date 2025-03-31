@@ -59,12 +59,12 @@ const CompanySupervisor = ({jno, styles}) => {
         <>
             <table style={{...styles}}>
             <colgroup>
-                <col style={{width:"200px"}} />
+                <col style={{width:"300px"}} />
                 {
                     header.length === 0 ? null
                     :
                     header.map((item, idx) => (                        
-                            <col style={{width: item.func_name.length >= 3 ? "3rem" : "2.5rem" }} key={idx}/>
+                            <col style={{width: "auto" }} key={idx}/>
                     ))
                 }
             </colgroup>
@@ -92,7 +92,7 @@ const CompanySupervisor = ({jno, styles}) => {
                         :
                         supervisor.map((item, idx) => (
                             <tr key={idx}>
-                                <td style={{padding:"5px"}}>{`${item.user_name} ${item.duty_name} (${item.user_id})`}</td>
+                                <td style={{padding:"5px 10px"}}>{`${item.user_name} ${item.duty_name} (${item.user_id})`}</td>
                                 {
                                     Array.from({length: header.length}, (_, i) => (
                                         item.funcArr.includes(i+1) ?
