@@ -27,7 +27,7 @@ import AddressSearchModal from "../../../../module/modal/AddressSearchModal";
  *  saveBtnClick: 저장버튼 function (저장, 수정 둘다 포함)
  *  removeBtnClick: 삭제버튼 function
  */
-const DetailModal = ({ isOpen, isEditBtn, title, detailData, exitBtnClick, saveBtnClick, isCancle = true }) => {
+const DetailModal = ({ isOpen, isEditBtn, title, detailData=[], exitBtnClick, saveBtnClick, isCancle = true, isSiteAdd=false }) => {
     const [isEdit, setIsEdit] = useState(false);
     const [formData, setFormData] = useState(null);
     const [initialData, setInitialData] = useState({}); // 원본 데이터 저장
@@ -106,13 +106,13 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData, exitBtnClick, saveB
                             {/* 오른쪽 - 버튼 & 닫기 아이콘 */}
                             <div style={{ display: 'flex', alignItems: 'center', paddingBottom: "15px" }}>
                                 {
-                                    isEdit ?
+                                    isEdit || isSiteAdd ?
                                         <div>
                                             <button className="btn btn-primary" onClick={handleSave} name="confirm" style={{marginRight:"10px"}}>
                                                 저장
                                             </button>   
                                             {
-                                                isCancle ?
+                                                isCancle && !isSiteAdd ?
                                                     <button className="btn btn-primary" onClick={handleCancel} name="confirm" style={{marginRight:"10px"}}>
                                                         취소
                                                     </button> 
@@ -122,7 +122,7 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData, exitBtnClick, saveB
                                     :
                                         <div>
                                             {
-                                                isEditBtn ? 
+                                                isEditBtn && !isSiteAdd ? 
                                                     <button className="btn btn-primary" onClick={handleEditMode} name="confirm" style={{marginRight:"10px"}}>
                                                         수정
                                                     </button>
@@ -141,22 +141,23 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData, exitBtnClick, saveB
                         <div className="grid-wrapper">
                             {
                                 formData !== null &&
-                                <DetailSite 
-                                isEdit={isEdit}
-                                detailData={formData}
-                                handleChangeValue={handleChangeValue}
-                                addressData={address}
+                                    <DetailSite 
+                                    isEdit={isEdit}
+                                    detailData={formData}
+                                    handleChangeValue={handleChangeValue}
+                                    addressData={address}
+                                    isSiteAdd={isSiteAdd}
                                 />
                                 
                                 
                             }
 
                             {
-                                detailData?.project_list.length !== 0 ?
+                                detailData.length !== 0 && detailData?.project_list?.length !== 0 ?
                                 <>
                                     <div className="grid-division"></div>
                                     {
-                                        detailData?.project_list.map((item, idx) => (
+                                        detailData?.project_list?.map((item, idx) => (
                                             <DetailProject 
                                                 key={idx}
                                                 data={item}

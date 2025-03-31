@@ -24,7 +24,7 @@ import Map from "../../../../module/Map";
  * - DateInput: 커스텀 캘린더
  * 
  */
-const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
+const DetailSite = ({isEdit, detailData, handleChangeValue, addressData, isSiteAdd}) => {
     const [data, setData] = useState(null);
     const [openingDate, setOpeningDate] = useState(dateUtil.now());
     const [closingPlanDate, setClosingPlanDate] = useState(dateUtil.now());
@@ -76,6 +76,7 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
 
     // 캘린더에 사용할 수 있도록 날짜 데이터 초기화 및 textarea 반영을 위해 비고 초기화
     const setDateInit = () => {
+        console.log(detailData);
         setOpeningDate(dateUtil.format(detailData.site_date.opening_date));
         setClosingPlanDate(dateUtil.format(detailData.site_date.closing_plan_date));
         setClosingForecastDate(dateUtil.format(detailData.site_date.closing_forecast_date));
@@ -86,12 +87,15 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
 
     // 날씨 api 정보 확인
     const getIsWhether = (whether) => {
-        if(whether.length === 0) return false;
+        if(whether?.length === 0) return false;
         return true;
     }
 
     // 날씨(강수형태)
     const getPtyData = (whether) => {
+        if(whether === undefined){
+            return;
+        }
         const temp = whether?.filter(item => item.key === "PTY");
         switch(temp[0]?.value){
             case "0": 
@@ -148,18 +152,27 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
 
     // 날씨(강수량)
     const getRn1Data = (whether) => {
+        if(whether === undefined){
+            return;
+        }
         const temp = whether?.filter(item => item.key === "RN1");
         return ` 강수량: ${temp[0]?.value}(㎜) `;
     }
 
     // 날씨(기온)
     const getT1hData = (whether) => {
+        if(whether === undefined){
+            return;
+        }
         const temp = whether?.filter(item => item.key === "T1H");
         return ` 기온: ${temp[0]?.value}(°C) `;
     }
 
     // 날씨(풍속,풍향)
     const getWindData = (whether) => {
+        if(whether === undefined){
+            return;
+        }
         const temp1 = whether?.filter(item => item.key === "WSD");
         const temp2 = whether?.filter(item => item.key === "VEC");
         return ` ${temp2[0]?.value} ${temp1[0]?.value}(㎧) `;
@@ -167,7 +180,10 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
 
     useEffect(() => {
         setData(detailData);
-        setDateInit();
+        console.log(detailData);
+        if(detailData.site_date !== undefined){
+            setDateInit();
+        }
     }, [isEdit]);
 
     useEffect(() => {
@@ -251,7 +267,7 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
                             <DateInput time={openingDate} setTime={setOpeningDate}></DateInput>
                         ) : (
                             <div className="read-only-input">
-                                {dateUtil.format(data.site_date.opening_date)}
+                                {dateUtil.format(data?.site_date?.opening_date)}
                             </div>
                         )}
                     </div>
@@ -267,7 +283,7 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
                             <DateInput time={closingPlanDate} setTime={setClosingPlanDate}></DateInput>
                         ) : (
                             <div className="read-only-input">
-                                {dateUtil.format(data.site_date.closing_plan_date)}
+                                {dateUtil.format(data?.site_date?.closing_plan_date)}
                             </div>
                         )}
                     </div>
@@ -283,7 +299,7 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
                             <DateInput time={closingForecastDate} setTime={setClosingForecastDate}></DateInput>
                         ) : (
                             <div className="read-only-input">
-                                {dateUtil.format(data.site_date.closing_forecast_date)}
+                                {dateUtil.format(data?.site_date?.closing_forecast_date)}
                             </div>
                         )}
                     </div>
@@ -299,7 +315,7 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
                             <DateInput time={closingActualDate} setTime={setClosingActualDate}></DateInput>
                         ) : (
                             <div className="read-only-input">
-                                {dateUtil.format(data.site_date.closing_actual_date)}
+                                {dateUtil.format(data?.site_date?.closing_actual_date)}
                             </div>
                         )}
                     </div>
@@ -341,7 +357,7 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
                             addressData !== null ?
                             `${addressData?.roadAddress}` 
                             :
-                                `${data.site_pos.road_address}`
+                                `${data?.site_pos?.road_address}`
                             }
                             {isEdit ? (
                                 <Button
@@ -410,7 +426,7 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData}) => {
 
             {/* 두 번째 열 */}
             <div className="form-control" style={{ gridColumn: "2", gridRow: "2 / span 9" }}>
-                 <Map roadAddress={data.site_pos.road_address}></Map>
+                 <Map roadAddress={data?.site_pos?.road_address}></Map>
             </div>
         </div>
     </>

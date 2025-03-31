@@ -26,6 +26,7 @@ const Map = ( {roadAddress} ) => {
     const [isModal, setIsModal] = useState(false);
 
     const getPoint = async () => {
+        console.log(roadAddress);
         // vworld상 좌표값을 얻기 위한 요청
         const res = await Axios.GET(`/site/point?roadAddress=${roadAddress}`)
         if (res?.data?.result === "Success") {

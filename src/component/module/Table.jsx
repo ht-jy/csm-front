@@ -821,6 +821,8 @@ const Table = forwardRef(({
                                             .split("|")
                                             .map(itemName => item[itemName])
                                             .join(' ')
+                                        : col.addItem ?
+                                            item[col.itemName] + " " + item[col.addItem]                                        
                                         : col.isChecked ?
                                             item[col.itemName] === 'Y' ?
                                                 <img 
