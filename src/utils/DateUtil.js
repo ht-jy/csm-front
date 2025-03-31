@@ -77,7 +77,7 @@ export const dateUtil = {
     parseToGo(dateStr) {
         if (!dateStr || dateStr === '0001-01-01T00:00:00Z') return "0001-01-01T00:00:00Z";
         try {
-            return format(dateStr, "yyyy-MM-dd") + "T00:00:00Z"  
+            return format(dateStr, "yyyy-MM-dd") + "T23:59:59+09:00"  
 
         }catch (error){
             return "0001-01-01T00:00:00Z";
