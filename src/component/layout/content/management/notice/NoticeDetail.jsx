@@ -242,16 +242,6 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
         }
     }, [gridMode])
 
-    // useEffect(() => {
-        // if(isGetGridModal === false && isPostGridModal === false){
-        //     // FIXME: 수정 삭제 작성자에게만 주는 권한
-        //     // setIsAuthorization(false)
-        //     setIsDetail(false)
-        //     setGridMode("DETAIL")
-        // }
-
-    // }, [isGetGridModal, isPostGridModal])
-
     useEffect(() => {
         if (isDetail === true && notice.length != 0) {                    
             handleGetGridModal("DETAIL", notice[0]);
@@ -261,9 +251,6 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
         }
     }, [isDetail])
 
-    // useEffect(() => {
-
-    // })
     return (
         <div>
             <Loading isOpen={isLoading} />

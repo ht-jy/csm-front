@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import {Axios} from "../../utils/axios/Axios"
 import markerIcon from "../../assets/image/marker.png"
+import markerZoomIcon from "../../assets/image/markerZoom.png"
+// import markerZoomIcon from "../../assets/image/markerZoom(2).png"
 import Modal from "./Modal";
 import zoomInIcon from "../../assets/image/zoom-in.png"
 import zoomOutIcon from "../../assets/image/zoom-out.png"
@@ -39,43 +41,43 @@ const Map = ( {roadAddress} ) => {
         }
     }
 
-   const handleZoomClick = () => {
-        if (point === null) return;
-        console.log("zoomOpen", zoomOpen)
-        window.vw.ol3.MapOptions = {
-            basemapType: window.vw.ol3.BasemapType.GRAPHIC
-            , controlDensity: window.vw.ol3.DensityType.EMPTY
-            , interactionDensity: window.vw.ol3.DensityType.BASIC
-            , controlsAutoArrange: true
-            , homePosition: window.vw.ol3.CameraPosition
-            , initPosition: window.vw.ol3.CameraPosition
-        } 
+    // const handleZoomClick = () => {
+    //     if (point === null) return;
 
-        const vMapZoom = new window.vw.ol3.Map("vMapZoom", window.vw.ol3.MapOptions);
-        console.log(vMapZoom.getView())
-        vMapZoom.getView().setCenter([Number(point.x), Number(point.y)]);
-        vMapZoom.getView().setZoom(18);
+    //     window.vw.ol3.MapOptions = {
+    //         basemapType: window.vw.ol3.BasemapType.GRAPHIC
+    //         , controlDensity: window.vw.ol3.DensityType.EMPTY
+    //         , interactionDensity: window.vw.ol3.DensityType.BASIC
+    //         , controlsAutoArrange: true
+    //         , homePosition: window.vw.ol3.CameraPosition
+    //         , initPosition: window.vw.ol3.CameraPosition
+    //     } 
 
-            // 마커 설정하기
-        const markerLayer = new window.vw.ol3.layer.Marker(vMapZoom);
-        vMapZoom.addLayer(markerLayer);
-        window.vw.ol3.markerOption = {
-            x : point.x,
-            y : point.y,
-            epsg : "EPSG:900913",
-            iconUrl : markerIcon,
+    //     const vMapZoom = new window.vw.ol3.Map("vMapZoom", window.vw.ol3.MapOptions);
+
+    //     vMapZoom.getView().setCenter([Number(point.x), Number(point.y)]);
+    //     vMapZoom.getView().setZoom(18);
+        
+    //     // 마커 설정하기
+    //     const markerLayer = new window.vw.ol3.layer.Marker(vMapZoom);
+    //     vMapZoom.addLayer(markerLayer);
+    //     window.vw.ol3.markerOption = {
+    //         x : point.x,
+    //         y : point.y,
+    //         epsg : "EPSG:900913",
+    //         iconUrl : markerIcon,
             
-            text : {
-                offsetX: 0.5, //위치설정
-                offsetY: 20,   //위치설정
-                fill: {color: '#000'},
-                stroke: {color: '#fff', width: 2},
-            },
-        }
+    //         text : {
+    //             offsetX: 0.5, //위치설정
+    //             offsetY: 20,   //위치설정
+    //             fill: {color: '#000'},
+    //             stroke: {color: '#fff', width: 2},
+    //         },
+    //     }
 
-        markerLayer.addMarker(window.vw.ol3.markerOption);
+    //     markerLayer.addMarker(window.vw.ol3.markerOption);
             
-    }
+    // }
 
 
     useEffect( () => {
@@ -124,9 +126,15 @@ const Map = ( {roadAddress} ) => {
         } 
 
         const vMapZoom = new window.vw.ol3.Map("vMapZoom", window.vw.ol3.MapOptions);
-        console.log(vMapZoom.getView())
         vMapZoom.getView().setCenter([Number(point.x), Number(point.y)]);
         vMapZoom.getView().setZoom(18);
+
+        const zoom = new window.vw.ol3.control.Zoom(vMapZoom);
+        zoom.sliderVisible = true;
+        zoom.site = window.vw.ol3.SiteAlignType.CENTER_RIGHT;
+        zoom.draw();
+        vMapZoom.addControl(zoom);
+
 
             // 마커 설정하기
         const markerLayer = new window.vw.ol3.layer.Marker(vMapZoom);
@@ -135,7 +143,7 @@ const Map = ( {roadAddress} ) => {
             x : point.x,
             y : point.y,
             epsg : "EPSG:900913",
-            iconUrl : markerIcon,
+            iconUrl : markerZoomIcon,
             
             text : {
                 offsetX: 0.5, //위치설정
@@ -148,6 +156,7 @@ const Map = ( {roadAddress} ) => {
         markerLayer.addMarker(window.vw.ol3.markerOption);
 
     }, [zoomOpen])
+
     useEffect(() => {
         if (map === null) {
 
@@ -217,7 +226,6 @@ const Map = ( {roadAddress} ) => {
                     src={zoomInIcon}
                     onClick={() => {
                         setZoomOpen(true);
-                        handleZoomClick()
                     }}
                 >
                 </img>
