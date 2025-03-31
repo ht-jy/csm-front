@@ -82,6 +82,10 @@ const handlePrevClick = (e) => {
         fncClickPageNum(1);
     }, [rowSize]);
 
+    useEffect(() => {
+        handlePageClick({ selected: 0});
+    }, [dataCount]);
+
     return (
         <div className="pagination-wrapper">
             {/* 왼쪽 정렬 텍스트 */}

@@ -5,6 +5,7 @@ import { dateUtil } from "../../../../../utils/DateUtil";
 import SiteReducer from "./SiteReducer"
 import DetailModal from "./DetailModal";
 import Loading from "../../../../module/Loading";
+import NonUsedProjectModal from "../../../../module/modal/NonUsedProjectModal";
 import whether0 from "../../../../../assets/image/whether/0.png";
 import whether1 from "../../../../../assets/image/whether/1.png";
 import whether2 from "../../../../../assets/image/whether/2.png";
@@ -14,6 +15,7 @@ import whether5 from "../../../../../assets/image/whether/5.png";
 import whether6 from "../../../../../assets/image/whether/6.png";
 import whether7 from "../../../../../assets/image/whether/7.png";
 import Modal from "../../../../module/Modal";
+import Button from "../../../../module/Button";
 
 /**
  * @description: 현장 관리 페이지
@@ -45,7 +47,10 @@ const Site = () => {
     const [isDetail, setIsDetail] = useState(false);
     const [detailTitle, setDetailTitle] = useState("");
     const [detailData, setDetailData] = useState({});
+    const [isSiteAdd, setIsSiteAdd] = useState({});
+    const [isNonPjModal, setIsNonPjModal] = useState(false);
 
+    // 현장 상세
     const onClickRow = (idx) => {
         let item;
         if(state.list[idx].type === "main") {
@@ -62,6 +67,28 @@ const Site = () => {
         setDetailTitle(`${item.site_nm} 상세`)
         setDetailData(item);
         setIsDetail(true);
+        setIsSiteAdd(false);
+    }
+
+    // 현장 관리 추가
+    const onClickSaveBtn = () => {
+        setIsNonPjModal(true);
+    }
+
+    // 현장 관리 추가 창 닫기
+    const handleAddSiteModalExitBtn = () => {
+        setIsNonPjModal(false);
+    }
+
+    // 현장 관리 추가 - 선택한 프로젝트 번호
+    const handleOnClickProjectRow = (jno) => {
+        console.log(jno);
+    }
+
+    // 현장 상세 화면 종료
+    const handleExitBtn = () => {
+        setIsDetail(false);
+        setDetailData({});
     }
 
     // 날씨 api 정보 확인
@@ -233,6 +260,11 @@ const Site = () => {
                 confirm={"확인"}
                 fncConfirm={() => setIsOpenModal(false)}
             />
+            <NonUsedProjectModal
+                isOpen={isNonPjModal}
+                fncExit={handleAddSiteModalExitBtn}
+                onClickRow={handleOnClickProjectRow}
+            />
             {
                 isDetail &&
                 <DetailModal 
@@ -240,14 +272,18 @@ const Site = () => {
                     title={detailTitle}
                     detailData={detailData}
                     isEditBtn={true}
-                    exitBtnClick={() => setIsDetail(false)}
+                    exitBtnClick={handleExitBtn}
                     saveBtnClick={(data) => saveData(data)}
+                    isSiteAdd={isSiteAdd}
                 />
             }
             <div className="container-fluid px-4">
                 <ol className="breadcrumb mb-2 content-title-box">
                     <li className="breadcrumb-item content-title">현장 관리</li>
                     <li className="breadcrumb-item active content-title-sub">관리</li>
+                    <div className="table-header-right">
+                        <Button text={"추가"} onClick={() => onClickSaveBtn()} />
+                    </div>
                 </ol>
 
                 <div className="card mb-4">
