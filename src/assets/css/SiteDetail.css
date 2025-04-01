@@ -88,6 +88,7 @@
     margin-bottom: 10px;
     display: flex;
     align-items: center;
+    width: 965px;
 }
 
 .grid-project-organization-container {
@@ -99,8 +100,8 @@
     border-radius: 8px;
     width: 35px;
     height: 35px;
-    margin-left: auto;
     cursor: pointer;
+    margin-left: auto;
 }
 
 .text-overflow {
