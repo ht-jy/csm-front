@@ -73,7 +73,7 @@ export const dateUtil = {
             return null;
         }
     },
-    // "yyyy-MM-dd" -> go의 date 포맷으로 변경
+    // "yyyy-MM-dd" -> go의 date 포맷으로 변경 (T23:59:59+09:00)
     parseToGo(dateStr) {
         if (!dateStr || dateStr === '0001-01-01T00:00:00Z') return "0001-01-01T00:00:00Z";
         try {

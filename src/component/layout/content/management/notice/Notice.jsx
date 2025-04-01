@@ -74,8 +74,8 @@ const Notice = () => {
         { header: "프로젝트", width: "120px", itemName: "job_name", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true},
         { header: "제목", width: "190px", itemName: "title", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true, boldItemName: "is_important", importantName: "is_important"},
         { header: "등록자", width: "60px", itemName: "user_info", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: true},
-        { header: "게시시작일", width: "60px", itemName: "reg_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format"},
-        { header: "게시마감일", width: "60px", itemName: "posting_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format"},
+        { header: "게시시작일", width: "60px", itemName: "posting_start_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format"},
+        { header: "게시마감일", width: "60px", itemName: "posting_end_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format"},
     ]
 
     // [테이블] 행 클릭 시 상세페이지 
@@ -105,6 +105,7 @@ const Notice = () => {
         setIsLoading(false);
     }
 
+    // 상세페이지 상태 변경
     const handleOpenDetail = (openState) => {
         setIsDetail(openState)
     }
@@ -122,6 +123,7 @@ const Notice = () => {
         handlePageClick
     } = useTableSearch({ columns, getDataFunction: getNotices, pageNum, setPageNum, rowSize, setRowSize, order, setOrder })
 
+    // 프로젝트 변경, 상세페이지 내용 변경 시 다시 데이터 불러오기
     useEffect(() => {
         if (isDetail === false) {
             getNotices()

@@ -253,7 +253,7 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
                                                 <div className="col-md-2 fw-bold">등록자</div>
                                                     <div className="col-md-3">{data.user_info}</div>
                                                     <div className="col-md-2 fw-bold">게시일</div>
-                                                    <div className="col-md-3">{dateUtil.format(data.reg_date, "yyyy-MM-dd")} ~ {dateUtil.format(data.posting_date, "yyyy-MM-dd")}</div>
+                                                    <div className="col-md-3">{dateUtil.format(data.posting_start_date, "yyyy-MM-dd")} ~ {dateUtil.format(data.posting_end_date, "yyyy-MM-dd")}</div>
                                                     </div>
                                                     <div className="row mt-2">        
                                                     <div className="col-md-2 fw-bold">중요공지여부</div>
