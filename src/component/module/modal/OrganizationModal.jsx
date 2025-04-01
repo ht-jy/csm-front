@@ -4,6 +4,7 @@ import Exit from "../../../assets/image/exit.png";
 import { Axios } from "../../../utils/axios/Axios";
 import { useAuth } from "../../context/AuthContext";
 import "../../../assets/css/Table.css"
+import Modal from "../Modal";
 
 // 조직도 모달
 const OrganizationModal = ({isOpen, fncExit}) => {
@@ -11,11 +12,15 @@ const OrganizationModal = ({isOpen, fncExit}) => {
     const { project } = useAuth();
     const [ client, setClient ] = useState([]);
     const [ hitech, setHitech ] = useState([]);
+    const [ modalOpen, setModalOpen ] = useState(false);
+
+
     const handleExitScrollUnset = (e) => {
         document.body.style.overflow = 'unset';
         fncExit();
     }
 
+    // 조직도가 열린 경우, 바깥영역의 스크롤 없애기
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden";
@@ -36,6 +41,7 @@ const OrganizationModal = ({isOpen, fncExit}) => {
         }
     }, [isOpen]);
 
+    // 조직도 데이터 가져오기
     const getOrganization = async () => {
         if (project?.jno != null) {
             const res = await Axios.GET(`/project/organization/${project.jno}`)
@@ -46,19 +52,39 @@ const OrganizationModal = ({isOpen, fncExit}) => {
         }
     }
 
+
+    // 조직도 열림 상태와 프로젝트가 변경된 경우
     useEffect (() => {
+        // 데이터 불러오기
         getOrganization()
-        if (project === null){
+
+        // 프로젝트가 없는 경우 프로젝트 선택 모달 띄우기
+        if (isOpen === true && project === null) {
+            setModalOpen(true)
             setClient([])
             setHitech([])
         }
+
     }, [project, isOpen])
 
     return <>
-    {
+            {
                 isOpen ?
+
                 <div style={overlayStyle}>
                     <div style={modalStyle}>
+                        <Modal
+                            isOpen={modalOpen}
+                            title={"조직도"}
+                            text={"프로젝트를 선택해주세요."}
+                            confirm={"확인"}
+                            fncConfirm={() => {
+                                setModalOpen(false)
+                                fncExit()
+                            }}
+                        >
+                        </Modal> 
+                        
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: "#ddd", borderRadius: "5px", height: "40px", margin : "5px 0px"}}>
                             <h2 style={{fontSize: "15px", color: "black", paddingLeft: "10px"}}>조직도</h2>
 
