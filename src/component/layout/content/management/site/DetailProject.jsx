@@ -2,6 +2,7 @@ import { useState } from "react";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import Organization from "../../../../../assets/image/organization_chart.png";
 import OrganizationModal from "../../../../module/modal/OrganizationModal";
+import Button from "../../../../module/Button";
 
 /**
  * @description: 프로젝트 상세 컴포넌트
@@ -14,9 +15,9 @@ import OrganizationModal from "../../../../module/modal/OrganizationModal";
  * - dateUtil: 날짜 포맷
  * 
  */
-const DetailProject = ({data, projectNo, projectLength, isMain}) => {
+const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickDeleteBtn}) => {
     const [isOrganizationOpen, setIsOrganizationOpen] = useState(false);
-
+    
     // 프로젝트 제목
     const projectTitle = () => {
         let title = "";
@@ -56,9 +57,13 @@ const DetailProject = ({data, projectNo, projectLength, isMain}) => {
             <div className="form-control grid-project-bc" style={{ gridColumn: "1 / span 2", gridRow: "1", border: "none" }}>
                 <div className="grid-project-title">
                     <span>{`프로젝트 상세 ${projectTitle()}`}</span>
-                    <div className="grid-project-organization-container" onClick={onClickOrganization}>
-                        <img src={Organization} style={{width: "20px"}}/>
-                    </div>
+                    {isEdit ? 
+                        !isMain && <Button text={"삭제"} style={{marginLeft: "auto"}} onClick={() => onClickDeleteBtn(data.jno)}/>
+                    :
+                        <div className="grid-project-organization-container" onClick={onClickOrganization}>
+                            <img src={Organization} style={{width: "20px"}}/>
+                        </div>
+                    }
                 </div>
                 
             </div>

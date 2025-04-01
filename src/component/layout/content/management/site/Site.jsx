@@ -80,7 +80,7 @@ const Site = () => {
             }
         }
 
-        setDetailTitle(`${item.site_nm} 상세`)
+        setDetailTitle(`${item.site_nm}`)
         setDetailData(item);
         setIsDetail(true);
         setIsSiteAdd(false);
@@ -97,8 +97,8 @@ const Site = () => {
     }
 
     // 현장 관리 추가 프로젝트 선택
-    const handleOnClickProjectRow = (jno) => {
-        setAddSiteJno(jno);
+    const handleOnClickProjectRow = (item) => {
+        setAddSiteJno(item.jno);
         setIsModal2(true);
         setModalTitle2("현장 생성");
         setModalText2("선택한 프로젝트로 현장을 생성하겠습니까?");
@@ -167,7 +167,6 @@ const Site = () => {
 
     // 현장 데이터 수정
     const saveData = async (data) => {
-
         data = {
             ...data,
             mod_uno: user.uno,
@@ -346,6 +345,7 @@ const Site = () => {
                 isDetail &&
                 <DetailModal 
                     isOpen={isDetail}
+                    setIsOpen={setIsDetail}
                     title={detailTitle}
                     detailData={detailData}
                     isEditBtn={true}

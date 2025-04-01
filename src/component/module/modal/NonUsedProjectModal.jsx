@@ -55,7 +55,7 @@ const NonUsedProjectModal = ({isOpen=false, fncExit, onClickRow}) => {
 
     // 테이블 리스트 클릭
     const handleRowClick = (item) => {
-        onClickRow(item.jno);
+        onClickRow(item);
         fncExit();
     }
 
