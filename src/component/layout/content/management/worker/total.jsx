@@ -77,7 +77,7 @@ const Total = () => {
     const {isGridModal, setIsGridModal, gridMode, setGridMode, detail, setDetail, isMod, setIsMod} = useGridModalControlState();
 
     const columns = [
-        { isSearch: false, isOrder: true, isSlide: true, width: "50px", header: "순번", itemName: "rnum", bodyAlign: "center", isEllipsis: false, isDate: false },
+        { isSearch: false, isOrder: true, isSlide: true, width: "50px", header: "순번", itemName: "rnum", bodyAlign: "center", isEllipsis: false, isDate: false, type: "number" },
         { isSearch: true, isOrder: true, isSlide: false, width: "100px", header: "아이디", itemName: "user_id", bodyAlign: "center", isEllipsis: false, isDate: false, isFormat: true, format: "maskResidentNumber", valid: "isValidResidentNumber" },
         { isSearch: true, isOrder: true, isSlide: false, width: "150px", header: "근로자 이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "150px", header: "부서/조직명", itemName: "department", bodyAlign: "left", isEllipsis: false, isDate: false },

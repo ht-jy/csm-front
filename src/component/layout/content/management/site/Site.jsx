@@ -2,6 +2,7 @@ import { useState, useEffect, useReducer } from "react";
 import "../../../../../assets/css/Table.css";
 import { Axios } from "../../../../../utils/axios/Axios"
 import { dateUtil } from "../../../../../utils/DateUtil";
+import { useAuth } from "../../../../context/AuthContext";
 import SiteReducer from "./SiteReducer"
 import DetailModal from "./DetailModal";
 import Loading from "../../../../module/Loading";
@@ -16,6 +17,7 @@ import whether6 from "../../../../../assets/image/whether/6.png";
 import whether7 from "../../../../../assets/image/whether/7.png";
 import Modal from "../../../../module/Modal";
 import Button from "../../../../module/Button";
+import { Common } from "../../../../../utils/Common";
 
 /**
  * @description: 현장 관리 페이지
@@ -40,8 +42,9 @@ const Site = () => {
         code: [],
     })
 
+    const { user } = useAuth();
+
     const [isValidation, setIsValidation] = useState(true);
-    const [isOpenModal, setIsOpenModal] = useState(false);
     const [isMod, setIsMod] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isDetail, setIsDetail] = useState(false);
@@ -49,6 +52,19 @@ const Site = () => {
     const [detailData, setDetailData] = useState({});
     const [isSiteAdd, setIsSiteAdd] = useState({});
     const [isNonPjModal, setIsNonPjModal] = useState(false);
+    const [addSiteJno, setAddSiteJno] = useState("");
+
+    // modal - 현장 수정용
+    const [isOpenModal, setIsOpenModal] = useState(false);
+    const [modalTitle, setModalTitle] = useState("");
+    const [modalText, setModalText] = useState("");
+    // modal - 현장 추가용
+    const [isModal2, setIsModal2] = useState(false);
+    const [modalTitle2, setModalTitle2] = useState("");
+    const [modalText2, setModalText2] = useState("");
+    const [modal2type, setModal2Type] = useState("");
+    const [modal2Confirm, setModal2Confirm] = useState("");
+    const [modal2Cancel, setModal2Cancel] = useState("");
 
     // 현장 상세
     const onClickRow = (idx) => {
@@ -80,9 +96,61 @@ const Site = () => {
         setIsNonPjModal(false);
     }
 
-    // 현장 관리 추가 - 선택한 프로젝트 번호
+    // 현장 관리 추가 프로젝트 선택
     const handleOnClickProjectRow = (jno) => {
-        console.log(jno);
+        setAddSiteJno(jno);
+        setIsModal2(true);
+        setModalTitle2("현장 생성");
+        setModalText2("선택한 프로젝트로 현장을 생성하겠습니까?");
+        setModal2Confirm("예");
+        setModal2Cancel("아니요");
+        setModal2Type("ADD_SITE");
+    }
+
+    // 현장 생성 확인 모달 "예"
+    const handleModal2Confirm = () => {
+        if(modal2type === "ADD_SITE"){
+            setIsModal2(false);
+            addSite();
+        }else if(modal2type === "ADD_SITE_RES") {
+            setIsModal2(false);
+        }
+    }
+
+    // 현장 생성 확인 모달 "아니요"
+    const handleModal2Cancel = () => {
+        if(modal2type === "ADD_SITE"){
+            setAddSiteJno("");
+            setIsModal2(false);
+        }else if(modal2type === "ADD_SITE_RES") {
+            setIsModal2(false);
+        }
+    }
+
+    // 현장 관리 추가
+    const addSite = async() => {
+        const param = {
+            jno: addSiteJno,
+            uno: user.uno,
+            user_name: user.userName
+        };
+
+        setIsLoading(true);
+        const res = await Axios.POST("/site", param);
+        
+        setModalTitle2("현장 생성");
+        if (res?.data?.result === "Success") {
+            setModalText2("선택한 프로젝트로 현장이 생성되었습니다.");
+            getData();
+        }else{
+            setModalText2("선택한 프로젝트로 현장을 생성하는데 실패하였습니다.");
+        }
+        setModal2Confirm("확인");
+        setModal2Cancel("");
+        setModal2Type("ADD_SITE_RES");
+        setIsModal2(true);
+
+        setIsLoading(false);
     }
 
     // 현장 상세 화면 종료
@@ -97,27 +165,21 @@ const Site = () => {
         return true;
     }
 
+    // 현장 데이터 수정
     const saveData = async (data) => {
-
-        if (data?.site_pos?.road_address === null || data?.site_pos?.road_address == "") {
-            setIsValidation(false);
-            setIsOpenModal(true);
-            return
-        }
         
         const res  = await Axios.PUT("/site", data)
-
+        
         if( res?.data?.result === "Success"){
-            setIsMod(true);
-            setIsOpenModal(true);
+            setModalText("현장 수정에 성공하였습니다.")
             setIsDetail(false);
             getData();
         }else {
+            setModalText("현장 수정에 실패하였습니다.")
             setIsMod(false);
-            setIsOpenModal(true);
         }
-
-
+        setModalTitle("현장관리 수정")
+        setIsOpenModal(true);
     }
 
     // 날씨(강수형태)
@@ -255,10 +317,19 @@ const Site = () => {
             />
             <Modal
                 isOpen={isOpenModal}
-                title={isValidation ?  (isMod ? "요청 성공" : "요청 실패") : "입력 오류" }
-                text={ isValidation ?  (isMod ? "성공하였습니다." : "실패하였습니다.") : "주소를 입력해주세요."}
+                title={modalTitle}
+                text={modalText}
                 confirm={"확인"}
                 fncConfirm={() => setIsOpenModal(false)}
+            />
+            <Modal
+                isOpen={isModal2}
+                title={modalTitle2}
+                text={modalText2}
+                confirm={modal2Confirm}
+                fncConfirm={handleModal2Confirm}
+                cancel={modal2Cancel}
+                fncCancel={handleModal2Cancel}
             />
             <NonUsedProjectModal
                 isOpen={isNonPjModal}
@@ -358,41 +429,45 @@ const Site = () => {
                                             {/* 누계 */}
                                             <td className="right" rowSpan={item.rowSpan} style={{fontWeight: "bold"}}>
                                                 {
-                                                    item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_all), 0)
+                                                    Common.formatNumber(item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_all), 0))
                                                 }
                                             </td>
                                             {/* 공사 */}
                                             <td className="right">
                                                 {
-                                                    item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_work), 0)
+                                                    Common.formatNumber(item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_work), 0))
                                                 }
                                             </td>
                                             {/* 안전 */}
                                             <td className="right">
                                                 {
-                                                    item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_safe), 0)
+                                                    Common.formatNumber(item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_safe), 0))
                                                 }
                                             </td>
                                             {/* 관리 */}
                                             <td className="right">
                                                 {
-                                                    item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_manager), 0)
+                                                    Common.formatNumber(item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_manager), 0))
                                                 }
                                             </td>
                                             {/* 근로자 */}
                                             <td className="right">
                                                 {
-                                                    item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_not_manager), 0)
+                                                    Common.formatNumber(item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_not_manager), 0))
                                                 }
                                             </td>
                                             {/* 소계 */}
                                             <td className="right" style={{fontWeight: "bold"}}>
                                                 {
-                                                    item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_date), 0)
+                                                    Common.formatNumber(item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_date), 0))
                                                 }
                                             </td>
                                             {/* 장비 */}
-                                            <td className="right" style={{fontWeight: "bold"}}>0</td>
+                                            <td className="right" style={{fontWeight: "bold"}}>
+                                                {
+                                                    Common.formatNumber(0)
+                                                }
+                                            </td>
                                             {/* 작업내용 */}
                                             <td className="left ellipsis">
                                                 {
@@ -441,17 +516,17 @@ const Site = () => {
                                             {/* 현장 */}
                                             <td className="left ellipsis text-hover fixed-left" style={{cursor: "pointer", left: "110px"}} onClick={() => onClickRow(idx)}><li>{item.project_nm}</li></td>
                                             {/* 공사 */}
-                                            <td className="right">{item.worker_count_work}</td>
+                                            <td className="right">{Common.formatNumber(item.worker_count_work)}</td>
                                             {/* 안전 */}
-                                            <td className="right">{item.worker_count_safe}</td>
+                                            <td className="right">{Common.formatNumber(item.worker_count_safe)}</td>
                                             {/* 관리 */}
-                                            <td className="right">{item.worker_count_manager}</td>
+                                            <td className="right">{Common.formatNumber(item.worker_count_manager)}</td>
                                             {/* 근로자 */}
-                                            <td className="right">{item.worker_count_not_manager}</td>
+                                            <td className="right">{Common.formatNumber(item.worker_count_not_manager)}</td>
                                             {/* 소계 */}
-                                            <td className="right" style={{fontWeight: "bold"}}>{item.worker_count_date}</td>
+                                            <td className="right" style={{fontWeight: "bold"}}>{Common.formatNumber(item.worker_count_date)}</td>
                                             {/* 장비 */}
-                                            <td className="right" style={{fontWeight: "bold"}}>0</td>
+                                            <td className="right" style={{fontWeight: "bold"}}>{Common.formatNumber(0)}</td>
                                             {/* 작업내용 */}
                                             <td className="left ellipsis">
                                                 {
