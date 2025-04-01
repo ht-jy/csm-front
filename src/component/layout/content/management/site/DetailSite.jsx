@@ -76,7 +76,6 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData, isSiteA
 
     // 캘린더에 사용할 수 있도록 날짜 데이터 초기화 및 textarea 반영을 위해 비고 초기화
     const setDateInit = () => {
-        console.log(detailData);
         setOpeningDate(dateUtil.format(detailData.site_date.opening_date));
         setClosingPlanDate(dateUtil.format(detailData.site_date.closing_plan_date));
         setClosingForecastDate(dateUtil.format(detailData.site_date.closing_forecast_date));
@@ -180,7 +179,6 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData, isSiteA
 
     useEffect(() => {
         setData(detailData);
-        console.log(detailData);
         if(detailData.site_date !== undefined){
             setDateInit();
         }

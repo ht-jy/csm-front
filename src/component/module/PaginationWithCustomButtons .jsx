@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ReactPaginate from "react-paginate";
 import "../../assets/css/Paginate.css";
+import { Common } from "../../utils/Common";
 
 /**
  * @description: 
@@ -90,7 +91,7 @@ const handlePrevClick = (e) => {
         <div className="pagination-wrapper">
             {/* 왼쪽 정렬 텍스트 */}
             <div className="pagination-info">
-                Pages: <span style={{ color: "#ff5555" }}>{pageNum + 1}</span> - {pageCount} / Rows: {dataCount}
+                Pages: <span style={{ color: "#ff5555" }}>{Common.formatNumber(pageNum + 1)}</span> - {Common.formatNumber(pageCount)} / Rows: {Common.formatNumber(dataCount)}
             </div>
 
             {
