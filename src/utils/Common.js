@@ -159,14 +159,5 @@ export const Common = {
         }else{
             return str;
         }
-    },
-    formatNumber(input) {
-      const str = input.toString();
-      
-      if (/^\d+$/.test(str)) {
-        return str.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-      }
-     
-      return input;
     }
 } 

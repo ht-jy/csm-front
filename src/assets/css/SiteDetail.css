@@ -193,23 +193,4 @@
     border-radius: 4px;
 }
 
-.title-input {
-    border: 1px solid #ccc;
-    width: 800px;
-    height: 40px;
-    border-radius: 5px;
-    text-align: left;
-    font-size: 25px;
-    margin-bottom: 10px;
-}
 
-.title-input:hover {
-    background: #e9ecef;
-    border-color: #bbb;
-    border-color: #007bff;
-}
-
-.title-input:active {
-    background: #dae0e5;
-    border-color: #aaa;
-}

@@ -33,7 +33,6 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData=[], exitBtnClick, sa
     const [initialData, setInitialData] = useState({}); // 원본 데이터 저장
     const [addressSearchOpen, setAddressSearchOpen] = useState(false);
     const [address, setAddress] = useState(null);
-    const [siteName, setSiteName] = useState("");
 
     // "X"
     const handleExit = () => {
@@ -60,13 +59,6 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData=[], exitBtnClick, sa
         saveBtnClick(formData);    
     };
 
-    // 현장명 변경 이벤트
-    const onChangeTitle = (e) => {
-        setSiteName(e.target.value);
-        handleChangeValue("site_nm", e.target.value);
-    }
-
-    // 데이터 변경 
     const handleChangeValue = (name, data) => {
 
         if(name === "searchOpen"){
@@ -84,7 +76,6 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData=[], exitBtnClick, sa
     }, []);
 
     useEffect(() => {
-        setSiteName(title);
         if (isOpen) {
             document.body.style.overflow = 'hidden';
         } else {
@@ -110,11 +101,7 @@ const DetailModal = ({ isOpen, isEditBtn, title, detailData=[], exitBtnClick, sa
                      />
                         <div className="modalHeader">
                             {/* 왼쪽 - 제목 */}
-                            {
-                                isEdit ? 
-                                    <input className="title-input" type="text" value={siteName} onChange={onChangeTitle}/>
-                                :   <h2 style={h2Style}>{siteName}</h2>
-                            }
+                            <h2 style={h2Style}>{title}</h2>
 
                             {/* 오른쪽 - 버튼 & 닫기 아이콘 */}
                             <div style={{ display: 'flex', alignItems: 'center', paddingBottom: "15px" }}>
