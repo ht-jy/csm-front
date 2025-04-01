@@ -44,11 +44,6 @@ body {
     text-overflow: ellipsis; /* "..." 표시 */
     border: none;
   }
-  th:hover, td:hover {
-    overflow: visible;     /* hover 시 영역 벗어나는 내용 보이도록 */
-    text-overflow: unset;
-    white-space: unset;
-  }
 
   td, th {
     box-shadow: none;
@@ -177,7 +172,6 @@ td {
 }
 
 .ellipsis {
-  position: relative;
   overflow: hidden; /* 넘치는 내용은 숨기기 */
   text-overflow: ellipsis; /* 넘치는 부분에 ... 표시 */
   white-space: nowrap; /* 줄 바꿈 방지 */

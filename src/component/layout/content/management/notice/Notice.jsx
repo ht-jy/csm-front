@@ -69,7 +69,7 @@ const Notice = () => {
 
     // [테이블]
     const columns = [
-        { header: "순번", width: "25px", itemName: "row_num", bodyAlign: "center", isSearch: false, isOrder: false, isDate: false, isEllipsis: false, type: "number" },
+        { header: "순번", width: "25px", itemName: "row_num", bodyAlign: "center", isSearch: false, isOrder: false, isDate: false, isEllipsis: false },
         { header: "지역", width: "35px", itemName: "job_loc_name", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false, isSlide: true},
         { header: "프로젝트", width: "120px", itemName: "job_name", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true},
         { header: "제목", width: "190px", itemName: "title", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true, boldItemName: "is_important", importantName: "is_important"},

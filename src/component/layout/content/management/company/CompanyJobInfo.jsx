@@ -21,7 +21,7 @@ const CompanyJobInfo = ({jno, styles}) => {
     const [jobInfo, setJobInfo] = useState([]);
 
     const columns = [
-        { isSearch: false, isOrder: false, width: "70px", header: "JNO", itemName: "jno", bodyAlign: "center", isEllipsis: false, isDate: false, type: "number" },
+        { isSearch: false, isOrder: false, width: "70px", header: "JNO", itemName: "jno", bodyAlign: "center", isEllipsis: false, isDate: false },
         { isSearch: false, isOrder: false, width: "460px", header: "JOB명", itemName: "job_name", bodyAlign: "left", isEllipsis: true, isDate: false },
         { isSearch: false, isOrder: false, width: "150px", header: "JOB No.", itemName: "job_no", bodyAlign: "left", isEllipsis: false, isDate: false },
         { isSearch: false, isOrder: false, width: "180px", header: "End-User", itemName: "comp_name", bodyAlign: "center", isEllipsis: false, isDate: false },
