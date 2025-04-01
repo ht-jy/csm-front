@@ -186,7 +186,12 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                                 options={selectData || []} // selectData가 undefined일 경우 빈 배열 제공
                                 value={selectedOption} // 상태에 따라 업데이트된 값 사용
                                 placeholder={"선택하세요"}
+                                menuPortalTarget={document.body}
                                 styles={{
+                                    menuPortal: (base) => ({
+                                        ...base,
+                                        zIndex: 999999999, // 모달보다 높게
+                                    }),
                                     container: (provided) => ({
                                       ...provided,
                                       width: "100%",
