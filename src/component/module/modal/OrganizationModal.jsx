@@ -6,7 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 import "../../../assets/css/Table.css"
 
 // 조직도 모달
-const OrganizationModal = ({isOpen, fncExit}) => {
+const OrganizationModal = ({isOpen, fncExit, type, projectNo}) => {
     // 조직도 상세 모달 오픈 코드
     const { project } = useAuth();
     const [ client, setClient ] = useState([]);
@@ -14,6 +14,25 @@ const OrganizationModal = ({isOpen, fncExit}) => {
     const handleExitScrollUnset = (e) => {
         document.body.style.overflow = 'unset';
         fncExit();
+    }
+
+    const getOrganization = async () => {
+        let jno = null;
+        if(type === "siteDetail"){
+            jno = projectNo || null;
+        }else{
+            jno = project?.jno || null
+        }
+
+        if(jno === null){
+            return;
+        }
+
+        const res = await Axios.GET(`/project/organization/${jno}`)
+        if(res?.data?.result === "Success"){
+            setClient(res?.data?.values?.client)
+            setHitech(res?.data?.values?.hitech)
+        }
     }
 
     useEffect(() => {
@@ -35,16 +54,6 @@ const OrganizationModal = ({isOpen, fncExit}) => {
             };
         }
     }, [isOpen]);
-
-    const getOrganization = async () => {
-        if (project?.jno != null) {
-            const res = await Axios.GET(`/project/organization/${project.jno}`)
-            if(res?.data?.result === "Success"){
-                setClient(res?.data?.values?.client)
-                setHitech(res?.data?.values?.hitech)
-            }
-        }
-    }
 
     useEffect (() => {
         getOrganization()
