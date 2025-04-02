@@ -29,7 +29,8 @@ function AnnouncementSlider() {
     // 공지사항 데이터 불러오기
     const getNotices = async () => {
         // FIXME: 관리자 권한에 따라 변경하기
-        const res = await Axios.GET(`/notice/${user.uno}?role=ADMIN&page_num=${1}&row_size=${50}&order=REG_DATE DESC`);
+        const res = await Axios.GET(`/notice/${user.uno}?role=ADMIN&page_num=${1}&row_size=${50}&order=POSTING_START_DATE DESC, POSTING_END_DATE ASC`);
+        console.log(res)
         if (res?.data?.result === "Success") {
             dispatch({ type: "HEADER", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
         }
@@ -83,6 +84,7 @@ function AnnouncementSlider() {
         setIsDetail(openState)
     }
 
+    // 공지사항 리스트 클릭 시 상세페이지
     const handleRowClick = (item) => {
         setData([item])
         setIsDetail(true)
@@ -142,7 +144,7 @@ function AnnouncementSlider() {
                                 <div style={{...header}}>공지사항</div>
                                 {
                                     state.noticesHeader.length === 0 ?
-                                        <div>공지사항이 없습니다.</div>
+                                    <div>공지사항이 없습니다.</div>
                                         :
                                         state.noticesHeader?.map((item, idx) => {
                                             return <div 
@@ -185,14 +187,21 @@ function AnnouncementSlider() {
                 {/* 슬라이드 텍스트 */}
                 <div className="slides-container">
                     <div className="slide">
-                        <span className="slide"
-                            onClick={handleAnnouncementClick}
-                            style={{
-                                cursor: "pointer",
-                            }} >
-                            {state.headerList[currentIndex]?.job_name === "전체" ?
-                                `전체` : `PROJ`} - {state.headerList[currentIndex]?.title}
-                        </span>
+                        {
+                            state.headerList.length === 0 ? 
+                                <span>공지사항이 없습니다.</span>
+                            
+                            :
+                            <span className="slide"
+                                onClick={handleAnnouncementClick}
+                                style={{
+                                    cursor: "pointer",
+                                }} >
+                                    
+                                    {state.headerList[currentIndex]?.job_name === "전체" ?
+                                    `전체` : `PROJ`} - {state.headerList[currentIndex]?.title}
+                            </span>
+                            }
                     </div>
                 </div>
 
