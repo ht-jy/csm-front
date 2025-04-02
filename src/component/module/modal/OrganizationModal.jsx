@@ -20,27 +20,31 @@ const OrganizationModal = ({isOpen, fncExit, type, projectNo}) => {
         fncExit();
     }
 
-
-    // 조직도가 열린 경우, 바깥영역의 스크롤 없애기
+    // 조직도 데이터 가져오기
     const getOrganization = async () => {
         let jno = null;
-        if(type === "siteDetail"){
+        if(type === "detail"){
             jno = projectNo || null;
         }else{
             jno = project?.jno || null
         }
 
         if(jno === null){
-            return;
+            setModalOpen(true)
+            setClient([])
+            setHitech([])
+            return
         }
 
         const res = await Axios.GET(`/project/organization/${jno}`)
         if(res?.data?.result === "Success"){
             setClient(res?.data?.values?.client)
-            setHitech(res?.data?.values?.hitech)
+            setHitech(res?.data?.values?.hitech)            
         }
+
     }
 
+    // 조직도가 열린 경우, 바깥영역의 스크롤 없애기
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden";
@@ -61,30 +65,10 @@ const OrganizationModal = ({isOpen, fncExit, type, projectNo}) => {
         }
     }, [isOpen]);
 
-
-    // 조직도 데이터 가져오기
-    const getOrganization = async () => {
-        if (project?.jno != null) {
-            const res = await Axios.GET(`/project/organization/${project.jno}`)
-            if(res?.data?.result === "Success"){
-                setClient(res?.data?.values?.client)
-                setHitech(res?.data?.values?.hitech)
-            }
-        }
-    }
-
-
     // 조직도 열림 상태와 프로젝트가 변경된 경우
     useEffect (() => {
         // 데이터 불러오기
         getOrganization()
-
-        // 프로젝트가 없는 경우 프로젝트 선택 모달 띄우기
-        if (isOpen === true && project === null) {
-            setModalOpen(true)
-            setClient([])
-            setHitech([])
-        }
 
     }, [project, isOpen])
 
