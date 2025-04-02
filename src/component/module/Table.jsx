@@ -836,7 +836,7 @@ const Table = forwardRef(({
                                         : col.isFormat ?
                                             Common[col.valid](item[col.itemName]) ?
                                                 Common[col.format](item[col.itemName])
-                                            :   item[col.itemName]
+                                            :   Common[col.format](item[col.itemName])
                                         : col.importantName ? 
                                             item[col.importantName] === 'Y' ?
                                             <>
@@ -856,6 +856,8 @@ const Table = forwardRef(({
                                                 disabled={true}
                                                 // setRadio={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
                                             />
+                                        : col.type === "number" ?
+                                            Common.formatNumber(item[col.itemName])
                                         : item[col.itemName]
                                         
                                     }

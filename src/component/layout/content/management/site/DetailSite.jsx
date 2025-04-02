@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import DateInput from "../../../../module/DateInput";
 import Button from "../../../../module/Button";
+import Select from 'react-select';
 import whether0 from "../../../../../assets/image/whether/0.png";
 import whether1 from "../../../../../assets/image/whether/1.png";
 import whether2 from "../../../../../assets/image/whether/2.png";
@@ -24,13 +25,14 @@ import Map from "../../../../module/Map";
  * - DateInput: 커스텀 캘린더
  * 
  */
-const DetailSite = ({isEdit, detailData, handleChangeValue, addressData, isSiteAdd}) => {
+const DetailSite = ({isEdit, detailData, projectData, handleChangeValue, addressData, isSiteAdd}) => {
     const [data, setData] = useState(null);
     const [openingDate, setOpeningDate] = useState(dateUtil.now());
     const [closingPlanDate, setClosingPlanDate] = useState(dateUtil.now());
     const [closingForecastDate, setClosingForecastDate] = useState(dateUtil.now());
     const [closingActualDate, setClosingActualDate] = useState(dateUtil.now());
     const [etc, setEtc] = useState("")
+    const [projectOption, setProjectOption] = useState([]);
 
 
     // 현장 데이터 변경 이벤트
@@ -76,7 +78,6 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData, isSiteA
 
     // 캘린더에 사용할 수 있도록 날짜 데이터 초기화 및 textarea 반영을 위해 비고 초기화
     const setDateInit = () => {
-        console.log(detailData);
         setOpeningDate(dateUtil.format(detailData.site_date.opening_date));
         setClosingPlanDate(dateUtil.format(detailData.site_date.closing_plan_date));
         setClosingForecastDate(dateUtil.format(detailData.site_date.closing_forecast_date));
@@ -180,10 +181,14 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData, isSiteA
 
     useEffect(() => {
         setData(detailData);
-        console.log(detailData);
         if(detailData.site_date !== undefined){
             setDateInit();
         }
+        
+        const options = projectData.map(item => {
+            return {value: item.jno, label:item.project_nm};
+        });
+        setProjectOption(options);
     }, [isEdit]);
 
     useEffect(() => {
@@ -327,22 +332,33 @@ const DetailSite = ({isEdit, detailData, handleChangeValue, addressData, isSiteA
                         기본 프로젝트
                     </label>
                     <div className="form-input" style={{ flex: 1 }}>
-                        <div className="read-only-input">
+                        {/* <div className="read-only-input">
                             {data.default_project_name}
-                        </div>
-                        {/* {isEdit ? (
-                            <input
-                            style={{ width: "100%", padding: "0.5rem" }}
-                            type="text"
-                            name={"default_project_name"}
-                            value={data.default_project_name}
-                            onChange={(e) => handelChange(e.target.name, e.target.value)}
-                            />
-                            ) : (
-                                <div className="read-only-input">
+                        </div> */}
+                        {isEdit ? (
+                            <div style={{display: "flex", marginLeft: "5px"}}>
+                                <Select
+                                    onChange={(item) => handleChangeValue("default_jno", item.value)}
+                                    defaultValue={projectOption.find(option => option.value === data.default_jno)}
+                                    options={projectOption || []}
+                                    styles={{
+                                        menuPortal: (base) => ({
+                                            ...base,
+                                            zIndex: 999999999, // 모달보다 높게
+                                        }),
+                                        container: (provided) => ({
+                                        ...provided,
+                                        width: "100%",
+                                        }),
+                                    }}
+                                />
+                            </div>
+                        ) : (
+                            <div className="read-only-input">
                                 {data.default_project_name}
-                                </div>
-                                )} */}
+                            </div>
+                            )
+                        }
                     </div>
                 </div>
             </div>

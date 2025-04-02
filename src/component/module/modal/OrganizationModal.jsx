@@ -7,7 +7,7 @@ import "../../../assets/css/Table.css"
 import Modal from "../Modal";
 
 // 조직도 모달
-const OrganizationModal = ({isOpen, fncExit}) => {
+const OrganizationModal = ({isOpen, fncExit, type, projectNo}) => {
     // 조직도 상세 모달 오픈 코드
     const { project } = useAuth();
     const [ client, setClient ] = useState([]);
@@ -20,7 +20,27 @@ const OrganizationModal = ({isOpen, fncExit}) => {
         fncExit();
     }
 
+
     // 조직도가 열린 경우, 바깥영역의 스크롤 없애기
+    const getOrganization = async () => {
+        let jno = null;
+        if(type === "siteDetail"){
+            jno = projectNo || null;
+        }else{
+            jno = project?.jno || null
+        }
+
+        if(jno === null){
+            return;
+        }
+
+        const res = await Axios.GET(`/project/organization/${jno}`)
+        if(res?.data?.result === "Success"){
+            setClient(res?.data?.values?.client)
+            setHitech(res?.data?.values?.hitech)
+        }
+    }
+
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden";
@@ -40,6 +60,7 @@ const OrganizationModal = ({isOpen, fncExit}) => {
             };
         }
     }, [isOpen]);
+
 
     // 조직도 데이터 가져오기
     const getOrganization = async () => {

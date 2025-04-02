@@ -76,15 +76,15 @@ const Device = () => {
 
     const gridData = [
         { type: "hidden", value: "" },
-        { type: "text", span: "double", label: "장치명", value: "" },
-        { type: "text", span: "double", label: "시리얼번호", value: "" },
-        { type: "select", span: "double", label: "현장이름", value: "", selectName: "siteNm" },
-        { type: "checkbox", span: "double", label: "사용여부", value: "", checkedLabel: "사용중|사용안함" },
-        { type: "text", span: "full", label: "비고", value: "" },
+        { type: "text", span: "double", width: "110px", label: "장치명", value: "" },
+        { type: "text", span: "double", width: "110px", label: "시리얼번호", value: "" },
+        { type: "select", span: "full", width: "110px", label: "현장이름", value: "", selectName: "siteNm" },
+        { type: "checkbox", span: "double", width: "110px", label: "사용여부", value: "", checkedLabel: "사용중|사용안함" },
+        { type: "text", span: "full", width: "110px", label: "비고", value: "" },
     ];
 
     const columns = [
-        { isSearch: false, isOrder: true, isSlide: true, header: "순번", width: "30px", itemName: "rnum", bodyAlign: "center", isDate: false, isEllipsis: false },
+        { isSearch: false, isOrder: true, isSlide: true, header: "순번", width: "30px", itemName: "rnum", bodyAlign: "center", isDate: false, isEllipsis: false, type: "number" },
         { isSearch: true, isOrder: true, isSlide: false, header: "장치명", width: "60px", itemName: "device_nm", bodyAlign: "left", isDate: false, isEllipsis: false },
         { isSearch: true, isOrder: true, isSlide: false, header: "시리얼번호", width: "80px", itemName: "device_sn", bodyAlign: "left", isDate: false, isEllipsis: false },
         { isSearch: true, isOrder: true, isSlide: false, header: "현장이름", width: "150px", itemName: "site_nm", bodyAlign: "left", isDate: false, isEllipsis: true },

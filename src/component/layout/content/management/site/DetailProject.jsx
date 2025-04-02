@@ -1,5 +1,8 @@
-
+import { useState } from "react";
 import { dateUtil } from "../../../../../utils/DateUtil";
+import Organization from "../../../../../assets/image/organization_chart.png";
+import OrganizationModal from "../../../../module/modal/OrganizationModal";
+import Button from "../../../../module/Button";
 
 /**
  * @description: 프로젝트 상세 컴포넌트
@@ -12,8 +15,9 @@ import { dateUtil } from "../../../../../utils/DateUtil";
  * - dateUtil: 날짜 포맷
  * 
  */
-const DetailProject = ({data, projectNo, projectLength, isMain}) => {
-
+const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickDeleteBtn}) => {
+    const [isOrganizationOpen, setIsOrganizationOpen] = useState(false);
+    
     // 프로젝트 제목
     const projectTitle = () => {
         let title = "";
@@ -35,14 +39,33 @@ const DetailProject = ({data, projectNo, projectLength, isMain}) => {
         }
         return "-"
     }
+
+    // 조직도 열기
+    const onClickOrganization = () => {
+        setIsOrganizationOpen(true)
+    }
     
     return(
         <div className="grid-project">
+            <OrganizationModal 
+                isOpen={isOrganizationOpen}
+                fncExit={() => setIsOrganizationOpen(false)}
+                type={"detail"}
+                projectNo={data?.jno}
+            />
             {/* 첫 번째 열 */}
             <div className="form-control grid-project-bc" style={{ gridColumn: "1 / span 2", gridRow: "1", border: "none" }}>
                 <div className="grid-project-title">
-                    {`프로젝트 상세 ${projectTitle()}`}
+                    <span>{`프로젝트 상세 ${projectTitle()}`}</span>
+                    {isEdit ? 
+                        !isMain && <Button text={"삭제"} style={{marginLeft: "auto"}} onClick={() => onClickDeleteBtn(data.jno)}/>
+                    :
+                        <div className="grid-project-organization-container" onClick={onClickOrganization}>
+                            <img src={Organization} style={{width: "20px"}}/>
+                        </div>
+                    }
                 </div>
+                
             </div>
             <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "1", gridRow: "2" }}>
                 <div className="text-overflow">

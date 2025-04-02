@@ -86,6 +86,22 @@
     border-bottom: 1px solid #d5d5d5;
     padding-bottom: 5px;
     margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    width: 965px;
+}
+
+.grid-project-organization-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    border: 1px solid #a5a5a5;
+    border-radius: 8px;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    margin-left: auto;
 }
 
 .text-overflow {
@@ -193,4 +209,23 @@
     border-radius: 4px;
 }
 
+.title-input {
+    border: 1px solid #ccc;
+    width: 800px;
+    height: 40px;
+    border-radius: 5px;
+    text-align: left;
+    font-size: 25px;
+    margin-bottom: 10px;
+}
 
+.title-input:hover {
+    background: #e9ecef;
+    border-color: #bbb;
+    border-color: #007bff;
+}
+
+.title-input:active {
+    background: #dae0e5;
+    border-color: #aaa;
+}
