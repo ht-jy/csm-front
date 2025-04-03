@@ -34,6 +34,8 @@ const OrganizationModal = ({isOpen, fncExit, type, projectNo}) => {
             setClient([])
             setHitech([])
             return
+        }else{
+            setModalOpen(false)
         }
 
         const res = await Axios.GET(`/project/organization/${jno}`)
@@ -75,7 +77,6 @@ const OrganizationModal = ({isOpen, fncExit, type, projectNo}) => {
     return <>
             {
                 isOpen ?
-
                 <div style={overlayStyle}>
                     <div style={modalStyle}>
                         <Modal

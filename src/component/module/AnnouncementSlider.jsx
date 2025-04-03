@@ -12,7 +12,6 @@ function AnnouncementSlider() {
     const [isAnimating, setIsAnimating] = useState(false);
     const { user } = useAuth();
     const [hoverOpen, setHoverOpen] = useState(false);
-    const [hover, setHover] = useState(false);
 
     // 슬라이드 텍스트 배열 및 내용 저장
     const [state, dispatch] = useReducer(NoticeReducer, {
@@ -30,7 +29,7 @@ function AnnouncementSlider() {
     const getNotices = async () => {
         // FIXME: 관리자 권한에 따라 변경하기
         const res = await Axios.GET(`/notice/${user.uno}?role=ADMIN&page_num=${1}&row_size=${50}&order=POSTING_START_DATE DESC, POSTING_END_DATE ASC`);
-        console.log(res)
+
         if (res?.data?.result === "Success") {
             dispatch({ type: "HEADER", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
         }
@@ -117,6 +116,7 @@ function AnnouncementSlider() {
 
     }, [currentIndex]);
 
+    // 상세공지사항을 띄운 경우, 공지사항 리스트는 닫기
     useEffect(() => {
         if(isDetail === true){
             setHoverOpen(false)
