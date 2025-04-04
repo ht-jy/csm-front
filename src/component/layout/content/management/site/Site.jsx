@@ -41,6 +41,7 @@ const Site = () => {
     const [state, dispatch] = useReducer(SiteReducer, {
         list: [],
         code: [],
+        dailyTotalCount: {},
     })
 
     const { user } = useAuth();
@@ -278,7 +279,7 @@ const Site = () => {
     // 프로젝트별 근로자 수 조회
     const getWorkerCountData = async () => {
         const res = await Axios.GET(`/project/count?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}`);
-
+        
         if (res?.data?.result === "Success") {
             dispatch({ type: "COUNT", list: res?.data?.values?.list });
         }
@@ -330,7 +331,7 @@ const Site = () => {
     // 프로젝트별 근로자 수 5초마다 갱신
     useEffect(() => {
         const interval = setInterval(() => {
-            getWorkerCountData();
+            // getWorkerCountData();
         }, 5000);
 
         return () => clearInterval(interval);
@@ -622,6 +623,18 @@ const Site = () => {
                                             </tr>
                                     ))
                             }
+                            <tr style={{fontWeight: "bold"}}>
+                                <td colSpan={3} className="fixed-left" style={{backgroundColor: "#004377"}}></td>
+                                <td colSpan={2} className="center">일일 누계</td>
+                                <td className="right">{Common.formatNumber(state.dailyTotalCount.worker_count_work)}</td>
+                                <td className="right">{Common.formatNumber(state.dailyTotalCount.worker_count_safe)}</td>
+                                <td className="right">{Common.formatNumber(state.dailyTotalCount.worker_count_manager)}</td>
+                                <td className="right">{Common.formatNumber(state.dailyTotalCount.worker_count_not_manager)}</td>
+                                <td className="right">{Common.formatNumber(state.dailyTotalCount.worker_count_date)}</td>
+                                <td className="right">{Common.formatNumber(0)}</td>
+                                <td style={{backgroundColor: "#004377", boxShadow: "inset -0.4px 0 0 0 #004377"}}></td>
+                                <td className="fixed-right" style={{backgroundColor: "#004377", boxShadow: "inset 0.4px 0 0 0 #004377"}}></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

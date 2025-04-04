@@ -132,7 +132,6 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
             // 실패 모달
             setIsMod(false);
             setIsOpenModal(true);
-            console.log(res)
         }
 
         setGridMode("REMOVE");
@@ -234,7 +233,6 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
                 // Axios 요청 실패했을 경우
                 setIsMod(false);
                 setIsDetail(false);
-                console.log(res)
             }
 
             setIsLoading(false);
