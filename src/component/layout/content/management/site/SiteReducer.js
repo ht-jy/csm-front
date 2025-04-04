@@ -10,18 +10,21 @@ const SiteReducer = (state, action) => {
             }
 
             const sites = [];
+            const total = {
+                worker_count_date: 0,
+                worker_count_htenc: 0,
+                worker_count_manager: 0,
+                worker_count_not_manager: 0,
+                worker_count_safe: 0,
+                worker_count_work: 0,
+            };
+
             action.site.map((site, idx) => {
                 const projectList = site.project_list;
                 const defaultProject = projectList?.find((prj) => prj.is_default === "Y");
                 const projectLength = projectList?.length;
                 const rowSpan = projectLength > 1 ? projectList?.length + 1 : 1;
                 const originalOrderCompName = defaultProject?.order_comp_name ?? "";
-                // const siteDate = site.site_date;
-                // const orderCompName = originalOrderCompName
-                // .replaceAll("(주)", "")
-                // .replaceAll("㈜", "")
-                // .replaceAll("주식회사", "");
-                // const hasDailyItem = !!projectList?.[0]?.daily_content_list;
                 const siteStatsColor = setColor(site.current_site_stats);
 
                 sites.push(
@@ -34,8 +37,22 @@ const SiteReducer = (state, action) => {
                     })
                 }
             });
+
+            sites.map(obj => {
+                if(obj.type === "main"){
+                    obj.project_list.map(item => {
+                        total.worker_count_date += item.worker_count_date;
+                        total.worker_count_htenc += item.worker_count_htenc;
+                        total.worker_count_manager += item.worker_count_manager;
+                        total.worker_count_not_manager += item.worker_count_not_manager;
+                        total.worker_count_safe += item.worker_count_safe;
+                        total.worker_count_work += item.worker_count_work;
+                    })
+                }
+            });
             
-            return {...state, list: JSON.parse(JSON.stringify(sites)), code: JSON.parse(JSON.stringify(action.code))};
+            
+            return {...state, list: JSON.parse(JSON.stringify(sites)), code: JSON.parse(JSON.stringify(action.code)), dailyTotalCount: JSON.parse(JSON.stringify(total))};
         case "STATS":
             const setColor2 = (code) => {
                 const foundItem = state.code.find(item => item.code == code);
@@ -56,6 +73,14 @@ const SiteReducer = (state, action) => {
         case "COUNT":
             const count = action.list;
             let list2 = state.list;
+            const total2 = {
+                worker_count_date: 0,
+                worker_count_htenc: 0,
+                worker_count_manager: 0,
+                worker_count_not_manager: 0,
+                worker_count_safe: 0,
+                worker_count_work: 0,
+            };
             list2 = list2?.map(site => {
                 if(site.type === "main"){
                     const matchingItems = count.filter(item => item.sno === site.sno);
@@ -68,6 +93,14 @@ const SiteReducer = (state, action) => {
                         item.worker_count_not_manager = matchingItem.worker_count_not_manager;
                         item.worker_count_safe = matchingItem.worker_count_safe;
                         item.worker_count_work = matchingItem.worker_count_work;
+
+                        total2.worker_count_date += matchingItem.worker_count_date;
+                        total2.worker_count_htenc += matchingItem.worker_count_htenc;
+                        total2.worker_count_manager += matchingItem.worker_count_manager;
+                        total2.worker_count_not_manager += matchingItem.worker_count_not_manager;
+                        total2.worker_count_safe += matchingItem.worker_count_safe;
+                        total2.worker_count_work += matchingItem.worker_count_work;
+
                         return item;
                     })
                 }else{
@@ -83,7 +116,7 @@ const SiteReducer = (state, action) => {
                 return site;
             });
 
-            return {...state, list: JSON.parse(JSON.stringify(list2))};
+            return {...state, list: JSON.parse(JSON.stringify(list2)), dailyTotalCount: JSON.parse(JSON.stringify(total2))};
     }
 }
 

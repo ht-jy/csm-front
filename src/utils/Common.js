@@ -161,12 +161,20 @@ export const Common = {
         }
     },
     formatNumber(input) {
-      const str = input.toString();
+      if (input === undefined) {
+        return;
+      }
+      let str;
+      if (typeof input === "number") {
+        str = input.toString();
+      } else {
+        str = input;
+      }
       
       if (/^\d+$/.test(str)) {
         return str.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
       }
      
       return input;
-    }
+  }
 } 
