@@ -4,7 +4,7 @@ const SiteBaseReducer = (state, action) => {
             return {...state, list: []}
         case "INIT":
             const list = action.list.map((item, idx) => {
-                return {...item, index:idx, editState: item.is_deadline === 'Y'}
+                return {...item, index:idx, unableEdit: item.is_deadline === 'Y'}
             });
             
             return {...state, list: JSON.parse(JSON.stringify(list)), initialList: JSON.parse(JSON.stringify(list)), count: action.count};
