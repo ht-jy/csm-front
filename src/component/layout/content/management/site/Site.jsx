@@ -298,7 +298,7 @@ const Site = () => {
         setIsLoading(true);
 
         const res = await Axios.GET(`/site?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}&pCode=SITE_STATUS`);
-
+        
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", site: res?.data?.values?.site, code: res?.data?.values?.code });
         }
@@ -338,7 +338,7 @@ const Site = () => {
     // 프로젝트별 근로자 수 5초마다 갱신
     useEffect(() => {
         const interval = setInterval(() => {
-            // getWorkerCountData();
+            getWorkerCountData();
         }, 5000);
 
         return () => clearInterval(interval);
