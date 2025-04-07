@@ -25,7 +25,7 @@ export const dateUtil = {
     },
     // go의 time.Time -> 'HH24:mm:ss" 반환
     formatTime24(dateString) {
-        if (dateString === '0001-01-01T00:00:00Z' || dateString === '' || dateString === '-') {
+        if (dateString === '0001-01-01T00:00:00Z' || dateString === '' || dateString === '-' || dateString === null) {
             return '-';
         }
 

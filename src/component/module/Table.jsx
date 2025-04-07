@@ -742,7 +742,7 @@ const Table = forwardRef(({
                                 >
                                     {
                                         /***** Edit *****/
-                                        isEdit && !item["editState"] ?
+                                        isEdit ?
                                             item["tableAddRow"] !== undefined && item["tableAddRow"]?
                                                 item[col.itemName] === "ADD_BTN" ?
                                                     <Button
@@ -760,54 +760,87 @@ const Table = forwardRef(({
                                                         style={{height: "28px", padding: 0, fontSize: "13px", paddingLeft: "5px", paddingRight: "5px"}}
                                                     />
                                             :   editInfo[col_idx].editType === "toggleText" ?
-                                                    <ToggleInput
-                                                        initText={item[col.itemName]}
-                                                        toggleTexts={editInfo[col_idx].toggleTexts}
-                                                        setToggleText={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
-                                                    />
+                                                    item["unableEdit"] ?
+                                                        item[col.itemName]
+                                                    :   
+                                                        <ToggleInput
+                                                            initText={item[col.itemName]}
+                                                            toggleTexts={editInfo[col_idx].toggleTexts}
+                                                            setToggleText={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
+                                                        />
                                             :   editInfo[col_idx].editType === "text" ?
-                                                    <TextInput 
-                                                        initText={item[col.itemName]}
-                                                        setText={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
-                                                    />
+                                                    item["unableEdit"] ?
+                                                        item[col.itemName]
+                                                    : 
+                                                        <TextInput 
+                                                            initText={item[col.itemName]}
+                                                            setText={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
+                                                        />
                                             :   editInfo[col_idx].editType === "searchModal"  && JSON.stringify(item).includes("ADD_ROW") ?
-                                                    <SearchInput
-                                                        selectedModal={editInfo[col_idx].selectedModal}
-                                                        inputText={item[col.itemName]}
-                                                        inputItemName={editInfo[col_idx].itemName}
-                                                        setSearchText={(values) => onChangeTableDataByDependency(item.index, col_idx, values)}
-                                                    />
+                                                    item["unableEdit"] ?
+                                                        item[col.itemName]
+                                                    : 
+                                                        <SearchInput
+                                                            selectedModal={editInfo[col_idx].selectedModal}
+                                                            inputText={item[col.itemName]}
+                                                            inputItemName={editInfo[col_idx].itemName}
+                                                            setSearchText={(values) => onChangeTableDataByDependency(item.index, col_idx, values)}
+                                                        />
                                             :   editInfo[col_idx].editType === "radio" ?
-                                                    <RadioInput
-                                                        itemName={editInfo[col_idx].itemName + idx}
-                                                        selectedValue={item[col.itemName]}
-                                                        values={editInfo[col_idx].radioValues}
-                                                        labels={editInfo[col_idx].radioLabels}
-                                                        disabled={false}
-                                                        setRadio={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
-                                                        checked={[true, false]}
-                                                    />                                            
+                                                    item["unableEdit"] ?
+                                                        <RadioInput
+                                                            itemName={col.itemName + idx}
+                                                            selectedValue={item[col.itemName]}
+                                                            values={col.radioValues}
+                                                            labels={col.radioLabels}
+                                                            disabled={true}
+                                                            // setRadio={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
+                                                        />
+                                                    : 
+                                                        <RadioInput
+                                                            itemName={editInfo[col_idx].itemName + idx}
+                                                            selectedValue={item[col.itemName]}
+                                                            values={editInfo[col_idx].radioValues}
+                                                            labels={editInfo[col_idx].radioLabels}
+                                                            disabled={false}
+                                                            setRadio={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
+                                                            checked={[true, false]}
+                                                        />                                            
                                             :   col.isDate ?
-                                                    editInfo[col_idx].editType === "date" ?                                                    
-                                                        <DateInput 
-                                                            time={formatDate(item[col.itemName], col.dateFormat)} 
-                                                            setTime={(value) => onChangeTableData(item.index, editInfo[col_idx], dateUtil.parseToGo(value))} 
-                                                            dateInputStyle={{margin: "0px", height: "28px", fontSize: "15px"}}
-                                                            isCalendarHide={true}
-                                                        ></DateInput>
-                                                    : editInfo[col_idx].editType === "time24" ?
-                                                        <Time24Input 
-                                                            time={item[col.itemName]}
-                                                            setTime={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
-                                                        />
-                                                    : editInfo[col_idx].editType === "time12" ?
-                                                        <Time12Input 
-                                                            time={item[col.itemName]}
-                                                            setTime={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
-                                                        />
-                                                    : formatDate(item[col.itemName], col.dateFormat)
+                                                    item["unableEdit"] ?
+                                                        formatDate(item[col.itemName], col.dateFormat)
+                                                    : 
+                                                        editInfo[col_idx].editType === "date" ?                                                    
+                                                            <DateInput 
+                                                                time={formatDate(item[col.itemName], col.dateFormat)} 
+                                                                setTime={(value) => onChangeTableData(item.index, editInfo[col_idx], dateUtil.parseToGo(value))} 
+                                                                dateInputStyle={{margin: "0px", height: "28px", fontSize: "15px"}}
+                                                                isCalendarHide={true}
+                                                            ></DateInput>
+                                                        : editInfo[col_idx].editType === "time24" ?
+                                                            <Time24Input 
+                                                                time={item[col.itemName]}
+                                                                setTime={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
+                                                            />
+                                                        : editInfo[col_idx].editType === "time12" ?
+                                                            <Time12Input 
+                                                                time={item[col.itemName]}
+                                                                setTime={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
+                                                            />
+                                                        : formatDate(item[col.itemName], col.dateFormat)
                                             :   col.isChecked ?
-                                                    <CheckInput checkFlag={item[col.itemName]} setCheckFlag={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}/>
+                                                    item["unableEdit"] ?
+                                                        item[col.itemName] === 'Y' ?
+                                                            <img 
+                                                                src={CheckIcon}
+                                                                style={{width: "18px"}}
+                                                            />
+                                                        :   <img 
+                                                                src={NonCheckIcon}
+                                                                style={{width: "16px"}}
+                                                            />
+                                                    : 
+                                                        <CheckInput checkFlag={item[col.itemName]} setCheckFlag={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}/>
                                             : item[col.itemName]
                                         /***** Non Edit *****/
                                         : col.itemName === "row_checked" ?
