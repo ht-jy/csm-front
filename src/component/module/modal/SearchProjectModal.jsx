@@ -31,7 +31,7 @@ import useTableSearch from "../../../utils/hooks/useTableSearch";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /project/used (공사관리 프로젝트 조회)
+ *    Http Method - GET : /project/used (공사관리 프로젝트 조회), /project/all (전사 프로젝트 조회), /project/staff/{uno} (조직도 프로젝트 조회)
  */
 const SearchProjectModal = ({isOpen, fncExit, isUsedProject, onClickRow}) => {
     const { user, setProject, setProjectName } = useAuth();

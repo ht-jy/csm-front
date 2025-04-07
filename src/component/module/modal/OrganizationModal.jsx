@@ -6,6 +6,20 @@ import { useAuth } from "../../context/AuthContext";
 import "../../../assets/css/Table.css"
 import Modal from "../Modal";
 
+/**
+ * @description: 
+ * 
+ * @author 작성자: 김진우
+ * @created 작성일: 2025-04-07
+ * @modified 최종 수정일: 
+ * @modifiedBy 최종 수정자: 
+ * @usedComponents
+ * - 
+ * 
+ * @additionalInfo
+ * - API: 
+ *    Http Method - GET : /project/organization/${jno} (프로젝트조회)
+ */
 // 조직도 모달
 const OrganizationModal = ({isOpen, fncExit, type, projectNo}) => {
     // 조직도 상세 모달 오픈 코드

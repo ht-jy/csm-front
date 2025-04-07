@@ -9,7 +9,7 @@ import Button from "../Button";
 import Exit from "../../../assets/image/exit.png";
 
 /**
- * @description: 현장큰태에 등록되지 않은 프로젝트를 조회하기 위한 모달. 현장추가를 할때 사용되고 있음.
+ * @description: 현장근태에 등록되지 않은 프로젝트를 조회하기 위한 모달. 현장추가를 할때 사용되고 있음.
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-03-31
@@ -20,7 +20,7 @@ import Exit from "../../../assets/image/exit.png";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : project/non-used (현장근태에 등록되지 않은 프로젝트 조회)
+ *    Http Method - GET : /project/non-used (현장근태에 등록되지 않은 프로젝트 조회)
  */
 const NonUsedProjectModal = ({isOpen=false, fncExit, onClickRow}) => {
 

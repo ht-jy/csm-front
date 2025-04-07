@@ -28,7 +28,7 @@ import "../../../../../assets/css/Company.css";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /project/nm (프로젝트 이름 조회)
+ *    Http Method - GET : 
  */
 const Company = () => {
     const { project } = useAuth();

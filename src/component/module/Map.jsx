@@ -37,7 +37,6 @@ const Map = ( {roadAddress} ) => {
         if (res?.data?.result === "Success") {
             setPoint(res?.data?.values?.point)
         }else {
-            console.log(roadAddress)
             setIsModal(true);
         }
     }
