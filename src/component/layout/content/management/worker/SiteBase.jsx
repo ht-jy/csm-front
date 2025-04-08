@@ -40,7 +40,7 @@ import { use } from "react";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /worker/site-base (현장 근로자 조회)
+ *    Http Method - GET : /worker/site-base (현장 근로자 조회), /code (코드 조회)
  *    Http Method - POST : /worker/site-base (현장 근로자 추가/수정), /worker/site-base/deadline (일괄마감)
  */
 const SiteBase = () => {
