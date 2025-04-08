@@ -59,11 +59,6 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
 
         setGridMode( (mode === "COPY") ? "SAVE": mode)
 
-        // 수정을 저장하고 난 후에, value값이 초기화 되지 않는 문제 해결하기 위해 사용.
-        if (mode === "SAVE") {
-            arr[4].value = "";
-        }
-
         if (mode === "EDIT" || mode === "COPY") {
             arr[0].value = notice.title;
             arr[1].value = dateUtil.format(notice.posting_start_date);
@@ -73,16 +68,22 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
             arr[5].value = notice.content;
             arr[6].value = Number(notice.idx);
         }
+ 
+        // 수정을 저장하고 난 후에, value값이 초기화 되지 않는 문제 해결하기 위해 사용.
+        if (mode === "SAVE") {
+            arr[1].value = "-";
+            arr[2].value = "-";
+            arr[5].value = "";
+        }
 
         setIsGridModal(true);
         setNoticeData(notice);
         setDetail(arr);
         getSiteData();
-        getPeriodData();
     }
 
-    //    // [GridModal-Get] 공지사항 상세
-        const handleGetGridModal = (mode, notice) => {
+    // [GridModal-Get] 공지사항 상세
+    const handleGetGridModal = (mode, notice) => {
             setGridMode(mode)
             const arr = [...gridData]
 
@@ -160,18 +161,6 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
         setIsLoading(false);
     }
 
-    // [GridModal-Post] 공지기간 리스트 조회
-    const getPeriodData = async () => {
-        setIsLoading(true);
-        const res = await Axios.GET(`/notice/period`);
-        
-        if (res?.data?.result === "Success") {
-            dispatch({type: "NOTICE_NM", period: res?.data?.values?.periods})
-        }
-
-        setIsLoading(false);
-    }
-
     // [GridModal-Post] 저장 버튼을 눌렀을 경우
     const onClickModalSave = async (item, mode) => {
         setGridMode(mode);
@@ -193,6 +182,14 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
         else if (item[3].value === -1) {
             setIsValidation(false);
             setModalText("프로젝트를 선택해 주세요.");
+            setIsOpenModal(true);
+        }else if ( dateUtil.goTime(item[1].value) === "0001-01-01T00:00:00Z" ){
+            setIsValidation(false);
+            setModalText("게시시작일을 선택해 주세요.");
+            setIsOpenModal(true);
+        }else if ( dateUtil.goTime(item[2].value) === "0001-01-01T00:00:00Z" ){
+            setIsValidation(false);
+            setModalText("게시마감일을 선택해 주세요.");
             setIsOpenModal(true);
         }
         else {
