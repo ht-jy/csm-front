@@ -34,7 +34,7 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
 
     // "X"
     const handleExit = () => {
-        setFormData(initialData); // 초기 데이터로 되돌리기
+        setFormData([]); // 데이터 초기화
         setIsEditfalse();
         exitBtnClick();
     };
@@ -79,13 +79,13 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
     // 수정모드로 변경
     const handleEditMode = () => {
         funcModeSet("EDIT");
-        // setIsEdit(true);
+        setIsEdit(true);
     }
 
     // 저장, 수정
     const handleSave = (e) => {
         document.body.style.overflow = 'unset';
-        saveBtnClick(formData, gridMode);  // 최종 데이터를 전달            
+        saveBtnClick(formData, gridMode);  // 최종 데이터를 전달  
     };
 
     // 삭제
@@ -135,7 +135,9 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = 'unset';
+            setFormData([]);
         }
+
     }, [isOpen]);
 
     useEffect(() => {
