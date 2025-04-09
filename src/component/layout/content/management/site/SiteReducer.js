@@ -1,5 +1,3 @@
-import {ObjChk} from "../../../../../utils/ObjChk";
-
 const SiteReducer = (state, action) => {
 
     switch (action.type){
@@ -39,21 +37,33 @@ const SiteReducer = (state, action) => {
                 }
             });
 
-            sites.map(obj => {
-                if(obj.type === "main"){
-                    obj.project_list.map(item => {
-                        total.worker_count_date += item.worker_count_date;
-                        total.worker_count_htenc += item.worker_count_htenc;
-                        total.worker_count_manager += item.worker_count_manager;
-                        total.worker_count_not_manager += item.worker_count_not_manager;
-                        total.worker_count_safe += item.worker_count_safe;
-                        total.worker_count_work += item.worker_count_work;
-                        total.equip_count += item.equip_count;
-                    })
+            const newSites = sites.map(obj => {
+                if (obj.type.trim().toLowerCase() === "main") {
+                    const dailyContents = [];
+                    if (Array.isArray(obj.project_list)) {
+                        obj.project_list.forEach(item => {
+                            total.worker_count_date += item.worker_count_date;
+                            total.worker_count_htenc += item.worker_count_htenc;
+                            total.worker_count_manager += item.worker_count_manager;
+                            total.worker_count_not_manager += item.worker_count_not_manager;
+                            total.worker_count_safe += item.worker_count_safe;
+                            total.worker_count_work += item.worker_count_work;
+                            total.equip_count += item.equip_count;
+            
+                            if (Array.isArray(item.daily_content_list)) {
+                                const contents = item.daily_content_list.map(item2 => item2.content);
+                                dailyContents.push(...contents);
+                            }
+                        });
+                    }
+                    return { ...obj, daily_content_list: dailyContents };
+                } else {
+                    const contents = (Array.isArray(obj.daily_content_list) ? obj.daily_content_list.map(item => item.content) : []);
+                    return { ...obj, daily_content_list: contents };
                 }
             });
             
-            return {...state, list: JSON.parse(JSON.stringify(sites)), code: JSON.parse(JSON.stringify(action.code)), dailyTotalCount: JSON.parse(JSON.stringify(total))};
+            return {...state, list: JSON.parse(JSON.stringify(newSites)), code: JSON.parse(JSON.stringify(action.code)), dailyTotalCount: JSON.parse(JSON.stringify(total))};
         case "STATS":
             const setColor2 = (code) => {
                 const foundItem = state.code.find(item => item.code == code);

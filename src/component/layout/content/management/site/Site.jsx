@@ -547,26 +547,45 @@ const Site = () => {
                                                 {/* 작업내용 */}
                                                 <td className="left ellipsis">
                                                     {
-                                                        item.project_list.length === 1 ?
-                                                            item.project_list[0]?.daily_content_list.length !== 0 ?
-                                                                <ul>
-                                                                    <li>
+                                                        item.project_list.length === 0 ?
+                                                            // 현장에 프로젝트가 없는 경우. 그럴 경우는 없지만 만약을 위하여
+                                                            <div>
+                                                                <div className="center" style={{ color: "#a5a5a5" }}>
+                                                                    -
+                                                                </div>
+                                                            </div>
+                                                        :
+                                                            item.project_list.length > 1 ?
+                                                                // 프로젝트가 여러개일 경우
+                                                                <div>
+                                                                    <div>
                                                                         {
-                                                                            item.project_list[0].daily_content_list.length > 1 ?
-                                                                                `${item.project_list[0].daily_content_list.length} 외 ${item.project_list[0].daily_content_list.length - 1} 건`
+                                                                            item.daily_content_list.length > 1 ?
+                                                                                // 작업내용이 있는 경우
+                                                                                ""
                                                                                 :
-                                                                                `${item.project_list[0].daily_content_list.length}`
+                                                                                // 작업내용이 없는 경우
+                                                                                <div className="center" style={{ color: "#a5a5a5" }}>-</div>
                                                                         }
-                                                                    </li>
-                                                                </ul>
-                                                                :
-                                                                <ul>
-                                                                    <li className="center" style={{ color: "#a5a5a5" }}>
-                                                                        -
-                                                                    </li>
-                                                                </ul>
+                                                                    </div>
+                                                                </div>
                                                             :
-                                                            ""
+                                                                // 프로젝트가 하나인 경우
+                                                                <div>
+                                                                    {
+                                                                        item.daily_content_list.length > 1 ?
+                                                                            // 작업내용이 여러개인 경우
+                                                                            item.daily_content_list.map(content => (
+                                                                                <div>● {content}</div>
+                                                                            ))
+                                                                        :   item.daily_content_list.length === 1 ?
+                                                                            // 작업내용이 하나인 경우
+                                                                            <div>● {item.daily_content_list[0]}</div>
+                                                                        :   
+                                                                            // 작업내용이 없는 경우
+                                                                            <div className="center" style={{ color: "#a5a5a5" }}>-</div>
+                                                                    }
+                                                                </div>
                                                     }
 
                                                 </td>
@@ -606,23 +625,17 @@ const Site = () => {
                                                 {/* 작업내용 */}
                                                 <td className="left ellipsis">
                                                     {
-                                                        item?.daily_content_list.length === 0 ?
-                                                            <ul>
-                                                                <li>
-                                                                    {
-                                                                        item.daily_content_list.length > 1 ?
-                                                                            `${item.daily_content_list.length} 외 ${item.daily_content_list.length - 1} 건`
-                                                                            :
-                                                                            `${item.daily_content_list.length}`
-                                                                    }
-                                                                </li>
-                                                            </ul>
-                                                            :
-                                                            <ul>
-                                                                <li className="center" style={{ color: "#a5a5a5" }}>
-                                                                    -
-                                                                </li>
-                                                            </ul>
+                                                        item.daily_content_list.length > 1 ?
+                                                            // 작업내용이 여러개인 경우
+                                                            item.daily_content_list.map(content => (
+                                                                <div>● {content}</div>
+                                                            ))
+                                                        :   item.daily_content_list.length === 1 ?
+                                                            // 작업내용이 하나인 경우
+                                                            <div>● {item.daily_content_list[0]}</div>
+                                                        :   
+                                                            // 작업내용이 없는 경우
+                                                            <div className="center" style={{ color: "#a5a5a5" }}>-</div>
                                                     }
                                                 </td>
                                                 {/* 날씨 */}
