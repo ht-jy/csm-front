@@ -541,7 +541,7 @@ const Site = () => {
                                                 {/* 장비 */}
                                                 <td className="right" style={{ fontWeight: "bold" }}>
                                                     {
-                                                        Common.formatNumber(0)
+                                                        Common.formatNumber(item.project_list.reduce((sum, obj) => sum + Number(obj.equip_count), 0))
                                                     }
                                                 </td>
                                                 {/* 작업내용 */}
@@ -602,7 +602,7 @@ const Site = () => {
                                                 {/* 소계 */}
                                                 <td className="right" style={{ fontWeight: "bold" }}>{Common.formatNumber(item.worker_count_date)}</td>
                                                 {/* 장비 */}
-                                                <td className="right" style={{ fontWeight: "bold" }}>{Common.formatNumber(0)}</td>
+                                                <td className="right" style={{ fontWeight: "bold" }}>{Common.formatNumber(item.equip_count)}</td>
                                                 {/* 작업내용 */}
                                                 <td className="left ellipsis">
                                                     {
@@ -638,7 +638,7 @@ const Site = () => {
                                 <td className="right">{Common.formatNumber(state.dailyTotalCount.worker_count_manager)}</td>
                                 <td className="right">{Common.formatNumber(state.dailyTotalCount.worker_count_not_manager)}</td>
                                 <td className="right">{Common.formatNumber(state.dailyTotalCount.worker_count_date)}</td>
-                                <td className="right">{Common.formatNumber(0)}</td>
+                                <td className="right">{Common.formatNumber(state.dailyTotalCount.equip_count)}</td>
                                 <td style={{backgroundColor: "#004377", boxShadow: "inset -0.4px 0 0 0 #004377"}}></td>
                                 <td className="fixed-right" style={{backgroundColor: "#004377", boxShadow: "inset 0.4px 0 0 0 #004377"}}></td>
                             </tr>
