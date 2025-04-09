@@ -17,8 +17,9 @@ const SiteReducer = (state, action) => {
                 worker_count_not_manager: 0,
                 worker_count_safe: 0,
                 worker_count_work: 0,
+                equip_count: 0,
             };
-
+            
             action.site.map((site, idx) => {
                 const projectList = site.project_list;
                 const defaultProject = projectList?.find((prj) => prj.is_default === "Y");
@@ -47,10 +48,10 @@ const SiteReducer = (state, action) => {
                         total.worker_count_not_manager += item.worker_count_not_manager;
                         total.worker_count_safe += item.worker_count_safe;
                         total.worker_count_work += item.worker_count_work;
+                        total.equip_count += item.equip_count;
                     })
                 }
             });
-            
             
             return {...state, list: JSON.parse(JSON.stringify(sites)), code: JSON.parse(JSON.stringify(action.code)), dailyTotalCount: JSON.parse(JSON.stringify(total))};
         case "STATS":
@@ -80,6 +81,7 @@ const SiteReducer = (state, action) => {
                 worker_count_not_manager: 0,
                 worker_count_safe: 0,
                 worker_count_work: 0,
+                equip_count: 0,
             };
             list2 = list2?.map(site => {
                 if(site.type === "main"){
@@ -93,13 +95,14 @@ const SiteReducer = (state, action) => {
                         item.worker_count_not_manager = matchingItem.worker_count_not_manager;
                         item.worker_count_safe = matchingItem.worker_count_safe;
                         item.worker_count_work = matchingItem.worker_count_work;
-
+                        
                         total2.worker_count_date += matchingItem.worker_count_date;
                         total2.worker_count_htenc += matchingItem.worker_count_htenc;
                         total2.worker_count_manager += matchingItem.worker_count_manager;
                         total2.worker_count_not_manager += matchingItem.worker_count_not_manager;
                         total2.worker_count_safe += matchingItem.worker_count_safe;
                         total2.worker_count_work += matchingItem.worker_count_work;
+                        total2.equip_count += matchingItem.equip_count;
 
                         return item;
                     })
@@ -115,7 +118,7 @@ const SiteReducer = (state, action) => {
                 }
                 return site;
             });
-
+            
             return {...state, list: JSON.parse(JSON.stringify(list2)), dailyTotalCount: JSON.parse(JSON.stringify(total2))};
     }
 }
