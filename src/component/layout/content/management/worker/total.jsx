@@ -39,7 +39,7 @@ import { Common } from "../../../../../utils/Common";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /worker/total (전체근로자 조회), /site/nm (현장데이터 조회), /project/nm (프로젝트 조회), /code (코드조회)
+ *    Http Method - GET : /worker/total (전체근로자 조회), /site/nm (현장데이터 조회), /project/job_name (프로젝트명 조회), /code (코드조회)
  *    Http Method - POST : /worker/total (근로자 추가)
  *    Http Method - PUT : /worker/total (근로자 수정)
  */
@@ -191,7 +191,7 @@ const Total = () => {
     const getProjectData = async () => {
         setIsLoading(true);
 
-        const res = await Axios.GET(`/project/nm`);
+        const res = await Axios.GET(`/project/job_name`);
         if (res?.data?.result === "Success") {
             dispatch({ type: "PROJECT_NM", list: res?.data?.values?.list });
         } else if (res?.data?.result === "Failure") {

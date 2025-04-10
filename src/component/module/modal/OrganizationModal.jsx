@@ -18,7 +18,7 @@ import Modal from "../Modal";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /project/organization/${jno} (프로젝트조회)
+ *    Http Method - GET : /organization/${jno} (프로젝트조회)
  */
 // 조직도 모달
 const OrganizationModal = ({isOpen, fncExit, type, projectNo}) => {
@@ -52,7 +52,7 @@ const OrganizationModal = ({isOpen, fncExit, type, projectNo}) => {
             setModalOpen(false)
         }
 
-        const res = await Axios.GET(`/project/organization/${jno}`)
+        const res = await Axios.GET(`/organization/${jno}`)
         if(res?.data?.result === "Success"){
             setClient(res?.data?.values?.client)
             setHitech(res?.data?.values?.hitech)            
