@@ -20,7 +20,7 @@ import NoticeModal from "./NoticeModal";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /project/nm/{uno} (프로젝트데이터 조회)
+ *    Http Method - GET : /project/my-job_name/{uno} (프로젝트데이터 조회)
  */
 const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
     const [state, dispatch] = useReducer(NoticeReducer, {
@@ -168,7 +168,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
         setIsLoading(true);
 
         // FIXME : 관리자권한
-        const res = await Axios.GET(`/project/nm/${user.uno}?role=ADMIN`);
+        const res = await Axios.GET(`/project/my-job_name/${user.uno}?role=ADMIN`);
 
         if (res?.data?.result === "Success") {
             dispatch({ type: "PROJECT_NM", projectNm: res?.data?.values?.project_nm });

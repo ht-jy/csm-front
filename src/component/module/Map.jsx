@@ -19,7 +19,7 @@ import zoomOutIcon from "../../assets/image/zoom-out.png"
  * @additionalInfo
  * - vw.ol3.MAP, vw.ol3.layer.Marker: vworld에서 제공하는 지도 이용
  * - API: 
- *    Http Method - GET: /site/point (주소 x,  y좌표 조회)
+ *    Http Method - GET: /map/point (주소 x,  y좌표 조회)
  * 
  */
 
@@ -33,7 +33,7 @@ const Map = ( {roadAddress} ) => {
     // 좌표값 불러오기
     const getPoint = async () => {
         // vworld상 좌표값을 얻기 위한 요청
-        const res = await Axios.GET(`/site/point?roadAddress=${roadAddress}`)
+        const res = await Axios.GET(`/map/point?roadAddress=${roadAddress}`)
         if (res?.data?.result === "Success") {
             setPoint(res?.data?.values?.point)
         }else {

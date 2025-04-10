@@ -20,7 +20,7 @@ import Exit from "../../../assets/image/exit.png";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /project/non-used (현장근태에 등록되지 않은 프로젝트 조회)
+ *    Http Method - GET : /project/non-reg (현장근태에 등록되지 않은 프로젝트 조회)
  */
 const NonUsedProjectModal = ({isOpen=false, fncExit, onClickRow}) => {
 
@@ -61,7 +61,7 @@ const NonUsedProjectModal = ({isOpen=false, fncExit, onClickRow}) => {
 
     // 프로젝트 조회
     const getData = async () => {
-        const res = await Axios.GET(`/project/non-used?page_num=${pageNum}&row_size=${rowSize}&order=${order}&rnum_order=${rnumOrder}&retry_search=${retrySearchText}&jno=${searchValues.jno}&job_no=${searchValues.job_no}&job_name=${searchValues.job_name}&job_year=${searchValues.job_year}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&job_pm_nm=${searchValues.job_pm_nm}`);
+        const res = await Axios.GET(`/project/non-reg?page_num=${pageNum}&row_size=${rowSize}&order=${order}&rnum_order=${rnumOrder}&retry_search=${retrySearchText}&jno=${searchValues.jno}&job_no=${searchValues.job_no}&job_name=${searchValues.job_name}&job_year=${searchValues.job_year}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&job_pm_nm=${searchValues.job_pm_nm}`);
         
         if (res?.data?.result === "Success") {
             setData(res?.data?.values?.list);

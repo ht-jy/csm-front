@@ -35,7 +35,7 @@ import warningWhether from "../../../../../assets/image/warningWhether.png"
  * 
  * @additionalInfo
  * - API:
- *    Http Method - GET : /site (현장관리 조회), /site/stats (현장상태 조회), /project/count (프로젝트별 근로자 수 조회)
+ *    Http Method - GET : /site (현장관리 조회), /site/stats (현장상태 조회), /project/worker-count (프로젝트별 근로자 수 조회)
  *    Http Method - PUT : /site (현장관리 수정)
  * - 주요 상태 관리: useReducer
  */
@@ -285,7 +285,7 @@ const Site = () => {
 
     // 프로젝트별 근로자 수 조회
     const getWorkerCountData = async () => {
-        const res = await Axios.GET(`/project/count?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}`);
+        const res = await Axios.GET(`/project/worker-count?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}`);
         
         if (res?.data?.result === "Success") {
             dispatch({ type: "COUNT", list: res?.data?.values?.list });
