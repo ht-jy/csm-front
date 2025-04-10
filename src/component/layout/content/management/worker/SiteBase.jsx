@@ -176,14 +176,21 @@ const SiteBase = () => {
         if(tableRef.current){
             setModalTitle("근로자 프로젝트 변경");
             const forwradRes = tableRef.current.getCheckedItemList();
-
+            
             if(forwradRes.length === 0){
                 setModalText("프로젝트를 변경할 근로자를 선택하세요.");
                 setIsModal(true);
                 return;
             }
-        }
 
+            const deadlineArr = forwradRes.filter(item => item.is_deadline === "Y");
+            if(deadlineArr.length > 0){
+                setModalText("마감처리된 근로자는 프로젝트 이동을 할 수 없습니다.\n선택한 근로자를 확인해주세요.");
+                setIsModal(true);
+                return;
+            }
+        }
+        
         setIsProjectModal(true);
     }
 
