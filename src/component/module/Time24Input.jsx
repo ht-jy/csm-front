@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import "../../assets/css/TimeInput.css";
 import { dateUtil } from '../../utils/DateUtil';
+import { ObjChk } from '../../utils/ObjChk';
 
 /**
  * @description: 시간 입력을 위한 input. hh24:mm:ss
@@ -39,7 +40,8 @@ const Time24Input = ({btnStyle, time, setTime}) => {
     }
 
     useEffect(() => {
-        if(time !== "0001-01-01T00:00:00Z" && time !== ""){
+        console.log(time);
+        if(time !== "0001-01-01T00:00:00Z" && !ObjChk.all(time)){
             const date = new Date(time);
             const hours = String(date.getHours()).padStart(2, '0');
             const minutes = String(date.getMinutes()).padStart(2, '0');

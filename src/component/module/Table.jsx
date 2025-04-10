@@ -361,6 +361,7 @@ const Table = forwardRef(({
     const addTableEmptyRow = () => {
         let tableDataCopy = [...tableData];
         const copiedObject = { ...tableDataCopy[1] };
+        copiedObject['unableEdit'] = 'N'; // 맨 위의 데이터가 수정불가인 경우가 있는 경우위하여 디폴트 값 설정
         Object.keys(copiedObject).forEach(key => {
             const findEditinfo = editInfo.find(item => item.itemName === key);
             if (findEditinfo !== undefined && findEditinfo.defaultValue !== undefined) {
