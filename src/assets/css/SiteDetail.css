@@ -189,6 +189,7 @@
     border: 0px solid #dcdcdc;
     border-radius: 4px;
     font-size: 16px;
+    height: 44px;
 }
 
 .form-input input[type="email"], .form-input input[type="password"], .form-input input[type="text"] {

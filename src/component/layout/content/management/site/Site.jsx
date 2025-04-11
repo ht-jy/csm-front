@@ -183,7 +183,7 @@ const Site = () => {
         }
 
         const res = await Axios.PUT("/site", data)
-
+        
         if (res?.data?.result === "Success") {
             setModalText("현장 수정에 성공하였습니다.")
             setIsDetail(false);
@@ -505,7 +505,7 @@ const Site = () => {
                                                 {/* 현장 */}
                                                 <td className="left ellipsis text-hover fixed-left" style={{ cursor: "pointer", left: "110px" }} onClick={() => onClickRow(idx)}>{item.site_nm || ""}</td>
                                                 {/* 공정률 */}
-                                                <td className="center" rowSpan={item.rowSpan} style={{ fontWeight: "bold" }}>66%</td>
+                                                <td className="center" rowSpan={item.rowSpan} style={{ fontWeight: "bold" }}>{item.work_rate}%</td>
                                                 {/* 누계 */}
                                                 <td className="right" rowSpan={item.rowSpan} style={{ fontWeight: "bold" }}>
                                                     {

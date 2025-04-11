@@ -5,6 +5,8 @@ import DateInput from "../../../../module/DateInput";
 import Button from "../../../../module/Button";
 import Select from 'react-select';
 import SiteContext from "../../../../context/SiteContext";
+import Slider from "rc-slider";
+import 'rc-slider/assets/index.css';
 import whether0 from "../../../../../assets/image/whether/0.png";
 import whether1 from "../../../../../assets/image/whether/1.png";
 import whether2 from "../../../../../assets/image/whether/2.png";
@@ -18,6 +20,7 @@ import whether14 from "../../../../../assets/image/whether/14.png";
 import Map from "../../../../module/Map";
 import Modal from "../../../../module/Modal";
 import Loading from "../../../../module/Loading";
+import { Common } from "../../../../../utils/Common";
 
 /**
  * @description: 현장 상세 컴포넌트
@@ -47,6 +50,15 @@ const DetailSite = ({isEdit, detailData, projectData, handleChangeValue, address
     const [nonUseConfirmText, setNonUseConfirmText] = useState("");
     /** 로딩 **/
     const [isLoading, setIsLoading] = useState(false);
+    /** 슬라이더 **/
+    const [sliderValue, setSliderValue] = useState(0);
+
+    // 슬라이더 변경 이벤트
+    const onChangeSliderValue = (value) => {
+        const formatValue = Common.sanitizeNumberInput(value);
+        setSliderValue(formatValue);
+        handleChangeValue("work_rate", formatValue);
+    }
     
     // 현장 데이터 변경 이벤트
     const handleChange = (name, value) => {
@@ -221,16 +233,30 @@ const DetailSite = ({isEdit, detailData, projectData, handleChangeValue, address
         setIsNonUseConfirm(false);
     }
 
+    /***** useEffect *****/
+
     useEffect(() => {
         setData(detailData);
+
+        // 날짜
         if(detailData.site_date !== undefined){
             setDateInit();
         }
         
+        // 기본 프로젝트
         const options = projectData.map(item => {
             return {value: item.jno, label:item.project_nm};
         });
         setProjectOption(options);
+
+        // 공정률
+        if(typeof detailData.work_rate === "number"){
+            setSliderValue(detailData.work_rate);
+        }else{
+            setSliderValue(0);
+        }
+
+        
     }, [isEdit]);
 
     useEffect(() => {
@@ -285,19 +311,6 @@ const DetailSite = ({isEdit, detailData, projectData, handleChangeValue, address
                         <div className="read-only-input">
                             {data.loc_name}{`(${data.loc_code||"-"})`}
                         </div>
-                        {/* {isEdit ? (
-                            <input
-                            style={{ width: "100%", padding: "0.5rem" }}
-                            type="text"
-                            name={"loc_name"}
-                            value={data.loc_name + ` (${data.loc_code||"-"})`}      
-                            onChange={(e) => handelChange(e.target.name, e.target.value)}
-                            />
-                            ) : (
-                                <div className="read-only-input">
-                                {data.loc_name}{`(${data.loc_code||"-"})`}
-                                </div>
-                                )} */}
                     </div>
                 </div>
             </div>
@@ -310,19 +323,6 @@ const DetailSite = ({isEdit, detailData, projectData, handleChangeValue, address
                         <div className="read-only-input">
                             {data.site_nm}
                         </div>
-                        {/* {isEdit ? (
-                            <input
-                            style={{ width: "100%", padding: "0.5rem" }}
-                            type="text"
-                            name={"site_nm"}
-                            value={data.site_nm}
-                            onChange={(e) => handelChange(e.target.name, e.target.value)}
-                            />
-                            ) : (
-                                <div className="read-only-input">
-                                {data.site_nm}
-                                </div>
-                                )} */}
                     </div>
                 </div>
             </div>
@@ -393,6 +393,33 @@ const DetailSite = ({isEdit, detailData, projectData, handleChangeValue, address
             <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "8" }}>
                 <div className="text-overflow">
                     <label className="text-label">
+                        공정률
+                    </label>
+                    <div className="form-input" style={{ flex: 1 }}>
+                        <div style={{display: "flex", alignItems: "center", marginLeft: "5px"}}>
+                            {
+                                isEdit ?
+                                    <input type="text" value={sliderValue} onChange={(e) => onChangeSliderValue(e.target.value)} style={{height: "40px", width: "50px", textAlign: "right", paddingRight: "5px"}}/>
+                                :
+                                    sliderValue
+                            }
+                            &nbsp;%
+                            <div style={{width: "300px", marginLeft: isEdit ? "20px" : "62px",}}>
+                                <Slider 
+                                    min={0}
+                                    max={100}
+                                    value={sliderValue}
+                                    onChange={onChangeSliderValue}
+                                    disabled={!isEdit}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "9" }}>
+                <div className="text-overflow">
+                    <label className="text-label">
                         기본 프로젝트
                     </label>
                     <div className="form-input" style={{ flex: 1 }}>
@@ -426,7 +453,7 @@ const DetailSite = ({isEdit, detailData, projectData, handleChangeValue, address
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "9" }}>
+            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "10" }}>
                 <div className="text-overflow">
                     <label className="text-label">
                         주소
@@ -455,7 +482,7 @@ const DetailSite = ({isEdit, detailData, projectData, handleChangeValue, address
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "10" }}>
+            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "11" }}>
                 <div className="text-overflow">
                     <label className="text-label">
                         현장 날씨
@@ -479,7 +506,7 @@ const DetailSite = ({isEdit, detailData, projectData, handleChangeValue, address
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1 / span 2", gridRow: "11" }}>
+            <div className="form-control text-none-border" style={{ gridColumn: "1 / span 2", gridRow: "12" }}>
                 <div style={{ width: "100%" }}>
                     <label className="text-label">비고</label>
                     <div className="form-textbox">
@@ -505,7 +532,7 @@ const DetailSite = ({isEdit, detailData, projectData, handleChangeValue, address
             </div>
 
             {/* 두 번째 열 */}
-            <div className="form-control" style={{ gridColumn: "2", gridRow: "2 / span 9" }}>
+            <div className="form-control" style={{ gridColumn: "2", gridRow: "2 / span 10" }}>
                  <Map roadAddress={data?.site_pos?.road_address}></Map>
             </div>
         </div>

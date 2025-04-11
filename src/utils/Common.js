@@ -164,20 +164,16 @@ export const Common = {
       if (input === undefined || input === null) {
           return "";
       }
-      // 입력값을 문자열로 변환
+      
       let str = typeof input === "number" ? input.toString() : input;
-      // 숫자가 아닌 모든 문자 제거 (예: 알파벳, 특수문자)
       let numericStr = str.replace(/\D/g, "");
       
-      // 숫자가 없으면 빈 문자열 리턴
       if (numericStr === "") {
           return "";
       }
       
-      // 값이 "0" 하나인 경우는 그대로 두고, 그 외에는 앞의 불필요한 0 제거
       if (numericStr !== "0") {
           numericStr = numericStr.replace(/^0+/, "");
-          // 만약 모든 숫자가 0이었다면 빈 문자열이 될 수 있으므로, 그 경우 "0"으로 설정
           if (numericStr === "") {
               numericStr = "0";
           }
@@ -185,5 +181,23 @@ export const Common = {
       
       // 천 단위 콤마 삽입
       return numericStr.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    },
+    sanitizeNumberInput(input) {
+      let inputStr = String(input);
+      let sanitized = inputStr.replace(/\D/g, '');
+      
+      if (sanitized === '') {
+        return 0;
+      }
+
+      if (sanitized.length > 1) {
+        sanitized = sanitized.replace(/^0+/, '');
+      }
+      
+      let numberValue = parseInt(sanitized, 10);
+      
+      numberValue = Math.min(Math.max(numberValue, 0), 100);
+      
+      return numberValue;
     }
 } 
