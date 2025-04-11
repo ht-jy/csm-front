@@ -40,7 +40,6 @@ const Time24Input = ({btnStyle, time, setTime}) => {
     }
 
     useEffect(() => {
-        console.log(time);
         if(time !== "0001-01-01T00:00:00Z" && !ObjChk.all(time)){
             const date = new Date(time);
             const hours = String(date.getHours()).padStart(2, '0');
