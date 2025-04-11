@@ -3,6 +3,7 @@ import "../../../../../assets/css/Table.css";
 import { Axios } from "../../../../../utils/axios/Axios"
 import { dateUtil } from "../../../../../utils/DateUtil";
 import { useAuth } from "../../../../context/AuthContext";
+import SiteContext from "../../../../context/SiteContext";
 import SiteReducer from "./SiteReducer"
 import DetailModal from "./DetailModal";
 import Loading from "../../../../module/Loading";
@@ -39,6 +40,7 @@ import warningWhether from "../../../../../assets/image/warningWhether.png"
  *    Http Method - PUT : /site (현장관리 수정)
  * - 주요 상태 관리: useReducer
  */
+
 const Site = () => {
     const [state, dispatch] = useReducer(SiteReducer, {
         list: [],
@@ -373,16 +375,18 @@ const Site = () => {
             />
             {
                 isDetail &&
-                <DetailModal
-                    isOpen={isDetail}
-                    setIsOpen={setIsDetail}
-                    title={detailTitle}
-                    detailData={detailData}
-                    isEditBtn={true}
-                    exitBtnClick={handleExitBtn}
-                    saveBtnClick={(data) => saveData(data)}
-                    isSiteAdd={isSiteAdd}
-                />
+                <SiteContext.Provider value={{getData, setIsDetail}}>
+                    <DetailModal
+                        isOpen={isDetail}
+                        setIsOpen={setIsDetail}
+                        title={detailTitle}
+                        detailData={detailData}
+                        isEditBtn={true}
+                        exitBtnClick={handleExitBtn}
+                        saveBtnClick={(data) => saveData(data)}
+                        isSiteAdd={isSiteAdd}
+                    />
+                </SiteContext.Provider>
             }
             <div className="container-fluid px-4">
                 <ol className="breadcrumb mb-2 content-title-box">

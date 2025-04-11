@@ -413,6 +413,7 @@ const SiteBase = () => {
 
     // 상단 프로젝트 변경
     useEffect(() => {
+        setIsEdit(false);
         getData();
     }, [project, searchStartTime, searchEndTime]);
 
