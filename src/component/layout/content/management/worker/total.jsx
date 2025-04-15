@@ -2,22 +2,24 @@ import { useState, useEffect, useReducer } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import { useAuth } from "../../../../context/AuthContext";
+import { Common } from "../../../../../utils/Common";
 import Button from "../../../../module/Button";
 import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
 import Table from "../../../../module/Table";
 import TotalReducer from "./TotalReducer";
+import useDetailModal from "../../../../../utils/hooks/useDetailModal";
 import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons ";
 import useTableControlState from "../../../../../utils/hooks/useTableControlState";
 import useTableSearch from "../../../../../utils/hooks/useTableSearch";
 import Search from "../../../../module/search/Search";
 import GridModal from "../../../../module/GridModal";
+import TotalDetailModal from "./TotalDetailModal";
 import useGridModalControlState from "../../../../../utils/hooks/useGridModalControlState";
 import useGridModalSearch from "../../../../../utils/hooks/useGridModalSearch";
 import "../../../../../assets/css/Calendar.css";
 import "../../../../../assets/css/Paginate.css";
 import "../../../../../assets/css/Table.css";
-import { Common } from "../../../../../utils/Common";
 
 /**
  * @description: 전체 근로자 관리
@@ -62,19 +64,7 @@ const Total = () => {
     const [modalTitle, setModalTitle] = useState("");
     const [modalText, setModalText] = useState("");
     // 상세모달
-    const gridData = [
-        { type: "select", span: "full", label: "현장", width: "110px", value: "", selectName: "siteNm", isKey: true },
-        { type: "select", span: "full", label: "프로젝트", width: "110px", value: "", selectName: "projectNm", isKey: true },
-        { type: "text", span: "double", label: "아이디", width: "110px", value: "", isKey: true },
-        { type: "text", span: "double", label: "이름", width: "110px", value: "" },
-        { type: "text", span: "double", label: "부서/조직명", width: "110px", value: "" },
-        { type: "text", span: "double", label: "핸드폰 번호", width: "110px", value: "", format: "formatMobileNumber" },
-        { type: "text-regidentMask", span: "double", label: "주민등록번호", width: "110px", value: "", format: "maskResidentNumber" },
-        { type: "radio", span: "double", label: "근로자 구분", width: "110px", value: "", radioValues: state.workerTypeCodes.map(item => item.code)||[], radioLabels: state.workerTypeCodes.map(item => item.code_nm)||[] },
-        { type: "checkbox", span: "double", label: "퇴직여부", width: "110px", value: "", checkedLabels: ["퇴직자", "재직자"], triggerHideId : "retire" },
-        { type: "date", span: "double", label: "퇴직날짜", width: "110px", value: "", dependency: [true, "retire", "Y"] },
-    ];
-    const {isGridModal, setIsGridModal, gridMode, setGridMode, detail, setDetail, isMod, setIsMod} = useGridModalControlState();
+    const {isDetailModal, setIsDetailModal, detailData, detailMode, setDetailMode, isMod, setIsMod, handleDetailModalOn, handleModeSet, getModeString, handleExitBtnClick} = useDetailModal();
 
     const columns = [
         { isSearch: false, isOrder: true, isSlide: true, width: "50px", header: "순번", itemName: "rnum", bodyAlign: "center", isEllipsis: false, isDate: false, type: "number" },
@@ -97,48 +87,31 @@ const Total = () => {
         { value: "DEPARTMENT", label: "부서/조직명" },
     ];
 
-    // 테이블 row 클릭
-    const onClickTableRow = (item, mode) => {
-        
-        const arr = [
-            item.sno, 
-            item.jno,
-            item.user_id, 
-            item.user_nm, 
-            item.department, 
-            item.phone, 
-            item.reg_no,
-            item.worker_type, 
-            item.is_retire,
-            dateUtil.format(item.retire_date)
-        ];
-
-        handleGridModalOn(mode, arr);
-    }
-
     // GridModal의 저장 버튼 이벤트 - (저장, 수정)
     const onClicklModalSave = async (item, mode) => {
         
-        setGridMode(mode)
-        
+        // setGridMode(mode);
+        setDetailMode(mode);
+
         let retireDate = null;
-        if (item[7].value !== 'Y'){
+        if (item.is_retire !== 'Y'){
             retireDate = null;
         }else{
-            retireDate = dateUtil.parseToGo(item[8].value);
+            retireDate = dateUtil.parseToGo(item.retire_date);
         }
         
         const worker = {
-            sno: item[0].value || 0,
-            jno: item[1].value || 0,
-            user_id: item[2].value || "",
-            user_nm: item[3].value || "",
-            department: item[4].value || "",
-            phone: Common.formatMobileNumber(item[5].value) || "",
-            reg_no: item[6].value || "",
-            worker_type: item[7].value || "00",
-            is_retire: item[8].value || "N",
+            sno: item.sno || 0,
+            jno: item.jno || 0,
+            user_id: item.user_id || "",
+            user_nm: item.user_nm || "",
+            department: item.department || "",
+            phone: item.phone || "",
+            reg_no: item.reg_no || "",
+            worker_type: item.worker_type || "00",
+            is_retire: item.is_retire || "N",
             retire_date: retireDate,
+            is_manage: item.is_manage || "N",
             reg_user: user.userName || "",
             reg_uno: user.uno || 0,
             mod_user: user.userName || "",
@@ -147,7 +120,7 @@ const Total = () => {
         
         setIsLoading(true);
         let res;
-        if (gridMode === "SAVE") {
+        if (detailMode === "SAVE") {
             res = await Axios.POST(`/worker/total`, worker);
         } else {
             res = await Axios.PUT(`/worker/total`, worker);
@@ -165,7 +138,7 @@ const Total = () => {
         }
 
         setIsLoading(false);
-        setIsGridModal(false);
+        setIsDetailModal(false);
         setIsModal(true);
     }
 
@@ -286,9 +259,13 @@ const Total = () => {
         handleSortChange,
         handlePageClick,
     } = useTableSearch({ columns, getDataFunction: getData, pageNum, retrySearchText, setRetrySearchText, setPageNum, rowSize, setRowSize, order, setOrder, rnumOrder, setRnumOrder });
-    // 상세 모달 조작
-    const {handleGridModalOn, handleModeSet, getModeString, handleExitBtnClick} = useGridModalSearch({gridData, getSelectOptionData:[getSiteData, getProjectData], setIsGridModal, gridMode, setGridMode, setDetail});
 
+    /***** useEffect *****/
+
+    useEffect(() => {
+        getSiteData();
+        getProjectData();
+    }, []);
     return (
         <div>
             <Loading isOpen={isLoading} />
@@ -299,15 +276,15 @@ const Total = () => {
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
             />
-            <GridModal
-                isOpen={isGridModal}
-                gridMode={gridMode}
+            <TotalDetailModal
+                isOpen={isDetailModal}
+                gridMode={detailMode}
                 funcModeSet={handleModeSet}
                 editBtn={true}
                 removeBtn={false}
                 title={`근로자 관리 ${getModeString()}`}
                 exitBtnClick={handleExitBtnClick}
-                detailData={detail}
+                detailData={detailData}
                 selectList={state.selectList}
                 saveBtnClick={onClicklModalSave}
             />
@@ -318,7 +295,7 @@ const Total = () => {
                         <li className="breadcrumb-item content-title">전체 근로자</li>
                         <li className="breadcrumb-item active content-title-sub">근로자 관리</li>
                         <div className="table-header-right">
-                            <Button text={"추가"} onClick={() => handleGridModalOn("SAVE")} />
+                            <Button text={"추가"} onClick={() => handleDetailModalOn({}, "SAVE")} />
                         </div>
                     </ol>
                     
@@ -367,7 +344,7 @@ const Total = () => {
                                 resetTrigger={isSearchReset}
                                 onSortChange={handleSortChange}
                                 isHeaderFixed={true}
-                                onClickRow={onClickTableRow}
+                                onClickRow={handleDetailModalOn}
                             />
                         </div>
                     </div>
