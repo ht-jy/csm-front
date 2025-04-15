@@ -24,7 +24,7 @@ function App() {
     return (
         <div className="App">
             <AuthProvider>
-                <ErrorBoundary>
+                {/* <ErrorBoundary> */}
                     <Routes>
                         <Route path="/login" element={<Login />} />
                         <Route path="/error" element={<ErrorPage />} />
@@ -46,7 +46,7 @@ function App() {
                         {/* 잘못된 경로 */}
                         <Route path="*" element={<NotFound />} />
                     </Routes>
-                </ErrorBoundary>
+                {/* </ErrorBoundary> */}
             </AuthProvider>
         </div>
     );

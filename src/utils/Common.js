@@ -1,3 +1,5 @@
+import { ObjChk } from "./ObjChk";
+
 export const Common = {
     // 핸드폰 번호 검증
     isValidMobileNumber(phoneNumber) {
@@ -119,24 +121,41 @@ export const Common = {
         
         return true;
     },
+    // 주민번호 
+    residentNumber(jumin) {
+      if(ObjChk.all(jumin)) return "";
+
+      let cleaned = jumin.replace(/[^0-9*]/g, '');
+
+      // 주민번호 최대 길이 13자리로 제한
+        if (cleaned.length > 13) {
+          cleaned = cleaned.slice(0, 13);
+      }
+
+        // 생년월일(6자리) 미만이면 그대로 반환
+        if (cleaned.length < 7) {
+            return cleaned;
+        }
+        
+        const birth = cleaned.slice(0, 6);
+        const remainder = cleaned.slice(6);
+        
+        return `${birth}-${remainder}`;
+    },
     // 주민번호 마스킹
     maskResidentNumber(jumin) {
+        if(ObjChk.all(jumin)) return "";
+
         // 모든 숫자가 아닌 문자는 제거
         let cleaned = jumin.replace(/[^0-9*]/g, '');
 
-        // 주민번호 최대 길이 13자리로 제한
           if (cleaned.length > 13) {
             cleaned = cleaned.slice(0, 13);
         }
 
           // 생년월일(6자리) 미만이면 그대로 반환
-          if (cleaned.length < 6) {
+          if (cleaned.length < 7) {
               return cleaned;
-          }
-          
-          // 6자리이면 하이픈만 붙여서 반환 (예: "250327" -> "250327-")
-          if (cleaned.length === 6) {
-              return cleaned + '-';
           }
           
           // 6자리보다 길면 앞 6자리는 그대로, 그 이후 첫 자리는 노출, 나머지는 마스킹 처리

@@ -44,7 +44,11 @@ const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalenda
     };
 
     useEffect(() => {
-        setTime(time);
+        if(time === null || time === "-") {
+            setTime(dateUtil.format(new Date()));
+        }else{
+            setTime(time);
+        }
     }, [time])
 
     return (
