@@ -11,8 +11,8 @@ import "../../assets/css/Toggle.css";
  * @usedComponents
  * - onClickValue 토글 true|false 반환 받을 함수
  */
-const Toggle = ({onClickValue}) => {
-  const [isToggleOn, setIsToggleOn] = useState(false);
+const Toggle = ({onClickValue, style, initValue}) => {
+  const [isToggleOn, setIsToggleOn] = useState(initValue ? true : false);
 
   const onClickToggle = () => {
     setIsToggleOn(!isToggleOn)
@@ -20,7 +20,7 @@ const Toggle = ({onClickValue}) => {
   }
 
   return (
-    <div className="ToggleWrap" onClick={onClickToggle}>
+    <div className="ToggleWrap" onClick={onClickToggle} style={{...style}}>
       <div className="Toggle" style={isToggleOn ? {backgroundColor: "#007bff"} : {backgroundColor: "#C1C1C1"}}>
         <div className="ToggleButton" style={isToggleOn ? {transform: "translateX(16px)"} : {transform: "translateX(0px)"}}></div>
       </div>

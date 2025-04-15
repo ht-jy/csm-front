@@ -17,7 +17,8 @@ const TextInput = ({initText, setText, style}) => {
     const [inputText, setInputText] = useState("");
 
     const onChageText = (e) => {
-        onChageText(e.target.value);
+        // onChageText(e.target.value);
+        setInputText(e.target.value);
         setText(e.target.value);
     }
 

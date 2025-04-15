@@ -1,14 +1,16 @@
 
+export const initialState = {
+    subCodeList: [],
+    path: ""
+};
 
 const CodeReducer = (state, action) => {
     switch (action.type) {
-        case "subCodeList" :
-            return { ...state, subCodeList: [action.list]};
+        case "subCodeList":
+            return { ...state, subCodeList: [action.list] };
 
-        case "path" :
-            
-            return {...state, path: action.path}
-
+        case "path":
+            return { ...state, path: action.path }
     }
 }
 
