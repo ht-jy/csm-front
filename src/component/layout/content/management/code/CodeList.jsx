@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import detail from "../../../../../assets/image/detail.png"
 import plus from "../../../../../assets/image/plus.png"
 import minus from "../../../../../assets/image/minus.png"
@@ -57,7 +57,7 @@ const CodeList = ({ code, idx, level, pCode, expand, codeTrees, codeSet, dispatc
 
             {isExpanded && codeTrees && codeTrees.map((codeTree, index) => (
                 <CodeList
-                    key={`${codeTree.idx ?? 'no-code'}`}
+                    key={index}
                     code={codeTree.code}
                     idx={codeTree.idx}
                     level={codeTree.level}

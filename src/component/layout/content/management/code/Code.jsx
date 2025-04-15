@@ -3,7 +3,7 @@ import SubCodeList from "./SubCodeList"
 import { Axios } from "../../../../../utils/axios/Axios"
 import { useEffect, useReducer, useState } from "react";
 import CodeReducer, { initialState } from "./CodeReducer";
-
+import Loading from "../../../../module/Loading";
 
 /**
  * @description: 코드 관리
@@ -21,8 +21,11 @@ import CodeReducer, { initialState } from "./CodeReducer";
  * - 주요 상태 관리: CodeReducer
  */
 const Code = () => {
+    const [state, dispatch] = useReducer(CodeReducer, initialState);
     const [treeData, setTreeData] = useState([]);
     const [isDataChange, setIsDataChange] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+
     const codeSet = {
         level: 0,
         idx: 0,
@@ -39,21 +42,20 @@ const Code = () => {
         is_use: "Y",
         etc: ""
     }
-    const [state, dispatch] = useReducer(CodeReducer, initialState);
 
     // codeTrees 데이터 가져오는 API
     const getData = async () => {
-        // FIXME: 로딩 및 실패 모달
+        setIsLoading(true)
 
         const res = await Axios.GET("/code/tree")
 
-        if (res.data?.result == "Success") {
+        if (res.data?.result === "Success") {
             setTreeData(res.data?.values?.code_trees)
 
         } else {
-
         }
         setIsDataChange(false)
+        setIsLoading(false)
     }
 
     // 처음에 데이터 가져오기. 저장 시 가져오기
@@ -65,7 +67,6 @@ const Code = () => {
 
     // 초기 데이터 세팅
     useEffect(() => {
-
         const tree = {
             codeSet: codeSet,
             codeTrees: treeData
@@ -76,6 +77,7 @@ const Code = () => {
 
     return (
         <div>
+            <Loading isOpen={isLoading} />
             <div className="container-fluid px-4">
                 <ol className="breadcrumb mb-2 content-title-box">
                     <li className="breadcrumb-item content-title">코드 관리</li>
@@ -94,7 +96,7 @@ const Code = () => {
                         <div style={{ ...contentStyle, width: "15vw" }}>
 
                             {
-                                treeData.length == 0 ? null :
+                                treeData.length === 0 ? null :
                                     <CodeList
                                         key={-1}
                                         code={'root'}

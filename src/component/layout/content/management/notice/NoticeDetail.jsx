@@ -11,7 +11,7 @@ import NoticeModal from "./NoticeModal";
 /**
  * @description: 
  * 
- * @author 작성자: 김진우
+ * @author 작성자: 정지영
  * @created 작성일: 2025-04-07
  * @modified 최종 수정일: 
  * @modifiedBy 최종 수정자: 
@@ -21,6 +21,9 @@ import NoticeModal from "./NoticeModal";
  * @additionalInfo
  * - API: 
  *    Http Method - GET : /project/my-job_name/{uno} (프로젝트데이터 조회)
+ *    Http Method - POST : /notice (공지사항 추가)
+ *    Http Method - PUT : /notice (공지사항 수정)
+ *    Http Method - DELETE :  /notice/${idx} (공지사항 삭제)
  */
 const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
     const [state, dispatch] = useReducer(NoticeReducer, {
@@ -263,7 +266,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
 
     // [GridModal] 수정 또는 디테일 모달 켜기
     useEffect(() => {
-        if (isDetail === true && notice.length != 0) {                    
+        if (isDetail === true && notice.length !== 0) {                    
             handleGetGridModal("DETAIL", notice[0]);
         } 
         else if (isDetail === true) {

@@ -32,10 +32,7 @@ import NoticeReducer from "./NoticeReducer";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /notice (공지사항 조회), /notice/period (공개기간)
- *    Http Method - POST : /notice (공지사항 추가)
- *    Http Method - PUT : /notice (공지사항 수정)
- *    Http Method - DELETE :  /notice/${idx} (공지사항 삭제)
+ *    Http Method - GET : /notice (공지사항 조회)
  * - 주요 상태 관리: useReducer, useState
 */
 

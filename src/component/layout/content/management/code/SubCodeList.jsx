@@ -7,9 +7,28 @@ import { useAuth } from "../../../../context/AuthContext";
 import { Axios } from "../../../../../utils/axios/Axios";
 import Modal from "../../../../module/Modal";
 import { ObjChk } from "../../../../../utils/ObjChk";
+import Loading from "../../../../module/Loading";
 
+/**
+ * @description: 
+ * 
+ * @author 작성자: 정지영
+ * @created 작성일: 2025-04-15
+ * @modified 최종 수정일: 
+ * @modifiedBy 최종 수정자: 
+ * @usedComponents
+ * - 
+ * 
+ * @additionalInfo
+ * - API: 
+ *    Http Method - GET : 
+ *    Http Method - POST : /code (코드 수정)
+ *    Http Method - DELETE :  /code/{idx} (코드 삭제)
+ * - 주요 상태 관리: 
+ */
 const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
 
+    const [isLoading, setIsLoading] = useState(false);
     const [isAdd, setIsAdd] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
     const [editNo, setEditNo] = useState(-1);
@@ -18,12 +37,13 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
     const [modalText, setModalText] = useState("")
     const [modalTitle, setModalTitle] = useState("")
     const [isConfirmButton, setIsConfirmButton] = useState(false);
+    const [idx, setIdx] = useState(-1)
+
     const { user } = useAuth();
 
     // 코드추가 버튼 클릭 시
     const handleAddCode = () => {
         setIsAdd(true)
-        console.log("추가버튼 클릭 시", isAdd)
     }
 
     // 순서변경 버튼 클릭 시
@@ -92,8 +112,9 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
 
     }
 
-    // 저장 후 페이지 새로고침
+    // 저장 확인을 누르면 실행되는 함수
     const save = async () => {
+        setIsLoading(true)
 
         codeSet.reg_uno = user.uno
         codeSet.reg_user = user.userName
@@ -111,16 +132,52 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
 
         }
 
-        // 모달의 확인버튼 없애기
         setIsOpenModal(false)
+        setIsLoading(false)
         setIsConfirmButton(false)
-
     }
 
-    const onCilckDeleteButton = () => {
+    // 삭제 확인을 누르면 실행되는 함수
+    const deleteCode = async () => {
+        setIsLoading(true)
+        setIsOpenModal(false)
+
+        if(idx === -1){
+            setIsOpenModal(true)
+            setIsConfirmButton(false)
+            setModalTitle("삭제 실패")
+            setModalText("삭제에 실패했습니다.")
+
+            setIsLoading(false)
+            return
+        }
+        
+        const res = await Axios.DELETE(`/code/${idx}`)
+        setIsLoading(false)
+        if(res?.data?.result === "Success"){
+            setIsOpenModal(true)
+            setIsConfirmButton(false)
+            setModalTitle("삭제 성공")
+            setModalText("삭제에 성공했습니다.")
+            funcRefreshData()
+        }else{
+            setIsOpenModal(true)
+            setIsConfirmButton(false)
+            setModalTitle("삭제 실패")
+            setModalText("삭제에 실패했습니다.")
+        }
+        setIdx(-1)
+    }
+
+    // 삭제 버튼 클릭 시
+    const onCilckDeleteButton = (idx) => {
         // IDX로 삭제 API
         console.log("삭제")
-
+        setIdx(idx)
+        setIsOpenModal(true)
+        setIsConfirmButton(true)
+        setModalTitle("삭제하시겠습니까?")
+        setModalText("삭제 시 다시 복구 할 수 없습니다.")
     }
 
     // 취소 버튼 클릭 시
@@ -138,7 +195,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
     // 수정 버튼 클릭 시
     // FIXME: 코드ID가 다른 코드ID와 겹칠경우, 부모코드가 될 수 없음 
     const onCilckEditButton = (no, data) => {
-        // 수정모드로 변경 =>  저장/취소 버튼으로 변경
+
         initCodeSet(data)
         setIsEdit(true)
         setEditNo(no)
@@ -158,16 +215,16 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
 
     }, [isAdd, isEdit, editNo])
 
-    return <div style={{ margin: "0px 10px 10px 10px" }}>
+return <div style={{ margin: "0px 10px 10px 10px" }}>
+        <Loading isOpen={isLoading} />
         <Modal
             isOpen={isOpenModal}
             title={modalTitle}
             text={modalText}
             confirm={isConfirmButton ? "확인" : null}
-            fncConfirm={save}
+            fncConfirm={isEdit || isAdd ? save : deleteCode}
             cancel={isConfirmButton ? "취소" : "확인"}
             fncCancel={() => setIsOpenModal(false)}
-
         >
         </Modal>
         <div style={{ ...headerStyle }}>
@@ -213,8 +270,8 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
                                     :
                                     codeData.codeTrees && codeData.codeTrees?.map((codeTree, index) => (
                                         isEdit && editNo === index ?
-                                            <tr>
-                                                <td className="center">{codeTree.code_set.sort_no}</td>
+                                            <tr key={index}>
+                                                <td className="center">{index + 1}</td>
                                                 <td><TextInput style={{ ...textInputStyle }} initText={codeTree.code_set.code} setText={(value) => onChangeTableData("code", value)} /></td>
                                                 <td><TextInput style={{ ...textInputStyle }} initText={codeTree.code_set.code_nm} setText={(value) => onChangeTableData("code_nm", value)} /></td>
                                                 <td><ColorInput style={{ ...colorInputStyle }} initColor={codeTree.code_set.code_color} setColor={(value) => onChangeTableData("code_color", value)} ></ColorInput> </td>
@@ -231,8 +288,8 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
                                                 </td>
                                             </tr>
                                             :
-                                            <tr>
-                                                <td className="center">{codeTree.code_set.sort_no}</td>
+                                            <tr key={index}>
+                                                <td className="center">{index + 1}</td>
                                                 <td>{codeTree.code_set.code}</td>
                                                 <td>{codeTree.code_set.code_nm}</td>
                                                 <td style={{ justifyItems: 'center' }}> <div className="square" style={{ backgroundColor: `${codeTree.code_set.code_color}` }}></div></td>
@@ -247,7 +304,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
                                                 </td>
                                                 <td className="center">
                                                     <Button text={"수정"} style={{ ...buttonStyle }} onClick={() => onCilckEditButton(index, codeTree.code_set)}></Button>
-                                                    <Button text={"삭제"} style={{ ...buttonStyle }} onClick={() => onCilckDeleteButton()}></Button>
+                                                    <Button text={"삭제"} style={{ ...buttonStyle }} onClick={() => onCilckDeleteButton(codeTree.idx)}></Button>
                                                 </td>
                                             </tr>
                                     ))
@@ -258,7 +315,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
 
                         {isAdd ?
                             <tr>
-                                <td className="center">{data[0] && data[0]?.codeTrees.length !== 0 ? data[0]?.codeTrees[data[0]?.codeTrees.length - 1].code_set.sort_no + 1 : "1"}</td>
+                                <td className="center">{data[0] && data[0]?.codeTrees.length !== 0 ? data[0]?.codeTrees.length + 1 : "1"}</td>
                                 <td><TextInput style={{ ...textInputStyle }} initText={""} setText={(value) => onChangeTableData("code", value)} /></td>
                                 <td><TextInput style={{ ...textInputStyle }} initText={""} setText={(value) => onChangeTableData("code_nm", value)} /></td>
                                 <td><ColorInput style={{ ...colorInputStyle }} initColor={""} setColor={(value) => onChangeTableData("code_color", value)} /></td>
@@ -273,7 +330,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
                                     <Button text={"저장"} style={{ ...buttonStyle }} onClick={() => {
                                         // 부모코드 넣기 및 정렬순서 추가
                                         onChangeTableData("p_code", data[0]?.codeSet.code)
-                                        onChangeTableData("sort_no", data[0]?.codeTrees.length !== 0 ? data[0]?.codeTrees[data[0]?.codeTrees.length - 1].code_set.sort_no + 1 : 1)
+                                        onChangeTableData("sort_no", data[0]?.codeTrees.length !== 0 ? data[0]?.codeTrees.length + 1 : 1)
                                         // 저장
                                         onCilckSaveButton()
                                     }
