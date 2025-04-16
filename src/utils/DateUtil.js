@@ -23,6 +23,17 @@ export const dateUtil = {
             return "-";
         }
     },
+    // yyyymmdd -> Date() 변환
+    formatNumericDate(numericDate) {
+        const str = numericDate.toString();
+        if (str.length !== 8) {
+          return numericDate
+        }
+        const year = str.slice(0, 4);
+        const month = str.slice(4, 6);
+        const day = str.slice(6, 8);
+        return new Date(`${year}-${month}-${day}`);
+    },
     // go의 time.Time -> 'HH24:mm:ss" 반환
     formatTime24(dateString) {
         if (dateString === '0001-01-01T00:00:00Z' || dateString === '' || dateString === '-' || dateString === null) {
