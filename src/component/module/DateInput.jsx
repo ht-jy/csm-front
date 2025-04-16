@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import {Calendar} from "react-calendar";
+import { dateUtil } from "../../utils/DateUtil";
+import { Axios } from "../../utils/axios/Axios.js";
 import CalendarIcon from "../../assets/image/calendar-icon.png"
+import OutsideClick from "./OutsideClick.jsx";
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import "react-calendar/dist/Calendar.css";
 import "../../assets/css/Calendar.css";
 import "../../assets/css/DateInput.css";
-import { dateUtil } from "../../utils/DateUtil";
-import OutsideClick from "./OutsideClick.jsx";
 
 /**
  * @description: 날짜 입력 컴포넌트
@@ -26,8 +28,18 @@ import OutsideClick from "./OutsideClick.jsx";
  */
 const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalendarHide}) => {
 
-    const [saveTime, setSaveTime] = useState(time);
     const [showCalendar, setShowCalendar] = useState(false);
+
+    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+    /** 빨간색으로 표시할 날짜 목록 [{date: new Date('2025-05-01'), reason: "근로자의날"},...]**/
+    const [restDates, setRestDates] = useState([]);
+
+    // 날짜 비교 
+    const isSameDay = (date1, date2) => {
+        return date1.getFullYear() === date2.getFullYear() &&
+                date1.getMonth() === date2.getMonth() &&
+                date1.getDate() === date2.getDate();
+    };
 
     // dateUtil의 format으로 인하여 "-"가 들어갈 경우 처리
     const dateUtilFormat = (time) => {
@@ -43,6 +55,29 @@ const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalenda
             setShowCalendar(false);
     };
 
+    // 달력 뷰 변경(연도 변경)
+    const onActiveStartDateChange = ({ activeStartDate }) => {
+        if(currentYear !== activeStartDate.getFullYear()){
+            setCurrentYear(activeStartDate.getFullYear());
+        }
+    };
+
+    // 공휴일 조회
+    const getRestDate = async(year) => {
+        const res = await Axios.GET(`/api/rest-date?year=${year}&month=`);
+        
+        if (res?.data?.result === "Success") {
+            let rests = res?.data?.values?.list || [];
+            rests = rests.map(item => {
+                return {...item, date: dateUtil.formatNumericDate(item.rest_date)};
+            });
+            setRestDates([...rests]);
+        }
+    }
+
+    /***** useEffect *****/
+
+    // 날짜 초기화
     useEffect(() => {
         if(time === null || time === "-") {
             setTime(dateUtil.format(new Date()));
@@ -50,6 +85,11 @@ const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalenda
             setTime(time);
         }
     }, [time])
+
+    // 현재 연도 휴무일 조회
+    useEffect(() => {
+        getRestDate(currentYear);
+    }, [currentYear]);
 
     return (
         <span className="calendar-wrapper">
@@ -66,14 +106,38 @@ const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalenda
                     showCalendar && (
                         <div className="calendar-popup" style={{...calendarPopupStyle}}>
                             <OutsideClick setActive={setShowCalendar}>
-                                {/* FIXME: 공휴일 문제, 오늘로 날짜 돌리기 */}
                                 <Calendar 
                                     onChange={handleDateChange} 
                                     value={dateUtilFormat(time)} 
                                     locale="ko" 
                                     calendarType="gregory" 
+                                    onActiveStartDateChange={onActiveStartDateChange}
                                     formatDay={(locale, date) => date.toLocaleString('en', { day: 'numeric' })}
+                                    tileClassName={({ date, view }) => {
+                                        if (view === 'month') {
+                                          if ([...restDates].some(item => isSameDay(item.date, date))) {
+                                            return 'red-date';
+                                          }
+                                        }
+                                        return null;
+                                    }}
+                                    tileContent={({ date, view }) => {
+                                        if (view === 'month') {
+                                          const match = [...restDates].find(item => isSameDay(item.date, date));
+                                          if (match) {
+                                            return (
+                                                <div
+                                                    className="tile-tooltip"
+                                                    data-tooltip-id="highlightTooltip"
+                                                    data-tooltip-content={match.reason}
+                                                />
+                                            );
+                                          }
+                                        }
+                                        return null;
+                                    }}
                                 />
+                                <ReactTooltip id="highlightTooltip" delayShow={0} key={showCalendar ? 'open' : 'closed'} />
                             </OutsideClick>
                         </div>
                     )
