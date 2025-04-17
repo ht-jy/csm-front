@@ -464,7 +464,7 @@ const DetailSite = ({isEdit, detailData, projectData, handleChangeValue, address
                             addressData !== null ?
                             `${addressData?.roadAddress}` 
                             :
-                                `${data?.site_pos?.road_address}`
+                                `${data?.site_pos?.road_address ? data?.site_pos?.road_address : ""}`
                             }
                             {isEdit ? (
                                 <Button
