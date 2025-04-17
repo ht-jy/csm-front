@@ -65,7 +65,7 @@ const SideNav = () => {
                                     공지사항 관리
                                 </Link>
 
-                                <Link className="nav-link" to="/code">
+                                <Link className="nav-link" to="/code" style={{color: "white"}}>
                                     <div className="sb-nav-link-icon"><img src="/svg/menu/code-management.svg" width='20px' /></div>
                                     코드 관리
                                 </Link>
