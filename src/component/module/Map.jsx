@@ -5,6 +5,7 @@ import markerZoomIcon from "../../assets/image/markerZoom.png"
 import Modal from "./Modal";
 import zoomInIcon from "../../assets/image/zoom-in.png"
 import zoomOutIcon from "../../assets/image/zoom-out.png"
+import { ObjChk } from "../../utils/ObjChk";
 
 /**
  * @description: vworld의 지도 보여주는 컴포넌트
@@ -32,12 +33,14 @@ const Map = ( {roadAddress} ) => {
 
     // 좌표값 불러오기
     const getPoint = async () => {
+        if(roadAddress === null){
+            setIsModal(true);
+            return
+        }
         // vworld상 좌표값을 얻기 위한 요청
         const res = await Axios.GET(`/map/point?roadAddress=${roadAddress}`)
         if (res?.data?.result === "Success") {
             setPoint(res?.data?.values?.point)
-        }else {
-            setIsModal(true);
         }
     }
 
@@ -147,7 +150,8 @@ const Map = ( {roadAddress} ) => {
         <> 
             <Modal
                 isOpen={isModal}
-                text={"지도를 불러올 수 없습니다."}
+                title={"지도"}
+                text={"지도를 불러올 수 없습니다.\n주소를 설정해 주세요.\n"}
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
             />
@@ -178,7 +182,7 @@ const Map = ( {roadAddress} ) => {
             {/* 기본 지도 & 주소 없으면 확대 안됨 */}
             <div style={{ position: "relative", width: "100%", height: "100%" }}>
                 <div id="vMap"  style={{width:"100%", height:"100%", left:"0px", top:"0px"}}></div>
-                { roadAddress === "" ? null:
+                { ObjChk.all(roadAddress) ? null:
                     <img
                         style={{
                             position: "absolute",

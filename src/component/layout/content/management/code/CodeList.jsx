@@ -9,6 +9,9 @@ const CodeList = ({ code, idx, level, pCode, expand, codeTrees, codeSet, dispatc
 
     // 상세보기 클릭했을 경우
     const handleClick = () => {
+
+        setIsExpanded(true) // 상세보기 클릭하면 코드분류 확장
+
         const treeData = {
             codeSet,
             codeTrees
@@ -17,11 +20,6 @@ const CodeList = ({ code, idx, level, pCode, expand, codeTrees, codeSet, dispatc
         dispatch({ type: "subCodeList", list: treeData })
         dispatch({ type: "path", path: path })
     };
-
-    // 코드분류 값 더블클릭 시 코드트리 활성화/비활성화
-    const handleDoubleClick = () => {
-        setIsExpanded((prev) => !prev)
-    }
 
     // 코드분류 +/- 아이콘 클릭 시 코드트리 활성화/비활성화
     const handleAddClick = () => {
@@ -47,9 +45,12 @@ const CodeList = ({ code, idx, level, pCode, expand, codeTrees, codeSet, dispatc
                     </div>
                 </div>
 
-                <div style={{ marginLeft: "5px" }} onDoubleClick={handleDoubleClick} >
+                <div 
+                    style={{ marginLeft: "5px", cursor:"pointer" }} 
+                    onClick={() => handleClick() } 
+                >
                     {codeSet.code_nm}
-                    <img onClick={handleClick} src={detail} style={{ height: "10px", marginLeft: "5px", paddingRight: "10px" }} alt=">" />
+                    <img onClick={() => handleClick()} src={detail} style={{ height: "10px", marginLeft: "5px", paddingRight: "10px" }} alt=">>" />
                 </div>
             </div>
             <hr style={{ margin: "5px" }}></hr>
