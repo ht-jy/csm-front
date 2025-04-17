@@ -83,7 +83,7 @@ const Code = () => {
                     <li className="breadcrumb-item content-title">코드 관리</li>
                     <li className="breadcrumb-item active content-title-sub">관리</li>
 
-                    <li style={{ position: 'absolute', right: '10px' }}>
+                    <li style={{ position: 'absolute', right: "2vw" }}>
                         <i className="fa-solid fa-bell"></i> 수정 및 추가는 하나씩만 가능합니다
                     </li>
 
@@ -94,7 +94,6 @@ const Code = () => {
 
                         <div style={headerStyle}>코드 분류</div>
                         <div style={{ ...contentStyle, width: "15vw" }}>
-
                             {
                                 treeData.length === 0 ? null :
                                     <CodeList
@@ -110,13 +109,12 @@ const Code = () => {
                                         path={""}
                                     ></CodeList>
                             }
-
                         </div>
                     </div>
 
                     <div style={{ ...containerStyle }}>
                         <div style={headerStyle}>하위 코드 상세</div>
-                        <div style={{ ...contentStyle, width: "68vw" }}>
+                        <div style={{ ...contentStyle }}>
                             <SubCodeList
                                 data={state.subCodeList}
                                 dispatch={dispatch}
