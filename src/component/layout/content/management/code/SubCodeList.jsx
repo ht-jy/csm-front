@@ -29,7 +29,7 @@ import { DndContext, pointerWithin } from '@dnd-kit/core';
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : 
+ *    Http Method - GET : code/check?code={code} (코드ID 중복검사)
  *    Http Method - POST : /code (코드 수정)
  *    Http Method - DELETE :  /code/{idx} (코드 삭제)
  * - 라이브러리:
@@ -90,6 +90,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
 
     // 순서 저장 버튼 클릭 시
     const handleSortNoSave = () => {
+
         setIsOpenModal(true)
         setIsConfirmButton(true)
         setModalTitle("저장하시겠습니까?")
@@ -130,8 +131,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
     }
 
     // 저장 버튼 클릭 시
-    const onCilckSaveButton = () => {
-        // MergeAPI : Update && Create
+    const onCilckSaveButton = async () => {
 
         // 코드ID 미기입 시
         if (ObjChk.all(codeSet.code)) {
@@ -139,9 +139,26 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
             setIsConfirmButton(false)
             setModalTitle("입력 오류")
             setModalText("코드ID를 입력해 주세요.")
+        } else {
 
-            // 코드명 미기입 시
-        } else if (ObjChk.all(codeSet.code_nm)) {
+            // codeID 중복 확인
+            const res = await Axios.GET(`code/check?code=${codeSet.code}`)
+
+            if (res?.data?.result === "Success"){
+                if(res?.data?.values) {
+                    // true면 중복이라는 뜻
+                    setIsOpenModal(true)
+                    setIsConfirmButton(false)
+                    setModalTitle("중복 오류")
+                    setModalText("코드ID가 중복이 불가합니다. 다른 값을 입력해 주세요.")
+                    return
+                }
+            }
+
+        }
+
+        // 코드명 미기입 시
+        if (ObjChk.all(codeSet.code_nm)) {
             setIsOpenModal(true)
             setIsConfirmButton(false)
             setModalTitle("입력 오류")
@@ -215,7 +232,6 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
     // 삭제 버튼 클릭 시
     const onCilckDeleteButton = (idx) => {
         // IDX로 삭제 API
-        console.log("삭제")
         setIdx(idx)
         setIsOpenModal(true)
         setIsConfirmButton(true)
@@ -236,14 +252,10 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
     }
 
     // 수정 버튼 클릭 시
-    // FIXME: 코드ID가 다른 코드ID와 겹칠경우, 부모코드가 될 수 없음 
     const onCilckEditButton = (no, data) => {
-
         initCodeSet(data)
         setIsEdit(true)
         setEditNo(no)
-
-        console.log("수정")
     }
 
     // 순서 변경 시 아이콘을 놓으면 배열 순서 변경

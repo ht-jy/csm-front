@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import detail from "../../../../../assets/image/detail.png"
 import plus from "../../../../../assets/image/plus.png"
 import minus from "../../../../../assets/image/minus.png"
@@ -47,10 +47,14 @@ const CodeList = ({ code, idx, level, pCode, expand, codeTrees, codeSet, dispatc
 
                 <div 
                     style={{ marginLeft: "5px", cursor:"pointer" }} 
-                    onClick={() => handleClick() } 
+                    onClick={handleClick} 
                 >
                     {codeSet.code_nm}
-                    <img onClick={() => handleClick()} src={detail} style={{ height: "10px", marginLeft: "5px", paddingRight: "10px" }} alt=">>" />
+                    { expand ?   
+                        <img onClick={() => handleClick()} src={detail} style={{ height: "10px", marginLeft: "5px", paddingRight: "10px" }} alt=">>" />
+                        :
+                        null
+                    }
                 </div>
             </div>
             <hr style={{ margin: "5px" }}></hr>
