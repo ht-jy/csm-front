@@ -32,7 +32,7 @@ const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalenda
 
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     /** 빨간색으로 표시할 날짜 목록 [{date: new Date('2025-05-01'), reason: "근로자의날"},...]**/
-    const [restDates, setRestDates] = useState([]);
+    const [hoildays, setHoildays] = useState([]);
 
     // 날짜 비교 
     const isSameDay = (date1, date2) => {
@@ -63,7 +63,7 @@ const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalenda
     };
 
     // 공휴일 조회
-    const getRestDate = async(year) => {
+    const getHoliday = async(year) => {
         const res = await Axios.GET(`/api/rest-date?year=${year}&month=`);
         
         if (res?.data?.result === "Success") {
@@ -71,7 +71,7 @@ const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalenda
             rests = rests.map(item => {
                 return {...item, date: dateUtil.formatNumericDate(item.rest_date)};
             });
-            setRestDates([...rests]);
+            setHoildays([...rests]);
         }
     }
 
@@ -88,7 +88,7 @@ const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalenda
 
     // 현재 연도 휴무일 조회
     useEffect(() => {
-        getRestDate(currentYear);
+        getHoliday(currentYear);
     }, [currentYear]);
 
     return (
@@ -115,7 +115,7 @@ const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalenda
                                     formatDay={(locale, date) => date.toLocaleString('en', { day: 'numeric' })}
                                     tileClassName={({ date, view }) => {
                                         if (view === 'month') {
-                                          if ([...restDates].some(item => isSameDay(item.date, date))) {
+                                          if ([...hoildays].some(item => isSameDay(item.date, date))) {
                                             return 'red-date';
                                           }
                                         }
@@ -123,7 +123,7 @@ const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalenda
                                     }}
                                     tileContent={({ date, view }) => {
                                         if (view === 'month') {
-                                          const match = [...restDates].find(item => isSameDay(item.date, date));
+                                          const match = [...hoildays].find(item => isSameDay(item.date, date));
                                           if (match) {
                                             return (
                                                 <div
