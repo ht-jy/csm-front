@@ -55,7 +55,7 @@ const SideNav = () => {
                                     표준단가 관리
                                 </Link>
 
-                                <Link className="nav-link" to="/calender">
+                                <Link className="nav-link" to="/schedule">
                                     <div className="sb-nav-link-icon"><img src="/svg/menu/calendar-management.svg" width='20px' /></div>
                                     일정 관리
                                 </Link>

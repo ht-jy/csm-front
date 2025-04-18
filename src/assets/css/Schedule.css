@@ -1,0 +1,40 @@
+.schedule-day:hover {
+    padding-left: 5px;
+    padding-right: 5px;
+    background-color: #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.hoilday-reason {
+    color: black;
+    background-color: #f89999;
+    /* background-color: #b799f8; */
+    border-radius: 5px;
+    margin: 1px;
+    padding-left: 3px;
+}
+
+.rest-reason {
+    color: black;
+    background-color: #faa7ba;
+    border-radius: 5px;
+    margin: 1px;
+    padding-left: 3px;
+}
+
+.schedule-content:hover{
+    /* padding: 5px; */
+    cursor: pointer;
+}
+
+.back-icon:hover {
+    background-color: #ddd;
+    border-radius: 5px;
+}
+
+.detail-rest-item:hover {
+    background-color: #eee;
+    border-radius: 5px;
+}

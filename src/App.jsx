@@ -10,7 +10,7 @@ import Equip from "./component/layout/content/management/equip/Equip";
 import Device from "./component/layout/content/management/device/Device";
 import Company from "./component/layout/content/management/company/Company";
 import Wage from "./component/layout/content/management/wage/Wage";
-import Calender from "./component/layout/content/management/calender/Calender";
+import Schedule from "./component/layout/content/management/schedule/Schedule";
 import Notice from "./component/layout/content/management/notice/Notice";
 import Code from "./component/layout/content/management/code/Code";
 import ErrorBoundary from "./component/error/ErrorBoundary";
@@ -39,7 +39,7 @@ function App() {
                             <Route path="/device" element={<Device />} />
                             <Route path="/company" element={<Company />} />
                             <Route path="/wage" element={<Wage />} />
-                            <Route path="/calender" element={<Calender />} />
+                            <Route path="/schedule" element={<Schedule />} />
                             <Route path="/notice" element={<Notice />} />
                             <Route path="/code" element={<Code />} />
                         </Route>
