@@ -49,12 +49,12 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
     const [isValidation, setIsValidation] = useState(true);
 
     const gridData = [
-        { type: "text", span: "full", label: "제목", value: "" },
-        { type: "date", span: "double", label: "시작일"},
-        { type: "date", span: "double", label: "마감일"},
-        { type: "select", span: "double", label: "프로젝트", value: 0, selectName: "projectNm" },
-        { type: "checkbox", span: "double", label: "중요공지여부", value: "1" },
-        { type: "html", span: "full", label: "내용", vlaue: "" },
+        { type: "text", span: "full", label: "제목", value: "", isRequired: true },
+        { type: "date", span: "double", label: "시작일", isRequired: true},
+        { type: "date", span: "double", label: "마감일", isRequired: true},
+        { type: "select", span: "double", label: "프로젝트", value: 0, selectName: "projectNm", isRequired: true},
+        { type: "checkbox", span: "double", label: "중요공지여부", value: "N" },
+        { type: "html", span: "full", label: "내용", vlaue: ""},
         { type: "hidden", value: "" },
     ]
 
@@ -189,22 +189,20 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
             setModalText("제목을 입력해 주세요.");
             setIsOpenModal(true);
         }
-        // 내용을 입력 안했을 경우 모달
-        else if (item[5].value === "") {
-            setIsValidation(false);
-            setModalText("내용을 입력해 주세요.")
-            setIsOpenModal(true);
 
-        } 
         // 프로젝트 지정 안했을 경우 모달
         else if (item[3].value === -1) {
             setIsValidation(false);
             setModalText("프로젝트를 선택해 주세요.");
             setIsOpenModal(true);
+        
+        // 게시시작일을 선택 안했을 경우 모달
         }else if ( dateUtil.goTime(item[1].value) === "0001-01-01T00:00:00Z" ){
             setIsValidation(false);
             setModalText("게시시작일을 선택해 주세요.");
             setIsOpenModal(true);
+        
+        // 게시마감일을 선택 안했을 경우 모달 
         }else if ( dateUtil.goTime(item[2].value) === "0001-01-01T00:00:00Z" ){
             setIsValidation(false);
             setModalText("게시마감일을 선택해 주세요.");
@@ -213,7 +211,6 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
         else {
             setIsLoading(true);
             setIsValidation(true);
-            
             
             const notice = {
                 jno: Number(item[3].value) || 0,

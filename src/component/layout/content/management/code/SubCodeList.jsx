@@ -139,38 +139,44 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
             setIsConfirmButton(false)
             setModalTitle("입력 오류")
             setModalText("코드ID를 입력해 주세요.")
-        } else {
-
-            // codeID 중복 확인
-            const res = await Axios.GET(`code/check?code=${codeSet.code}`)
-
-            if (res?.data?.result === "Success"){
-                if(res?.data?.values) {
-                    // true면 중복이라는 뜻
-                    setIsOpenModal(true)
-                    setIsConfirmButton(false)
-                    setModalTitle("중복 오류")
-                    setModalText("코드ID가 중복이 불가합니다. 다른 값을 입력해 주세요.")
-                    return
-                }
-            }
-
+            return
         }
-
         // 코드명 미기입 시
-        if (ObjChk.all(codeSet.code_nm)) {
+        else if (ObjChk.all(codeSet.code_nm)) {
             setIsOpenModal(true)
             setIsConfirmButton(false)
             setModalTitle("입력 오류")
             setModalText("코드명을 입력해 주세요.")
+            return
+        } else {
+            // codeID 중복 확인
+            const res = await Axios.GET(`code/check?code=${codeSet.code}`)
+
+            if (res?.data?.result === "Success") {
+                if (res?.data?.values) {
+                    // true면 중복이라는 뜻
+                    setIsOpenModal(true)
+                    setIsConfirmButton(false)
+                    setModalTitle("중복 오류")
+                    setModalText("코드ID는 중복이 불가합니다. 다른 값을 입력해 주세요.")
+                    return
+                }
+
+            // 중복 확인 실패한 경우
+            } else {
+                setIsOpenModal(true)
+                setIsConfirmButton(false)
+                setModalTitle("서버에러")
+                setModalText("서버가 불안정합니다. 다시 시도해주세요.")
+                return
+            }
         }
-        else {
-            // 저장하시겠습니까? 모달 띄우기 확인을 누를 경우 save 실행
-            setIsOpenModal(true)
-            setIsConfirmButton(true)
-            setModalTitle("저장하시겠습니까?")
-            setModalText("저장 시 현재 화면은 초기화됩니다.")
-        }
+
+        // 저장하시겠습니까? 모달 띄우기 확인을 누를 경우 save 실행
+        setIsOpenModal(true)
+        setIsConfirmButton(true)
+        setModalTitle("저장하시겠습니까?")
+        setModalText("저장 시 현재 화면은 초기화됩니다.")
 
     }
 
@@ -191,7 +197,6 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
         } else {
 
         }
-
         setIsOpenModal(false)
         setIsLoading(false)
         setIsConfirmButton(false)
@@ -236,7 +241,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
         setIsOpenModal(true)
         setIsConfirmButton(true)
         setModalTitle("삭제하시겠습니까?")
-        setModalText("삭제 시 다시 복구 할 수 없습니다.")
+        setModalText("삭제 시 영원히 복구 할 수 없습니다.")
     }
 
     // 취소 버튼 클릭 시
@@ -332,11 +337,6 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
                 </tr>
             </thead>
             <tbody>
-                {data.length === 0 && !isAdd ?
-                    <tr>
-                        <td style={{ textAlign: 'center', padding: '10px' }} colSpan={12}>등록된 하위 코드가 없습니다.</td>
-                    </tr>
-                    :
                     <>
                         {data.map((codeData, codeIndex) => (
                             <React.Fragment key={codeIndex}>
@@ -432,10 +432,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
                             </React.Fragment>
                         ))
                         }
-
-
                     </>
-                }
             </tbody>
         </table>
     </div>

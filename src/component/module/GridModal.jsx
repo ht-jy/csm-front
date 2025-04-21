@@ -238,6 +238,7 @@ const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, d
                                             textFormat={item.format}
                                             isHide={item.dependency && item.dependency[2] === 'Y' ? true : false}
                                             labelWidth={item.width}
+                                            isRequired={item.isRequired}
                                             item={item}
                                         />
                                     )
