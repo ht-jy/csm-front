@@ -278,29 +278,30 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
                                     }
                                 </>                          
                                 :
-                                    <div style={gridStyle}>
-                                        {formData.length === 0 ? null : 
-                                            formData.map((item, idx) => (
-                                                item.type === "hidden" ? null : (
-                                                    <Input
-                                                        key={idx}
-                                                        editMode={isEdit}
-                                                        type={item.type}
-                                                        span={item.span}
-                                                        label={item.label}
-                                                        value={item.value}
-                                                        onValueChange={(newValue) => handleInputChange(idx, newValue)}
-                                                        selectData={item.type === "select" ? selectList[item.selectName] : null}
-                                                        checkedLabels={item.checkedLabels}
-                                                        radioValues={item.radioValues}
-                                                        radioLabels={item.radioLabels}
-                                                        textFormat={item.format}
-                                                        isHide={item.dependency && item.dependency[2] === 'Y' ? true : false}
-                                                    />
-                                                )
-                                            ))
-                                        }
-                                    </div>
+                                <div style={gridStyle}>
+                                    {formData.length === 0 ? null : 
+                                        formData.map((item, idx) => (
+                                            item.type === "hidden" ? null : (
+                                                <Input
+                                                    key={idx}
+                                                    editMode={isEdit}
+                                                    type={item.type}
+                                                    span={item.span}
+                                                    label={item.label}
+                                                    value={item.value}
+                                                    onValueChange={(newValue) => handleInputChange(idx, newValue)}
+                                                    selectData={item.type === "select" ? selectList[item.selectName] : null}
+                                                    checkedLabels={item.checkedLabels}
+                                                    radioValues={item.radioValues}
+                                                    radioLabels={item.radioLabels}
+                                                    textFormat={item.format}
+                                                    isHide={item.dependency && item.dependency[2] === 'Y' ? true : false}
+                                                    isRequired={item.isRequired}
+                                                />
+                                            )
+                                        ))
+                                    }
+                                </div>
                             }
                         </div>
                     </div>

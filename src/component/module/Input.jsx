@@ -32,7 +32,7 @@ import Radio from "./Radio";
  *  textFormat: text Format function name
  *  isHide: false: 보이기, true: 숨김
  */
-const Input = ({ editMode, type, span, label, value, onValueChange, selectData, checkedLabels=["", ""], radioValues=[], radioLabels=[], textFormat, isHide=false, labelWidth="100px", item }) => {
+const Input = ({ editMode, type, span, label, value, onValueChange, selectData, checkedLabels=["", ""], radioValues=[], radioLabels=[], textFormat, isHide=false, labelWidth="100px", item, isRequired = false }) => {
     const [isValid, setIsValid] = useState(true);
     const [isChecked, setIsChecked] = useState(false);
     const [selectedOption, setSelectedOption] = useState(null); // 초기값을 null로 설정
@@ -122,10 +122,17 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
         isHide ? null
         :
         <div className="form-control" style={containerStyle}>
+            
             {label.length > 0 &&
-                <label style={{ color: !isValid ? "red" : "black", marginRight: "5px", fontWeight: "bold", width: labelWidth }}>
+                <label style={{ color: isRequired && !isValid ? "red" : "black", marginRight: "5px", fontWeight: "bold", width: labelWidth, display: "flex" }}>
                     {label}
-                </label>}
+                    {
+                        isRequired ?
+                        <div style={{color:"red", marginLeft:"3px"}}>*</div>
+                        : null
+                    }
+                </label>} 
+               
             {
                 type === "hidden" ? (
                     null
