@@ -69,10 +69,9 @@ const Code = () => {
     useEffect(() => {
         const tree = {
             codeSet: codeSet,
-            codeTrees: treeData
+            codeTrees: treeData ? treeData : []
         }
         dispatch({ type: "subCodeList", list: tree })
-
     }, [treeData])
 
     return (
@@ -95,7 +94,7 @@ const Code = () => {
                         <div style={headerStyle}>코드 분류</div>
                         <div style={{ ...contentStyle, width: "15vw" }}>
                             {
-                                treeData.length === 0 ? null :
+                                treeData?.length === 0 ? null :
                                     <CodeList
                                         key={-1}
                                         code={'root'}
@@ -125,7 +124,6 @@ const Code = () => {
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     );
