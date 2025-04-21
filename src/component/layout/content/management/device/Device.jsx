@@ -76,9 +76,9 @@ const Device = () => {
 
     const gridData = [
         { type: "hidden", value: "" },
-        { type: "text", span: "double", width: "110px", label: "장치명", value: "" },
-        { type: "text", span: "double", width: "110px", label: "시리얼번호", value: "" },
-        { type: "select", span: "full", width: "110px", label: "현장이름", value: "", selectName: "siteNm" },
+        { type: "text", span: "double", width: "110px", label: "장치명", value: "", isRequired: true },
+        { type: "text", span: "double", width: "110px", label: "시리얼번호", value: "", isRequired: true },
+        { type: "select", span: "full", width: "110px", label: "현장이름", value: "", selectName: "siteNm", isRequired: true },
         { type: "checkbox", span: "double", width: "110px", label: "사용여부", value: "", checkedLabel: "사용중|사용안함" },
         { type: "text", span: "full", width: "110px", label: "비고", value: "" },
     ];
@@ -132,9 +132,8 @@ const Device = () => {
 
     // GridModal의 저장 버튼 이벤트 - (저장, 수정)
     const onClicklModalSave = async (item, mode) => {
-        setIsLoading(true);
         setGridMode(mode)
-
+        
         const device = {
             dno: item[0].value || 0,
             device_nm: item[1].value || "",
@@ -145,6 +144,30 @@ const Device = () => {
             reg_user: user.userId || "",
             mod_user: user.userId || "",
         }
+
+        // 장치명 미입력 시
+        if(device.device_nm === ""){
+            setIsModal2(true)
+            setModal2Title("입력 오류")
+            setModal2Text("장치명을 입력해주세요.")
+            return
+
+        // 시리얼번호 미입력 시
+        }else if (device.device_sn === ""){
+            setIsModal2(true)
+            setModal2Title("입력 오류")
+            setModal2Text("시리얼번호를 입력해주세요.")
+            return
+
+        // 현장이름 미선택 시
+        }else if (device.sno === 0) {
+            setIsModal2(true)
+            setModal2Title("입력 오류")
+            setModal2Text("현장이름을 선택해주세요.")
+            return
+        }
+        
+        setIsLoading(true);
 
         let res;
         if (gridMode === "SAVE") {
