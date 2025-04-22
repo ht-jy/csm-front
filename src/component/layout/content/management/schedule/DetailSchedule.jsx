@@ -271,7 +271,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                                         <div style={{ padding: '5px', display: "flex", alignItems: "stretch", width: "100%"}} key={j_idx}>
                                                                             <div style={{backgroundColor: "#f9d470", width: "5px", borderRadius: "5px"}}></div>
                                                                             <div style={{textAlign:"left", marginLeft: "10px", width: "100%"}}>
-                                                                                <div style={{fontSize: "13px", fontWeight: "bold", color: "gray", marginLeft: "-5px", marginBottom: "5px"}}>작업일정</div>
+                                                                                <div style={{fontSize: "13px", fontWeight: "bold", color: "gray", marginLeft: "-5px", marginBottom: "5px"}}>작업내용</div>
                                                                                 {
                                                                                     jobs.map((item, i_idx) => (
                                                                                         <div 
