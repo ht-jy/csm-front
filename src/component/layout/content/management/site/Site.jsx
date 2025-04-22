@@ -22,6 +22,7 @@ import Modal from "../../../../module/Modal";
 import Button from "../../../../module/Button";
 import { Common } from "../../../../../utils/Common";
 import warningWhether from "../../../../../assets/image/warningWhether.png"
+import LoadingIcon from "../../../../../assets/image/Loading.gif";
 
 /**
  * @description: 현장 관리 페이지
@@ -46,6 +47,7 @@ const Site = () => {
         list: [],
         code: [],
         dailyTotalCount: {},
+        dailyWhether: [],
     })
 
     const { user } = useAuth();
@@ -74,6 +76,8 @@ const Site = () => {
     const [modal2type, setModal2Type] = useState("");
     const [modal2Confirm, setModal2Confirm] = useState("");
     const [modal2Cancel, setModal2Cancel] = useState("");
+    // 날씨정보
+    const [whetherInfo, setWhetherInfo] = useState([]);
 
     // 현장 상세
     const onClickRow = (idx) => {
@@ -166,12 +170,6 @@ const Site = () => {
     const handleExitBtn = () => {
         setIsDetail(false);
         setDetailData({});
-    }
-
-    // 날씨 api 정보 확인
-    const getIsWhether = (whether) => {
-        if (whether.length === 0) return false;
-        return true;
     }
 
     // 현장 데이터 수정
@@ -319,16 +317,22 @@ const Site = () => {
         }
     }
 
-    // 기상특보현황에 마우스 올라간 경우
-    useEffect(() => {
-        if (warningListOpen) {
-            getWarningData()
+    // 날씨 조회
+    const getWhetherData = async () => {
+        const res = await Axios.GET(`/api/whether/srt`)
+        
+        if (res?.data?.result === "Success") {
+            dispatch({ type: "WHETHER", list: res?.data?.values?.list });
+        } else if (res?.data?.result === "Failure") {
+
         }
-    }, [warningListOpen])
+    }
 
     // 현장상태 5초마다 갱신
     useEffect(() => {
         getData();
+        getWarningData();
+        getWhetherData();
 
         const interval = setInterval(() => {
             getSiteStatsData();
@@ -596,16 +600,19 @@ const Site = () => {
                                                 {/* 날씨 */}
                                                 <td className="center fixed-right" rowSpan={item.rowSpan}>
                                                     {
-                                                        getIsWhether(item.whether) ?
-                                                            <>
-                                                                <>{getPtyNSkyData(item.whether)}</>
-                                                                /
-                                                                <>{getRn1Data(item.whether)}</>
-                                                                <br />
-                                                                <>{getT1hData(item.whether)}</>
-                                                                /
-                                                                <>{getWindData(item.whether)}</>
-                                                            </>
+                                                        state.dailyWhether.length === 0 ?
+                                                            <img src={LoadingIcon} style={{width: "23px"}}/>
+                                                        :
+                                                            state.dailyWhether.find(whether => whether.sno === item.sno) !== undefined ?
+                                                                <>
+                                                                    <>{getPtyNSkyData(state.dailyWhether.find(whether => whether.sno === item.sno).whether)}</>
+                                                                    /
+                                                                    <>{getRn1Data(state.dailyWhether.find(whether => whether.sno === item.sno).whether)}</>
+                                                                    <br />
+                                                                    <>{getT1hData(state.dailyWhether.find(whether => whether.sno === item.sno).whether)}</>
+                                                                    /
+                                                                    <>{getWindData(state.dailyWhether.find(whether => whether.sno === item.sno).whether)}</>
+                                                                </>
                                                             : "날씨 정보가 없습니다."
                                                     }
                                                 </td>

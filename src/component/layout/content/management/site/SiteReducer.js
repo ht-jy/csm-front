@@ -130,6 +130,15 @@ const SiteReducer = (state, action) => {
             });
             
             return {...state, list: JSON.parse(JSON.stringify(list2)), dailyTotalCount: JSON.parse(JSON.stringify(total2))};
+        
+        case "WHETHER" :
+            const whethers = [];
+            action.list.map(item => {
+                if(item.whether.length !== 0){
+                    whethers.push(item);
+                }
+            });
+            return {...state, dailyWhether: structuredClone(whethers)};
     }
 }
 
