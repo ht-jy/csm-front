@@ -224,12 +224,11 @@
 }
 
 .title-input:hover {
-    background: #e9ecef;
+    /* background: #e9ecef; */
     border-color: #bbb;
     border-color: #007bff;
 }
 
-.title-input:active {
-    background: #dae0e5;
-    border-color: #aaa;
+.title-input:focus {
+    border-color: #007bff;
 }
