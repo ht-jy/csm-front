@@ -32,11 +32,15 @@ const Schedule = () => {
     const [hoildays, setHoildays] = useState([]);
     /** 휴무일 **/
     const [restDays, setRestDays] = useState([]);
+    /** 작업내용 **/
+    const [dailyJobs, setDailyJobs] = useState([]);
     /** 선택 날짜 **/
     const [clickDate, setClickDate] = useState(null);
     const [isClickDateRest, setIsClickDateRest] = useState(false);
     /** 해당 날짜 공휴일, 휴무일 **/
     const [clickRestDates, setClickRestDates] = useState([]);
+    /** 해당 날짜 작업 내용 **/
+    const [clickDailyJobs, setClickDailyJobs] = useState([]);
     /** 상세 모달 **/
     const [isDetailModal, setIsDetailModal] = useState(false);
     /** 추가 모달 **/
@@ -71,6 +75,17 @@ const Schedule = () => {
     const onClickMonthBtn = (value) => {
         setCurrentMonth(currentMonth + value);
         setMonthOption(selectMonth.find(item => item.value === (currentMonth + value)));
+    }
+
+    // 작업내용 리스트
+    const getIsSameDailyJobs = (date) => {
+        const jobs = [];
+        dailyJobs.map(item => {
+            if(item.date.getFullYear() === date.getFullYear() && item.date.getMonth() === date.getMonth() && item.date.getDate() === date.getDate()){
+                jobs.push(item);
+            }
+        });
+        return jobs;
     }
 
     // 공휴일, 휴무일 리스트
@@ -177,7 +192,7 @@ const Schedule = () => {
     }
 
     // 공휴일, 휴무일 조회
-    const getData = async() => {
+    const getRestData = async() => {
         setIsLoading(true);
 
         // 공휴일
@@ -205,10 +220,32 @@ const Schedule = () => {
         setIsLoading(false);
     }
 
+    // 작업내용 조회
+    const getDailyJobData = async() => {
+        setIsLoading(true);
+
+        let jno = 0;
+        if(project !== null){
+            jno = project.jno;
+        }
+        let res = await Axios.GET(`/schedule/daily-job?jno=${jno}&target_date=${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2, '0')}`);
+        
+        if (res?.data?.result === "Success") {
+            const jobs = [];
+            res?.data?.values?.list.map(item => {
+                jobs.push({...item, date: dateUtil.parseToDate(item.targetDate)});
+            });
+            setDailyJobs(jobs);
+        }
+
+        setIsLoading(false);
+    }
+
     /***** 상세 모달 *****/
     const onClickDetailOpen = (item) => {
         setIsClickDateRest(isRest(item));
         setClickRestDates(getIsSameDates(item));
+        setClickDailyJobs(getIsSameDailyJobs(item));
         setClickDate(item);
         setIsDetailModal(true);
     }
@@ -231,7 +268,7 @@ const Schedule = () => {
         const res = await Axios.PUT(`/schedule/rest`, rest);
         
         if (res?.data?.result === "Success") {
-            getData();
+            getRestData();
             setModalText("휴무일 수정에 성공하였습니다.");
             setIsDetailModal(false);
         }else{
@@ -247,11 +284,52 @@ const Schedule = () => {
         const res = await Axios.DELETE(`/schedule/rest/${item.cno}`);
         
         if (res?.data?.result === "Success") {
-            getData();
+            getRestData();
             setModalText("휴무일 삭제에 성공하였습니다.");
             setIsDetailModal(false);
         }else{
             setModalText("휴무일 삭제에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+        }
+        setIsModal(true);
+        setIsLoading(false);
+    }
+
+    // 작업내용 수정
+    const onClickDailyJobModify = async(item) => {
+        const job = {
+            idx: item.idx,
+            jno: item.jno,
+            targetDate: dateUtil.parseToGo(item.date),
+            content: item.content,
+            mod_uno: user.uno,
+            mod_user: user.userName
+        }
+        
+        setIsLoading(true);
+        const res = await Axios.PUT(`/schedule/daily-job`, job);
+        
+        if (res?.data?.result === "Success") {
+            getDailyJobData();
+            setModalText("작업내용 수정에 성공하였습니다.");
+            setIsDetailModal(false);
+        }else{
+            setModalText("작업내용 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+        }
+        setIsModal(true);
+        setIsLoading(false);
+    }
+
+    // 작업내용 삭제
+    const onClickDailyJobRemove = async(item) => {
+        setIsLoading(true);
+        const res = await Axios.DELETE(`/schedule/daily-job/${item.cno}`);
+        
+        if (res?.data?.result === "Success") {
+            getDailyJobData();
+            setModalText("작업내용 삭제에 성공하였습니다.");
+            setIsDetailModal(false);
+        }else{
+            setModalText("작업내용 삭제에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
         }
         setIsModal(true);
         setIsLoading(false);
@@ -290,11 +368,44 @@ const Schedule = () => {
         const res = await Axios.POST(`/schedule/rest`, rests);
         
         if (res?.data?.result === "Success") {
-            getData();
+            getRestData();
             setModalText("휴무일 추가에 성공하였습니다.");
             setIsAddDetailModal(false);
         }else{
             setModalText("휴무일 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+        }
+        setIsModal(true);
+        setIsLoading(false);
+    }
+
+    // 작업내용 저장
+    const onClickJobSave = async(item) => {
+        const jobs = [];
+        const job = {
+            jno: item.jno,
+            content: item.content,
+            targetDate: dateUtil.parseToGo(item.date),
+            reg_uno: user.uno,
+            reg_user: user.userName
+        }
+        if(item.is_period === "Y"){
+            const dates = getDatesBetween(item.date, item.period_date);
+            dates.map(date => {
+                jobs.push({...job, targetDate:dateUtil.parseToGo(date)});
+            });
+        }else{
+            jobs.push(job);
+        }
+        
+        setIsLoading(true);
+        const res = await Axios.POST(`/schedule/daily-job`, jobs);
+        
+        if (res?.data?.result === "Success") {
+            getDailyJobData();
+            setModalText("작업내용 추가에 성공하였습니다.");
+            setIsAddDetailModal(false);
+        }else{
+            setModalText("작업내용 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
         }
         setIsModal(true);
         setIsLoading(false);
@@ -321,7 +432,8 @@ const Schedule = () => {
     // 달력 생성
     useEffect(() => {
         buildCalendarMatrix(currentYear, currentMonth);
-        getData();
+        getRestData();
+        getDailyJobData();
     }, [currentYear, currentMonth, project]);
 
     return(
@@ -332,10 +444,13 @@ const Schedule = () => {
                 isOpen={isDetailModal}
                 isRest={isClickDateRest}
                 restDates={clickRestDates}
+                dailyJobs={clickDailyJobs}
                 clickDate={clickDate}
                 exitBtnClick={() => setIsDetailModal(false)}
                 restModifyBtnClick={onClickRestModify}
                 restRemoveBtnClick={onClickRestRemove}
+                dailyJobModifyBtnClick={onClickDailyJobModify}
+                dailyJobRemoveBtnClick={onClickDailyJobRemove}
             />
 
             <AddDetailSchedule
@@ -343,6 +458,7 @@ const Schedule = () => {
                 clickDate={clickDate}
                 exitBtnClick={() => setIsAddDetailModal(false)}
                 restSaveBtnClick={onClicklRestSave}
+                jobSaveBtnClick={onClickJobSave}
             />
 
             <Modal 
@@ -437,7 +553,7 @@ const Schedule = () => {
 
                 <div className="table-container">
                     <table>
-                        <thead>
+                        <thead className="fixed">
                             <tr>
                                 <th>일</th>
                                 <th>월</th>
@@ -454,26 +570,44 @@ const Schedule = () => {
                                     <tr key={`week-${week_idx}`} style={{height: "150px"}}>
                                         {
                                             week.map((item, item_idx) => (
-                                                <td key={`item_${item_idx}`} style={{ verticalAlign: "top", textAlign: "left", padding: "10px", backgroundColor: isSameDay(new Date(), item) ? "#f9fdd7" : ""}}>
+                                                <td 
+                                                    key={`item_${item_idx}`} 
+                                                    style={{ 
+                                                        verticalAlign: "top", 
+                                                        textAlign: "left", 
+                                                        padding: "10px", 
+                                                        backgroundColor: isSameDay(new Date(), item) ? "#f9fdd7" : "",
+                                                        overflow: "hidden"
+                                                    }}
+                                                >
                                                     {/* 날짜 */}
-                                                    <div className="schedule-day"
+                                                    <div 
+                                                        className="schedule-day"
+                                                        onClick={item !== null ? () => onClickAddDetailOpen(item) : null}
                                                         style={{
                                                             color: item === null ? "black" : isRest(item) ? "red" : item.getDay() === 0 ? "red" : item.getDay() === 6 ? "blue" : "black",
-                                                            display: "flex",
-                                                            alignItems: "center",
-                                                            fontSize: "16px",
-                                                            marginBottom: "3px"
+                                                            cursor: item != null ? "pointer" : ""
                                                         }}
-                                                        onClick={() => onClickAddDetailOpen(item)}
                                                     >
                                                         {
                                                             item !== null ?
                                                                 item.getDate()
                                                             : ""
                                                         }
-                                                        <img src={PlusIcon} style={{width: "12px", marginLeft: "auto"}}/>
+                                                        {
+                                                            item !== null ?
+                                                                <img src={PlusIcon} style={{width: "12px", marginLeft: "auto"}}/>
+                                                            : ""
+                                                        }
                                                     </div>
-                                                    <div className="schedule-content" onClick={() => onClickDetailOpen(item)} style={{height: "100%"}}>
+                                                    <div 
+                                                        className="schedule-content" 
+                                                        onClick={item !== null ? () => onClickDetailOpen(item) : null}
+                                                        style={{
+                                                            height: "100%",
+                                                            cursor: item != null ? "pointer" : ""
+                                                        }}
+                                                    >
                                                         <div>
                                                             {
                                                                 // item !== null && isRest(item) && restReason(item)
@@ -483,6 +617,11 @@ const Schedule = () => {
                                                                     :
                                                                         <div className="rest-reason" key={r_idx}>{reason.reason}</div>
                                                                 ))
+                                                            }
+                                                            {
+                                                                item !== null && getIsSameDailyJobs(item).map((job, j_idx) => (
+                                                                    <div key={j_idx} style={{textOverflow: "ellipsis", overflow: "hidden", marginLeft: "5px"}}>{`● ${job.content}`}</div>
+                                                                )) 
                                                             }
                                                         </div>
                                                     </div>

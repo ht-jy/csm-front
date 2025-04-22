@@ -8,13 +8,16 @@ import Modal from "../../../../module/Modal";
 import Select from "react-select";
 import Exit from "../../../../../assets/image/exit.png";
 import BackIcon from "../../../../../assets/image/back-arrow.png";
+import { ObjChk } from "../../../../../utils/ObjChk";
 
 
-const DetailSchedule = ({isOpen, isRest, restDates, clickDate, exitBtnClick, restModifyBtnClick, restRemoveBtnClick}) => {
+const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBtnClick, restModifyBtnClick, restRemoveBtnClick, dailyJobModifyBtnClick, dailyJobRemoveBtnClick}) => {
     const [isLoading, setIsLoading] = useState(false);
     const [remove, setRemove] = useState("N");
     const [edit, setEdit] = useState("N");
     const [editData, setEditData] = useState({});
+    /** 프로젝트별 작업내용 **/
+    const [jobsByProject, setJobsByProject] = useState([]);
     /** select **/
     const [projectOptions, setProjectOptions] = useState([]);
     /** 예/아니오 모달 **/
@@ -38,9 +41,25 @@ const DetailSchedule = ({isOpen, isRest, restDates, clickDate, exitBtnClick, res
         return days[clickDate.getDay()];
     }
 
-    // 휴무일 프로젝트
+    // 프로젝트
     const getProject = (jno) => {
-        return projectOptions.find(item => item.value === jno);
+        const empty = {value:0, label:"미지정"};
+        if(ObjChk.all(jno)){
+            return empty;
+        }
+
+        const findProject = projectOptions.find(item => item.value === jno);
+        if(findProject === undefined){
+            return empty;
+        }
+        return findProject;
+    }
+
+    // 작업내용 클릭
+    const onClickDailyJob = (item) => {
+        setEdit("J");
+        setRemove("N");
+        setEditData({...item, date: dateUtil.format(item.date)});
     }
 
     // 휴무일 클릭
@@ -57,14 +76,15 @@ const DetailSchedule = ({isOpen, isRest, restDates, clickDate, exitBtnClick, res
         });
     }
 
-    // 휴무일 수정 알림 모달
-    const onClickRestSave = () => {
+    // 수정 알림 모달
+    const onClickSave = () => {
+        setRemove("N");
         setIsModal(true);
         setModalText("수정하시겠습니까?");
     }
 
-    // 휴무일 삭제 알림 모달
-    const onClickRestRemove = () => {
+    // 삭제 알림 모달
+    const onClickRemove = () => {
         setRemove("Y");
         setIsModal(true);
         setModalText("삭제하시겠습니까?");
@@ -77,10 +97,16 @@ const DetailSchedule = ({isOpen, isRest, restDates, clickDate, exitBtnClick, res
             if(edit === "R"){
                 restModifyBtnClick(editData);
                 setIsModal(false);
+            }else if(edit === "J"){
+                dailyJobModifyBtnClick(editData);
+                setIsModal(false);
             }
         }else {
             if(edit === "R"){
                 restRemoveBtnClick(editData);
+                setIsModal(false);
+            }else if(edit === 'J'){
+                dailyJobRemoveBtnClick(editData);
                 setIsModal(false);
             }
         }
@@ -109,6 +135,17 @@ const DetailSchedule = ({isOpen, isRest, restDates, clickDate, exitBtnClick, res
         if(isOpen){
             setEdit("N");
             setRemove("N");
+            // 작업내용 프로젝트별로 그룹화
+            const newDailyJobs = dailyJobs.reduce((acc, item) => {
+                const key = item.jno;
+                if (!acc[key]) {
+                  acc[key] = [];
+                }
+                acc[key].push(item);
+                return acc;
+            }, {});
+            
+            setJobsByProject(Object.values(newDailyJobs));
             // 엔터 키 이벤트 핸들러
             document.body.style.overflow = "hidden";
             const handleKeyDown = (event) => {
@@ -166,12 +203,12 @@ const DetailSchedule = ({isOpen, isRest, restDates, clickDate, exitBtnClick, res
                                         edit !== "N" && 
                                         <>
                                             <div>
-                                                <button className="btn btn-primary" onClick={onClickRestSave} name="confirm" style={{marginRight:"10px"}}>
+                                                <button className="btn btn-primary" onClick={onClickSave} name="confirm" style={{marginRight:"10px"}}>
                                                     수정
                                                 </button>
                                             </div>
                                             <div>
-                                                <button className="btn btn-primary" onClick={onClickRestRemove} name="confirm" style={{marginRight:"10px"}}>
+                                                <button className="btn btn-primary" onClick={onClickRemove} name="confirm" style={{marginRight:"10px"}}>
                                                     삭제
                                                 </button>
                                             </div>
@@ -188,32 +225,75 @@ const DetailSchedule = ({isOpen, isRest, restDates, clickDate, exitBtnClick, res
 
                                     {
                                         edit === "N" ?
-                                            restDates.length === 0 ?
-                                                "일정이 없습니다."
-                                            : restDates.map((item, idx) => (
-                                                item.is_hoilday ? 
-                                                    <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "70px"} } key={idx}>
-                                                        <div style={{backgroundColor: "#f75d5d", width: "5px", height: "70px", borderRadius: "5px"}}></div>
-                                                        <div style={{textAlign:"left", marginLeft: "10px", width: "100%"}}>
-                                                            <div style={{fontSize: "20px"}}>{item.reason}</div>
-                                                            <div style={{border: "1px solid #ccc", width: "100%"}}></div>
-                                                            <div style={{fontSize: "13px"}}>공휴일</div>
-                                                        </div>
-                                                    </div>
-                                                : 
-                                                    <div 
-                                                        className="detail-rest-item"
-                                                        style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "70px", cursor: "pointer"} } key={idx}
-                                                        onClick={() => onClickRestDay(item)}
-                                                    >
-                                                        <div style={{backgroundColor: "#5f5cff", width: "5px", height: "70px", borderRadius: "5px"}}></div>
-                                                        <div style={{textAlign:"left", marginLeft: "10px", width: "100%"}}>
-                                                            <div style={{fontSize: "20px"}}>{item.reason}</div>
-                                                            <div style={{border: "1px solid #ccc", width: "100%"}}></div>
-                                                            <div style={{fontSize: "13px"}}>{`휴무일 : ${getProject(item.jno).label}`}</div>
-                                                        </div>
-                                                    </div>
-                                            ))
+                                            <>
+                                                    {
+                                                        restDates.length === 0 ?
+                                                            <div style={{gridColumn: "span 2", padding: '5px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
+                                                                <div style={{backgroundColor: "#f75d5d", width: "5px", height: "100%", borderRadius: "5px", marginRight: "5px"}}></div>
+                                                                일정이 없습니다.
+                                                            </div>
+                                                        : restDates.map((item, idx) => (
+                                                            item.is_hoilday ? 
+                                                                <div style={{gridColumn: "span 2", padding: '5px', display: "flex", alignItems: "stretch", width: "100%", cursor: "pointer"}} key={idx}>
+                                                                    <div style={{backgroundColor: "#f75d5d", width: "5px", height: "100%", borderRadius: "5px"}}></div>
+                                                                    <div style={{textAlign:"left", marginLeft: "10px", width: "100%"}}>
+                                                                        <div style={{fontSize: "20px", color: "black"}}>{item.reason}</div>
+                                                                        <div style={{border: "1px solid #ccc", width: "100%"}}></div>
+                                                                        <div style={{fontSize: "13px"}}>공휴일</div>
+                                                                    </div>
+                                                                </div>
+                                                            : 
+                                                                <div 
+                                                                    className="detail-rest-item"
+                                                                    style={{gridColumn: "span 2", padding: '5px', display: "flex", alignItems: "stretch", width: "100%", cursor: "pointer"}} key={idx}
+                                                                    onClick={() => onClickRestDay(item)}
+                                                                >
+                                                                    <div style={{backgroundColor: "#f75d5d", width: "5px", borderRadius: "5px"}}></div>
+                                                                    <div style={{textAlign:"left", marginLeft: "10px", width: "100%"}}>
+                                                                        <div style={{fontSize: "20px", color: "black"}}>{item.reason}</div>
+                                                                        <div style={{border: "1px solid #ccc", width: "100%"}}></div>
+                                                                        <div style={{fontSize: "13px"}}>{`휴무일 : ${getProject(item.jno).label}`}</div>
+                                                                    </div>
+                                                                </div>
+                                                        ))
+                                                    }
+                                                    {
+                                                        jobsByProject.length === 0 ?
+                                                            <div style={{gridColumn: "span 2", padding: '5px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
+                                                                <div style={{backgroundColor: "#f9d470", width: "5px", height: "100%", borderRadius: "5px", marginRight: "5px"}}></div>
+                                                                작업 내용이 없습니다.
+                                                            </div>
+                                                        :
+                                                            <div style={{gridColumn: "span 2"}}>
+                                                                {
+                                                                    jobsByProject.map((jobs, j_idx) => (
+                                                                        jobs.length !== 0 &&
+                                                                        <div style={{ padding: '5px', display: "flex", alignItems: "stretch", width: "100%"}} key={j_idx}>
+                                                                            <div style={{backgroundColor: "#f9d470", width: "5px", borderRadius: "5px"}}></div>
+                                                                            <div style={{textAlign:"left", marginLeft: "10px", width: "100%"}}>
+                                                                                <div style={{fontSize: "13px", fontWeight: "bold", color: "gray", marginLeft: "-5px", marginBottom: "5px"}}>작업일정</div>
+                                                                                {
+                                                                                    jobs.map((item, i_idx) => (
+                                                                                        <div 
+                                                                                            className="detail-daily-job"
+                                                                                            style={{fontSize: "17px", display: "flex", alignItems: "center", cursor: "pointer", paddingBottom: "2px", color: "black"}}
+                                                                                            key={`${j_idx}_${i_idx}`}
+                                                                                            onClick={() => onClickDailyJob(item)}
+                                                                                        >
+                                                                                            <div style={{marginRight: "5px", paddingBottom: "3px"}}>●</div>
+                                                                                            <div>{item.content}</div>
+                                                                                        </div>
+                                                                                    ))
+                                                                                }
+                                                                                <div style={{border: "1px solid #ccc", width: "100%"}}></div>
+                                                                                <div style={{fontSize: "13px"}}>{getProject(jobs[0].jno).label}</div>
+                                                                            </div>
+                                                                        </div>
+                                                                    ))
+                                                                }
+                                                            </div>
+                                                    }
+                                            </>
                                         :   edit === "R" ?
                                                 <>
                                                     {/* 프로젝트 */}
@@ -234,7 +314,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, clickDate, exitBtnClick, res
                                                                         }),
                                                                         container: (provided) => ({
                                                                         ...provided,
-                                                                        width: "100%",
+                                                                        width: "665px",
                                                                         }),
                                                                     }}
                                                                 />
@@ -254,7 +334,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, clickDate, exitBtnClick, res
 
                                                     {/* 휴무일 날짜 */}
                                                     <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
-                                                        <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>{editData.is_period === "Y" ? "시작일" : "휴무일"}</label>
+                                                        <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>휴무일</label>
                                                         <div style={{width: "200px"}}>
                                                             <div style={{height: "40px", display: "flex", alignItems: "center" }}>
                                                                 <DateInput 
@@ -277,11 +357,68 @@ const DetailSchedule = ({isOpen, isRest, restDates, clickDate, exitBtnClick, res
                                                     <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
                                                         <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>휴무사유</label>
                                                         <div>
-                                                            <input className="text-input" type="text" value={editData.reason === undefined ? "" : editData.reason} onChange={(e) => onChangeEditData("reason", e.target.value)} style={{width: "500px", textAlign: "left"}}/>
+                                                            <input className="text-input" type="text" value={editData.reason === undefined ? "" : editData.reason} onChange={(e) => onChangeEditData("reason", e.target.value)} style={{width: "665px", textAlign: "left", paddingLeft: "10px"}}/>
                                                         </div>
                                                     </div>
                                                 </>
-                                        :   null
+                                        :   edit === "J" ?   
+                                                <>
+                                                    {/* 프로젝트 */}
+                                                    <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"} }>
+                                                        <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>프로젝트</label>
+                                                        <div style={{ flex: 1 }}>
+                                                            <div style={{height: "40px", display: "flex", alignItems: "center", width: "100%" }}>
+                                                                <Select
+                                                                    onChange={(e) => onChangeEditData("jno", e.value)}
+                                                                    options={projectOptions || []} 
+                                                                    value={editData.jno !== undefined ? projectOptions.find(item => item.value === editData.jno) : {}} 
+                                                                    placeholder={"선택하세요"}
+                                                                    menuPortalTarget={document.body}
+                                                                    styles={{
+                                                                        menuPortal: (base) => ({
+                                                                            ...base,
+                                                                            zIndex: 999999999,
+                                                                        }),
+                                                                        container: (provided) => ({
+                                                                        ...provided,
+                                                                        width: "665px",
+                                                                        }),
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* 작업내용 날짜 */}
+                                                    <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
+                                                        <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>{editData.is_period === "Y" ? "시작일" : "휴무일"}</label>
+                                                        <div style={{width: "200px"}}>
+                                                            <div style={{height: "40px", display: "flex", alignItems: "center" }}>
+                                                                <DateInput 
+                                                                    time={editData.date} 
+                                                                    setTime={(value) => onChangeEditData("date", value)} 
+                                                                    dateInputStyle={{margin: "0px"}}
+                                                                    calendarPopupStyle={{
+                                                                        position: "fixed",
+                                                                        top: "50%",
+                                                                        left: "50%",
+                                                                        transform: "translate(-50%, -50%)",
+                                                                        zIndex: 1000,
+                                                                    }}
+                                                                ></DateInput>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* 작업내용 */}
+                                                    <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
+                                                        <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>작업내용</label>
+                                                        <div>
+                                                            <input className="text-input" type="text" value={editData.content === undefined ? "" : editData.content} onChange={(e) => onChangeEditData("content", e.target.value)} style={{width: "665px", textAlign: "left", paddingLeft: "10px"}}/>
+                                                        </div>
+                                                    </div>
+                                                </>
+                                        :null
                                     }
 
                                 </div>
@@ -297,7 +434,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, clickDate, exitBtnClick, res
 const gridStyle = {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',  // 한 행에 두 개의 열
-    gap: '10px',  // 요소 간의 간격 설정
+    gap: '5px',
     borderTop: '2px dotted #a5a5a5',
     // borderRadius: '10px',
     padding: '10px',

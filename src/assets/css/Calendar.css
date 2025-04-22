@@ -117,15 +117,14 @@
 
 /* 선택한 날짜 hover 효과 */
 .selected-date:hover {
-    background: #e9ecef;
+    /* background: #e9ecef; */
     border-color: #bbb;
     color: #007bff;
 }
 
 /* 선택한 날짜 클릭 시 활성화 효과 */
-.selected-date:active {
-    background: #dae0e5;
-    border-color: #aaa;
+.selected-date:focus {
+    border-color: #007bff;
 }
 
 

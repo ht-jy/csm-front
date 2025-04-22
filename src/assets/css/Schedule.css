@@ -1,16 +1,23 @@
+.schedule-day {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    margin-bottom: 3px;
+}
+
 .schedule-day:hover {
     padding-left: 5px;
     padding-right: 5px;
     background-color: #ddd;
     border-radius: 5px;
-    cursor: pointer;
+    /* cursor: pointer; */
     font-weight: bold;
 }
 
 .hoilday-reason {
     color: black;
     background-color: #f89999;
-    /* background-color: #b799f8; */
+    /* background-color: #f9d470; */
     border-radius: 5px;
     margin: 1px;
     padding-left: 3px;
@@ -18,7 +25,8 @@
 
 .rest-reason {
     color: black;
-    background-color: #faa7ba;
+    background-color: #f89999;
+    /* background-color: #acaafe; */
     border-radius: 5px;
     margin: 1px;
     padding-left: 3px;
@@ -26,7 +34,7 @@
 
 .schedule-content:hover{
     /* padding: 5px; */
-    cursor: pointer;
+    /* cursor: pointer; */
 }
 
 .back-icon:hover {
@@ -35,6 +43,11 @@
 }
 
 .detail-rest-item:hover {
+    background-color: #eee;
+    border-radius: 5px;
+}
+
+.detail-daily-job:hover {
     background-color: #eee;
     border-radius: 5px;
 }

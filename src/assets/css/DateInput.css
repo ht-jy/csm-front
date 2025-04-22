@@ -27,15 +27,14 @@ input[type="date"]::-webkit-inner-spin-button {
 
 /* 선택한 날짜 hover 효과 */
 .date-input:hover {
-    background: #e9ecef;
+    /* background: #e9ecef; */
     border-color: #bbb;
     border-color: #007bff;
 }
 
 /* 선택한 날짜 클릭 시 활성화 효과 */
-.date-input:active {
-    background: #dae0e5;
-    border-color: #aaa;
+.date-input:focus {
+    border-color: #007bff;
 }
 
 .inputBox {

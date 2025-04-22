@@ -7,12 +7,11 @@
 }
 
 .time-input:hover {
-    background: #e9ecef;
+    /* background: #e9ecef; */
     border-color: #bbb;
     border-color: #007bff;
 }
 
-.time-input:active {
-    background: #dae0e5;
-    border-color: #aaa;
+.time-input:focus {
+    border-color: #007bff;
 }

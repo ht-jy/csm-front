@@ -7,12 +7,12 @@
 }
 
 .text-input:hover {
-    background: #eee;
+    /* background: #eee; */
     border-color: #bbb;
     border-color: #007bff;
 }
 
-.text-input:active {
+/* .text-input:active {
     background: #dae0e5;
     border-color: #aaa;
-}
+} */
