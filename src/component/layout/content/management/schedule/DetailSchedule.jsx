@@ -184,7 +184,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                     <div style={overlayStyle}>
                         <div style={modalStyle}>
 
-                            <div style={{ height: "50px", display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: "0px", marginRight: "5px", marginLeft: "5px" }}>
+                            <div style={{ height: "50px", display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: "0px", marginRight: "5px", marginLeft: "5px", borderBottom: '2px dotted #a5a5a5' }}>
                                 {/* 왼쪽 - 제목 */}
                                 <h2 style={{fontSize: "20px", color: titleColor(), display: "flex", alignItems: "center"}}>
                                     {
@@ -435,8 +435,8 @@ const gridStyle = {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',  // 한 행에 두 개의 열
     gap: '5px',
-    borderTop: '2px dotted #a5a5a5',
-    // borderRadius: '10px',
+    // borderTop: '2px dotted #a5a5a5',
+    borderRadius: '5px',
     padding: '10px',
     width: '98%', 
     // height: 'calc(100% - 60px)',  // 버튼과 라디오 영역을 제외한 높이
@@ -444,6 +444,7 @@ const gridStyle = {
     overflowY: 'auto',            // 세로 스크롤
     marginTop: "5px",
     padding: "5px",
+    backgroundColor: "#f3f3f3",
 };
 
 const overlayStyle = {
