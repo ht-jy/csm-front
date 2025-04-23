@@ -78,7 +78,7 @@ const Device = () => {
         { type: "hidden", value: "" },
         { type: "text", span: "double", width: "110px", label: "장치명", value: "", isRequired: true },
         { type: "text", span: "double", width: "110px", label: "시리얼번호", value: "", isRequired: true },
-        { type: "select", span: "full", width: "110px", label: "현장이름", value: "", selectName: "siteNm", isRequired: true },
+        { type: "site", span: "full", width: "110px", label: "현장이름", value: {sno: 100, site_nm:"미지정"}, isRequired: true },
         { type: "checkbox", span: "double", width: "110px", label: "사용여부", value: "", checkedLabel: "사용중|사용안함" },
         { type: "text", span: "full", width: "110px", label: "비고", value: "" },
     ];
@@ -110,18 +110,15 @@ const Device = () => {
             arr[0].value = item.dno;
             arr[1].value = item.device_nm;
             arr[2].value = item.device_sn;
-            arr[3].value = item.sno;
+            arr[3].value = {
+                sno: item.sno,
+                site_nm: item.site_nm
+            };
             arr[4].value = item.is_use === "사용중" ? "Y" : "N" ;
             arr[5].value = item.etc;
         }
-
         setDetail(arr);
-
-        if (getSiteData()) {
-            setIsGridModal(true);
-        } else {
-            setIsGridModal(false);
-        }
+        setIsGridModal(true);
     }
 
     // GridModal의 'X' 버튼 클릭 이벤트
@@ -138,7 +135,7 @@ const Device = () => {
             dno: item[0].value || 0,
             device_nm: item[1].value || "",
             device_sn: item[2].value || "",
-            sno: item[3].value || 0,
+            sno: item[3].value.sno || 0,
             is_use: item[4].value || "",
             etc: item[5].value || "",
             reg_user: user.userId || "",
@@ -237,10 +234,10 @@ const Device = () => {
             setIsModal2(true);
             setModal2Title("현장이름 조회");
             setModal2Text(`현장이름을 조회하는데 실패하였습니다. 잠시 후에  다시 시도하여 주시기 바랍니다.`);
-            return false;
-        }
 
+        }
         setIsLoading(false);
+
         return true;
     }
 
@@ -261,7 +258,7 @@ const Device = () => {
             isUse = searchValues.is_use;
         }
 
-        const res = await Axios.GET(`/device?page_num=${pageNum}&row_size=${rowSize}&order=${order}&device_nm=${searchValues.device_nm}&device_sn=${searchValues.device_sn}&site_nm=${searchValues.site_nm}&etc=${searchValues.etc}&is_use=${isUse}&retry_search_text=${retrySearchText}`);
+        const res = await Axios.GET(`/device?page_num=${pageNum}&row_size=${rowSize}&order=${'' + order}&device_nm=${searchValues.device_nm}&device_sn=${searchValues.device_sn}&site_nm=${searchValues.site_nm}&etc=${searchValues.etc}&is_use=${isUse}&retry_search_text=${retrySearchText}`);
         
         if (res?.data?.result === "Success") {
             dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
@@ -271,7 +268,6 @@ const Device = () => {
             setModal2Title("근태인식기 조회");
             setModal2Text("근태인식기를 조회하는데 실패하였습니다. 잠시 후에 다시 시도하여 주시기 바랍니다.");
         }
-
 
         setIsLoading(false);
     };

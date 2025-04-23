@@ -434,7 +434,7 @@ const Site = () => {
                                                     :
                                                     warningData.map((item, idx) => (
                                                         <div style={{ ...listStyle }} key={idx}>
-                                                            <div className="square-title" >{item.warning}</div>
+                                                            <div className="square-title" style={{marginTop:"10px", marginBottom:"5px"}} >{item.warning}</div>
                                                             <ul style={{ listStylePosition: "inside", paddingLeft: "0" }}>
                                                                 {item.area.map((area, areaIdx) => (
                                                                     <li style={{ paddingLeft: "1.2em", textIndent: "-1.0em" }} key={areaIdx}>{area}</li>

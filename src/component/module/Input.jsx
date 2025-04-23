@@ -5,8 +5,9 @@ import "../../assets/css/Input.css";
 import "../../assets/css/Scrollbar.css";
 import { Common } from "../../utils/Common";
 import DateInput from "./DateInput";
-import { dateUtil } from "../../utils/DateUtil";
 import Radio from "./Radio";
+import SearchAllSiteModal from "./modal/SearchAllSiteModal";
+import CancelIcon from "../../assets/image/cancel.png"
 
 /**
  * @description: 상세화면 모달 Input 컴포넌트
@@ -37,7 +38,8 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
     const [isChecked, setIsChecked] = useState(false);
     const [selectedOption, setSelectedOption] = useState(null); // 초기값을 null로 설정
     const [searchStartTime, setSearchStartTime] = useState(value);
-    
+    const [isSiteOpenModal, setIsSiteOpenModal] = useState(false);
+
     const [maskValue, setMaskValue] = useState("");
 
     // input 마스킹 이벤트
@@ -62,6 +64,29 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
         
         onValueChange(newValue);
     };
+
+    // 장소 선택 버튼 클릭 시
+    const onClickSearch = () => {
+        setIsSiteOpenModal(true)
+
+    }
+
+    // 장소 삭제 버튼 클릭 시
+    const handleRefreshSite = () => {
+        siteInputChangeHandler( {sno: 100, site_nm: "미지정"})
+    }
+
+    // siteInput 체인지 이벤트
+    const siteInputChangeHandler = (item) => {
+        const newValue = {
+            sno: item.sno,
+            site_nm: item.site_nm
+        };
+        setIsValid(true)
+        onValueChange(newValue);
+    }
+
+
     // input 체인지 이벤트
     const inputChangeHandler = (event) => {
         const newValue = event.target.value;
@@ -122,9 +147,8 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
         isHide ? null
         :
         <div className="form-control" style={containerStyle}>
-            
             {label.length > 0 &&
-                <label style={{ color: isRequired && !isValid ? "red" : "black", marginRight: "5px", fontWeight: "bold", width: labelWidth, display: "flex" }}>
+                <label style={{ color: isRequired && !isValid ? "red" : "black", marginRight: "5px", fontWeight: "bold", minWidth: labelWidth, display: "flex" }}>
                     {label}
                     {
                         isRequired ?
@@ -137,7 +161,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                 type === "hidden" ? (
                     null
                 ) : type === "text" ? (
-                    <div className="grid-input">
+                    <div className="grid-input" >
                         {
                             editMode ? (
                                 <input
@@ -187,7 +211,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                     </div>
                 ) : type === "select" ? (
                     editMode ? (
-                        <div style={{height: "40px", display: "flex", alignItems: "center", width: "100%", marginLeft: "10px" }}>
+                        <div style={{height: "40px", display: "flex", alignItems: "center", width: "100%" }}>
                             <Select
                                 onChange={selectChangeHandler}
                                 options={selectData || []} // selectData가 undefined일 경우 빈 배열 제공
@@ -211,7 +235,45 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                             {selectData?.find(option => option.value === value)?.label || "-"}
                         </div>
                     )
-                ) : type === "html" ? (
+                ) : type === "site" ? (
+                    editMode ? (
+                        <>
+                        <SearchAllSiteModal
+                            isOpen={isSiteOpenModal} 
+                            fncExit={() => setIsSiteOpenModal(false)} 
+                            onClickRow={(item) => {siteInputChangeHandler(item)}} 
+                        />
+                        <form className="input-group" style={{margin:"0px"}}>
+                            <input className="form-control" type="text" value={value.site_nm} placeholder="Site를 선택하세요" aria-label="Site를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearch} readOnly/>
+                            {
+                                (value.sno && value.sno != 100 &&
+                                    <img 
+                                    src={CancelIcon}
+                                    alt="취소"
+                                        style={{
+                                            position: "absolute",
+                                            top: "52%",
+                                            right: "41px",
+                                            transform: "translateY(-50%)",
+                                            cursor: "pointer",
+                                            width: "20px",
+                                            margin: "0px 0.5rem"
+                                        }}
+                                        onClick={handleRefreshSite}
+                                        />
+                                    )
+                                }
+                            <button className="btn btn-primary" id="btnNavbarSearch" type="button"  onClick={onClickSearch}>
+                                <i className="fas fa-search" />
+                            </button>
+                        </form>
+                        </>
+                    ) : (
+                        <div className="grid-input"> 
+                            {value.site_nm}
+                        </div>
+                    )
+                ): type === "html" ? (
                     editMode ? (
                         <textarea name="" id=""
                             style={{ width: "100%", height: "20rem", marginTop: "0.5rem", padding: "0.5rem" }}
@@ -262,7 +324,6 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                         </div>
                     )
                 ) : null
-
             }
         </div>
     );
