@@ -8,7 +8,6 @@ import SearchIcon from "../../assets/image/search_9b9d9e.png";
 import Organization from "../../assets/image/organization_chart.png";
 import RefreshIcon from "../../assets/image/refresh-icon.png";
 import CancelIcon from "../../assets/image/cancel.png";
-import ExitIcon from "../../assets/image/exit.png";
 import { ObjChk } from "../../utils/ObjChk";
 import OrganizationModal from "../module/modal/OrganizationModal";
 
@@ -79,11 +78,14 @@ const Header = () => {
                 fncExit={() => setIsOrganizationOpen(false)}
             />
 
-            {/* Navbar Brand*/}
-            <a className="navbar-brand ps-3" href="/site">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;공사관리시스템</a>
-
             {/* Sidebar Toggle*/}
-            <button className="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" onClick={handleSidebarToggle}><i className="fas fa-bars" /></button>
+            <button className="btn btn-link btn-sm me-2" id="sidebarToggle" onClick={handleSidebarToggle} style={{paddingLeft: "15px"}}><i className="fas fa-bars" /></button>
+
+            {/* Navbar Brand*/}
+            <a className="navbar-brand" href="/site">공사관리시스템</a>
+
+            
+            {/* <button className="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" onClick={handleSidebarToggle}><i className="fas fa-bars" /></button> */}
 
             {/* Navbar Search*/}
             <div className="d-flex justify-content-between align-items-center w-100">

@@ -350,6 +350,16 @@ const Site = () => {
         return () => clearInterval(interval);
     }, []);
 
+    // 날씨 5분마다 갱신
+    // 기상청api가 30분마다 갱신이 되기에 날씨가 변경되는 시간은 차이가 있음.
+    useEffect(() => {
+        const interval = setInterval(() => {
+            getWhetherData();
+        }, 300000);
+
+        return () => clearInterval(interval);
+    }, []);
+
 
     return (
         <div>
