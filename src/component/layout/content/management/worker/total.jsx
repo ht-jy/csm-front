@@ -142,49 +142,13 @@ const Total = () => {
         setIsModal(true);
     }
 
-    // 현장 리스트 조회 - GridModal select 용도
-    const getSiteData = async () => {
-        setIsLoading(true);
-
-        const res = await Axios.GET(`/site/nm`);
-        if (res?.data?.result === "Success") {
-            dispatch({ type: "SITE_NM", list: res?.data?.values?.list });
-        } else if (res?.data?.result === "Failure") {
-            setIsModal(true);
-            setModalTitle("현장명 조회");
-            setModalText(`현장명을 조회하는데 실패하였습니다. \n잠시 후에  다시 시도하여 주시기 바랍니다.`);
-            return false;
-        }
-
-        setIsLoading(false);
-        return true;
-    }
-
-    // 프로젝트 리스트 조회 - GridModal select 용도
-    const getProjectData = async () => {
-        setIsLoading(true);
-
-        const res = await Axios.GET(`/project/job_name`);
-        if (res?.data?.result === "Success") {
-            dispatch({ type: "PROJECT_NM", list: res?.data?.values?.list });
-        } else if (res?.data?.result === "Failure") {
-            setIsModal(true);
-            setModalTitle("프로젝트명 조회");
-            setModalText(`프로젝트명을 조회하는데 실패하였습니다. \n잠시 후에  다시 시도하여 주시기 바랍니다.`);
-            return false;
-        }
-
-        setIsLoading(false);
-        return true;
-    }
-
     // 근로자 구분 코드로 변환
     const convertWorkerTypeToCode = (workerTypeNm) => {
         if (workerTypeNm === "" || state.workerTypeCodes.length === 0){
             return "";
         }
 
-        const code = state?.workerTypeCodes?.find(item => item.code_nm?.includes(workerTypeNm));
+        const code = state?.workerTypeCodes?.find(item => item.code_nm?.toUpperCase().includes(workerTypeNm.toUpperCase()));
         if (!code){
             return "99";
         }
@@ -214,16 +178,17 @@ const Total = () => {
         const params = {
             page_num: pageNum,
             row_size: rowSize,
-            order: order,
+            order: order.replaceAll("WORKER_TYPE_NM", "WORKER_TYPE"),
             rnum_order: rnumOrder,
             user_id: searchValues.user_id,
             user_nm: searchValues.user_nm,
+            job_name: searchValues.job_name,
             department: searchValues.department,
             phone: searchValues.phone,
             worker_type: convertWorkerTypeToCode(searchValues.worker_type_nm),
             retry_search: retrySearchText
           };
-          
+
           const queryString = Object.entries(params)
             .filter(([key, value]) => value !== '' && value != null)
             .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
@@ -242,6 +207,7 @@ const Total = () => {
             }
             
         }
+
 
         setIsLoading(false);
     };
@@ -263,8 +229,8 @@ const Total = () => {
     /***** useEffect *****/
 
     useEffect(() => {
-        getSiteData();
-        getProjectData();
+
+        // getProjectData();
     }, []);
     return (
         <div>

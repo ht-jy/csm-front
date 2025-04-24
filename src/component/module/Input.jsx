@@ -8,6 +8,7 @@ import DateInput from "./DateInput";
 import Radio from "./Radio";
 import SearchAllSiteModal from "./modal/SearchAllSiteModal";
 import CancelIcon from "../../assets/image/cancel.png"
+import SearchAllProjectModal from "./modal/SearchAllProjectModal";
 
 /**
  * @description: 상세화면 모달 Input 컴포넌트
@@ -39,7 +40,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
     const [selectedOption, setSelectedOption] = useState(null); // 초기값을 null로 설정
     const [searchStartTime, setSearchStartTime] = useState(value);
     const [isSiteOpenModal, setIsSiteOpenModal] = useState(false);
-
+    const [isProjectOpenModal, setIsProjectOpenModal] = useState(false);
     const [maskValue, setMaskValue] = useState("");
 
     // input 마스킹 이벤트
@@ -66,7 +67,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
     };
 
     // 장소 선택 버튼 클릭 시
-    const onClickSearch = () => {
+    const onClickSearchSite = () => {
         setIsSiteOpenModal(true)
 
     }
@@ -81,6 +82,26 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
         const newValue = {
             sno: item.sno,
             site_nm: item.site_nm
+        };
+        setIsValid(true)
+        onValueChange(newValue);
+    }
+
+    // 프로젝트 선택 버튼 클릭 시
+    const onClickSearchProject = () => {
+        setIsProjectOpenModal(true)
+
+    }
+    
+    // 프로젝트 삭제 버튼 클릭 시
+    const handleRefreshProject = () => {
+        projectInputChangeHandler()
+    }
+
+    // projectInput 체인지 이벤트
+    const projectInputChangeHandler = (item) => {
+        const newValue = {
+            ...item
         };
         setIsValid(true)
         onValueChange(newValue);
@@ -244,7 +265,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                             onClickRow={(item) => {siteInputChangeHandler(item)}} 
                         />
                         <form className="input-group" style={{margin:"0px"}}>
-                            <input className="form-control" type="text" value={value.site_nm} placeholder="Site를 선택하세요" aria-label="Site를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearch} readOnly/>
+                            <input className="form-control" type="text" value={value.site_nm} placeholder="Site를 선택하세요" aria-label="Site를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearchSite} readOnly/>
                             {
                                 (value.sno && value.sno != 100 &&
                                     <img 
@@ -263,7 +284,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                                         />
                                     )
                                 }
-                            <button className="btn btn-primary" id="btnNavbarSearch" type="button"  onClick={onClickSearch}>
+                            <button className="btn btn-primary" id="btnNavbarSearch" type="button"  onClick={onClickSearchSite}>
                                 <i className="fas fa-search" />
                             </button>
                         </form>
@@ -271,6 +292,44 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                     ) : (
                         <div className="grid-input"> 
                             {value.site_nm}
+                        </div>
+                    )
+                ): type === "project" ? (
+                    editMode ? (
+                        <>
+                            <SearchAllProjectModal
+                                isOpen={isProjectOpenModal} 
+                                fncExit={() => setIsProjectOpenModal(false)} 
+                                onClickRow={(item) => {projectInputChangeHandler(item)}} 
+                            />
+                            <form className="input-group" style={{margin:"0px"}}>
+                                <input className="form-control" type="text" value={value.job_name} placeholder="Proejct를 선택하세요" aria-label="Proejct를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearchProject} readOnly/>
+                                {
+                                    (value.job_name &&
+                                        <img 
+                                        src={CancelIcon}
+                                        alt="취소"
+                                            style={{
+                                                position: "absolute",
+                                                top: "52%",
+                                                right: "41px",
+                                                transform: "translateY(-50%)",
+                                                cursor: "pointer",
+                                                width: "20px",
+                                                margin: "0px 0.5rem"
+                                            }}
+                                            onClick={handleRefreshProject}
+                                            />
+                                        )
+                                    }
+                                <button className="btn btn-primary" id="btnNavbarSearch" type="button"  onClick={onClickSearchProject}>
+                                    <i className="fas fa-search" />
+                                </button>
+                            </form>
+                        </>
+                    ) : (
+                        <div className="grid-input"> 
+                            {value.job_name}
                         </div>
                     )
                 ): type === "html" ? (

@@ -223,24 +223,6 @@ const Device = () => {
         }
     }
 
-    // 현장데이터 리스트 조회 - GridModal select 용도
-    const getSiteData = async () => {
-        setIsLoading(true);
-
-        const res = await Axios.GET(`/site/nm`);
-        if (res?.data?.result === "Success") {
-            dispatch({ type: "SITE_NM", list: res?.data?.values?.list });
-        } else if (res?.data?.result === "Failure") {
-            setIsModal2(true);
-            setModal2Title("현장이름 조회");
-            setModal2Text(`현장이름을 조회하는데 실패하였습니다. 잠시 후에  다시 시도하여 주시기 바랍니다.`);
-
-        }
-        setIsLoading(false);
-
-        return true;
-    }
-
     // 근태인식기 리스트 조회
     const getData = async () => {
         setIsLoading(true);
