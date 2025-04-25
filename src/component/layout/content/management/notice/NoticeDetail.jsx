@@ -52,7 +52,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
         { type: "text", span: "full", label: "제목", value: "", isRequired: true },
         { type: "date", span: "double", label: "시작일", isRequired: true},
         { type: "date", span: "double", label: "마감일", isRequired: true},
-        { type: "project", span: "double", label: "프로젝트", value: {job_name: ""}, isRequired: true},
+        { type: "project", span: "double", label: "프로젝트", value: {job_name: ""}, isRequired: true, isAll: true},
         { type: "checkbox", span: "double", label: "중요공지여부", value: "N" },
         { type: "html", span: "full", label: "내용", vlaue: ""},
         { type: "hidden", value: "" },
@@ -105,7 +105,6 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
             setGridMode(mode)
             const arr = [...gridData]
 
-            console.log(notice)
             if (mode === "DETAIL") { 
                 arr[0].value = notice.title;
                 arr[1].value = dateUtil.format(notice.posting_start_date);

@@ -78,7 +78,7 @@ const Device = () => {
         { type: "hidden", value: "" },
         { type: "text", span: "double", width: "110px", label: "장치명", value: "", isRequired: true },
         { type: "text", span: "double", width: "110px", label: "시리얼번호", value: "", isRequired: true },
-        { type: "site", span: "full", width: "110px", label: "현장이름", value: {sno: 100, site_nm:"미지정"}, isRequired: true },
+        { type: "site", span: "full", width: "110px", label: "현장이름", value: {sno: 100, site_nm:"미지정"}, isRequired: true, isAll: true },
         { type: "checkbox", span: "double", width: "110px", label: "사용여부", value: "", checkedLabel: "사용중|사용안함" },
         { type: "text", span: "full", width: "110px", label: "비고", value: "" },
     ];

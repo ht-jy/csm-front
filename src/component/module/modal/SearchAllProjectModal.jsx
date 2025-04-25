@@ -27,7 +27,7 @@ import useTableSearch from "../../../utils/hooks/useTableSearch";
  *    Http Method - GET : /project/enterprise (전사 프로젝트 조회)
  */
 
-const SearchAllProjectModal = ({isOpen, fncExit, onClickRow}) => {
+const SearchAllProjectModal = ({isOpen, fncExit, onClickRow, isAll}) => {
     const { setProject, setProjectName } = useAuth();
     const [data, setData] = useState([]);
     const [count, setCount] = useState(0);
@@ -70,11 +70,14 @@ const SearchAllProjectModal = ({isOpen, fncExit, onClickRow}) => {
     // 전체 프로젝트 조회
     const getData = async () => {
 
-        const res = await Axios.GET(`/project/enterprise?page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}`);
+        const res = await Axios.GET(`/project/enterprise?all=${isAll ? 1 : 0}&page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}`);
         if(res?.data?.result === "Success"){
             setData(res?.data?.values?.list);
             setCount(res?.data?.values?.count);            
+        }else{
+            console.log(res.data)
         }
+
     };
 
     // 테이블 조회, 검색, 정렬 이벤트 

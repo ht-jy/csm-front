@@ -25,7 +25,7 @@ import useTableSearch from "../../../utils/hooks/useTableSearch";
  * - API: 
  *    Http Method - GET : /site/nm (장소명 조회)
  */
-const SearchAllSiteModal = ({isOpen, fncExit, onClickRow}) => {
+const SearchAllSiteModal = ({isOpen, fncExit, onClickRow, nonSite}) => {
     const [data, setData] = useState([]);
     const [count, setCount] = useState(0);
 
@@ -54,7 +54,8 @@ const SearchAllSiteModal = ({isOpen, fncExit, onClickRow}) => {
 
     // 전체 현장 조회
     const getData = async () => {
-        const res = await Axios.GET(`/site/nm?page_num=${pageNum}&row_size=${rowSize}&order=${order}&sno=${searchValues.sno}&site_nm=${searchValues.site_nm}&loc_name=${searchValues.loc_name}&etc=${searchValues.etc}`);
+        console.log(nonSite)
+        const res = await Axios.GET(`/site/nm?non_site=${nonSite ? 1 : 0}&page_num=${pageNum}&row_size=${rowSize}&order=${order}&sno=${searchValues.sno}&site_nm=${searchValues.site_nm}&loc_name=${searchValues.loc_name}&etc=${searchValues.etc}`);
         if(res?.data?.result === "Success"){
             setData(res?.data?.values?.list);
             setCount(res?.data?.values?.count);            

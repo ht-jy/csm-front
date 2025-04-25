@@ -24,7 +24,7 @@ import SearchAllProjectModal from "./modal/SearchAllProjectModal";
  * @additionalInfo
  * - props: 
  *  editMode: true|false (수정가능 여부)
- *  type: "text"|"checkbox"|"select" (input type 추후에 추가 예정)
+ *  type: "text"|"checkbox"|"select" | "site" | "project" (input type 추후에 추가 예정)
  *  span: "double"|"full"(girdModal col 개수)
  *  label: input label
  *  value: input value
@@ -33,8 +33,9 @@ import SearchAllProjectModal from "./modal/SearchAllProjectModal";
  *  checkedLabels: checkbox [true, false] spanText
  *  textFormat: text Format function name
  *  isHide: false: 보이기, true: 숨김
+ *  isAll : true: "전체 or 미지정" 넣기, false: 실제 데이터만 (site의 경우 미지정, project의 경우 전체)
  */
-const Input = ({ editMode, type, span, label, value, onValueChange, selectData, checkedLabels=["", ""], radioValues=[], radioLabels=[], textFormat, isHide=false, labelWidth="100px", item, isRequired = false }) => {
+const Input = ({ editMode, type, span, label, value, onValueChange, selectData, checkedLabels=["", ""], radioValues=[], radioLabels=[], textFormat, isHide=false, labelWidth="100px", item, isRequired = false, isAll = false }) => {
     const [isValid, setIsValid] = useState(true);
     const [isChecked, setIsChecked] = useState(false);
     const [selectedOption, setSelectedOption] = useState(null); // 초기값을 null로 설정
@@ -263,6 +264,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                             isOpen={isSiteOpenModal} 
                             fncExit={() => setIsSiteOpenModal(false)} 
                             onClickRow={(item) => {siteInputChangeHandler(item)}} 
+                            nonSite={isAll}
                         />
                         <form className="input-group" style={{margin:"0px"}}>
                             <input className="form-control" type="text" value={value.site_nm} placeholder="Site를 선택하세요" aria-label="Site를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearchSite} readOnly/>
@@ -301,6 +303,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                                 isOpen={isProjectOpenModal} 
                                 fncExit={() => setIsProjectOpenModal(false)} 
                                 onClickRow={(item) => {projectInputChangeHandler(item)}} 
+                                isAll={isAll}
                             />
                             <form className="input-group" style={{margin:"0px"}}>
                                 <input className="form-control" type="text" value={value.job_name || ''} placeholder="Proejct를 선택하세요" aria-label="Proejct를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearchProject} readOnly/>
