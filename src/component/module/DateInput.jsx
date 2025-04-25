@@ -8,6 +8,7 @@ import { Tooltip as ReactTooltip } from 'react-tooltip';
 import "react-calendar/dist/Calendar.css";
 import "../../assets/css/Calendar.css";
 import "../../assets/css/DateInput.css";
+import "../../assets/css/Tooltip.css";
 
 /**
  * @description: 날짜 입력 컴포넌트

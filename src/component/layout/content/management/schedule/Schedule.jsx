@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import { useAuth } from "../../../../context/AuthContext";
-// import { FaRocket } from 'react-icons/fa';
 import Select from 'react-select';
 import Button from "../../../../module/Button";
 import Loading from "../../../../module/Loading";
 import AddDetailSchedule from "./AddDetailSchedule";
 import Modal from "../../../../module/Modal";
 import DetailSchedule from "./DetailSchedule";
+import useTooltip from "../../../../../utils/hooks/useTooltip";
 import PlusBottomIcon from "../../../../../assets/image/plus-sign.png";
 import PlusIcon from "../../../../../assets/image/plus2.png";
 import "../../../../../assets/css/Table.css";
@@ -48,6 +48,8 @@ const Schedule = () => {
     /** 추가 결과 알림 모달 **/
     const [isModal, setIsModal] = useState(false);
     const [modalText, setModalText] = useState("");
+    /** 툴팁 **/
+    useTooltip([dailyJobs, calendarSlice]);
 
     // 날짜 비교 
     const isSameDay = (date1, date2) => {
@@ -610,7 +612,7 @@ const Schedule = () => {
                                                     >
                                                         <div>
                                                             {
-                                                                // item !== null && isRest(item) && restReason(item)
+                                                                // 휴무일
                                                                 item !== null && isRest(item) && restReason(item).map((reason, r_idx) => (
                                                                     reason.is_hoilday ?
                                                                         <div className="hoilday-reason" key={r_idx}>{reason.reason}</div>
@@ -619,8 +621,13 @@ const Schedule = () => {
                                                                 ))
                                                             }
                                                             {
+                                                                // 작업내용
                                                                 item !== null && getIsSameDailyJobs(item).map((job, j_idx) => (
-                                                                    <div key={j_idx} style={{textOverflow: "ellipsis", overflow: "hidden", marginLeft: "5px"}}>{`● ${job.content}`}</div>
+                                                                    <div key={j_idx} style={{marginLeft: "5px"}}
+                                                                        className="ellipsis-tooltip"
+                                                                    >
+                                                                        {`● ${job.content}`}
+                                                                    </div>
                                                                 )) 
                                                             }
                                                         </div>

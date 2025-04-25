@@ -34,9 +34,9 @@ import { Common } from "../../../../../utils/Common";
  * - DateInput: 커스텀 캘린더
  * 
  */
-const DetailSite = ({isEdit, detailData, projectData, handleChangeValue, addressData, isSiteAdd}) => {
+const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChangeValue, addressData, isSiteAdd}) => {
     const { getData, setIsDetail } = useContext(SiteContext);
-
+    console.log(detailWhether);
     const [data, setData] = useState(null);
     const [openingDate, setOpeningDate] = useState(dateUtil.now());
     const [closingPlanDate, setClosingPlanDate] = useState(dateUtil.now());
@@ -490,15 +490,15 @@ const DetailSite = ({isEdit, detailData, projectData, handleChangeValue, address
                     <div className="form-input" style={{ flex: 1 }}>
                         <div className="read-only-input">
                             {
-                                getIsWhether(data.whether) ?
+                                detailWhether.length !== 0 ?
                                 <>
-                                    <>{getPtyNSkyData(data.whether)}</>
+                                    <>{getPtyNSkyData(detailWhether)}</>
                                     /
-                                    <>{getRn1Data(data.whether)}</>
+                                    <>{getRn1Data(detailWhether)}</>
                                     /
-                                    <>{getT1hData(data.whether)}</>
+                                    <>{getT1hData(detailWhether)}</>
                                     /
-                                    <>{getWindData(data.whether)}</>
+                                    <>{getWindData(detailWhether)}</>
                                 </>                                                         
                                 : "날씨 정보가 없습니다."
                             }

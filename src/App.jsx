@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./component/context/AuthContext";
+import { Tooltip as ReactTooltip } from "react-tooltip";
 import Login from './component/layout/login/Login';
 import PrivateRoute from "./component/layout/PrivateRoute";
 import Temp from "./component/layout/content/Temp";
@@ -16,6 +17,7 @@ import Code from "./component/layout/content/management/code/Code";
 import ErrorBoundary from "./component/error/ErrorBoundary";
 import ErrorPage from "./component/error/ErrorPage";
 import NotFound from "./component/error/NotFound";
+import "./assets/css/Tooltip.css";
 
 // 라우팅 모듈
 // /login을 제외한 요청은 PrivateRouter을 통하여 처리됨
@@ -48,6 +50,8 @@ function App() {
                     </Routes>
                 {/* </ErrorBoundary> */}
             </AuthProvider>
+            {/* 툴팁 전역 설정 */}
+            <ReactTooltip id="highlightTooltip" delayShow={0} positionStrategy="fixed" style={{ zIndex: 99999 }}/>
         </div>
     );
 }
