@@ -78,7 +78,7 @@ const Company = () => {
                     </div>
                     
                     <div className="table-wrapper">
-                        <div className="table-container">
+                        <div style={{width: "100%", overflowX: "auto", display: "block", maxWidth: "100", borderRadius: "5px"}}>
                             {/* job정보 */}
                             <CompanyJobInfo jno={jno} styles={{marginBottom: "40px"}}/>
 
@@ -97,7 +97,7 @@ const Company = () => {
                                             </div>
 
                                             {/* 관리감독자*/}
-                                            <div style={{ width: "100%", height: "100%", minWidth: "1030px", marginRight: "5px", overflow: "hidden", borderRadius: "5px", marginLeft:"15px", boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)" }}>
+                                            <div style={{ width: "100%", height: "100%", minWidth: "1030px", overflow: "hidden", borderRadius: "5px", marginLeft:"15px", boxShadow: "0 2px 5px rgba(0, 0, 0, 0.25)" }}>
                                                 <CompanySupervisor jno={jno} styles={{ width: "100%", minWidth: "1030px" }} />
                                             </div>
                                         </div>

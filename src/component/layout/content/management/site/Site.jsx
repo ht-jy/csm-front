@@ -1,12 +1,15 @@
 import { useState, useEffect, useReducer } from "react";
-import "../../../../../assets/css/Table.css";
 import { Axios } from "../../../../../utils/axios/Axios"
 import { dateUtil } from "../../../../../utils/DateUtil";
 import { useAuth } from "../../../../context/AuthContext";
+import { Common } from "../../../../../utils/Common";
 import SiteContext from "../../../../context/SiteContext";
 import SiteReducer from "./SiteReducer"
 import DetailModal from "./DetailModal";
 import Loading from "../../../../module/Loading";
+import Modal from "../../../../module/Modal";
+import Button from "../../../../module/Button";
+import useTooltip from "../../../../../utils/hooks/useTooltip";
 import NonUsedProjectModal from "../../../../module/modal/NonUsedProjectModal";
 import whether0 from "../../../../../assets/image/whether/0.png";
 import whether1 from "../../../../../assets/image/whether/1.png";
@@ -18,11 +21,9 @@ import whether6 from "../../../../../assets/image/whether/6.png";
 import whether7 from "../../../../../assets/image/whether/7.png";
 import whether13 from "../../../../../assets/image/whether/13.png";
 import whether14 from "../../../../../assets/image/whether/14.png";
-import Modal from "../../../../module/Modal";
-import Button from "../../../../module/Button";
-import { Common } from "../../../../../utils/Common";
 import warningWhether from "../../../../../assets/image/warningWhether.png"
 import LoadingIcon from "../../../../../assets/image/Loading.gif";
+import "../../../../../assets/css/Table.css";
 
 /**
  * @description: 현장 관리 페이지
@@ -57,6 +58,7 @@ const Site = () => {
     const [isDetail, setIsDetail] = useState(false);
     const [detailTitle, setDetailTitle] = useState("");
     const [detailData, setDetailData] = useState({});
+    const [detailWhether, setDetailWhether] = useState([]);
     const [isSiteAdd, setIsSiteAdd] = useState({});
     const [isNonPjModal, setIsNonPjModal] = useState(false);
     const [addSiteJno, setAddSiteJno] = useState("");
@@ -78,6 +80,8 @@ const Site = () => {
     const [modal2Cancel, setModal2Cancel] = useState("");
     // 날씨정보
     const [whetherInfo, setWhetherInfo] = useState([]);
+    // 툴팁
+    useTooltip([state.list]);
 
     // 현장 상세
     const onClickRow = (idx) => {
@@ -95,6 +99,14 @@ const Site = () => {
 
         setDetailTitle(`${item.site_nm}`)
         setDetailData(item);
+        
+        const findWhether = state.dailyWhether.find(whether => whether.sno === item.sno);
+        if(findWhether !== undefined){
+            setDetailWhether(findWhether.whether);
+        }else{
+            setDetailWhether([]);
+        }
+        
         setIsDetail(true);
         setIsSiteAdd(false);
     }
@@ -395,6 +407,7 @@ const Site = () => {
                         setIsOpen={setIsDetail}
                         title={detailTitle}
                         detailData={detailData}
+                        detailWhether={detailWhether}
                         isEditBtn={true}
                         exitBtnClick={handleExitBtn}
                         saveBtnClick={(data) => saveData(data)}
@@ -469,6 +482,7 @@ const Site = () => {
                     </div>
                 </div>
 
+                <div className="table-wrapper">
                 <div className="table-container">
                     <table>
                         <thead>
@@ -517,7 +531,7 @@ const Site = () => {
                                                 {/* 발주처 */}
                                                 <td className="center fixed-left" rowSpan={item.rowSpan} style={{ left: "10px" }}>{item.originalOrderCompName || ""}</td>
                                                 {/* 현장 */}
-                                                <td className="left ellipsis text-hover fixed-left" style={{ cursor: "pointer", left: "110px" }} onClick={() => onClickRow(idx)}>{item.site_nm || ""}</td>
+                                                <td className="left fixed-left ellipsis-tooltip" style={{ cursor: "pointer", left: "110px" }} onClick={() => onClickRow(idx)}>{item.site_nm || ""}</td>
                                                 {/* 공정률 */}
                                                 <td className="center" rowSpan={item.rowSpan} style={{ fontWeight: "bold" }}>{item.work_rate}%</td>
                                                 {/* 누계 */}
@@ -630,7 +644,7 @@ const Site = () => {
                                             :
                                             <tr key={idx}>
                                                 {/* 현장 */}
-                                                <td className="left ellipsis text-hover fixed-left" style={{ cursor: "pointer", left: "110px" }} onClick={() => onClickRow(idx)}><li>{item.project_nm}</li></td>
+                                                <td className="left fixed-left ellipsis-tooltip" style={{ cursor: "pointer", left: "110px" }} onClick={() => onClickRow(idx)}><li>{item.project_nm}</li></td>
                                                 {/* 공사 */}
                                                 <td className="right">{Common.formatNumber(item.worker_count_work)}</td>
                                                 {/* 안전 */}
@@ -678,6 +692,7 @@ const Site = () => {
                             </tr>
                         </tbody>
                     </table>
+                </div>
                 </div>
             </div>
 

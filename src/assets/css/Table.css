@@ -47,11 +47,11 @@ body {
     text-overflow: ellipsis; /* "..." 표시 */
     border: none;
   }
-  th:hover, td:hover {
-    overflow: visible;     /* hover 시 영역 벗어나는 내용 보이도록 */
+  /* th:hover, td:hover {
+    overflow: visible;
     text-overflow: unset;
     white-space: unset;
-  }
+  } */
 
   td, th {
     box-shadow: none;
@@ -134,6 +134,7 @@ td {
   display: block;
   max-width: 100%; /* 테이블 크기 유지 */
   border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.25);
 }
 
 /* 페이지네이션을 테이블을 기준으로 가운데 정렬 */
@@ -184,6 +185,12 @@ td {
   overflow: hidden; /* 넘치는 내용은 숨기기 */
   text-overflow: ellipsis; /* 넘치는 부분에 ... 표시 */
   white-space: nowrap; /* 줄 바꿈 방지 */
+}
+
+.ellipsis:hover {
+  overflow: visible;
+  text-overflow: unset;
+  white-space: unset;
 }
 
 .text-hover:hover {

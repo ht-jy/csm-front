@@ -266,7 +266,7 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
                                             </div>
 
                                             <div className="my-3 p-3 form-control" dangerouslySetInnerHTML={{ __html: 
-                                                `<div class="overflow-auto Scrollbar" style=height:50vh padding: 0.5rem>
+                                                `<div className="overflow-auto Scrollbar" style=height:50vh padding: 0.5rem>
                                                 ${data.content}
                                             </div>` }}>
                                             </div>
