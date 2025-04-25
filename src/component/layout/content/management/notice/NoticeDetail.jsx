@@ -52,7 +52,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
         { type: "text", span: "full", label: "제목", value: "", isRequired: true },
         { type: "date", span: "double", label: "시작일", isRequired: true},
         { type: "date", span: "double", label: "마감일", isRequired: true},
-        { type: "select", span: "double", label: "프로젝트", value: 0, selectName: "projectNm", isRequired: true},
+        { type: "project", span: "double", label: "프로젝트", value: {job_name: ""}, isRequired: true},
         { type: "checkbox", span: "double", label: "중요공지여부", value: "N" },
         { type: "html", span: "full", label: "내용", vlaue: ""},
         { type: "hidden", value: "" },
@@ -81,7 +81,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
             arr[0].value = notice.title;
             arr[1].value = dateUtil.format(notice.posting_start_date);
             arr[2].value = dateUtil.format(notice.posting_end_date);
-            arr[3].value = (mode === "COPY") ? -1 : Number(notice.jno);
+            arr[3].value.job_name = (mode === "COPY") ? "" : notice.job_name;
             arr[4].value = notice.is_important;
             arr[5].value = notice.content;
             arr[6].value = Number(notice.idx);
@@ -105,11 +105,12 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
             setGridMode(mode)
             const arr = [...gridData]
 
+            console.log(notice)
             if (mode === "DETAIL") { 
                 arr[0].value = notice.title;
                 arr[1].value = dateUtil.format(notice.posting_start_date);
                 arr[2].value = dateUtil.format(notice.posting_end_date);
-                arr[3].value = Number(notice.jno);
+                arr[3].value.job_name = notice.job_name;
                 arr[4].value = notice.is_important;
                 arr[5].value = notice.content;
                 arr[6].value = Number(notice.idx);
@@ -191,7 +192,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
         }
 
         // 프로젝트 지정 안했을 경우 모달
-        else if (item[3].value === -1) {
+        else if (item[3].value.job_name === '') {
             setIsValidation(false);
             setModalText("프로젝트를 선택해 주세요.");
             setIsOpenModal(true);
@@ -213,7 +214,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
             setIsValidation(true);
             
             const notice = {
-                jno: Number(item[3].value) || 0,
+                jno: Number(item[3].value.jno) || 0,
                 title: item[0].value || "",
                 content: item[5].value || "",
                 is_important: item[4].value || "N",
@@ -240,6 +241,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
                 // Axios 요청 성공했을 경우
                 setIsMod(true);
                 setIsDetail(false);
+
 
             } else {
                 // Axios 요청 실패했을 경우

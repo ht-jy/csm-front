@@ -303,7 +303,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                                 onClickRow={(item) => {projectInputChangeHandler(item)}} 
                             />
                             <form className="input-group" style={{margin:"0px"}}>
-                                <input className="form-control" type="text" value={value.job_name} placeholder="Proejct를 선택하세요" aria-label="Proejct를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearchProject} readOnly/>
+                                <input className="form-control" type="text" value={value.job_name || ''} placeholder="Proejct를 선택하세요" aria-label="Proejct를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearchProject} readOnly/>
                                 {
                                     (value.job_name &&
                                         <img 
