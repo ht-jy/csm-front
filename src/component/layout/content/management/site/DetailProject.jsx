@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import Organization from "../../../../../assets/image/organization_chart.png";
 import OrganizationModal from "../../../../module/modal/OrganizationModal";
 import Button from "../../../../module/Button";
+import Slider from "rc-slider";
+import 'rc-slider/assets/index.css';
+import { Common } from "../../../../../utils/Common";
 
 /**
  * @description: 프로젝트 상세 컴포넌트
@@ -15,8 +18,18 @@ import Button from "../../../../module/Button";
  * - dateUtil: 날짜 포맷
  * 
  */
-const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickDeleteBtn}) => {
+const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickDeleteBtn, handleChangeValue}) => {
     const [isOrganizationOpen, setIsOrganizationOpen] = useState(false);
+    /** 슬라이더 **/
+    const [sliderValue, setSliderValue] = useState(0);
+
+    // 슬라이더 변경 이벤트
+    const onChangeSliderValue = (value) => {
+        const formatValue = Common.sanitizeNumberInput(value);
+        setSliderValue(formatValue);
+        handleChangeValue("work_rate", data.jno, formatValue);
+    }
+
     
     // 프로젝트 제목
     const projectTitle = () => {
@@ -29,6 +42,11 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
         }
         return title;
     }
+
+    /***** useEffect *****/
+    useEffect(() => {
+        setSliderValue(data.work_rate);
+    }, []);
     
     // pe 리스트
     const peTextJoin = () => {
@@ -134,6 +152,31 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                     </label>
                     <div className="read-only-input">
                         {data.comp_name}
+                    </div>
+                </div>
+            </div>
+            <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "1 / span 2", gridRow: "9" }}>
+                <div className="text-overflow">
+                    <label className="detail-text-label" style={{width: "130px"}}>
+                        공정률
+                    </label>
+                    <div className="read-only-input">
+                        {
+                            isEdit ?
+                                <input className="slider-input" type="text" value={sliderValue} onChange={(e) => onChangeSliderValue(e.target.value)} style={{height: "40px", width: "50px", textAlign: "right", paddingRight: "5px"}}/>
+                            :
+                                sliderValue
+                        }
+                        &nbsp;%
+                        <div style={{width: "260px", marginLeft: isEdit ? "20px" : "62px",}}>
+                            <Slider 
+                                min={0}
+                                max={100}
+                                value={sliderValue}
+                                onChange={onChangeSliderValue}
+                                disabled={!isEdit}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

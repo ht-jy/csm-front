@@ -14,6 +14,24 @@ import PlusIcon from "../../../../../assets/image/plus2.png";
 import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Schedule.css";
 
+/**
+ * @description: 일정관리 - 휴무일, 작업내용을 달력 형태로 확인 / 휴무일, 작업내용, 프로젝트 공정률, 프로젝트 장비 수정
+ * 
+ * @author 작성자: 김진우
+ * @created 작성일: 2025-04-28
+ * @modified 최종 수정일: 
+ * @modifiedBy 최종 수정자: 
+ * @usedComponents
+ * - 
+ * 
+ * @additionalInfo
+ * - API: 
+ *    Http Method - GET : /api/rest-date (공휴일 조회), /schedule/rest (휴무일 조회), /schedule/daily-job (작업내용 조회)
+ *    Http Method - POST : /schedule/rest (휴무일 저장), /schedule/daily-job (작업내용 저장) 
+ *    Http Method - PUT : /schedule/rest (휴무일 수정), /schedule/daily-job (작업내용 수정)
+ *    Http Method - DELETE : /schedule/rest${item.cno} (휴무일 삭제), /schedule/daily-job${item.cno} (작업내용 삭제)
+ * - 주요 상태 관리: 
+ */
 const Schedule = () => {
     const { project, user } = useAuth();
 
@@ -385,7 +403,7 @@ const Schedule = () => {
         const jobs = [];
         const job = {
             jno: item.jno,
-            content: item.content,
+            content: item.reason,
             targetDate: dateUtil.parseToGo(item.date),
             reg_uno: user.uno,
             reg_user: user.userName

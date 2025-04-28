@@ -10,57 +10,67 @@ import Exit from "../../../../../assets/image/exit.png";
 import RadioInput from "../../../../module/RadioInput";
 import Modal from "../../../../module/Modal";
 
+/**
+ * @description: 일정관리 추가 화면
+ * 
+ * @author 작성자: 김진우
+ * @created 작성일: 2025-04-28
+ * @modified 최종 수정일: 
+ * @modifiedBy 최종 수정자: 
+ * @usedComponents
+ * - 
+ * 
+ * @additionalInfo
+ * - props
+ * isOpen: true|false
+ * clickDate: 선택날짜
+ * exitBtnClick: 모달 닫기 함수
+ * restSaveBtnClick: 휴무일 저장 함수
+ * jobSaveBtnClick: 작업내용 저장 함수
+ */
 const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, jobSaveBtnClick }) => {
     const { project} = useAuth();
-    /** 휴무일 데이터 **/
-    const [restFormData, setRestFormData] = useState([]);
-    /** 작업내용 데이터 **/
-    const [jobFormData, setJobFormData] = useState([]);
+    /** 프로젝트 **/
+    const [simpleProjects, setSimpleProjects] = useState([]);
+    /** 추가 데이터 **/
+    const [formData, setFormData] = useState([]);
     /** 추가 종류 선택 **/
     const [addType, setAddType] = useState("REST");
     /** 로딩 **/
     const [isLoading, setIsLoading] = useState(false);
     /** select **/
-    const [projectRestOptions, setProjectRestOptions] = useState([]);
-    const [projectJobOptions, setProjectJobOptions] = useState([]);
+    const [projectOptions, setProjectOptions] = useState([]);
     /** 알림 모달 **/
     const [isModal, setIsModal] = useState(false);
     const [modalText, setModalText] = useState("");
 
-    // 휴무일 저장
+    // 휴무일, 작업내용 저장
     const handleSave = (e) => {
         document.body.style.overflow = 'unset';
         if(addType === "REST"){
-            restSaveBtnClick(restFormData);
+            restSaveBtnClick(formData);
         }else{
-            jobSaveBtnClick(jobFormData);
+            jobSaveBtnClick(formData);
         }
         
     };
 
-    // 휴무일 데이터 변경
-    const onChangeRestFormData = (key, value) => {
-        setRestFormData(prev => {
-            return {...prev, [key]: value};
-        });
-    }
-
-    // 작업내용 데이터 변경
-    const onChangeJobFormData = (key, value) => {
-        if(key === "period_date" && jobFormData.is_period === 'Y'){
-            if(value < jobFormData.date){
+    // 데이터 변경
+    const onChangeFormData = (key, value) => {
+        if(key === "period_date" && formData.is_period === 'Y'){
+            if(value < formData.date){
                 setIsModal(true);
                 setModalText("종료일은 시작일 이후로 선택하여 주세요.");
                 return;
             }
-        }else if(key === "date" && jobFormData.is_period === 'Y'){
-            if(value > jobFormData.period_date){
+        }else if(key === "date" && formData.is_period === 'Y'){
+            if(value > formData.period_date){
                 setIsModal(true);
                 setModalText("시작일은 종료일 이전으로 선택하여 주세요.");
                 return;
             }
         }
-        setJobFormData(prev => {
+        setFormData(prev => {
             return {...prev, [key]: value};
         });
     }
@@ -71,14 +81,14 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
 
         const res = await Axios.GET(`/project/job_name`);
         if (res?.data?.result === "Success") {
-            const restOptions = [{value:0, label: "전체 적용"}];
-            const jobOptions = [{value:0, label: "미지정"}]
+            // 프로젝트 정보
+            setSimpleProjects(res?.data?.values?.list);
+            // 셀렉트 옵션
+            const options = [{value:0, label: "전체 적용"}];
             res?.data?.values?.list.map(item => {
-                restOptions.push({value: item.jno, label: item.project_nm});
-                jobOptions.push({value: item.jno, label: item.project_nm});
+                options.push({value: item.jno, label: item.project_nm});
             });
-            setProjectRestOptions(restOptions);
-            setProjectJobOptions(jobOptions)
+            setProjectOptions(options);
         }
 
         setIsLoading(false);
@@ -93,25 +103,20 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
             setAddType("REST");
             // 프로젝트
             if(project !== null){
-                onChangeRestFormData("jno", project.jno);
-                onChangeJobFormData("jno", project.jno);
+                onChangeFormData("jno", project.jno);
             }else{
-                onChangeRestFormData("jno", 0);
-                onChangeJobFormData("jno", 0);
+                onChangeFormData("jno", 0);
             }
             // 선택날짜
             if(clickDate !== null){
-                onChangeRestFormData("date", `${clickDate.getFullYear()}-${String(clickDate.getMonth()+1).padStart(2, '0')}-${String(clickDate.getDate()).padStart(2, '0')}`);
-                onChangeJobFormData("date", `${clickDate.getFullYear()}-${String(clickDate.getMonth()+1).padStart(2, '0')}-${String(clickDate.getDate()).padStart(2, '0')}`);
+                onChangeFormData("date", `${clickDate.getFullYear()}-${String(clickDate.getMonth()+1).padStart(2, '0')}-${String(clickDate.getDate()).padStart(2, '0')}`);
             }
             // 연간적용
-            onChangeRestFormData("is_every_year", "N");
+            onChangeFormData("is_every_year", "N");
             // 기간설정
-            onChangeRestFormData("is_period", "N");
-            onChangeJobFormData("is_period", "N");
+            onChangeFormData("is_period", "N");
             // 사유
-            onChangeRestFormData("reason", "");
-            onChangeJobFormData("content", "");
+            onChangeFormData("reason", "");
             
             // 엔터 키 이벤트 핸들러
             document.body.style.overflow = "hidden";
@@ -152,9 +157,9 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                                 {/* 왼쪽 - 제목 */}
                                 <div style={{display: "flex", alignItems: "flex-end"}}>
                                     <h2 style={h2Style}>일정관리 추가</h2>
-                                    <div style={{marginLeft: "20px"}}>
+                                    {/* <div style={{marginLeft: "20px"}}>
                                         <RadioInput itemName={"schedule"} selectedValue={addType} values={["REST", "JOB"]} labels={["휴무일", "작업내용"]} setRadio={(value) => setAddType(value)}/>
-                                    </div>
+                                    </div> */}
                                 </div>
 
                                 {/* 오른쪽 - 버튼 & 닫기 아이콘 */}
@@ -170,63 +175,105 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                                 </div>
                             </div>
 
-                            
+                            {/* content */}
                             <div style={{ flex: 1, overflow: 'auto' }}>
                                 <div style={gridStyle}>
+                                    {/* 프로젝트 */}
+                                    <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"} }>
+                                        <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>프로젝트</label>
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{height: "40px", display: "flex", alignItems: "center", width: "100%" }}>
+                                                <Select
+                                                    onChange={(e) => onChangeFormData("jno", e.value)}
+                                                    options={projectOptions || []} 
+                                                    value={formData.jno !== undefined ? projectOptions.find(item => item.value === formData.jno) : {}} 
+                                                    placeholder={"선택하세요"}
+                                                    menuPortalTarget={document.body}
+                                                    styles={{
+                                                        menuPortal: (base) => ({
+                                                            ...base,
+                                                            zIndex: 999999999,
+                                                        }),
+                                                        container: (provided) => ({
+                                                        ...provided,
+                                                        width: "635px",
+                                                        }),
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                    {
-                                        addType === "REST" ?
-                                            <>
-                                                {/* 프로젝트 */}
-                                                <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"} }>
-                                                    <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>프로젝트</label>
-                                                    <div style={{ flex: 1 }}>
-                                                        <div style={{height: "40px", display: "flex", alignItems: "center", width: "100%" }}>
-                                                            <Select
-                                                                onChange={(e) => onChangeRestFormData("jno", e.value)}
-                                                                options={projectRestOptions || []} 
-                                                                value={restFormData.jno !== undefined ? projectRestOptions.find(item => item.value === restFormData.jno) : {}} 
-                                                                placeholder={"선택하세요"}
-                                                                menuPortalTarget={document.body}
-                                                                styles={{
-                                                                    menuPortal: (base) => ({
-                                                                        ...base,
-                                                                        zIndex: 999999999,
-                                                                    }),
-                                                                    container: (provided) => ({
-                                                                    ...provided,
-                                                                    width: "665px",
-                                                                    }),
-                                                                }}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                    {/* 종류 */}
+                                    <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
+                                        <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>종류</label>
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{height: "40px", display: "flex", alignItems: "center", width: "100%" }}>
+                                                <RadioInput itemName={"schedule"} selectedValue={addType} values={["REST", "JOB"]} labels={["휴무일", "작업내용"]} setRadio={(value) => setAddType(value)}/>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                                {/* 체크 */}
-                                                <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
-                                                    <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>연간 적용</label>
+                                    {/* 체크 */}
+                                    <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
+                                        {
+                                            addType === "REST" ?
+                                                <>
+                                                    <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>휴무 기간 설정</label>
                                                     <div style={{width: "50px"}}>
                                                         <div style={{height: "40px", display: "flex", alignItems: "center" }}>
-                                                            <FormCheckInput checked={restFormData.is_every_year === "Y" ? true : false} onChange={(e) => onChangeRestFormData("is_every_year", e.target.checked ? "Y" : "N")} />
+                                                            <FormCheckInput checked={formData.is_period === "Y" ? true : false} onChange={(e) => onChangeFormData("is_period", e.target.checked ? "Y" : "N")} />
                                                         </div>
                                                     </div>
-                                                    <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>기간 설정</label>
+                                                    <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>연간 적용</label>
                                                     <div>
                                                         <div style={{height: "40px", display: "flex", alignItems: "center" }}>
-                                                            <FormCheckInput checked={restFormData.is_period === "Y" ? true : false} onChange={(e) => onChangeRestFormData("is_period", e.target.checked ? "Y" : "N")} />
+                                                            <FormCheckInput checked={formData.is_every_year === "Y" ? true : false} onChange={(e) => onChangeFormData("is_every_year", e.target.checked ? "Y" : "N")} />
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </>
+                                            :
+                                                <>
+                                                    <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>작업 기간 설정</label>
+                                                    <div style={{width: "50px"}}>
+                                                        <div style={{height: "40px", display: "flex", alignItems: "center" }}>
+                                                            <FormCheckInput checked={formData.is_period === "Y" ? true : false} onChange={(e) => onChangeFormData("is_period", e.target.checked ? "Y" : "N")} />
+                                                        </div>
+                                                    </div>
+                                                </>
+                                        }
+                                        
+                                    </div>
 
-                                                {/* 휴무일 날짜 */}
-                                                <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
-                                                    <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>{restFormData.is_period === "Y" ? "시작일" : "휴무일"}</label>
-                                                    <div style={{width: "200px"}}>
+                                    {/* 휴무일, 작업내용 날짜 */}
+                                    <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
+                                        <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>{formData.is_period === "Y" ? "시작일" : addType === "REST" ? "휴무일" : "작업일"}</label>
+                                        <div style={{width: "170px"}}>
+                                            <div style={{height: "40px", display: "flex", alignItems: "center" }}>
+                                                <DateInput 
+                                                    time={dateUtil.format(formData.date)} 
+                                                    setTime={(value) => onChangeFormData("date", value)} 
+                                                    dateInputStyle={{margin: "0px"}}
+                                                    calendarPopupStyle={{
+                                                        position: "fixed",
+                                                        top: "50%",
+                                                        left: "50%",
+                                                        transform: "translate(-50%, -50%)",
+                                                        zIndex: 1000,
+                                                    }}
+                                                ></DateInput>
+                                            </div>
+                                        </div>
+
+                                        {
+                                            formData.is_period === "Y" ?
+                                                <>
+                                                    <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>종료일</label>
+                                                    <div>
                                                         <div style={{height: "40px", display: "flex", alignItems: "center" }}>
                                                             <DateInput 
-                                                                time={dateUtil.format(restFormData.date)} 
-                                                                setTime={(value) => onChangeRestFormData("date", value)} 
+                                                                time={dateUtil.format(formData.period_date)} 
+                                                                setTime={(value) => onChangeFormData("period_date", value)} 
                                                                 dateInputStyle={{margin: "0px"}}
                                                                 calendarPopupStyle={{
                                                                     position: "fixed",
@@ -238,132 +285,18 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                                                             ></DateInput>
                                                         </div>
                                                     </div>
+                                                </>
+                                            : null
+                                        }
+                                    </div>
 
-                                                    {
-                                                        restFormData.is_period === "Y" ?
-                                                            <>
-                                                                <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>종료일</label>
-                                                                <div>
-                                                                    <div style={{height: "40px", display: "flex", alignItems: "center" }}>
-                                                                        <DateInput 
-                                                                            time={dateUtil.format(restFormData.period_date)} 
-                                                                            setTime={(value) => onChangeRestFormData("period_date", value)} 
-                                                                            dateInputStyle={{margin: "0px"}}
-                                                                            calendarPopupStyle={{
-                                                                                position: "fixed",
-                                                                                top: "50%",
-                                                                                left: "50%",
-                                                                                transform: "translate(-50%, -50%)",
-                                                                                zIndex: 1000,
-                                                                            }}
-                                                                        ></DateInput>
-                                                                    </div>
-                                                                </div>
-                                                            </>
-                                                        : null
-                                                    }
-                                                </div>
-
-                                                {/* 사유 */}
-                                                <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
-                                                    <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>휴무사유</label>
-                                                    <div>
-                                                        <input className="text-input" type="text" value={restFormData.reason === undefined ? "" : restFormData.reason} onChange={(e) => onChangeRestFormData("reason", e.target.value)} style={{width: "665px", textAlign: "left", paddingLeft: "10px"}}/>
-                                                    </div>
-                                                </div>
-                                            </>
-                                        :
-                                            <>
-                                                {/* 프로젝트 */}
-                                                <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"} }>
-                                                    <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>프로젝트</label>
-                                                    <div style={{ flex: 1 }}>
-                                                        <div style={{height: "40px", display: "flex", alignItems: "center", width: "100%" }}>
-                                                            <Select
-                                                                onChange={(e) => onChangeJobFormData("jno", e.value)}
-                                                                options={projectJobOptions || []} 
-                                                                value={jobFormData.jno !== undefined ? projectJobOptions.find(item => item.value === jobFormData.jno) : {}} 
-                                                                placeholder={"선택하세요"}
-                                                                menuPortalTarget={document.body}
-                                                                styles={{
-                                                                    menuPortal: (base) => ({
-                                                                        ...base,
-                                                                        zIndex: 999999999,
-                                                                    }),
-                                                                    container: (provided) => ({
-                                                                    ...provided,
-                                                                    width: "665px",
-                                                                    }),
-                                                                }}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                {/* 체크 */}
-                                                <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
-                                                    <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>기간 적용</label>
-                                                    <div style={{width: "50px"}}>
-                                                        <div style={{height: "40px", display: "flex", alignItems: "center" }}>
-                                                            <FormCheckInput checked={jobFormData.is_period === "Y" ? true : false} onChange={(e) => onChangeJobFormData("is_period", e.target.checked ? "Y" : "N")} />
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                {/* 작업내용 날짜 */}
-                                                <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
-                                                    <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>{jobFormData.is_period === "Y" ? "시작일" : "휴무일"}</label>
-                                                    <div style={{width: "200px"}}>
-                                                        <div style={{height: "40px", display: "flex", alignItems: "center" }}>
-                                                            <DateInput 
-                                                                time={dateUtil.format(jobFormData.date)} 
-                                                                setTime={(value) => onChangeJobFormData("date", value)} 
-                                                                dateInputStyle={{margin: "0px"}}
-                                                                calendarPopupStyle={{
-                                                                    position: "fixed",
-                                                                    top: "50%",
-                                                                    left: "50%",
-                                                                    transform: "translate(-50%, -50%)",
-                                                                    zIndex: 1000,
-                                                                }}
-                                                            ></DateInput>
-                                                        </div>
-                                                    </div>
-
-                                                    {
-                                                        jobFormData.is_period === "Y" ?
-                                                            <>
-                                                                <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>종료일</label>
-                                                                <div>
-                                                                    <div style={{height: "40px", display: "flex", alignItems: "center" }}>
-                                                                        <DateInput 
-                                                                            time={dateUtil.format(jobFormData.period_date)} 
-                                                                            setTime={(value) => onChangeJobFormData("period_date", value)} 
-                                                                            dateInputStyle={{margin: "0px"}}
-                                                                            calendarPopupStyle={{
-                                                                                position: "fixed",
-                                                                                top: "50%",
-                                                                                left: "50%",
-                                                                                transform: "translate(-50%, -50%)",
-                                                                                zIndex: 1000,
-                                                                            }}
-                                                                        ></DateInput>
-                                                                    </div>
-                                                                </div>
-                                                            </>
-                                                        : null
-                                                    }
-                                                </div>
-
-                                                {/* 작업내용 */}
-                                                <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
-                                                    <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>작업내용</label>
-                                                    <div>
-                                                        <input className="text-input" type="text" value={jobFormData.content === undefined ? "" : jobFormData.content} onChange={(e) => onChangeJobFormData("content", e.target.value)} style={{width: "665px", textAlign: "left", paddingLeft: "10px"}}/>
-                                                    </div>
-                                                </div>
-                                            </>
-                                    }
+                                    {/* 사유 */}
+                                    <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
+                                        <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>{addType === "REST" ? "휴무사유" : "작업내용"}</label>
+                                        <div>
+                                            <input className="text-input" type="text" value={formData.reason === undefined ? "" : formData.reason} onChange={(e) => onChangeFormData("reason", e.target.value)} style={{width: "635px", textAlign: "left", paddingLeft: "10px"}}/>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
