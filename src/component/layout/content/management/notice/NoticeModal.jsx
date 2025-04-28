@@ -297,6 +297,7 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
                                                     textFormat={item.format}
                                                     isHide={item.dependency && item.dependency[2] === 'Y' ? true : false}
                                                     isRequired={item.isRequired}
+                                                    isAll={item.isAll}
                                                 />
                                             )
                                         ))

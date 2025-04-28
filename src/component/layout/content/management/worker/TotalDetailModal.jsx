@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { Common } from "../../../../../utils/Common";
-import Select from 'react-select';
 import Exit from "../../../../../assets/image/exit.png";
 import "../../../../../assets/css/TotalDetailModal.css";
 import Radio from "../../../../module/Radio";
 import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
 import DateInput from "../../../../module/DateInput";
 import { dateUtil } from "../../../../../utils/DateUtil";
-
+import SearchAllProjectModal from "../../../../module/modal/SearchAllProjectModal";
+import CancelIcon from "../../../../../assets/image/cancel.png"
+import "../../../../../assets/css/Input.css";
+import { ObjChk } from "../../../../../utils/ObjChk";
 /**
  * @description: 전체 근로자 상세화면 모달 컴포넌트
  * 
@@ -41,6 +43,8 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
     const [maskRegNo, setMaskRegNo ] = useState();
     /** 근로자 코드 **/
     const [workerTypes, setWorkerTypes] = useState([]);
+    const [isProjectOpenModal, setIsProjectOpenModal] = useState(false);
+
 
     // 입력값 변경 핸들러
     const onChangeFormData = (key, value) => {
@@ -48,6 +52,20 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
             return {...prevData, [key]: value};
         });
     };
+
+    // 현장 리스트 조회 - 프로젝트 선택 시 자동으로 값 넣기
+    const getSiteData = async (sno) => {
+        if(ObjChk.all(sno)){
+            onChangeFormData("site_nm", "-");
+            return
+        }
+        const res = await Axios.GET(`/site/nm?page_num=${1}&row_size=${10}&order=&sno=${sno}&site_nm=&loc_name=&etc=`);
+        if (res?.data?.result === "Success") {
+            onChangeFormData("site_nm", res.data.values?.list[0]?.site_nm);
+        } else{
+            onChangeFormData("site_nm", "-");
+        }
+    }
 
     // 주민번호 마스킹 변경 처리 
     const onChangeRegMasking = (value) => {
@@ -107,6 +125,24 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
         }
     }
 
+    // 프로젝트 선택 버튼 클릭 시
+    const onClickSearchProject = () => {
+        setIsProjectOpenModal(true)
+    }    
+    
+    // 프로젝트 삭제 버튼 클릭 시
+    const handleRefreshProject = () => {
+        projectInputChangeHandler({})
+    }
+
+    // projectInput 체인지 이벤트
+    const projectInputChangeHandler = (item) => {
+        const newValue = {
+            ...item
+        };
+        onChangeFormData("project", newValue)
+    }
+
     // 근로자 구분 코드 조회
     const getWorkerType = async() => {
         const res = await Axios.GET(`/code?p_code=WORKER_TYPE`);
@@ -124,7 +160,12 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
         setMaskRegNo(detailData.reg_no);
         /** 근로자 구분 코드 조회 **/
         getWorkerType();
+        
     }, [detailData]);
+
+    useEffect(()=> {
+        getSiteData(formData.project?.sno)  
+    }, [formData.project])
 
     useEffect(() => {
         if (isOpen) {
@@ -160,9 +201,13 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                     document.removeEventListener("keydown", handleKeyDown);
                 };
             }
+
         }, [isOpen]);
 
-    return (
+        useEffect(() => {
+        }, [formData.site_nm])
+
+        return (
         <div>
             {isOpen ? (
                 <div style={overlayStyle}>
@@ -212,7 +257,6 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                                 }
                                             </div>
                                 }
-                                
 
                                 <div onClick={handleExit} style={{ cursor: "pointer" }}>
                                     <img src={Exit} style={{ width: "35px" }} alt="Exit" />
@@ -226,33 +270,10 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                 <div className="form-control" style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%"}}>
                                     <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>현장</label>
                                     <div className="grid-input" style={{ flex: 1 }}>
-                                        {
-                                            isEdit && gridMode === "SAVE" ?
-                                                <div style={{height: "40px", display: "flex", alignItems: "center", width: "100%", paddingLeft: "10px" }}>
-                                                    <Select
-                                                        onChange={(e) => onChangeFormData("sno", e.value)}
-                                                        options={selectList.siteNm || []} 
-                                                        value={selectList.siteNm.find(option => option.value === formData.sno)} 
-                                                        placeholder={"선택하세요"}
-                                                        menuPortalTarget={document.body}
-                                                        styles={{
-                                                            menuPortal: (base) => ({
-                                                                ...base,
-                                                                zIndex: 999999999,
-                                                            }),
-                                                            container: (provided) => ({
-                                                            ...provided,
-                                                            width: "100%",
-                                                            }),
-                                                        }}
-                                                    />
-                                                </div>
-                                            :
-                                                <div className="grid-input">
-                                                    {selectList.siteNm?.find(option => option.value === formData.sno)?.label || "-"}
-                                                </div>
-                                        }
-                                    </div>
+                                        <div className="grid-input">
+                                            {formData?.site_nm ? formData.site_nm : "-"}
+                                        </div>
+                                   </div>
                                 </div>
                                  {/* 프로젝트 */}
                                  <div className="form-control" style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%"}}>
@@ -260,28 +281,40 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                     <div className="grid-input" style={{ flex: 1 }}>
                                         {
                                             isEdit && gridMode === "SAVE" ?
-                                                <div style={{height: "40px", display: "flex", alignItems: "center", width: "100%", paddingLeft: "10px" }}>
-                                                    <Select
-                                                        onChange={(e) => onChangeFormData("jno", e.value)}
-                                                        options={selectList.projectNm || []} 
-                                                        value={selectList.siteNm.find(option => option.value === formData.jno)} 
-                                                        placeholder={"선택하세요"}
-                                                        menuPortalTarget={document.body}
-                                                        styles={{
-                                                            menuPortal: (base) => ({
-                                                                ...base,
-                                                                zIndex: 999999999,
-                                                            }),
-                                                            container: (provided) => ({
-                                                            ...provided,
-                                                            width: "100%",
-                                                            }),
-                                                        }}
+                                                <> 
+                                                    <SearchAllProjectModal
+                                                        isOpen={isProjectOpenModal} 
+                                                        fncExit={() => setIsProjectOpenModal(false)} 
+                                                        onClickRow={(item) => projectInputChangeHandler(item)} 
                                                     />
-                                                </div>
+                                                    <form className="input-group" style={{margin:"0px", display:"flex", flexWrap:"nowrap"}}>
+                                                        <input className="form-control" type="text" value={formData.project?.job_name || ''} placeholder="Proejct를 선택하세요" aria-label="Proejct를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearchProject} readOnly/>
+                                                        {
+                                                            ( formData.project?.job_name &&
+                                                                <img 
+                                                                src={CancelIcon}
+                                                                alt="취소"
+                                                                    style={{
+                                                                        position: "absolute",
+                                                                        top: "52%",
+                                                                        right: "41px",
+                                                                        transform: "translateY(-50%)",
+                                                                        cursor: "pointer",
+                                                                        width: "20px",
+                                                                        margin: "0px 0.5rem"
+                                                                    }}
+                                                                    onClick={handleRefreshProject}
+                                                                    />
+                                                                )
+                                                            }
+                                                            <button className="btn btn-primary" id="btnNavbarSearch" type="button"  onClick={onClickSearchProject}>
+                                                                <i className="fas fa-search" />
+                                                            </button>
+                                                    </form>
+                                                </>
                                             :
                                                 <div className="grid-input">
-                                                    {selectList.projectNm?.find(option => option.value === formData.jno)?.label || "-"}
+                                                    {formData.job_name ? formData.job_name : "-"}
                                                 </div>
                                         }
                                     </div>
