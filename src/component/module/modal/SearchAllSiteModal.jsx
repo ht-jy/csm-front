@@ -54,7 +54,7 @@ const SearchAllSiteModal = ({isOpen, fncExit, onClickRow, nonSite}) => {
 
     // 전체 현장 조회
     const getData = async () => {
-        console.log(nonSite)
+
         const res = await Axios.GET(`/site/nm?non_site=${nonSite ? 1 : 0}&page_num=${pageNum}&row_size=${rowSize}&order=${order}&sno=${searchValues.sno}&site_nm=${searchValues.site_nm}&loc_name=${searchValues.loc_name}&etc=${searchValues.etc}`);
         if(res?.data?.result === "Success"){
             setData(res?.data?.values?.list);

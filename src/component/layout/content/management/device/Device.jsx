@@ -1,4 +1,4 @@
-import { useState, useReducer } from "react";
+import { useState, useReducer, useEffect } from "react";
 import Select from 'react-select';
 import { Axios } from "../../../../../utils/axios/Axios";
 import { useAuth } from "../../../../context/AuthContext";
@@ -14,7 +14,8 @@ import useTableSearch from "../../../../../utils/hooks/useTableSearch";
 import Search from "../../../../module/search/Search";
 import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Paginate.css";
-
+import Notification from "../../../../../assets/image/notification.png"
+import Bell from "../../../../../assets/image/bell.png"
 
 /**
  * @description: 
@@ -35,7 +36,7 @@ import "../../../../../assets/css/Paginate.css";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /site/nm (현장데이터 조회), /device (근태인식기 조회)
+ *    Http Method - GET : /site/nm (현장데이터 조회), /device (근태인식기 조회), device/check-registered(근태인식기 미등록장치 확인)
  *    Http Method - POST : /device (근태인식기 추가)
  *    Http Method - PUT : /device (근태인식기 수정)
  *    Http Method - DELETE :  /device/${dno} (근태인식기 삭제)
@@ -59,6 +60,8 @@ const Device = () => {
     const [isModal2, setIsModal2] = useState(false);
     const [modal2Title, setModal2Title] = useState("");
     const [modal2Text, setModal2Text] = useState("");
+    const [isRegistered, setIsRegistered] = useState(true);
+    const [devices, setDevices] = useState([]);
 
     const options = [
         { value: 5, label: "5줄 보기" },
@@ -101,6 +104,15 @@ const Device = () => {
         handleGridModal(mode, deviceRow);
     }
 
+    // 미등록 장치 체크
+    const getNonRegisteredDevice = async () => {
+        const res = await Axios.GET("device/check-registered")
+
+        if(res.data?.result === "Success"){
+            setDevices([...res.data.values.list])
+        }
+    }
+
     // GridModal 띄우기 - 추가 또는 리스트 row 클릭시
     const handleGridModal = (mode, item) => {
         setGridMode(mode);
@@ -130,7 +142,7 @@ const Device = () => {
     // GridModal의 저장 버튼 이벤트 - (저장, 수정)
     const onClicklModalSave = async (item, mode) => {
         setGridMode(mode)
-        
+
         const device = {
             dno: item[0].value || 0,
             device_nm: item[1].value || "",
@@ -254,6 +266,11 @@ const Device = () => {
         setIsLoading(false);
     };
 
+    // 미등록 장치 확인
+    useEffect( () => {
+        getNonRegisteredDevice()
+    }, [])
+
     const { 
         searchValues,
         activeSearch, setActiveSearch, 
@@ -317,7 +334,7 @@ const Device = () => {
                             />
                         </div>
                     </div> */}
-                    <div className="table-header">
+                    <div className="table-header" style={{position:"relative"}}>
                         <div className="table-header-left" style={{gap: "10px"}}>
                             <Select
                                 onChange={handleSelectChange}
@@ -327,6 +344,45 @@ const Device = () => {
                             />
                         </div>
 
+                        {/* 미등록 장치 */}
+                        {
+                            devices.length > 0 ?
+                                <>
+                                <div className="table-header-left" style={{marginLeft:"10px"}}>
+                                    <img
+                                        style={{width:"20px"}} 
+                                        src={Notification}
+                                        alt="알림" 
+                                        onMouseEnter={() => setIsRegistered(true)}
+                                        onMouseLeave={() => setIsRegistered(false)}
+                                        />
+                                </div>
+                                {
+                                    isRegistered ?
+                                    <div style={{ ...modalStyle }}>
+                                            <div style={{ ...header }}>미등록 장치</div>
+                                            <div style={{marginBottom:"5px"}}>
+                                                해당 장치가 등록되지 않았습니다.
+                                            </div>
+                                            <ul>
+                                                { devices.map((deviceName, idx) => (
+                                                    <li key={idx}>{deviceName}</li>
+                                                ))
+                                            } 
+                                            </ul>
+                                        </div>
+                                    : <></>
+                                }
+                                </> 
+                            :
+                            <img
+                                style={{width:"20px"}} 
+                                src={Bell}
+                                alt="알림" 
+                            />
+                        }
+
+                        
                         <div className="table-header-right">
                             {
                                 isSearchInit ? <Button text={"초기화"} onClick={handleSearchInit} /> : null
@@ -337,10 +393,10 @@ const Device = () => {
                                 fncSearchKeywords={handleRetrySearch}
                                 retrySearchText={retrySearchText}
                             />
-                            
                             {/* <Button text={"추가"} onClick={() => handleGridModal("SAVE")} /> */}
                         </div>
                     </div>
+                    
                     <div className="table-header">
                         <div className="table-header-right">
                             <div id="search-keyword-portal"></div>
@@ -380,3 +436,39 @@ const Device = () => {
 };
 
 export default Device;
+const modalStyle = {
+    position: "absolute",
+    zIndex: '9998',
+    backgroundColor: 'rgb(255,255,255)',
+    padding: "10px 0px",
+    border: "1px solid rgb(200,200,200)",
+    borderRadius: "10px",
+    width: '30vw',
+    minWidth: "18rem",
+    maxWidth: "32rem",
+    height: "30rem",
+    boxShadow: '10px 10px 1px rgb(0, 0, 0, 0.3)',
+    top:"40px",
+    left:"140px",
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: "unset",
+    overflowY: "auto",
+    overflowX: "hidden",
+    alignItems: "center"
+};
+
+const header = {
+    backgroundColor: 'beige',
+    color: 'black',
+    display: "flex",
+    flexDirection: "column",
+    textAlign: 'center',
+    justifyContent: "center",
+    borderRadius: "10px",
+    width: "90%",
+    height: "10%",
+    margin: ".5rem .5rem",
+    fontWeight: "bold",
+
+}
