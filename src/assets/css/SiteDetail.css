@@ -232,3 +232,19 @@
 .title-input:focus {
     border-color: #007bff;
 }
+
+.slider-input {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: left;
+}
+
+.slider-input:hover {
+    /* background: #e9ecef; */
+    border-color: #bbb;
+    border-color: #007bff;
+}
+
+.slider-input:focus {
+    border-color: #007bff;
+}
