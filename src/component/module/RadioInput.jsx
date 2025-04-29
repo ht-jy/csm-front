@@ -19,7 +19,6 @@ import Radio from "./Radio";
  */
 const RadioInput = ({itemName, selectedValue, values, labels, disabled, setRadio, style}) => {
     const [checkedValue, setCheckedValue] = useState("");
-
     const onChangeRadio = (e) => {
         setRadio(e.target.value);
     }
