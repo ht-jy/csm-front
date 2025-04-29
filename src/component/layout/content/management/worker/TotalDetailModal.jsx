@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { Common } from "../../../../../utils/Common";
-import Exit from "../../../../../assets/image/exit.png";
-import "../../../../../assets/css/TotalDetailModal.css";
+import { ObjChk } from "../../../../../utils/ObjChk";
+import { dateUtil } from "../../../../../utils/DateUtil";
 import Radio from "../../../../module/Radio";
 import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
 import DateInput from "../../../../module/DateInput";
-import { dateUtil } from "../../../../../utils/DateUtil";
 import SearchAllProjectModal from "../../../../module/modal/SearchAllProjectModal";
-import CancelIcon from "../../../../../assets/image/cancel.png"
+import Exit from "../../../../../assets/image/exit.png";
+import CancelIcon from "../../../../../assets/image/cancel.png";
+import EyeIcon from "../../../../../assets/image/eye-alert.png";
+import "../../../../../assets/css/TotalDetailModal.css";
 import "../../../../../assets/css/Input.css";
-import { ObjChk } from "../../../../../utils/ObjChk";
+
 /**
  * @description: 전체 근로자 상세화면 모달 컴포넌트
  * 
@@ -41,6 +43,8 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
     const [initialData, setInitialData] = useState([]); // 원본 데이터 저장
     /** 마스킹 된 주민번호 **/
     const [maskRegNo, setMaskRegNo ] = useState();
+    /** 마스킹 아이콘 클릭중 **/
+    const [showFullRegNo, setShowFullRegNo] = useState(false);
     /** 근로자 코드 **/
     const [workerTypes, setWorkerTypes] = useState([]);
     const [isProjectOpenModal, setIsProjectOpenModal] = useState(false);
@@ -370,17 +374,24 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                 {/* 주민등록 번호 */}
                                 <div className="form-control" style={{gridColumn: "auto", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "62px"}}>
                                     <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>주민등록 번호</label>
-                                    <div className="grid-input" style={{ flex: 1 }}>
+                                    <div className="grid-input" style={{ flex: 1, marginRight: "10px" }}>
                                         {
                                             isEdit ?
                                                 <>
-                                                    <input type="text" value={Common.maskResidentNumber(maskRegNo)} onChange={(e) => onChangeRegMasking(e.target.value)}/>
+                                                    <input type="text" value={showFullRegNo ? formData.reg_no : Common.maskResidentNumber(maskRegNo)} onChange={(e) => onChangeRegMasking(e.target.value)}/>
                                                     <input type="hidden" value={formData.reg_no}/>
                                                 </>
                                             :
-                                                Common.maskResidentNumber(formData.reg_no)
+                                            showFullRegNo ? formData.reg_no : Common.maskResidentNumber(formData.reg_no)
                                         }
                                     </div>
+                                    <img 
+                                        src={EyeIcon}
+                                        style={{width: "20px", cursor: "pointer"}}
+                                        onMouseDown={() => setShowFullRegNo(true)}
+                                        onMouseUp={() => setShowFullRegNo(false)}
+                                        onMouseLeave={() => setShowFullRegNo(false)}
+                                    />
                                 </div>
                                  {/* 공종 */}
                                  <div className="form-control" style={{gridColumn: "auto", padding: '10px', display: "flex", alignItems: "center", width: "100%"}}>
@@ -396,32 +407,58 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                 </div>
 
                                 {/* 근로자 구분 */}
-                                <div className="form-control" style={{gridColumn: "auto", padding: '10px', width: "100%"}}>
+                                <div className="form-control" style={{gridColumn: "span 2", padding: '10px', width: "100%"}}>
                                     <div style={{display: "flex", alignItems: "center"}}>
                                         <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>근로자 구분</label>
                                         <div className="grid-input" style={{ flex: 1 }}>
                                             {
                                                 isEdit ?
-                                                    <div style={{ height: "40px", display: 'flex', gap: "30px", fontSize: "15px"}}>
+                                                    <div style={{display: "flex"}}>
+                                                        <div style={{ height: "40px", display: 'flex', gap: "30px", fontSize: "15px", marginRight: "50px"}}>
+                                                            {
+                                                                workerTypes.map((item, idx) => (
+                                                                    <Radio text={workerTypes[idx].code_nm} value={workerTypes[idx].code} name="group1" checked={formData.worker_type === item.code} onChange={(e) => onChangeFormData("worker_type", e.target.value)} key={idx}/>
+                                                                ))
+                                                            }
+                                                        </div>
                                                         {
-                                                            workerTypes.map((item, idx) => (
-                                                                <Radio text={workerTypes[idx].code_nm} value={workerTypes[idx].code} name="group1" checked={formData.worker_type === item.code} onChange={(e) => onChangeFormData("worker_type", e.target.value)} key={idx}/>
-                                                            ))
+                                                            formData.worker_type === "02" &&
+                                                            <div style={{ height: "40px", display: 'flex', gap: "30px", fontSize: "15px"}}>
+                                                                {
+                                                                    <>
+                                                                        <Radio text={"관리자"} value={"Y"} name="group2" checked={formData.is_manage === 'Y'} onChange={(e) => onChangeFormData("is_manage", e.target.value)}/>
+                                                                        <Radio text={"근로자"} value={"N"} name="group2" checked={formData.is_manage === 'N'} onChange={(e) => onChangeFormData("is_manage", e.target.value)}/>
+                                                                    </>
+                                                                }
+                                                            </div>
                                                         }
                                                     </div>
                                                 :
-                                                    <div style={{ height: "40px", display: 'flex', gap: "30px", fontSize: "15px"}}>
+                                                    <div style={{display: "flex"}}>
+                                                        <div style={{ height: "40px", display: 'flex', gap: "30px", fontSize: "15px", marginRight: "50px"}}>
+                                                            {
+                                                                workerTypes.map((item, idx) => (
+                                                                    <Radio text={workerTypes[idx].code_nm} value={workerTypes[idx].code} name="group1" checked={formData.worker_type === item.code} disabled={true} key={idx}/>
+                                                                ))
+                                                            }
+                                                        </div>
                                                         {
-                                                            workerTypes.map((item, idx) => (
-                                                                <Radio text={workerTypes[idx].code_nm} value={workerTypes[idx].code} name="group1" checked={formData.worker_type === item.code} disabled={true} key={idx}/>
-                                                            ))
-                                                        }
+                                                            formData.worker_type === "02" &&
+                                                            <div style={{ height: "40px", display: 'flex', gap: "30px", fontSize: "15px"}}>
+                                                                {
+                                                                    <>
+                                                                        <Radio text={"관리자"} value={"Y"} name="group2" checked={formData.is_manage === 'Y'} disabled={true}/>
+                                                                        <Radio text={"근로자"} value={"N"} name="group2" checked={formData.is_manage === 'N'} disabled={true}/>
+                                                                    </>
+                                                                }
+                                                            </div>
+                                                        }                                                        
                                                     </div>
                                             }
                                         </div>
                                     </div>
                                     </div>
-                                    {isEdit? 
+                                    {/* {isEdit? 
                                     <div className="form-control" style={{gridColumn: "auto", padding: '10px', width: "100%"}}>
                                         <div style={{paddingLeft: "115px"}}>
                                             {
@@ -447,8 +484,8 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                                 :null
                                             }
                                         </div>
-                                </div>
-                                :null}
+                                    </div>
+                                :null} */}
                             
                                 {/* 퇴직여부 */}
                                 <div className="form-control" style={{gridColumn: "auto", padding: '10px', display: "flex", alignItems: "center", width: "100%"}}>

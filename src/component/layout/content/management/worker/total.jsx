@@ -88,6 +88,15 @@ const Total = () => {
         { value: "DEPARTMENT", label: "부서/조직명" },
     ];
 
+    const onClickSaveBtn = () => {
+        let saveItem;
+        saveItem = columns.reduce((acc, item) => {
+            return {...acc, [item.itemName]: ""}
+        }, saveItem);
+        saveItem.reg_no = "";
+        handleDetailModalOn(saveItem, "SAVE");
+    }
+
     // GridModal의 저장 버튼 이벤트 - (저장, 수정)
     const onClicklModalSave = async (item, mode) => {
         
@@ -264,7 +273,7 @@ const Total = () => {
                         <li className="breadcrumb-item content-title">전체 근로자</li>
                         <li className="breadcrumb-item active content-title-sub">근로자 관리</li>
                         <div className="table-header-right">
-                            <Button text={"추가"} onClick={() => handleDetailModalOn({}, "SAVE")} />
+                            <Button text={"추가"} onClick={onClickSaveBtn} />
                         </div>
                     </ol>
                     

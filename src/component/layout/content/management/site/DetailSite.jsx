@@ -222,7 +222,7 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
                 mod_uno: user.uno,
                 mod_user: user.userName
             });
-            console.log(res);
+            
             if (res?.data?.result === "Success") {
                 setNonUseConfirmText("현장 완료 처리에 성공하였습니다.");
             }else{

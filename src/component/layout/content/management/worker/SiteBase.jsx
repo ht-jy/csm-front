@@ -3,9 +3,11 @@ import { Axios } from "../../../../../utils/axios/Axios";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import { ObjChk } from "../../../../../utils/ObjChk";
 import { useAuth } from "../../../../context/AuthContext";
+import SiteBaseContext from "../../../../context/SiteBaseContext";
 import SiteBaseReducer from "./SiteBaseReducer";
 import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
+import SelectModal from "../../../../module/SelectModal";
 import Table from "../../../../module/Table";
 import Button from "../../../../module/Button";
 import DateInput from "../../../../module/DateInput";
@@ -19,8 +21,6 @@ import "react-calendar/dist/Calendar.css";
 import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Paginate.css";
 import "../../../../../assets/css/Calendar.css";
-import { use } from "react";
-
 
 /**
  * @description: 현장 근로자 관리
@@ -73,6 +73,10 @@ const SiteBase = () => {
     const [selectedProject, setSelectedProject] = useState({});
     const [isModal2, setIsModal2] = useState(false);
     const [modalText2, setModalText2] = useState("");
+    // 마감 알림 모달
+    const [isDeadlineModal, setIsDeadlineModal] = useState(false);
+    // 일괄마감 선택 모달
+    const [isDeadlineSelect, setIsDeadlineSelect] = useState(false);
 
     // 테이블 컬럼 정보
     const columns = [
@@ -100,7 +104,7 @@ const SiteBase = () => {
         {itemName: "out_recog_time", editType: "time24", defaultValue: "2006-01-02T17:00:00+09:00"},
         {itemName: "work_state", editType: "radio", radioValues: state.workStateCodes.map(item => item.code), radioLabels: state.workStateCodes.map(item => item.code_nm), defaultValue: "02"},
         // {itemName: "commute", editType: "toggleText", toggleTexts: ["출근", "퇴근"]},
-        {itemName: "is_deadline", editType: "check", defaultValue: false},
+        {itemName: "is_deadline", editType: "check", defaultValue: "N"},
     ];
 
     // 검색 옵션
@@ -130,13 +134,30 @@ const SiteBase = () => {
     // 마감버튼 클릭
     const onClickDeadLineBtn = async() => {
         if(tableRef.current){
-            setModalTitle("근로자 마감");
             const forwradRes = tableRef.current.getCheckedItemList();
 
             if(forwradRes.length === 0){
-                setModalText("마감처리할 근로자를 선택하세요.");
-                setIsModal(true);
-                return;
+                setIsDeadlineSelect(true);
+            }else{
+                setIsDeadlineModal(true);
+            }
+        }
+    }
+
+    // 일괄마감처리
+    const workerDeadline = async(type) => {
+        if(tableRef.current){
+            setModalTitle("근로자 마감");
+            let forwradRes
+            if(type === "ALL"){
+                forwradRes = state.list;
+                setIsDeadlineSelect(false);
+            }else if(type === "OUT"){
+                forwradRes = state.list.filter(item => item.work_state == "02");
+                setIsDeadlineSelect(false);
+            }else{
+                forwradRes = tableRef.current.getCheckedItemList();
+                setIsDeadlineModal(false);
             }
 
             const deadlines = [];
@@ -326,7 +347,7 @@ const SiteBase = () => {
                 out_recog_time: out_recog_time,
                 is_deadline: item.is_deadline,
                 work_state: item.work_state,
-                mod_user: user.user_nm,
+                mod_user: user.userName,
                 mod_uno: user.uno,
             }
             params.push(param);
@@ -462,6 +483,26 @@ const SiteBase = () => {
                 cancel={"아니요"}
                 fncCancel={handleProjectModCancel}
             />
+            <Modal
+                isOpen={isDeadlineModal}
+                title={"일괄마감"}
+                text={"마감처리를 하시겠습니까?"}
+                confirm={"예"}
+                fncConfirm={workerDeadline}
+                cancel={"아니요"}
+                fncCancel={() => setIsDeadlineModal(false)}
+            />
+            <SelectModal
+                isOpen={isDeadlineSelect}
+                title={"일괄마감"}
+                text={"마감유형을 선택하세요."}
+                first={"전체 마감"}
+                fncFirst={() => workerDeadline("ALL")}
+                second={"퇴근자 마감"}
+                fncSecond={() => workerDeadline("OUT")}
+                cancel={"취소"}
+                fncCancel={() => setIsDeadlineSelect(false)}
+            />
             <SearchProjectModal
                 isOpen={isProjectModal}
                 fncExit={() => setIsProjectModal(false)}
@@ -551,22 +592,24 @@ const SiteBase = () => {
                     
                     <div className="table-wrapper">
                         <div className="table-container" style={{overflow: "auto", maxHeight: "calc(100vh - 350px)"}}>
-                            <Table 
-                                ref={tableRef}
-                                columns={columns} 
-                                data={state.list} 
-                                searchValues={searchValues}
-                                onSearch={handleTableSearch} 
-                                onSearchChange={handleSearchChange} 
-                                activeSearch={activeSearch} 
-                                setActiveSearch={setActiveSearch} 
-                                resetTrigger={isSearchReset}
-                                onSortChange={handleSortChange}
-                                isHeaderFixed={true}
-                                isEdit={isEdit}
-                                editInfo={editInfo}
-                                onChangeEditList={handleEditList}
-                            />
+                            <SiteBaseContext.Provider value={{searchTime: searchStartTime}}>
+                                <Table 
+                                    ref={tableRef}
+                                    columns={columns} 
+                                    data={state.list} 
+                                    searchValues={searchValues}
+                                    onSearch={handleTableSearch} 
+                                    onSearchChange={handleSearchChange} 
+                                    activeSearch={activeSearch} 
+                                    setActiveSearch={setActiveSearch} 
+                                    resetTrigger={isSearchReset}
+                                    onSortChange={handleSortChange}
+                                    isHeaderFixed={true}
+                                    isEdit={isEdit}
+                                    editInfo={editInfo}
+                                    onChangeEditList={handleEditList}
+                                />
+                            </SiteBaseContext.Provider>
                         </div>
                     </div>
                     <div>

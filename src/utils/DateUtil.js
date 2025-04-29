@@ -41,7 +41,7 @@ export const dateUtil = {
         }
 
         const date = new Date(dateString);
-        const hours = String(date.getHours()).padStart(2, '0');
+        const hours = String(dateString?.split("T")[1]?.split(":")[0] || "0").padStart(2, '0');
         const minutes = String(date.getMinutes()).padStart(2, '0');
         const seconds = String(date.getSeconds()).padStart(2, '0');
 
@@ -148,10 +148,14 @@ export const dateUtil = {
             return '0001-01-01T00:00:00Z';
         }
 
+        if (formattedTime === "00:00:00") {
+            return '0001-01-01T00:00:00Z';
+        }
+
         const regex = /^(\d{2}):(\d{2}):(\d{2})$/;
         const match = formattedTime.match(regex);
         if (!match) {
-            throw new Error('유효하지 않은 formatted time입니다.');
+            return '0001-01-01T00:00:00Z';
         }
         const [, hourStr, minuteStr, secondStr] = match;
         let hour = Number(hourStr);
@@ -170,7 +174,8 @@ export const dateUtil = {
         const year = date.getFullYear();
         const month = pad(date.getMonth() + 1);
         const day = pad(date.getDate());
-        const hoursFormatted = pad(date.getHours());
+        const hoursFormatted = pad(hour);
+        // const hoursFormatted = pad(date.getHours());
         const minutesFormatted = pad(date.getMinutes());
         const secondsFormatted = pad(date.getSeconds());
 
@@ -179,7 +184,7 @@ export const dateUtil = {
         const absOffset = Math.abs(offsetMinutesTotal);
         const offsetHours = pad(Math.floor(absOffset / 60));
         const offsetMinutes = pad(absOffset % 60);
-
+        
         return `${year}-${month}-${day}T${hoursFormatted}:${minutesFormatted}:${secondsFormatted}${sign}${offsetHours}:${offsetMinutes}`;
     },
     // go의 date 기준으로 값이 있는지 없는지 체크

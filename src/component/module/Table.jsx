@@ -412,9 +412,6 @@ const Table = forwardRef(({
             ...editAddListCopy.slice(1)
         ];
         setEditAddList(newEditAddList);
-
-        console.log(newEditList);
-        console.log(newEditAddList);
     }
 
     // 추가한 row 삭제
