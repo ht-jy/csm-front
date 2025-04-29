@@ -18,7 +18,6 @@ import RadioInput from "./RadioInput";
  * - 
  */
 const EditTable = ({isOpen, columns, data=[]}) => {
-    
     // dateUtil을 기준으로 날짜 포맷
     const formatDate = (date, formatType) => {
         if (!formatType || !dateUtil[formatType]) return date;
@@ -62,7 +61,7 @@ const EditTable = ({isOpen, columns, data=[]}) => {
                                                     ""
                                                 : col.isRadio ?
                                                     <RadioInput
-                                                        itemName={col.itemName + col_idx}
+                                                        itemName={`${col.itemName}_${idx}`}
                                                         selectedValue={item[col.itemName]}
                                                         values={col.radioValues}
                                                         labels={col.radioLabels}

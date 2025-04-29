@@ -228,7 +228,7 @@ const Table = forwardRef(({
             setEditList(newEditList);
         }else{
             // 수정 리스트
-            if (editCompareInit(value, initRow[col.itemName], col.editType)) {
+            if (editCompareInit(initRow, updatedRowCopy)) {
                 // 수정한 값이 기존과 동일한 경우 수정리스트에서 삭제
                 newEditList = editList.filter(item => item.index !== idx);
                 setEditList(newEditList);
@@ -298,30 +298,45 @@ const Table = forwardRef(({
 
     // 원본데이터와 수정한 데이터 비교 
     // *** date와 time은 go의 time.Time 타입에 따른 비교이기 때문에 다른 언어를 사용한다면 에러가 발생할 수 있다.
-    const editCompareInit = (editData, initData, type) => {
-        if(initData && type === "date"){
-            if(editData.split("T")[0] === initData.split("T")[0]){
-                return true;
-            }
-            return false;
-        }else if(initData && type === "time"){
-            if(editData.split("T")[1].split(":")[0] === initData.split("T")[1].split(":")[0] && editData.split("T")[1].split(":")[1] === initData.split("T")[1].split(":")[1]){
-                if(editData.split("T")[0] === "2006-01-02"){
-                    if((editData.split("T")[0] === initData.split("T")[0])){
-                        return true;
-                    }else{
+    const editCompareInit = (editData, initData) => {
+        for (const key in editData) {
+            if (Object.prototype.hasOwnProperty.call(initData, key)) {
+                const editValue = editData[key];
+                const initValue = initData[key];
+    
+                // 1. 필드명이 'time'이 포함된 경우
+                if (key.toLowerCase().includes('time')) {
+                    const normalizedEdit = normalizeTime(editValue);
+                    const normalizedInit = normalizeTime(initValue);
+    
+                    if (normalizedEdit !== normalizedInit) {
                         return false;
-                    }   
+                    }
+                } else {
+                    // 2. 일반 필드 비교
+                    if (editValue !== initValue) {
+                        return false;
+                    }
                 }
-                return true;
             }
-            return false;
-        }else{
-            if(editData === initData){
-                return true;
-            }
-            return false;
         }
+        return true;
+    }
+    
+    // 시간 필드 비교를 위한 보조 함수
+    function normalizeTime(value) {
+        if (value === null || value === '0001-01-01T00:00:00Z') {
+            return null; // null로 통일해서 비교
+        }
+        if (typeof value === 'string' && value.includes('T')) {
+            const timePart = value.split('T')[1]; // "00:00:00+09:00" 같은 부분
+            if (!timePart) return null;
+    
+            // 시:분만 추출 (예: "00:00")
+            const hhmm = timePart.slice(0,5);
+            return hhmm;
+        }
+        return value;
     }
 
     // 추가/수정 데이터 초기화
