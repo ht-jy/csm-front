@@ -19,13 +19,18 @@ const Time24Input = ({btnStyle, time, setTime}) => {
 
     const onChangeHour = (e) => {
         let hourNum = Number(e.target.value.replace(/\D/g, ""));
+        let minNum = min;
         if(hourNum > 24){
             hourNum = 24;
+        }
+        if(hourNum === 24){
+            minNum = "00";
         }
         hourNum = String(hourNum).padStart(2, '0');
         
         setHour(hourNum);
-        setTime(dateUtil.parseFormatTime24ToGo(`${hourNum}:${min}:00`));
+        setMin(minNum)
+        setTime(dateUtil.parseFormatTime24ToGo(`${hourNum}:${minNum}:00`));
     }
 
     const onChangeMin = (e) => {
@@ -41,9 +46,12 @@ const Time24Input = ({btnStyle, time, setTime}) => {
 
     useEffect(() => {
         if(time !== "0001-01-01T00:00:00Z" && !ObjChk.all(time)){
-            const date = new Date(time);
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
+            // const date = new Date(time);
+            // const hours = String(date.getHours()).padStart(2, '0');
+            // const minutes = String(date.getMinutes()).padStart(2, '0');
+            
+            const hours = String(time.split("T")[1].split(":")[0]).padStart(2, '0');
+            const minutes = String(time.split("T")[1].split(":")[1]).padStart(2, '0');
             setHour(hours);
             setMin(minutes);
         }else{

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useContext } from "react";
 import { Axios } from "../../../utils/axios/Axios";
 import { useAuth } from "../../context/AuthContext";
 import { dateUtil } from "../../../utils/DateUtil";
@@ -10,6 +10,7 @@ import useTableSearch from "../../../utils/hooks/useTableSearch";
 import Search from "../search/Search";
 import Button from "../Button";
 import DateInput from "../DateInput";
+import SiteBaseContext from "../../context/SiteBaseContext";
 import "../../../assets/css/SearchWorkerModal.css";
 
 /**
@@ -27,11 +28,12 @@ import "../../../assets/css/SearchWorkerModal.css";
  *    Http Method - GET : worker/total/simple (전체 근로자 조회)
  */
 const SearchWorkerModal = ({isOpen=false, fncExit, onClickRow}) => {
+    const { searchTime } = useContext(SiteBaseContext);
     const { project } = useAuth();
     const [userId, setUserId] = useState("");
     const [data, setData] = useState([]);
     const [count, setCount] = useState(0);
-    const [searchStartTime, setSearchStartTime] = useState(dateUtil.now());
+    const [searchStartTime, setSearchStartTime] = useState(searchTime);
 
     const columns = useMemo(() => [
         { isSearch: false, isOrder: false, isSlide: false, width: "100px", header: "아이디", itemName: "user_id", bodyAlign: "center", isEllipsis: false, isDate: false },

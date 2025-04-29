@@ -191,9 +191,9 @@ const Site = () => {
             mod_uno: user.uno,
             mod_user: user.userName,
         }
-        console.log(data);
+        
         const res = await Axios.PUT("/site", data);
-        console.log(res);
+        
         if (res?.data?.result === "Success") {
             setModalText("현장 수정에 성공하였습니다.")
             setIsDetail(false);
