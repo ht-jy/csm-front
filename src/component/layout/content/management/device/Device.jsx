@@ -60,7 +60,7 @@ const Device = () => {
     const [isModal2, setIsModal2] = useState(false);
     const [modal2Title, setModal2Title] = useState("");
     const [modal2Text, setModal2Text] = useState("");
-    const [isRegistered, setIsRegistered] = useState(true);
+    const [isRegistered, setIsRegistered] = useState(false);
     const [devices, setDevices] = useState([]);
 
     const options = [
@@ -106,13 +106,28 @@ const Device = () => {
 
     // 미등록 장치 체크
     const getNonRegisteredDevice = async () => {
+        setIsLoading(true)
         const res = await Axios.GET("device/check-registered")
 
         if(res.data?.result === "Success"){
             setDevices([...res.data.values.list])
         }
+        
+        setIsLoading(false)
     }
 
+    // 미등록 장치 외의 클릭 시
+    const bodyTag = document.querySelector("body")
+    bodyTag.addEventListener("click", function(e) {
+        if(e.target.id === "registered") {
+            setIsRegistered(true)
+        } else if (e.target.id === "bell"){
+            return
+        } else {
+            setIsRegistered(false)
+        }
+    })
+    
     // GridModal 띄우기 - 추가 또는 리스트 row 클릭시
     const handleGridModal = (mode, item) => {
         setGridMode(mode);
@@ -234,7 +249,7 @@ const Device = () => {
                 return "삭제";
         }
     }
-
+    
     // 근태인식기 리스트 조회
     const getData = async () => {
         setIsLoading(true);
@@ -264,11 +279,13 @@ const Device = () => {
         }
 
         setIsLoading(false);
+
     };
 
     // 미등록 장치 확인
-    useEffect( () => {
-        getNonRegisteredDevice()
+    useEffect(() => {
+        // FIXME: 로딩 시 getData의 loading과 겹쳐 작동 안됨.
+        getNonRegisteredDevice();
     }, [])
 
     const { 
@@ -350,33 +367,38 @@ const Device = () => {
                                 <>
                                 <div className="table-header-left" style={{marginLeft:"10px"}}>
                                     <img
+                                        id="bell"
                                         style={{width:"20px"}} 
                                         src={Notification}
                                         alt="알림" 
-                                        onMouseEnter={() => setIsRegistered(true)}
-                                        onMouseLeave={() => setIsRegistered(false)}
+                                        onClick={() => setIsRegistered((prev) => !prev)}
+                                        // onMouseLeave={() => setIsRegistered(false)}
                                         />
                                 </div>
                                 {
                                     isRegistered ?
-                                    <div style={{ ...modalStyle }}>
-                                            <div style={{ ...header }}>미등록 장치</div>
-                                            <div style={{marginBottom:"5px"}}>
-                                                해당 장치가 등록되지 않았습니다.
-                                            </div>
-                                            <ul>
-                                                { devices.map((deviceName, idx) => (
-                                                    <li key={idx}>{deviceName}</li>
-                                                ))
-                                            } 
-                                            </ul>
+                                        <div id="registered" style={{ ...modalStyle }}>
+                                            <div id="registered" style={{ ...header }}>미등록 장치</div>
+                                            <div id="registered" style={{...contentStyle}}>
+                                                <ul id="registered" style={{alignItems:"center"}}>
+                                                    <div id="registered" style={{marginBottom:"5px",  textIndent: "-2.0em"}}>
+                                                        해당 장치가 등록되지 않았습니다.
+                                                    </div>
+                                                    { devices.map((deviceName, idx) => (
+                                                        <li id="registered" key={idx}>{deviceName}</li>
+                                                    ))
+                                                } 
+                                                </ul>
+
                                         </div>
+                                        {/* <div onClick={() => setIsRegistered(false)} style={{...exitStyle}}>닫기</div> */}
+                                    </div>
                                     : <></>
                                 }
                                 </> 
                             :
                             <img
-                                style={{width:"20px"}} 
+                                style={{width:"20px", marginLeft:"10px"}} 
                                 src={Bell}
                                 alt="알림" 
                             />
@@ -436,11 +458,20 @@ const Device = () => {
 };
 
 export default Device;
+const contentStyle = {
+    display: 'flex',
+    justifyContent: 'center',
+    overflowY: "auto",
+    overflowX: "hidden",
+    width:"100%",
+};
+
+
 const modalStyle = {
     position: "absolute",
-    zIndex: '9998',
+    zIndex: '100',
     backgroundColor: 'rgb(255,255,255)',
-    padding: "10px 0px",
+    padding: "10px 0px 50px 0px",
     border: "1px solid rgb(200,200,200)",
     borderRadius: "10px",
     width: '30vw',
@@ -453,9 +484,7 @@ const modalStyle = {
     display: 'flex',
     flexDirection: 'column',
     overflow: "unset",
-    overflowY: "auto",
-    overflowX: "hidden",
-    alignItems: "center"
+    alignItems: "center",
 };
 
 const header = {
@@ -468,7 +497,16 @@ const header = {
     borderRadius: "10px",
     width: "90%",
     height: "10%",
+    padding:"20px",
     margin: ".5rem .5rem",
     fontWeight: "bold",
+}
 
+const exitStyle = {
+    position:"fixed", 
+    top:"38rem",
+    backgroundColor:"white",
+    border: "2px solid rgb(200, 200, 200)",
+    borderRadius:"5px",
+    padding:"3px 5px",
 }

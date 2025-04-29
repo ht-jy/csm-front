@@ -69,10 +69,11 @@ const Total = () => {
     const columns = [
         { isSearch: false, isOrder: true, isSlide: true, width: "50px", header: "순번", itemName: "rnum", bodyAlign: "center", isEllipsis: false, isDate: false, type: "number" },
         { isSearch: true, isOrder: true, isSlide: false, width: "100px", header: "아이디", itemName: "user_id", bodyAlign: "center", isEllipsis: false, isDate: false, /*isFormat: true, format: "maskResidentNumber", valid: "isValidResidentNumber"*/ },
-        { isSearch: true, isOrder: true, isSlide: false, width: "150px", header: "근로자 이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false, isDate: false },
+        { isSearch: true, isOrder: true, isSlide: false, width: "100px", header: "근로자 이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "150px", header: "부서/조직명", itemName: "department", bodyAlign: "left", isEllipsis: false, isDate: false },
+        { isSearch: true, isOrder: true, isSlide: false, width: "100px", header: "공종", itemName: "disc_name", bodyAlign: "left", isEllipsis: false, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "300px", header: "프로젝트명", itemName: "job_name", bodyAlign: "left", isEllipsis: true, isDate: false },
-        { isSearch: true, isOrder: true, isSlide: false, width: "150px", header: "핸드폰 번호", itemName: "phone", bodyAlign: "center", isEllipsis: false, isDate: false, isFormat: true, format: "formatMobileNumber", valid: "isValidMobileNumber" },
+        { isSearch: true, isOrder: true, isSlide: false, width: "100px", header: "핸드폰 번호", itemName: "phone", bodyAlign: "center", isEllipsis: false, isDate: false, isFormat: true, format: "formatMobileNumber", valid: "isValidMobileNumber" },
         { isSearch: true, isOrder: true, isSlide: false, width: "100px", header: "근로자구분", itemName: "worker_type_nm", bodyAlign: "center", isEllipsis: false, isDate: false },
         { isSearch: false, isOrder: true, isSlide: false, width: "100px", header: "퇴사 여부", itemName: "is_retire", bodyAlign: "center", isEllipsis: false, isDate: false, isChecked: true },
     ];
@@ -109,6 +110,7 @@ const Total = () => {
             phone: item.phone || "",
             reg_no: item.reg_no || "",
             worker_type: item.worker_type || "00",
+            disc_name: item.disc_name || "",
             is_retire: item.is_retire || "N",
             retire_date: retireDate,
             is_manage: item.is_manage || "N",
@@ -184,6 +186,7 @@ const Total = () => {
             user_nm: searchValues.user_nm,
             job_name: searchValues.job_name,
             department: searchValues.department,
+            disc_name: searchValues.disc_name,
             phone: searchValues.phone,
             worker_type: convertWorkerTypeToCode(searchValues.worker_type_nm),
             retry_search: retrySearchText

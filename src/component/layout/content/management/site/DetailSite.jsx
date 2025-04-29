@@ -39,7 +39,6 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
     const { user } = useAuth();
 
     const { getData, setIsDetail } = useContext(SiteContext);
-    
     const [data, setData] = useState(null);
     const [openingDate, setOpeningDate] = useState(dateUtil.now());
     const [closingPlanDate, setClosingPlanDate] = useState(dateUtil.now());
