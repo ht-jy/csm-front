@@ -10,7 +10,29 @@ import Exit from "../../../../../assets/image/exit.png";
 import BackIcon from "../../../../../assets/image/back-arrow.png";
 import { ObjChk } from "../../../../../utils/ObjChk";
 
-
+/**
+ * @description: 일정관리 상세, 수정화면
+ * 
+ * @author 작성자: 김진우
+ * @created 작성일: 2025-04-28
+ * @modified 최종 수정일: 
+ * @modifiedBy 최종 수정자: 
+ * @usedComponents
+ * - 
+ * 
+ * @additionalInfo
+ * - props
+ * isOpen: true|false
+ * isRest: 휴무일/공휴일 유무
+ * restDates: 휴무일/공휴일 날짜 배열
+ * dailyJobs: 작업내용 배열
+ * clickDate: 선택 날짜
+ * exitBtnClick: 모달 닫기 함수
+ * restModifyBtnClick: 휴무일 수정 함수
+ * restRemoveBtnClick: 휴무일 삭제 함수
+ * dailyJobModifyBtnClick: 작업내용 수정 함수
+ * dailyJobRemoveBtnClick: 작업내용 삭제 함수
+ */
 const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBtnClick, restModifyBtnClick, restRemoveBtnClick, dailyJobModifyBtnClick, dailyJobRemoveBtnClick}) => {
     const [isLoading, setIsLoading] = useState(false);
     const [remove, setRemove] = useState("N");
@@ -314,7 +336,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                                         }),
                                                                         container: (provided) => ({
                                                                         ...provided,
-                                                                        width: "665px",
+                                                                        width: "655px",
                                                                         }),
                                                                     }}
                                                                 />
@@ -357,7 +379,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                     <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
                                                         <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>휴무사유</label>
                                                         <div>
-                                                            <input className="text-input" type="text" value={editData.reason === undefined ? "" : editData.reason} onChange={(e) => onChangeEditData("reason", e.target.value)} style={{width: "665px", textAlign: "left", paddingLeft: "10px"}}/>
+                                                            <input className="text-input" type="text" value={editData.reason === undefined ? "" : editData.reason} onChange={(e) => onChangeEditData("reason", e.target.value)} style={{width: "655px", textAlign: "left", paddingLeft: "10px"}}/>
                                                         </div>
                                                     </div>
                                                 </>
@@ -381,7 +403,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                                         }),
                                                                         container: (provided) => ({
                                                                         ...provided,
-                                                                        width: "665px",
+                                                                        width: "655px",
                                                                         }),
                                                                     }}
                                                                 />
@@ -414,7 +436,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                     <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
                                                         <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>작업내용</label>
                                                         <div>
-                                                            <input className="text-input" type="text" value={editData.content === undefined ? "" : editData.content} onChange={(e) => onChangeEditData("content", e.target.value)} style={{width: "665px", textAlign: "left", paddingLeft: "10px"}}/>
+                                                            <input className="text-input" type="text" value={editData.content === undefined ? "" : editData.content} onChange={(e) => onChangeEditData("content", e.target.value)} style={{width: "655px", textAlign: "left", paddingLeft: "10px"}}/>
                                                         </div>
                                                     </div>
                                                 </>

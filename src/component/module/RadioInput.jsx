@@ -36,7 +36,7 @@ const RadioInput = ({itemName, selectedValue, values, labels, disabled, setRadio
     }, [selectedValue]);
     
     return (
-        <div style={{...style, display: "flex", justifyContent: "center", alignItems: "center", gap: "8px"}}>
+        <div style={{...style, display: "flex", justifyContent: "center", alignItems: "center", gap: "10px"}}>
             {
                 values.map((item, idx) => (
                     <Radio

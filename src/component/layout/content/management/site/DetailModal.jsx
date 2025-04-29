@@ -89,7 +89,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
         handleChangeValue("site_nm", e.target.value);
     }
 
-    // 데이터 변경 
+    // 현장 데이터 변경 
     const handleChangeValue = (name, data) => {
 
         if(name === "searchOpen"){
@@ -97,8 +97,22 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
         }else{
             setFormData((prev) => (
                 {...prev, [name]: data}
-             ))
+            ))
         }
+    }
+
+    // 프로젝트 데이터 변경
+    const handleChangeProjectValue = (name, jno, value) => {
+        const newProjectList = formData.project_list.map(item => {
+            if(item.jno === jno){
+                 return {...item, [name]: value};
+            }else{
+                return {...item};
+            }
+        });
+        
+        const newFormData = {...formData, project_list: newProjectList, work_rate: newProjectList.reduce((sum, project) => sum + project.work_rate, 0) / 2};
+        setFormData(newFormData);
     }
 
     // 알림 모달 확인/취소 함수
@@ -322,6 +336,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                                                 isMain={detailData.default_project_name === item.project_nm ? true : false}
                                                 isEdit={isEdit}
                                                 onClickDeleteBtn={handleDeleteBtn}
+                                                handleChangeValue={handleChangeProjectValue}
                                             />
                                         ))
                                     }

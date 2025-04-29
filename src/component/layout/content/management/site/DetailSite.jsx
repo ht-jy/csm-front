@@ -21,6 +21,7 @@ import Map from "../../../../module/Map";
 import Modal from "../../../../module/Modal";
 import Loading from "../../../../module/Loading";
 import { Common } from "../../../../../utils/Common";
+import { useAuth } from "../../../../context/AuthContext";
 
 /**
  * @description: 현장 상세 컴포넌트
@@ -35,8 +36,9 @@ import { Common } from "../../../../../utils/Common";
  * 
  */
 const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChangeValue, addressData, isSiteAdd}) => {
-    const { getData, setIsDetail } = useContext(SiteContext);
+    const { user } = useAuth();
 
+    const { getData, setIsDetail } = useContext(SiteContext);
     const [data, setData] = useState(null);
     const [openingDate, setOpeningDate] = useState(dateUtil.now());
     const [closingPlanDate, setClosingPlanDate] = useState(dateUtil.now());
@@ -215,8 +217,12 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
         setIsNonUseCheckOpen(false);
         
         setIsLoading(true);
-            const res = await Axios.PUT(`/site/non-use`, {sno: data.sno || 0});
-            
+            const res = await Axios.PUT(`/site/non-use`, {
+                sno: data.sno || 0,
+                mod_uno: user.uno,
+                mod_user: user.userName
+            });
+            console.log(res);
             if (res?.data?.result === "Success") {
                 setNonUseConfirmText("현장 완료 처리에 성공하였습니다.");
             }else{
@@ -250,14 +256,18 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
         setProjectOption(options);
 
         // 공정률
-        if(typeof detailData.work_rate === "number"){
-            setSliderValue(detailData.work_rate);
-        }else{
-            setSliderValue(0);
-        }
+        // if(typeof detailData.work_rate === "number"){
+        //     setSliderValue(detailData.work_rate);
+        // }else{
+        //     setSliderValue(0);
+        // }
 
         
     }, [isEdit]);
+
+    useEffect(() => {
+        setSliderValue(detailData.work_rate);
+    }, [detailData]);
 
     useEffect(() => {
         if(addressData !== null){
@@ -397,7 +407,7 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
                     </label>
                     <div className="form-input" style={{ flex: 1 }}>
                         <div style={{display: "flex", alignItems: "center", marginLeft: "5px"}}>
-                            {
+                            {/* {
                                 isEdit ?
                                     <input type="text" value={sliderValue} onChange={(e) => onChangeSliderValue(e.target.value)} style={{height: "40px", width: "50px", textAlign: "right", paddingRight: "5px"}}/>
                                 :
@@ -412,7 +422,8 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
                                     onChange={onChangeSliderValue}
                                     disabled={!isEdit}
                                 />
-                            </div>
+                            </div> */}
+                            {sliderValue} %
                         </div>
                     </div>
                 </div>

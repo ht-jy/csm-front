@@ -191,9 +191,9 @@ const Site = () => {
             mod_uno: user.uno,
             mod_user: user.userName,
         }
-
-        const res = await Axios.PUT("/site", data)
-        
+        console.log(data);
+        const res = await Axios.PUT("/site", data);
+        console.log(res);
         if (res?.data?.result === "Success") {
             setModalText("현장 수정에 성공하였습니다.")
             setIsDetail(false);
@@ -533,7 +533,7 @@ const Site = () => {
                                                 {/* 현장 */}
                                                 <td className="left fixed-left ellipsis-tooltip" style={{ cursor: "pointer", left: "110px" }} onClick={() => onClickRow(idx)}>{item.site_nm || ""}</td>
                                                 {/* 공정률 */}
-                                                <td className="center" rowSpan={item.rowSpan} style={{ fontWeight: "bold" }}>{item.work_rate}%</td>
+                                                <td className="center" style={{ fontWeight: "bold" }}>{item.work_rate}%</td>
                                                 {/* 누계 */}
                                                 <td className="right" rowSpan={item.rowSpan} style={{ fontWeight: "bold" }}>
                                                     {
@@ -645,6 +645,8 @@ const Site = () => {
                                             <tr key={idx}>
                                                 {/* 현장 */}
                                                 <td className="left fixed-left ellipsis-tooltip" style={{ cursor: "pointer", left: "110px" }} onClick={() => onClickRow(idx)}><li>{item.project_nm}</li></td>
+                                                {/* 공정률 */}
+                                                <td className="center" style={{ fontWeight: "bold" }}>{item.work_rate}%</td>
                                                 {/* 공사 */}
                                                 <td className="right">{Common.formatNumber(item.worker_count_work)}</td>
                                                 {/* 안전 */}

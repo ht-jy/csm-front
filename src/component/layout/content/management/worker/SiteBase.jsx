@@ -90,17 +90,17 @@ const SiteBase = () => {
 
     // 테이블 수정 정보
     const editInfo = [
-        {itemName: "row_checked", editType: ""},
-        {itemName: "rnum", editType: "delete"},
-        {itemName: "user_id", editType: "searchModal", selectedModal: "workerByUserId"},
-        {itemName: "user_nm", editType: "", dependencyModal: "workerByUserId"},
-        {itemName: "department", editType: "", dependencyModal: "workerByUserId"},
-        {itemName: "record_date", editType: "", dependencyModal: "workerByUserId"},
+        {itemName: "row_checked", editType: "", defaultValue: "N"},
+        {itemName: "rnum", editType: "delete", defaultValue: 0},
+        {itemName: "user_id", editType: "searchModal", selectedModal: "workerByUserId", defaultValue: ""},
+        {itemName: "user_nm", editType: "", dependencyModal: "workerByUserId", defaultValue: ""},
+        {itemName: "department", editType: "", dependencyModal: "workerByUserId", defaultValue: ""},
+        {itemName: "record_date", editType: "", dependencyModal: "workerByUserId", defaultValue: ""},
         {itemName: "in_recog_time", editType: "time24", defaultValue: "2006-01-02T08:00:00+09:00"},
         {itemName: "out_recog_time", editType: "time24", defaultValue: "2006-01-02T17:00:00+09:00"},
         {itemName: "work_state", editType: "radio", radioValues: state.workStateCodes.map(item => item.code), radioLabels: state.workStateCodes.map(item => item.code_nm), defaultValue: "02"},
         // {itemName: "commute", editType: "toggleText", toggleTexts: ["출근", "퇴근"]},
-        {itemName: "is_deadline", editType: "check"},
+        {itemName: "is_deadline", editType: "check", defaultValue: false},
     ];
 
     // 검색 옵션
@@ -415,6 +415,10 @@ const SiteBase = () => {
     useEffect(() => {
         setIsEdit(false);
         getData();
+        if(tableRef.current){
+            tableRef.current.initEditList();
+        }
+        setEditList([]);
     }, [project, searchStartTime, searchEndTime]);
 
     // 시작 날짜보다 끝나는 날짜가 빠를 시: 끝나는 날짜를 변경한 경우 (시작 날짜를 끝나는 날짜로)
@@ -488,7 +492,8 @@ const SiteBase = () => {
                                         <Button text={"취소"} onClick={onClickEditCancelBtn} />
                                         {/* <Button text={"추가"} onClick={onClickEditAddBtn} /> */}
                                     </>
-                                :   state.list.length > 0 ?
+                                // :   state.list.length > 0 ?
+                                :   project !== null ?
                                         <Button text={"수정"} onClick={onClickEditBtn} />
                                     :   null
                             }
