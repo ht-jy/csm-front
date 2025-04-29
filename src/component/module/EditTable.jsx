@@ -5,6 +5,7 @@ import CheckSquareIcon from "../../assets/image/check-square-icon.png";
 import NonCheckSquareIcon from "../../assets/image/non-check-square-icon.png";
 import { Common } from "../../utils/Common";
 import "../../assets/css/Table.css";
+import RadioInput from "./RadioInput";
 
 /**
  * @description: 추가/수정한 데이터를 단순하게 보여주기만 하기 위한 용도의 테이블 컴포넌트
@@ -56,7 +57,18 @@ const EditTable = ({isOpen, columns, data=[]}) => {
                                             style={{maxWidth: col.width}}
                                         >
                                             {
-                                                col.isDate ?
+                                                col.checked !== undefined ? 
+                                                    ""
+                                                : col.isRadio ?
+                                                    <RadioInput
+                                                        itemName={col.itemName + col_idx}
+                                                        selectedValue={item[col.itemName]}
+                                                        values={col.radioValues}
+                                                        labels={col.radioLabels}
+                                                        disabled={true}
+                                                        // setRadio={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
+                                                    />
+                                                : col.isDate ?
                                                     formatDate(item[col.itemName], col.dateFormat)
                                                 : col.isItemSplit ? 
                                                     col.itemName
@@ -90,7 +102,7 @@ const EditTable = ({isOpen, columns, data=[]}) => {
                                                 : col.code !== undefined ?
                                                     col.code.map(code => (
                                                         item[col.itemName] === code.code ? code.code_nm : null
-                                                    ))                                             
+                                                    )) 
                                                 : item[col.itemName]
                                             }
                                         </td>

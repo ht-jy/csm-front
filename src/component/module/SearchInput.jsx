@@ -36,7 +36,7 @@ const SearchInput = ({selectedModal, inputText, inputItemName, setSearchText}) =
     }
 
     useEffect(() => {
-        setInputValue(inputText);
+        setInputValue(inputText ?? "");
     }, [inputText]);
 
     return (

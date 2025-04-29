@@ -324,6 +324,11 @@ const Table = forwardRef(({
         }
     }
 
+    // 추가/수정 데이터 초기화
+    const initEditList = () => {
+        setEditList([]);
+    }
+
     // 테이블 td 스타일 
     const tdEditStyle = (column, editCol) => {
         if(isEdit && editCol?.editType !== ""){
@@ -360,21 +365,32 @@ const Table = forwardRef(({
     // 테이블 상단 두번째에 입력 row 추가
     const addTableEmptyRow = () => {
         let tableDataCopy = [...tableData];
-        const copiedObject = { ...tableDataCopy[1] };
-        copiedObject['unableEdit'] = 'N'; // 맨 위의 데이터가 수정불가인 경우가 있는 경우위하여 디폴트 값 설정
-        Object.keys(copiedObject).forEach(key => {
-            const findEditinfo = editInfo.find(item => item.itemName === key);
-            if (findEditinfo !== undefined && findEditinfo.defaultValue !== undefined) {
-                copiedObject[key] = findEditinfo.defaultValue;
-            } else if(typeof copiedObject[key] === 'number') {
-                copiedObject[key] = 0;
-            } else if (typeof copiedObject[key] === 'string') {
-                copiedObject[key] = "";
-            }
-        });
-        copiedObject["index"] = addRowIdx+1;
-        copiedObject["edit_type"] = "ADD";
-        setAddRowIdx(copiedObject["index"]);
+        let copiedObject = { ...tableDataCopy[1] };
+
+        // 테이블에 row가 없는 경우
+        if(tableData.length === 1){
+            copiedObject = editInfo.reduce((acc, info) => {
+                return { ...acc, [info.itemName]: info.defaultValue };
+            }, copiedObject);
+            copiedObject["index"] = 1;
+            setAddRowIdx(copiedObject["index"]);
+        // 테이블에 row가 있는 경우
+        } else {
+            copiedObject['unableEdit'] = 'N'; // 맨 위의 데이터가 수정불가인 경우가 있는 경우를 위하여 디폴트 값 설정
+            Object.keys(copiedObject).forEach(key => {
+                const findEditinfo = editInfo.find(item => item.itemName === key);
+                if (findEditinfo !== undefined && findEditinfo.defaultValue !== undefined) {
+                    copiedObject[key] = findEditinfo.defaultValue;
+                } else if(typeof copiedObject[key] === 'number') {
+                    copiedObject[key] = 0;
+                } else if (typeof copiedObject[key] === 'string') {
+                    copiedObject[key] = "";
+                }
+            });
+            copiedObject["index"] = addRowIdx+1;
+            copiedObject["edit_type"] = "ADD";
+            setAddRowIdx(copiedObject["index"]);
+        }
 
         const deleteFieldName = editInfo.find(item => item.editType === "delete").itemName;
         
@@ -396,6 +412,9 @@ const Table = forwardRef(({
             ...editAddListCopy.slice(1)
         ];
         setEditAddList(newEditAddList);
+
+        console.log(newEditList);
+        console.log(newEditAddList);
     }
 
     // 추가한 row 삭제
@@ -421,7 +440,7 @@ const Table = forwardRef(({
     /***** useImperativeHandle *****/
 
     useImperativeHandle(ref, () => ({
-        addTableEmptyRow, editModeCancel, editTableMode, editModeCancel, getCheckedItemList
+        addTableEmptyRow, editModeCancel, editTableMode, editModeCancel, getCheckedItemList, initEditList
     }));
 
     /***** useEffect *****/
