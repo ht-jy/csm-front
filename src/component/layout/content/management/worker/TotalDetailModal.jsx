@@ -342,7 +342,7 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                                 formData.user_nm
                                         }
                                     </div>
-                                </div>
+                                </div>                               
                                 {/* 부서/조직명 */}
                                 <div className="form-control" style={{gridColumn: "auto", padding: '10px', display: "flex", alignItems: "center", width: "100%"}}>
                                     <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>부서/조직명</label>
@@ -382,6 +382,19 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                         }
                                     </div>
                                 </div>
+                                 {/* 공종 */}
+                                 <div className="form-control" style={{gridColumn: "auto", padding: '10px', display: "flex", alignItems: "center", width: "100%"}}>
+                                    <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>공종</label>
+                                    <div className="grid-input" style={{ flex: 1 }}>
+                                        {
+                                            isEdit ?
+                                                <input type="text" value={formData.disc_name} onChange={(e) => onChangeFormData("disc_name", e.target.value)}/>
+                                            :
+                                                formData.disc_name
+                                        }
+                                    </div>
+                                </div>
+
                                 {/* 근로자 구분 */}
                                 <div className="form-control" style={{gridColumn: "auto", padding: '10px', width: "100%"}}>
                                     <div style={{display: "flex", alignItems: "center"}}>
@@ -407,31 +420,36 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                             }
                                         </div>
                                     </div>
-                                    <div style={{paddingLeft: "115px"}}>
-                                        {
-                                            formData.worker_type === "02" ?
-                                                isEdit ?
-                                                    <div style={{ height: "40px", display: 'flex', gap: "30px", fontSize: "15px"}}>
-                                                        {
-                                                            <>
-                                                                <Radio text={"관리자"} value={"Y"} name="group2" checked={formData.is_manage === 'Y'} onChange={(e) => onChangeFormData("is_manage", e.target.value)}/>
-                                                                <Radio text={"근로자"} value={"N"} name="group2" checked={formData.is_manage === 'N'} onChange={(e) => onChangeFormData("is_manage", e.target.value)}/>
-                                                            </>
-                                                        }
-                                                    </div>
-                                                :
-                                                    <div style={{ height: "40px", display: 'flex', gap: "30px", fontSize: "15px"}}>
-                                                        {
-                                                            <>
-                                                                <Radio text={"관리자"} value={"Y"} name="group2" checked={formData.is_manage === 'Y'} disabled={true}/>
-                                                                <Radio text={"근로자"} value={"N"} name="group2" checked={formData.is_manage === 'N'} disabled={true}/>
-                                                            </>
-                                                        }
-                                                    </div>
-                                            :null
-                                        }
                                     </div>
+                                    {isEdit? 
+                                    <div className="form-control" style={{gridColumn: "auto", padding: '10px', width: "100%"}}>
+                                        <div style={{paddingLeft: "115px"}}>
+                                            {
+                                                formData.worker_type === "02" ?
+                                                isEdit ?
+                                                <div style={{ height: "40px", display: 'flex', gap: "30px", fontSize: "15px"}}>
+                                                            {
+                                                                <>
+                                                                    <Radio text={"관리자"} value={"Y"} name="group2" checked={formData.is_manage === 'Y'} onChange={(e) => onChangeFormData("is_manage", e.target.value)}/>
+                                                                    <Radio text={"근로자"} value={"N"} name="group2" checked={formData.is_manage === 'N'} onChange={(e) => onChangeFormData("is_manage", e.target.value)}/>
+                                                                </>
+                                                            }
+                                                        </div>
+                                                    :
+                                                    <div style={{ height: "40px", display: 'flex', gap: "30px", fontSize: "15px"}}>
+                                                            {
+                                                                <>
+                                                                    <Radio text={"관리자"} value={"Y"} name="group2" checked={formData.is_manage === 'Y'} disabled={true}/>
+                                                                    <Radio text={"근로자"} value={"N"} name="group2" checked={formData.is_manage === 'N'} disabled={true}/>
+                                                                </>
+                                                            }
+                                                        </div>
+                                                :null
+                                            }
+                                        </div>
                                 </div>
+                                :null}
+                            
                                 {/* 퇴직여부 */}
                                 <div className="form-control" style={{gridColumn: "auto", padding: '10px', display: "flex", alignItems: "center", width: "100%"}}>
                                     <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>퇴직여부</label>
