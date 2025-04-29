@@ -121,6 +121,8 @@ const Device = () => {
     bodyTag.addEventListener("click", function(e) {
         if(e.target.id === "registered") {
             setIsRegistered(true)
+        } else if (e.target.id === "bell"){
+            return
         } else {
             setIsRegistered(false)
         }
@@ -365,11 +367,11 @@ const Device = () => {
                                 <>
                                 <div className="table-header-left" style={{marginLeft:"10px"}}>
                                     <img
-                                        id="registered"
+                                        id="bell"
                                         style={{width:"20px"}} 
                                         src={Notification}
                                         alt="알림" 
-                                        onClick={() => setIsRegistered(true)}
+                                        onClick={() => setIsRegistered((prev) => !prev)}
                                         // onMouseLeave={() => setIsRegistered(false)}
                                         />
                                 </div>
@@ -389,7 +391,7 @@ const Device = () => {
                                                 </ul>
 
                                         </div>
-                                        <div onClick={() => setIsRegistered(false)} style={{...exitStyle}}>닫기</div>
+                                        {/* <div onClick={() => setIsRegistered(false)} style={{...exitStyle}}>닫기</div> */}
                                     </div>
                                     : <></>
                                 }

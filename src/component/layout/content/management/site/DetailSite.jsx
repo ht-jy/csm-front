@@ -36,7 +36,7 @@ import { Common } from "../../../../../utils/Common";
  */
 const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChangeValue, addressData, isSiteAdd}) => {
     const { getData, setIsDetail } = useContext(SiteContext);
-    console.log(detailWhether);
+
     const [data, setData] = useState(null);
     const [openingDate, setOpeningDate] = useState(dateUtil.now());
     const [closingPlanDate, setClosingPlanDate] = useState(dateUtil.now());

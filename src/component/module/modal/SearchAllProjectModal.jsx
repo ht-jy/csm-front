@@ -74,10 +74,7 @@ const SearchAllProjectModal = ({isOpen, fncExit, onClickRow, isAll}) => {
         if(res?.data?.result === "Success"){
             setData(res?.data?.values?.list);
             setCount(res?.data?.values?.count);            
-        }else{
-            console.log(res.data)
         }
-
     };
 
     // 테이블 조회, 검색, 정렬 이벤트 
