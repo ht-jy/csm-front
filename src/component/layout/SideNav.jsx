@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import htencLogo from "../../assets/image/hitecheng_logo_default.png"
+import htencLogo from "../../assets/image/hitecheng_logo_default.png";
+import Deducted from "../../assets/image/deducted.png";
 
 const SideNav = () => {
     return(
@@ -34,6 +35,11 @@ const SideNav = () => {
                                         <Link className="nav-link" to="/site-base" style={{color: "white"}}>현장 근로자</Link>
                                     </nav>
                                 </div>
+
+                                <Link className="nav-link" to="/retire">
+                                    <div className="sb-nav-link-icon"><img src={Deducted} width='20px' /></div>
+                                    퇴직 공제
+                                </Link>
 
                                 <Link className="nav-link" to="/equip">
                                     <div className="sb-nav-link-icon"><img src="/svg/menu/equip-management.svg" width='20px' /></div>
