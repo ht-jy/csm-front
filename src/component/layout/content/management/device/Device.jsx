@@ -12,10 +12,9 @@ import PaginationWithCustomButtons from "../../../../module/PaginationWithCustom
 import useTableControlState from "../../../../../utils/hooks/useTableControlState";
 import useTableSearch from "../../../../../utils/hooks/useTableSearch";
 import Search from "../../../../module/search/Search";
+import Notification from "../../../../../assets/image/notification_empty.png"
 import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Paginate.css";
-import Notification from "../../../../../assets/image/notification.png"
-import Bell from "../../../../../assets/image/bell.png"
 
 /**
  * @description: 
@@ -360,48 +359,57 @@ const Device = () => {
                                 placeholder={"몇줄 보기"}
                             />
                         </div>
+                        <div
+                            style={{position: "relative", marginLeft:"10px", cursor: "pointer", paddingBottom: "3px", marginLeft: "20px"}} 
+                            onClick={() => setIsRegistered((prev) => !prev)}
+                        >
+                            <img
+                                id="bell"
+                                style={{width:"19px", height: "20px"}} 
+                                src={Notification}
+                                alt="알림"
+                            />
+                            <div style={{
+                                position: "absolute",
+                                top: "-8px",         // 종 위로 올림
+                                right: "-17px",       // 종 오른쪽으로 이동
+                                backgroundColor: "#FFD700",
+                                minWidth: "20px",
+                                height: "20px",
+                                borderRadius: "999px",
+                                fontSize: "12px",
+                                fontWeight: "bold",
+                                padding: "0 10px",
+                                whiteSpace: "nowrap",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                boxShadow: "0 0 2px rgba(0,0,0,0.3)"
+                            }}>
+                                {devices.length}
+                            </div>
+                        </div>
 
                         {/* 미등록 장치 */}
                         {
-                            devices.length > 0 ?
-                                <>
-                                <div className="table-header-left" style={{marginLeft:"10px"}}>
-                                    <img
-                                        id="bell"
-                                        style={{width:"20px"}} 
-                                        src={Notification}
-                                        alt="알림" 
-                                        onClick={() => setIsRegistered((prev) => !prev)}
-                                        // onMouseLeave={() => setIsRegistered(false)}
-                                        />
-                                </div>
-                                {
-                                    isRegistered ?
-                                        <div id="registered" style={{ ...modalStyle }}>
-                                            <div id="registered" style={{ ...header }}>미등록 장치</div>
-                                            <div id="registered" style={{...contentStyle}}>
-                                                <ul id="registered" style={{alignItems:"center"}}>
-                                                    <div id="registered" style={{marginBottom:"5px",  textIndent: "-2.0em"}}>
-                                                        해당 장치가 등록되지 않았습니다.
-                                                    </div>
-                                                    { devices.map((deviceName, idx) => (
-                                                        <li id="registered" key={idx}>{deviceName}</li>
-                                                    ))
-                                                } 
-                                                </ul>
-
+                            devices.length > 0 ? 
+                                isRegistered ?
+                                    <div id="registered" style={{ ...modalStyle }}>
+                                        <div id="registered" style={{ ...header }}>미등록 장치</div>
+                                        <div id="registered" style={{...contentStyle}}>
+                                            <ul id="registered" style={{alignItems:"center"}}>
+                                                <div id="registered" style={{marginBottom:"5px",  textIndent: "-2.0em"}}>
+                                                    해당 장치가 등록되지 않았습니다.
+                                                </div>
+                                                { devices.map((deviceName, idx) => (
+                                                    <li id="registered" key={idx}>{deviceName}</li>
+                                                ))
+                                            } 
+                                            </ul>
                                         </div>
-                                        {/* <div onClick={() => setIsRegistered(false)} style={{...exitStyle}}>닫기</div> */}
                                     </div>
-                                    : <></>
-                                }
-                                </> 
-                            :
-                            <img
-                                style={{width:"20px", marginLeft:"10px"}} 
-                                src={Bell}
-                                alt="알림" 
-                            />
+                                : <></>
+                            : <></>
                         }
 
                         
