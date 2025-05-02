@@ -1,8 +1,8 @@
-import React, { useEffect, useReducer, useState } from "react";
-import "../../assets/css/slider.css";
-import upAndDown from "../../assets/image/up-and-down.png";
+import React, { useEffect, useReducer, useState, useRef } from "react";
 import { Axios } from "../../utils/axios/Axios";
 import { useAuth } from "../context/AuthContext";
+import "../../assets/css/slider.css";
+import upAndDown from "../../assets/image/up-and-down.png";
 import NoticeDetail from "../layout/content/management/notice/NoticeDetail";
 import NoticeReducer from "../layout/content/management/notice/NoticeReducer";
 
@@ -12,6 +12,9 @@ function AnnouncementSlider() {
     const [isAnimating, setIsAnimating] = useState(false);
     const { user } = useAuth();
     const [hoverOpen, setHoverOpen] = useState(false);
+
+    const sliderRef = useRef();
+    const boardRef = useRef();
 
     // 슬라이드 텍스트 배열 및 내용 저장
     const [state, dispatch] = useReducer(NoticeReducer, {
@@ -41,19 +44,6 @@ function AnnouncementSlider() {
         window.autoSlide = setInterval(handleNext, 3000);
     };
 
-    // 화살표를 클릭했을 때
-    const handleClick = (e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const clickY = e.clientY - rect.top;
-        const imageHeight = rect.height;
-
-        if (clickY < imageHeight / 2) {
-            handleNext();
-        } else {
-            handlePrev();
-        }
-    };
-
     // 이전 공지로 넘기기
     const handlePrev = () => {
         if (isAnimating) return;
@@ -72,19 +62,15 @@ function AnnouncementSlider() {
         resetAutoSlide();
     };
 
-    // 공지 클릭 시 상세페이지
-    const handleAnnouncementClick = () => {
-        setData([state.noticesHeader[currentIndex]])
-        setIsDetail(true)
-    };
-
     // 상세 모달에서 모달 open 상태 변경
     const handleOpenDetail = (openState) => {
         setIsDetail(openState)
     }
 
     // 공지사항 리스트 클릭 시 상세페이지
-    const handleRowClick = (item) => {
+    const handleRowClick = (item, e) => {
+        e.stopPropagation();
+        setHoverOpen(false);
         setData([item])
         setIsDetail(true)
     }
@@ -116,14 +102,23 @@ function AnnouncementSlider() {
 
     }, [currentIndex]);
 
-    // 상세공지사항을 띄운 경우, 공지사항 리스트는 닫기
+    // 상세공지사항 외의 클릭 시
     useEffect(() => {
-        if(isDetail === true){
-            setHoverOpen(false)
-        }
+        const handleClick = (e) => {
+            if (sliderRef.current?.contains(e.target)) {
+                return;
+            } else if (boardRef.current?.contains(e.target)) {
+                return;
+            } else {
+                setHoverOpen(false);
+            }
+        };
 
-    }, [isDetail])
-
+        document.body.addEventListener("click", handleClick);
+        return () => {
+            document.body.removeEventListener("click", handleClick);
+        };
+    }, []);
     return (
         <>
             <NoticeDetail
@@ -133,13 +128,13 @@ function AnnouncementSlider() {
             ></NoticeDetail>
 
             <div className="announcement-slider"
-                onMouseEnter={() => setHoverOpen(true)}
-                onMouseLeave={() => setHoverOpen(false)}
+                ref={sliderRef}
+                onClick={() => setHoverOpen(prev => !prev)}
             >
                 <div>
                     {
                         hoverOpen &&
-                        <div style={{ width: "100%", height: "100%" }}>
+                        <div ref={boardRef} style={{ width: "100%", height: "100%" }}>
                             <div style={{ ...modalStyle }} >
                                 <div style={{...header}}>공지사항</div>
                                 {
@@ -149,10 +144,8 @@ function AnnouncementSlider() {
                                         state.noticesHeader?.map((item, idx) => {
                                             return <div 
                                                 key={idx} 
-                                                onClick={() => {
-                                                    handleRowClick(item)
-                                                }}
-                                                style={{...listStyle }}                                                
+                                                onClick={(e) => handleRowClick(item, e)}
+                                                style={{...listStyle, cursor: "pointer" }}                                                
                                                 >
                                                     <span style={{fontWeight:"bold"}}>{item.job_name === "전체" ?  `전체 ` : `PROJ`}&ensp;&ensp;</span>
                                                     <span style={{...noticeRow}} id="notice-row">{item.title}</span>
@@ -163,26 +156,6 @@ function AnnouncementSlider() {
                         </div>
                     }
                 </div>
-                {/* 왼쪽 화살표 버튼 */}
-                {/* <img
-                src={arrorLeft}
-                onClick={handlePrev}
-                style={{ 
-                    width: "12px", 
-                    zIndex: 10, 
-                    cursor: "pointer",
-                    filter: "brightness(0) invert(1)",
-                    marginRight: "10px"
-                    }}
-                    alt="left arrow"
-                    /> */}
-
-                <div style={{ width: "30px", height: "30px", textAlign: "center", cursor: "pointer" }} onClick={handleClick}>
-                    <img
-                        src={upAndDown}
-                        style={{ width: "15px" }}
-                    />
-                </div>
 
                 {/* 슬라이드 텍스트 */}
                 <div className="slides-container">
@@ -190,36 +163,14 @@ function AnnouncementSlider() {
                         {
                             state.headerList.length === 0 ? 
                                 <span>공지사항이 없습니다.</span>
-                            
                             :
-                            <span className="slide"
-                                onClick={handleAnnouncementClick}
-                                style={{
-                                    cursor: "pointer",
-                                }} >
-                                    
+                            <span className="slide">                                    
                                     {state.headerList[currentIndex]?.job_name === "전체" ?
                                     `전체` : `PROJ`} - {state.headerList[currentIndex]?.title}
                             </span>
-                            }
+                        }
                     </div>
                 </div>
-
-
-
-                {/* 오른쪽 화살표 버튼 */}
-                {/* <img
-                src={arrorRight}
-                onClick={handleNext}
-                style={{ 
-                    width: "12px", 
-                    zIndex: 10, 
-                    cursor: "pointer",
-                    filter: "brightness(0) invert(1)",
-                    marginLeft: "10px"
-                    }}
-                    alt="right arrow"
-                /> */}
             </div>
         </>
     );
@@ -240,13 +191,14 @@ const modalStyle = {
     width: '500px',
     height: "500px",
     maxHeight: '500px',
-    boxShadow: '10px 10px 1px rgb(0, 0, 0, 0.3)',
-    margin: '20px',
+    // boxShadow: '10px 10px 1px rgb(0, 0, 0, 0.3)',
+    boxShadow: '5px 5px 8px rgba(0, 0, 0, 0.5)',
+    marginTop: "15px",
     display: 'flex',
     flexDirection: 'column',
     overflowY: "scroll",
     overflowX: "hidden",
-    alignItems:"center"
+    alignItems:"center",
 };
 
 

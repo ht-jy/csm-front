@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Input from "./Input";
 import Exit from "../../assets/image/exit.png";
+import Modal from "./Modal";
 
 /**
  * @description: 상세화면 모달 컴포넌트
@@ -30,6 +31,7 @@ const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, d
     const [isEdit, setIsEdit] = useState(false);
     const [formData, setFormData] = useState([]);
     const [initialData, setInitialData] = useState([]); // 원본 데이터 저장
+    const [IsDeleteModal, setIsDeleteModal] = useState(false); 
     
     // "X"
     const handleExit = () => {
@@ -83,8 +85,12 @@ const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, d
     };
 
     // 삭제
+    const handleRemoveModal = () => {
+        setIsDeleteModal(true);
+    }
     const handleRemove = () => {
         removeBtnClick(formData);
+        setIsDeleteModal(false);
     }
 
     // 편집모드 해제
@@ -162,6 +168,15 @@ const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, d
 
     return (
         <div>
+            <Modal
+                isOpen={IsDeleteModal}
+                title={title}
+                text={"삭제하시겠습니까?"}
+                confirm={"예"}
+                cancel={"아니오"}
+                fncConfirm={handleRemove}
+                fncCancel={() => setIsDeleteModal(false)}
+            />
             {isOpen ? (
                 <div style={overlayStyle}>
                     <div style={modalStyle}>
@@ -203,7 +218,7 @@ const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, d
                                                 }
                                                 {
                                                     removeBtn ?
-                                                        <button className="btn btn-primary" onClick={handleRemove} name="confirm" style={{marginRight:"10px"}}>
+                                                        <button className="btn btn-primary" onClick={handleRemoveModal} name="confirm" style={{marginRight:"10px"}}>
                                                             삭제
                                                         </button>
                                                     : null
