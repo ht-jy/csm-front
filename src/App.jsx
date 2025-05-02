@@ -14,6 +14,7 @@ import Wage from "./component/layout/content/management/wage/Wage";
 import Schedule from "./component/layout/content/management/schedule/Schedule";
 import Notice from "./component/layout/content/management/notice/Notice";
 import Code from "./component/layout/content/management/code/Code";
+import RetireDeduction from "./component/layout/content/management/retire/RetireDeduction";
 import ErrorBoundary from "./component/error/ErrorBoundary";
 import ErrorPage from "./component/error/ErrorPage";
 import NotFound from "./component/error/NotFound";
@@ -44,6 +45,7 @@ function App() {
                             <Route path="/schedule" element={<Schedule />} />
                             <Route path="/notice" element={<Notice />} />
                             <Route path="/code" element={<Code />} />
+                            <Route path="/retire" element={<RetireDeduction />} />
                         </Route>
                         {/* 잘못된 경로 */}
                         <Route path="*" element={<NotFound />} />
