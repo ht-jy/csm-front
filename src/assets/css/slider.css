@@ -5,7 +5,7 @@
     justify-content: space-between;
     width: 30vw;
     max-width: 500px;
-    padding: 16px;
+    padding: 6px;
     background-color: transparent;
     height: 60px;
     overflow: hidden;
@@ -26,12 +26,19 @@
     justify-content: center;
     align-items: center;
     overflow: hidden;  /* 부모 요소에서 넘치지 않도록 설정 */
+    padding-left: 10px;
+    height: 40px;
+}
+.slides-container:hover {
+    background-color: #444 !important;
+    border-radius: 15px;
 }
 
 .slide {
     width: 100%;
     text-align: left;
     color: white;
+    cursor: pointer;
 }
 
 .slide span {

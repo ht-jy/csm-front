@@ -11,6 +11,8 @@ import DetailSchedule from "./DetailSchedule";
 import useTooltip from "../../../../../utils/hooks/useTooltip";
 import PlusBottomIcon from "../../../../../assets/image/plus-sign.png";
 import PlusIcon from "../../../../../assets/image/plus2.png";
+import ArrowLeftIcon from "../../../../../assets/image/arrow-left.png";
+import ArrowRightIcon from "../../../../../assets/image/arrow-right.png";
 import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Schedule.css";
 
@@ -516,7 +518,7 @@ const Schedule = () => {
 
                 <div style={{display: "flex", margin: "5px", gap: "5px", justifyContent: "center"}}>
                     <div>
-                        <Button text={"<"} style={{margin: 0}} onClick={() => onClickMonthBtn(-1)}/>
+                        <Button text={<img src={ArrowLeftIcon} style={{width: "15px", height: "15px", filter: "brightness(0) invert(1)"}}/>} style={{margin: 0, width: "35px", height: "38px", display: "flex", justifyContent: "center", alignItems: "center"}} onClick={() => onClickMonthBtn(-1)}/>
                     </div>
                     <div style={{width: "130px"}}>
                         <Select
@@ -567,7 +569,7 @@ const Schedule = () => {
                         />
                     </div>
                     <div>
-                        <Button text={">"} style={{margin: 0}} onClick={() => onClickMonthBtn(1)}/>
+                    <Button text={<img src={ArrowRightIcon} style={{width: "15px", height: "15px", filter: "brightness(0) invert(1)"}}/>} style={{margin: 0, width: "35px", height: "38px", display: "flex", justifyContent: "center", alignItems: "center"}} onClick={() => onClickMonthBtn(-1)}/>
                     </div>
                 </div>
 

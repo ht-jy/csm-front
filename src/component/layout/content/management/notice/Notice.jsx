@@ -1,18 +1,18 @@
 import { useEffect, useReducer, useState } from "react";
-import Select from 'react-select';
-import "../../../../../assets/css/Paginate.css";
-import "../../../../../assets/css/Table.css";
 import { Axios } from "../../../../../utils/axios/Axios";
-import useTableControlState from "../../../../../utils/hooks/useTableControlState.js";
-import useTableSearch from "../../../../../utils/hooks/useTableSearch";
 import { useAuth } from "../../../../context/AuthContext";
+import Select from 'react-select';
+import useTableControlState from "../../../../../utils/hooks/useTableControlState";
+import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons";
+import useTableSearch from "../../../../../utils/hooks/useTableSearch";
 import Button from "../../../../module/Button";
 import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
-import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons .jsx";
 import Table from "../../../../module/Table";
-import NoticeDetail from "./NoticeDetail.jsx";
+import NoticeDetail from "./NoticeDetail";
 import NoticeReducer from "./NoticeReducer";
+import "../../../../../assets/css/Paginate.css";
+import "../../../../../assets/css/Table.css";
 
 /**
  * @description: 공지사항 CRUD
@@ -45,7 +45,7 @@ const Notice = () => {
     });
 
     const { user, project } = useAuth();
-    const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(10);
+    const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(20);
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -58,10 +58,9 @@ const Notice = () => {
     const [isOpenModal, setIsOpenModal] = useState(false);
 
     const options = [
-        { value: 5, label: "5줄 보기" },
-        { value: 10, label: "10줄 보기" },
-        { value: 15, label: "15줄 보기" },
         { value: 20, label: "20줄 보기" },
+        { value: 50, label: "50줄 보기" },
+        { value: 100, label: "100줄 보기" },        
     ]
 
     // [테이블]

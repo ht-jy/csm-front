@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import AnnouncementSlider from "../module/AnnouncementSlider";
-import SearchProjectModal from "../module/modal/SearchProjectModal";
 import { useAuth } from "../context/AuthContext";
 import { Axios } from "../../utils/axios/Axios";
+import { ObjChk } from "../../utils/ObjChk";
+import AnnouncementSlider from "../module/AnnouncementSlider";
+import SearchProjectModal from "../module/modal/SearchProjectModal";
+import OrganizationModal from "../module/modal/OrganizationModal";
 import SearchIcon from "../../assets/image/search_9b9d9e.png";
 import Organization from "../../assets/image/organization_chart.png";
 import RefreshIcon from "../../assets/image/refresh-icon.png";
 import CancelIcon from "../../assets/image/cancel.png";
-import { ObjChk } from "../../utils/ObjChk";
-import OrganizationModal from "../module/modal/OrganizationModal";
+import UserIcon from "../../assets/image/user.png";
+import MenuIcon from "../../assets/image/menu.png";
 
 const Header = () => {
     const [isSidebarToggled, setIsSidebarToggled] = useState(false);
@@ -79,7 +81,12 @@ const Header = () => {
             />
 
             {/* Sidebar Toggle*/}
-            <button className="btn btn-link btn-sm me-2" id="sidebarToggle" onClick={handleSidebarToggle} style={{paddingLeft: "15px"}}><i className="fas fa-bars" /></button>
+            <button className="btn btn-link btn-sm" id="sidebarToggle" onClick={handleSidebarToggle} style={{paddingLeft: "0px"}}>
+                <i className="" />
+                <div className="menu-icon-container">
+                    <img src={MenuIcon} style={{width: "15px", height: "20px"}}/>
+                </div> 
+            </button>
 
             {/* Navbar Brand*/}
             <a className="navbar-brand" href="/site">공사관리시스템</a>
@@ -122,7 +129,6 @@ const Header = () => {
                 </form>
                 
                 <div className="search-icon-container">
-
                     <img src={SearchIcon} style={{width: "24px"}} onClick={onClickSearch}/>
                 </div>
                 <div className="refresh-icon-container" onClick={handleRefreshProject}>
@@ -131,19 +137,23 @@ const Header = () => {
 
                 <div className="organization-icon-container" onClick={onClickOrganization}>
                     <img src={Organization} style={{width: "20px"}}/>
-                </div>
-            
+                </div>            
             </div>
             {/* Navbar*/}
             <ul className="navbar-nav ms-auto me-0 me-md-3 my-2 my-md-0">
                 <li className="nav-item dropdown">
-                <a className="nav-link dropdown-toggle" id="navbarDropdown" href="#!" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i className="fas fa-user fa-fw" /></a>
-                <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                    {/* <li><a className="dropdown-item" href="#!">Settings</a></li> */}
-                    <li><a className="dropdown-item" href="#!">사용자: {user.userName||"GUEST"}</a></li>
-                    <li><hr className="dropdown-divider" /></li>
-                    <li><a className="dropdown-item" href="#!" onClick={onClickLogout}>로그아웃</a></li>
-                </ul>
+                    <a id="navbarDropdown" href="#!" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i className="" />
+                        <div className="user-icon-container">
+                            <img src={UserIcon} style={{width: "20px", height: "19px"}}/>
+                        </div>
+                    </a>
+                    <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        {/* <li><a className="dropdown-item" href="#!">Settings</a></li> */}
+                        <li><a className="dropdown-item" href="#!">사용자: {user.userName||"GUEST"}</a></li>
+                        <li><hr className="dropdown-divider" /></li>
+                        <li><a className="dropdown-item" href="#!" onClick={onClickLogout}>로그아웃</a></li>
+                    </ul>
                 </li>
             </ul>
         </nav>

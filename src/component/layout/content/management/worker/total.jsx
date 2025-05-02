@@ -9,7 +9,7 @@ import Modal from "../../../../module/Modal";
 import Table from "../../../../module/Table";
 import TotalReducer from "./TotalReducer";
 import useDetailModal from "../../../../../utils/hooks/useDetailModal";
-import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons ";
+import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons";
 import useTableControlState from "../../../../../utils/hooks/useTableControlState";
 import useTableSearch from "../../../../../utils/hooks/useTableSearch";
 import Search from "../../../../module/search/Search";

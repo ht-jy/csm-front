@@ -2540,13 +2540,77 @@ form.d-flex {
 }
 
 .refresh-icon-container {
-  margin-right: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+.refresh-icon-container:hover {
+  background-color: #444;
+  border-radius: 15px;
 }
 
 .organization-icon-container {
-  margin-right: 10px;
+  /* margin-right: 10px; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+.organization-icon-container:hover {
+  background-color: #444;
+  border-radius: 15px;
 }
 
+.user-icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+.user-icon-container:hover {
+  background-color: #444;
+  border-radius: 15px;
+}
+
+.menu-icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+.menu-icon-container:hover{
+  background-color: #444 !important;
+  border-radius: 15px;
+}
+
+.icon-hover{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.icon-hover:hover{
+  background-color: #ddd !important;
+  border-radius: 15px;
+}
+
+.whether-report {
+  font-weight: bold;
+  font-size: 17px;
+  margin-bottom: 10px;
+  position: absolute;
+  right: 1.5rem;
+  cursor: pointer;
+  padding: 2px 15px;
+}
 
 /* 화면 크기가 768px 이하일 때 검색창 숨기기 */
 @media (max-width: 768px) {

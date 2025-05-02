@@ -23,7 +23,7 @@
 }
 
 .search-icon {
-    width: 60px;
+    width: 85px;
     height: 38px;
     background-color: #0d6efd;
     display: flex;
@@ -31,6 +31,7 @@
     justify-content: center;
     border-top-right-radius: 4px !important;
     border-bottom-right-radius: 4px !important;
+    cursor: pointer;
 }
 
 .search-keyword-box {

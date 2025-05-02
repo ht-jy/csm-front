@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
-import ReactPaginate from "react-paginate";
-import "../../assets/css/Paginate.css";
 import { Common } from "../../utils/Common";
+import ReactPaginate from "react-paginate";
+import ArrowRight from "../../assets/image/arrow-right.png";
+import ArrowDoubleRight from "../../assets/image/arrow-double-right.png";
+import ArrowLeft from "../../assets/image/arrow-left.png";
+import ArrowDoubleLeft from "../../assets/image/arrow-double-left.png";
+import "../../assets/css/Paginate.css";
 
 /**
  * @description: 
@@ -103,19 +107,28 @@ const handlePrevClick = (e) => {
                             disabled={pageNum === 0}
                             className={`custom-nav-btn ${pageNum === 0 ? "disabled" : ""}`}
                         >
-                            {"<<"}
+                            <img src={ArrowDoubleLeft} style={{width: "15px", height: "15px"}}/>
                         </button>
 
                         <ReactPaginate
                             forcePage={pageNum}
-                            previousLabel={<span onClick={handlePrevClick}>{"<"}</span>}
-                            nextLabel={<span onClick={handleNextClick}>{">"}</span>}
+                            previousLabel={
+                                <span onClick={handleNextClick} style={{display: "flex", alignItems: "center", justifyContent: "center", width: "100%", height: "100%"}}>
+                                  <img src={ArrowLeft} style={{width: "15px", height: "15px"}}/>
+                                </span>
+                            }
+                            nextLabel={
+                                <span onClick={handleNextClick} style={{display: "flex", alignItems: "center", justifyContent: "center", width: "100%", height: "100%"}}>
+                                  <img src={ArrowRight} style={{width: "15px", height: "15px"}}/>
+                                </span>
+                            }
                             breakLabel={null}
                             pageCount={pageCount}
                             pageRangeDisplayed={pageRange}
                             marginPagesDisplayed={0}
                             onPageChange={handlePageClick}
                             containerClassName={"pagination"}
+                            pageClassName={"page"}
                             activeClassName={"active"}
                             disabledClassName={"disabled"}
                             renderOnZeroPageCount={null}
@@ -126,7 +139,7 @@ const handlePrevClick = (e) => {
                             disabled={pageNum === pageCount - 1}
                             className={`custom-nav-btn ${pageNum === pageCount - 1 ? "disabled" : ""}`}
                         >
-                            {">>"}
+                            <img src={ArrowDoubleRight} style={{width: "15px", height: "15px"}}/>
                         </button>
                     </div>
                 )

@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { dateUtil } from "../../../utils/DateUtil";
 import Table from "../Table";
 import Exit from "../../../assets/image/exit.png";
-import PaginationWithCustomButtons from "../PaginationWithCustomButtons ";
+import PaginationWithCustomButtons from "../PaginationWithCustomButtons";
 import useTableControlState from "../../../utils/hooks/useTableControlState";
 import useTableSearch from "../../../utils/hooks/useTableSearch";
 import Search from "../search/Search";

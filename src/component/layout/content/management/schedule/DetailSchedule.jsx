@@ -243,7 +243,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                             </div>
                             
                             <div style={{display: "flex", justifyContent: "center", flex: 1, overflow: 'auto' }}>
-                                <div style={gridStyle}>
+                                <div style={{...gridStyle, backgroundColor: edit === "N" ? "#f3f3f3" : ""}}>
 
                                     {
                                         edit === "N" ?
@@ -466,7 +466,7 @@ const gridStyle = {
     overflowY: 'auto',            // 세로 스크롤
     marginTop: "5px",
     padding: "5px",
-    backgroundColor: "#f3f3f3",
+    // backgroundColor: "#f3f3f3",
 };
 
 const overlayStyle = {

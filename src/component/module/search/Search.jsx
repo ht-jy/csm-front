@@ -209,7 +209,7 @@ const Search = ({searchOptions=[], width, fncSearchKeywords, retrySearchText, po
             <div className="search-icon" onClick={handleSearchValue}>
                 <img
                     src={SearchIcon}
-                    style={{width: "19px", filter: "brightness(0) invert(1)"}}
+                    style={{width: "20px", filter: "brightness(0) invert(1)"}}
                 />
             </div>
         </div>

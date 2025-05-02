@@ -1,4 +1,4 @@
-import { useState, useReducer, useEffect } from "react";
+import { useState, useReducer, useEffect, useRef } from "react";
 import Select from 'react-select';
 import { Axios } from "../../../../../utils/axios/Axios";
 import { useAuth } from "../../../../context/AuthContext";
@@ -8,7 +8,7 @@ import GridModal from "../../../../module/GridModal";
 import Modal from "../../../../module/Modal";
 import Button from "../../../../module/Button";
 import Table from "../../../../module/Table";
-import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons ";
+import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons";
 import useTableControlState from "../../../../../utils/hooks/useTableControlState";
 import useTableSearch from "../../../../../utils/hooks/useTableSearch";
 import Search from "../../../../module/search/Search";
@@ -62,11 +62,14 @@ const Device = () => {
     const [isRegistered, setIsRegistered] = useState(false);
     const [devices, setDevices] = useState([]);
 
+    const registeredRef = useRef();
+    const bellRef = useRef();
+
     const options = [
-        { value: 5, label: "5줄 보기" },
-        { value: 10, label: "10줄 보기" },
-        { value: 15, label: "15줄 보기" },
         { value: 20, label: "20줄 보기" },
+        { value: 50, label: "50줄 보기" },
+        { value: 100, label: "100줄 보기" },
+        
     ];
 
     const searchOptions = [
@@ -96,7 +99,7 @@ const Device = () => {
         { isSearch: false, isOrder: true, isSlide: true, header: "최종 수정일시", width: "60px", itemName: "mod_date", bodyAlign: "center", isDate: true, isEllipsis: false, dateFormat: "format" },
     ]
 
-    const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder, retrySearchText, setRetrySearchText } = useTableControlState(10);
+    const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder, retrySearchText, setRetrySearchText } = useTableControlState(20);
 
     // 상세페이지 클릭 시
     const onClickRow = (deviceRow, mode) => {
@@ -105,27 +108,15 @@ const Device = () => {
 
     // 미등록 장치 체크
     const getNonRegisteredDevice = async () => {
-        setIsLoading(true)
+        setIsLoading(true);
         const res = await Axios.GET("device/check-registered")
 
         if(res.data?.result === "Success"){
-            setDevices([...res.data.values.list])
+            setDevices([...res.data.values.list]);
         }
         
-        setIsLoading(false)
+        setIsLoading(false);
     }
-
-    // 미등록 장치 외의 클릭 시
-    const bodyTag = document.querySelector("body")
-    bodyTag.addEventListener("click", function(e) {
-        if(e.target.id === "registered") {
-            setIsRegistered(true)
-        } else if (e.target.id === "bell"){
-            return
-        } else {
-            setIsRegistered(false)
-        }
-    })
     
     // GridModal 띄우기 - 추가 또는 리스트 row 클릭시
     const handleGridModal = (mode, item) => {
@@ -287,6 +278,25 @@ const Device = () => {
         getNonRegisteredDevice();
     }, [])
 
+    // 미등록 장치 외의 클릭 시
+    useEffect(() => {
+        const handleClick = (e) => {
+            if (registeredRef.current?.contains(e.target)) {
+                setIsRegistered(true);
+            } else if (bellRef.current?.contains(e.target)) {
+                // 아무것도 안 함
+            } else {
+                setIsRegistered(false);
+            }
+        }
+
+        document.body.addEventListener("click", handleClick);
+
+        return () => {
+            document.body.removeEventListener("click", handleClick);
+        };
+    }, []);
+
     const { 
         searchValues,
         activeSearch, setActiveSearch, 
@@ -360,19 +370,20 @@ const Device = () => {
                             />
                         </div>
                         <div
-                            style={{position: "relative", marginLeft:"10px", cursor: "pointer", paddingBottom: "3px", marginLeft: "20px"}} 
-                            onClick={() => setIsRegistered((prev) => !prev)}
+                            style={{position: "relative", marginLeft:"10px", marginLeft: "10px", width: "30px", height: "30px"}}
                         >
-                            <img
-                                id="bell"
-                                style={{width:"19px", height: "20px"}} 
-                                src={Notification}
-                                alt="알림"
-                            />
+                            <div className="icon-hover" style={{width: "30px", height: "30px" , cursor: "pointer"}} onClick={() => setIsRegistered((prev) => !prev)}>
+                                <img
+                                    ref={bellRef}
+                                    style={{width:"19px", height: "20px"}} 
+                                    src={Notification}
+                                    alt="알림"
+                                />
+                            </div>
                             <div style={{
                                 position: "absolute",
-                                top: "-8px",         // 종 위로 올림
-                                right: "-17px",       // 종 오른쪽으로 이동
+                                top: "-5px",         // 종 위로 올림
+                                right: "-12px",       // 종 오른쪽으로 이동
                                 backgroundColor: "#FFD700",
                                 minWidth: "20px",
                                 height: "20px",
@@ -392,24 +403,21 @@ const Device = () => {
 
                         {/* 미등록 장치 */}
                         {
-                            devices.length > 0 ? 
-                                isRegistered ?
-                                    <div id="registered" style={{ ...modalStyle }}>
-                                        <div id="registered" style={{ ...header }}>미등록 장치</div>
-                                        <div id="registered" style={{...contentStyle}}>
-                                            <ul id="registered" style={{alignItems:"center"}}>
-                                                <div id="registered" style={{marginBottom:"5px",  textIndent: "-2.0em"}}>
-                                                    해당 장치가 등록되지 않았습니다.
-                                                </div>
-                                                { devices.map((deviceName, idx) => (
-                                                    <li id="registered" key={idx}>{deviceName}</li>
-                                                ))
-                                            } 
-                                            </ul>
+                            isRegistered &&
+                            <div ref={registeredRef} style={{ ...modalStyle }}>
+                                <div style={{ ...header }}>미등록 장치</div>
+                                <div style={{...contentStyle}}>
+                                    <ul style={{alignItems:"center"}}>
+                                        <div  style={{marginBottom:"5px",  textIndent: "-1.0em"}}>
+                                            {devices.length > 0 ? "해당 장치가 등록되지 않았습니다." : "미등록 장치가 없습니다."}
                                         </div>
-                                    </div>
-                                : <></>
-                            : <></>
+                                        { devices.length > 0 && devices.map((deviceName, idx) => (
+                                            <li key={idx}>{deviceName}</li>
+                                        ))
+                                    } 
+                                    </ul>
+                                </div>
+                            </div>
                         }
 
                         
@@ -486,7 +494,7 @@ const modalStyle = {
     minWidth: "18rem",
     maxWidth: "32rem",
     height: "30rem",
-    boxShadow: '10px 10px 1px rgb(0, 0, 0, 0.3)',
+    boxShadow: '5px 5px 8px rgba(0, 0, 0, 0.5)',
     top:"40px",
     left:"140px",
     display: 'flex',

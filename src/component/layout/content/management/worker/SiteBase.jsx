@@ -13,7 +13,7 @@ import Button from "../../../../module/Button";
 import DateInput from "../../../../module/DateInput";
 import useTableSearch from "../../../../../utils/hooks/useTableSearch";
 import useTableControlState from "../../../../../utils/hooks/useTableControlState";
-import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons ";
+import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons";
 import Search from "../../../../module/search/Search";
 import EditTable from "../../../../module/EditTable";
 import SearchProjectModal from "../../../../module/modal/SearchProjectModal";

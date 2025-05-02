@@ -1,4 +1,4 @@
-import { useState, useEffect, useReducer } from "react";
+import { useState, useEffect, useReducer, useRef } from "react";
 import { Axios } from "../../../../../utils/axios/Axios"
 import { dateUtil } from "../../../../../utils/DateUtil";
 import { useAuth } from "../../../../context/AuthContext";
@@ -66,6 +66,7 @@ const Site = () => {
     // 기상특보
     const [warningListOpen, setWarningListOpen] = useState(false);
     const [warningData, setWarningData] = useState([]);
+    const warningRef = useRef();
 
     // modal - 현장 수정용
     const [isOpenModal, setIsOpenModal] = useState(false);
@@ -372,7 +373,22 @@ const Site = () => {
         return () => clearInterval(interval);
     }, []);
 
+    // 기상특보 외의 클릭 시
+    useEffect(() => {
+        const handleClick = (e) => {
+            if (warningRef.current?.contains(e.target)) {
+                return;
+            } else {
+                setWarningListOpen(false);
+            }
+        };
 
+        document.body.addEventListener("click", handleClick);
+        return () => {
+            document.body.removeEventListener("click", handleClick);
+        };
+    }, []);
+    
     return (
         <div>
             <Loading
@@ -440,13 +456,13 @@ const Site = () => {
                             }
                             {/* 기상특보 현황 :: start */}
                             <div
-                                className="square-title"
-                                style={{ position: "absolute", right: "3rem" }}
-                                onMouseEnter={() => setWarningListOpen(true)}
-                                onMouseLeave={() => setWarningListOpen(false)}
+                                ref={warningRef}
+                                className="whether-report icon-hover"
+                                onClick={() => setWarningListOpen(prev => !prev)}
                             >
                                 <img src={warningWhether} style={{width:"30px", margin:"5px"}}></img>
-                                기상특보현황</div>
+                                기상특보현황
+                            </div>
                             {
                                 warningListOpen ?
                                     <div style={{ width: "70%", height: "70%" }}>
@@ -719,8 +735,8 @@ const modalStyle = {
     minWidth: "18rem",
     maxWidth: "32rem",
     height: "30rem",
-    boxShadow: '10px 10px 1px rgb(0, 0, 0, 0.3)',
-    margin: '20px',
+    boxShadow: '5px 5px 8px rgba(0, 0, 0, 0.5)',
+    margin: '10px',
     display: 'flex',
     flexDirection: 'column',
     overflow: "unset",

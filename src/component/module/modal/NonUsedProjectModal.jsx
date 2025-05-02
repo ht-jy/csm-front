@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Axios } from "../../../utils/axios/Axios";
 import Table from "../Table";
-import PaginationWithCustomButtons from "../PaginationWithCustomButtons ";
+import PaginationWithCustomButtons from "../PaginationWithCustomButtons";
 import useTableControlState from "../../../utils/hooks/useTableControlState";
 import useTableSearch from "../../../utils/hooks/useTableSearch";
 import Search from "../search/Search";

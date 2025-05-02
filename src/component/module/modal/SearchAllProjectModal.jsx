@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Axios } from "../../../utils/axios/Axios"; 
 import Exit from "../../../assets/image/exit.png";
 import Table from "../Table";
-import PaginationWithCustomButtons from "../PaginationWithCustomButtons ";
+import PaginationWithCustomButtons from "../PaginationWithCustomButtons";
 import Button from "../Button";
 import { useAuth } from "../../context/AuthContext";
 import useTableControlState from "../../../utils/hooks/useTableControlState";

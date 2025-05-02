@@ -1,17 +1,7 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { dateUtil } from "../../utils/DateUtil";
-import SearchIcon from "../../assets/image/search.png";
-import ExitIcon from "../../assets/image/exit.png";
-import SortIcon from "../../assets/image/sort-icon.png";
-import UpIcon from "../../assets/image/up-icon.png";
-import DownIcon from "../../assets/image/down-icon.png";
-import HiddenLeftArrowIcon from "../../assets/image/hidden-left-arrow.png";
-import CheckIcon from "../../assets/image/check-icon.png";
-import NonCheckIcon from "../../assets/image/non-check-icon.png";
 import { ObjChk } from "../../utils/ObjChk";
-import "../../assets/css/Table.css";
 import { Common } from "../../utils/Common";
-import ImportantIcon from "../../assets/image/important.png";
 import DateInput from "./DateInput";
 import Time12Input from "./Time12Input";
 import ToggleInput from "./ToggleInput";
@@ -21,6 +11,17 @@ import SearchInput from "./SearchInput";
 import Button from "./Button";
 import RadioInput from "./RadioInput";
 import Time24Input from "./Time24Input";
+import useTooltip from "../../utils/hooks/useTooltip";
+import SearchIcon from "../../assets/image/search.png";
+import ExitIcon from "../../assets/image/exit.png";
+import SortIcon from "../../assets/image/sort-icon.png";
+import UpIcon from "../../assets/image/up-icon.png";
+import DownIcon from "../../assets/image/down-icon.png";
+import HiddenLeftArrowIcon from "../../assets/image/hidden-left-arrow.png";
+import CheckIcon from "../../assets/image/check-icon.png";
+import NonCheckIcon from "../../assets/image/non-check-icon.png";
+import ImportantIcon from "../../assets/image/important.png";
+import "../../assets/css/Table.css";
 
 /**
  * @description: 
@@ -62,6 +63,8 @@ const Table = forwardRef(({
     const [addRowIdx, setAddRowIdx] = useState([]);
     const [editAddList, setEditAddList] = useState([]);
     const [checkedItemList, setCheckedItemList] = useState([]);
+    // 툴팁
+    useTooltip([data]);
     
     // 정렬 아이콘 클릭 시 상태 변경 및 정렬 함수 실행
     const handleSortChange = (itemName) => {
@@ -769,7 +772,7 @@ const Table = forwardRef(({
                             {columns.map((col, col_idx) => (
                                 <td
                                     key={`cell-${idx}-${col.itemName}`}
-                                    className={`${col.bodyAlign} ${col.isEllipsis ? "ellipsis" : ""} ${item[col.boldItemName] === 'Y' || item[col.boldItemName] === true ? "fw-bold" : ""}`}
+                                    className={`${col.bodyAlign} ${col.isEllipsis ? "ellipsis-tooltip" : ""} ${item[col.boldItemName] === 'Y' || item[col.boldItemName] === true ? "fw-bold" : ""}`}
                                     style={editInfo ? tdEditStyle(col, editInfo[col_idx]) : {maxWidth: col.width}}
                                 >
                                     {
