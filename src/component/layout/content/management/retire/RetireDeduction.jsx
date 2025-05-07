@@ -1,10 +1,31 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
+import useExcelUploader from "../../../../../utils/hooks/useExcelUploader";
 import Button from "../../../../module/Button";
 import Modal from "../../../../module/Modal";
 
+/**
+ * @description: 퇴직공제 데이터 조회
+ * 
+ * @author 작성자: 김진우
+ * @created 작성일: 2025-05-07
+ * @modified 최종 수정일: 
+ * @modifiedBy 최종 수정자: 
+ * @usedComponents
+ * - 
+ * 
+ * @additionalInfo
+ * - API: 
+ *    Http Method - POST : /excel/export/daily-deduction (일간퇴직공제 excel export), /excel/import/deduction (퇴직공제 excel import)
+ */
 const RetireDeduction = () => {
     const [isOpen, setIsOpen] = useState(false);
+
+    /** 엑셀 hidden input  **/
+    const excelInput = useRef(null);
+
+    /** 엑셀 업로드 **/
+    const { handleSelectAndUpload } = useExcelUploader();
 
     const retireExcelExport = async() => {
         const temp =[
@@ -56,13 +77,24 @@ const RetireDeduction = () => {
             }
         ]
 
-        const res = await Axios.POST_BLOB(`/excel/daily-deduction?ts=${Date.now()}`, temp);
+        const res = await Axios.POST_BLOB(`/excel/export/daily-deduction?ts=${Date.now()}`, temp);
         
         if (res?.data?.result === "Success") {
             
         } else {
             setIsOpen(true);
         }
+    }
+
+    // 엑셀 업로드 버튼
+    const excelUploadBtn = () => {
+        excelInput.current.click();
+    }
+
+    // 엑셀 업로드
+    const excelUpload = async(e) => {
+        const res = await handleSelectAndUpload(e, "/excel/import/deduction");
+        console.log(res);
     }
 
     return(
@@ -79,7 +111,9 @@ const RetireDeduction = () => {
                     <li className="breadcrumb-item content-title">퇴직공제</li>
                     <li className="breadcrumb-item active content-title-sub">관리</li>
                     <div className="table-header-right">
-                        <Button text={"엑셀 다운로드"} onClick={() => retireExcelExport()} />
+                        <input ref={excelInput} type="file" accept=".xlsx, .xls" onChange={(e) => excelUpload(e)} style={{display: "none"}}/>
+                        <Button text={"엑셀 업로드"} onClick={excelUploadBtn} />
+                        <Button text={"엑셀 다운로드"} onClick={retireExcelExport} />
                     </div>
                 </ol>
 
