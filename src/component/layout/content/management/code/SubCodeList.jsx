@@ -148,7 +148,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
             setModalTitle("입력 오류")
             setModalText("코드명을 입력해 주세요.")
             return
-        } else {
+        } else if(!isEdit) { // 초기 생성 시에만 codeID 중복확인하도록 설정
             // codeID 중복 확인
             const res = await Axios.GET(`code/check?code=${codeSet.code}`)
 
@@ -362,7 +362,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
                                                 isEdit && editNo === index ?
                                                     <tr key={index}>
                                                         <td className="center">{index + 1}</td>
-                                                        <td><TextInput style={{ ...textInputStyle }} initText={codeTree.code_set.code} setText={(value) => onChangeTableData("code", value)} /></td>
+                                                        <td>{codeTree.code_set.code}</td>
                                                         <td><TextInput style={{ ...textInputStyle }} initText={codeTree.code_set.code_nm} setText={(value) => onChangeTableData("code_nm", value)} /></td>
                                                         <td><ColorInput style={{ ...colorInputStyle }} initColor={codeTree.code_set.code_color} setColor={(value) => onChangeTableData("code_color", value)} ></ColorInput> </td>
                                                         <td><TextInput style={{ ...textInputStyle }} initText={codeTree.code_set.udf_val_03} setText={(value) => onChangeTableData("udf_val_03", value)} /></td>

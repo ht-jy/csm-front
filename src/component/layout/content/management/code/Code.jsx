@@ -55,6 +55,7 @@ const Code = () => {
         } else {
         }
         setIsDataChange(false)
+        dispatch({type: "path", path: ""})
         setIsLoading(false)
     }
 

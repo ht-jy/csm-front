@@ -2,7 +2,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
 /**
- * @description: 
+ * @description: 테이블의 순서를 변경하기 위해 사용하는 컴포넌트
  * 
  * @author 작성자: 정지영
  * @created 작성일: 2025-04-15
