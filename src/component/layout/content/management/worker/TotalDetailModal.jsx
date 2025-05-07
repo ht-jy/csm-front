@@ -6,7 +6,7 @@ import { dateUtil } from "../../../../../utils/DateUtil";
 import Radio from "../../../../module/Radio";
 import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
 import DateInput from "../../../../module/DateInput";
-import SearchAllProjectModal from "../../../../module/modal/SearchAllProjectModal";
+import SearchUsedProjectModal from "../../../../module/modal/SearchUsedProjectModal";
 import Exit from "../../../../../assets/image/exit.png";
 import CancelIcon from "../../../../../assets/image/cancel.png";
 import EyeIcon from "../../../../../assets/image/eye-alert.png";
@@ -286,7 +286,7 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                         {
                                             isEdit && gridMode === "SAVE" ?
                                                 <> 
-                                                    <SearchAllProjectModal
+                                                    <SearchUsedProjectModal
                                                         isOpen={isProjectOpenModal} 
                                                         fncExit={() => setIsProjectOpenModal(false)} 
                                                         onClickRow={(item) => projectInputChangeHandler(item)} 
