@@ -82,14 +82,15 @@ const SiteBase = () => {
     const columns = [
         { itemName: "row_checked", checked: "N", checkType: "all", width: "35px", bodyAlign: "center" },
         { isSearch: false, isOrder: true, width: "70px", header: "순번", itemName: "rnum", bodyAlign: "center", isEllipsis: false, type: "number"},
-        { isSearch: true, isOrder: true, width: "190px", header: "아이디", itemName: "user_id", bodyAlign: "center", isEllipsis: false },
-        { isSearch: true, isOrder: true, width: "190px", header: "근로자 이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false },
+        { isSearch: true, isOrder: true, width: "150px", header: "아이디", itemName: "user_id", bodyAlign: "center", isEllipsis: false },
+        { isSearch: true, isOrder: true, width: "150px", header: "근로자 이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false },
         { isSearch: true, isOrder: true, width: "190px", header: "부서/조직명", itemName: "department", bodyAlign: "left", isEllipsis: false },
-        { isSearch: false, isOrder: true, width: "190px", header: "날짜", itemName: "record_date", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'format' },
-        { isSearch: false, isOrder: true, width: "190px", header: "출근시간", itemName: "in_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'formatTime24' },
-        { isSearch: false, isOrder: true, width: "190px", header: "퇴근시간", itemName: "out_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'formatTime24' },
+        { isSearch: false, isOrder: true, width: "150px", header: "날짜", itemName: "record_date", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'format' },
+        { isSearch: false, isOrder: true, width: "150px", header: "출근시간", itemName: "in_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'formatTime24' },
+        { isSearch: false, isOrder: true, width: "150px", header: "퇴근시간", itemName: "out_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'formatTime24' },
         { isSearch: false, isOrder: true, width: "190px", header: "상태", itemName: "work_state", bodyAlign: "center", isEllipsis: false, isRadio: true, radioValues: state.workStateCodes.map(item => item.code), radioLabels: state.workStateCodes.map(item => item.code_nm), code: state.workStateCodes },
-        { isSearch: false, isOrder: true, width: "190px", header: "마감여부", itemName: "is_deadline", bodyAlign: "center", isEllipsis: false, isChecked: true },
+        { isSearch: false, isOrder: true, width: "150px", header: "철야", itemName: "is_overtime", bodyAlign: "center", isEllipsis: false, isChecked: true},
+        { isSearch: false, isOrder: true, width: "150px", header: "마감여부", itemName: "is_deadline", bodyAlign: "center", isEllipsis: false, isChecked: true },
     ];
 
     // 테이블 수정 정보
@@ -103,7 +104,7 @@ const SiteBase = () => {
         {itemName: "in_recog_time", editType: "time24", defaultValue: "2006-01-02T08:00:00+09:00"},
         {itemName: "out_recog_time", editType: "time24", defaultValue: "2006-01-02T17:00:00+09:00"},
         {itemName: "work_state", editType: "radio", radioValues: state.workStateCodes.map(item => item.code), radioLabels: state.workStateCodes.map(item => item.code_nm), defaultValue: "02"},
-        // {itemName: "commute", editType: "toggleText", toggleTexts: ["출근", "퇴근"]},
+        {itemName: "is_overtime", editType: "check", defaultValue:"N"},
         {itemName: "is_deadline", editType: "check", defaultValue: "N"},
     ];
 
@@ -346,6 +347,7 @@ const SiteBase = () => {
                 in_recog_time: in_recog_time,
                 out_recog_time: out_recog_time,
                 is_deadline: item.is_deadline,
+                is_overtime: item.is_overtime,
                 work_state: item.work_state,
                 mod_user: user.userName,
                 mod_uno: user.uno,
@@ -394,12 +396,11 @@ const SiteBase = () => {
             return;
         }
 
+        
+        if (project.sno == null) return;
         setIsLoading(true);
 
-        if (project.sno == null) return;
-
         const res = await Axios.GET(`/worker/site-base?page_num=${pageNum}&row_size=${rowSize}&order=${order}&rnum_order=${rnumOrder}&search_start_time=${searchStartTime}&search_end_time=${searchEndTime}&jno=${project.jno}&user_id=${searchValues.user_id}&user_nm=${searchValues.user_nm}&department=${searchValues.department}&retry_search=${retrySearchText}`);
-        
         if (res?.data?.result === "Success") {
             if(res?.data?.values?.list.length === 0) {
                 setIsModal(true);
@@ -408,7 +409,6 @@ const SiteBase = () => {
             }
             dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
         }
-
         setIsLoading(false);
     };
 
