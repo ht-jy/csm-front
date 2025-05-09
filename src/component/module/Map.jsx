@@ -38,7 +38,7 @@ const Map = ( {roadAddress} ) => {
             return
         }
         // vworld상 좌표값을 얻기 위한 요청
-        const res = await Axios.GET(`/map/point?roadAddress=${roadAddress}`)
+        const res = await Axios.GET(`/api/map/point?roadAddress=${roadAddress}`)
         if (res?.data?.result === "Success") {
             setPoint(res?.data?.values?.point)
         }
