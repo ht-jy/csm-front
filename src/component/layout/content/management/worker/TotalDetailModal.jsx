@@ -39,7 +39,7 @@ import "../../../../../assets/css/Input.css";
  */
 const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, detailData, selectList, exitBtnClick, saveBtnClick, removeBtnClick, isCancle = true }) => {
     const [isEdit, setIsEdit] = useState(false);
-    const [formData, setFormData] = useState([]);
+    const [formData, setFormData] = useState({});
     const [initialData, setInitialData] = useState([]); // 원본 데이터 저장
     /** 마스킹 된 주민번호 **/
     const [maskRegNo, setMaskRegNo ] = useState();
@@ -329,7 +329,7 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                     <div className="grid-input" style={{ flex: 1 }}>
                                         {
                                             isEdit && gridMode === "SAVE" ?
-                                                <input type="text" value={formData.user_id} onChange={(e) => onChangeFormData("user_id", e.target.value)}/>
+                                                <input type="text" value={formData.user_id || ""} onChange={(e) => onChangeFormData("user_id", e.target.value)}/>
                                             :
                                                 formData.user_id
                                         }
@@ -341,7 +341,7 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                     <div className="grid-input" style={{ flex: 1 }}>
                                         {
                                             isEdit ?
-                                                <input type="text" value={formData.user_nm} onChange={(e) => onChangeFormData("user_nm", e.target.value)}/>
+                                                <input type="text" value={formData.user_nm || ""} onChange={(e) => onChangeFormData("user_nm", e.target.value)}/>
                                             :
                                                 formData.user_nm
                                         }
@@ -353,7 +353,7 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                     <div className="grid-input" style={{ flex: 1 }}>
                                         {
                                             isEdit ?
-                                                <input type="text" value={formData.department} onChange={(e) => onChangeFormData("department", e.target.value)}/>
+                                                <input type="text" value={formData.department || ""} onChange={(e) => onChangeFormData("department", e.target.value)}/>
                                             :
                                                 formData.department
                                         }
@@ -365,7 +365,7 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                     <div className="grid-input" style={{ flex: 1 }}>
                                         {
                                             isEdit ?
-                                                <input type="text" value={formData.phone} onChange={(e) => onChangeFormData("phone", Common.formatMobileNumber(e.target.value))}/>
+                                                <input type="text" value={formData.phone || ""} onChange={(e) => onChangeFormData("phone", Common.formatMobileNumber(e.target.value))}/>
                                             :
                                                 formData.phone
                                         }
@@ -378,8 +378,8 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                         {
                                             isEdit ?
                                                 <>
-                                                    <input type="text" value={showFullRegNo ? formData.reg_no : Common.maskResidentNumber(maskRegNo)} onChange={(e) => onChangeRegMasking(e.target.value)}/>
-                                                    <input type="hidden" value={formData.reg_no}/>
+                                                    <input type="text" value={showFullRegNo ? formData.reg_no || "" : Common.maskResidentNumber(maskRegNo) || ""} onChange={(e) => onChangeRegMasking(e.target.value)}/>
+                                                    <input type="hidden" value={formData.reg_no || ""}/>
                                                 </>
                                             :
                                             showFullRegNo ? formData.reg_no : Common.maskResidentNumber(formData.reg_no)
@@ -399,7 +399,7 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                     <div className="grid-input" style={{ flex: 1 }}>
                                         {
                                             isEdit ?
-                                                <input type="text" value={formData.disc_name} onChange={(e) => onChangeFormData("disc_name", e.target.value)}/>
+                                                <input type="text" value={formData.disc_name || ""} onChange={(e) => onChangeFormData("disc_name", e.target.value)}/>
                                             :
                                                 formData.disc_name
                                         }
