@@ -7,6 +7,7 @@ import Button from "../Button";
 import { useAuth } from "../../context/AuthContext";
 import useTableControlState from "../../../utils/hooks/useTableControlState";
 import useTableSearch from "../../../utils/hooks/useTableSearch";
+import Search from "../search/Search";
 
 /**
  * @description: 전체 프로젝트를 선택할 수 있는 모달
@@ -46,7 +47,15 @@ const SearchAllProjectModal = ({isOpen, fncExit, onClickRow, isAll}) => {
     ];
 
     // 테이블 조작 커스텀 훅
-    const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(10);
+    const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder, retrySearchText, setRetrySearchText } = useTableControlState(10);
+
+    // 검색옵션
+    const searchOptions = [
+        { value: "ALL", label: "전체" },
+        { value: "JOB_NAME", label: "프로젝트명" },
+        { value: "JOB_NO", label: "프로젝트코드" },
+        { value: "JOB_PM_NAME", label: "PM" },
+    ];
 
     // 종료 이벤트
     const handleExitScrollUnset = (e) => {
@@ -70,7 +79,7 @@ const SearchAllProjectModal = ({isOpen, fncExit, onClickRow, isAll}) => {
     // 전체 프로젝트 조회
     const getData = async () => {
 
-        const res = await Axios.GET(`/project/enterprise?all=${isAll ? 1 : 0}&page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}`);
+        const res = await Axios.GET(`/project/enterprise?all=${isAll ? 1 : 0}&page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}&retry_search=${retrySearchText}`);
         if(res?.data?.result === "Success"){
             setData(res?.data?.values?.list);
             setCount(res?.data?.values?.count);            
@@ -84,11 +93,12 @@ const SearchAllProjectModal = ({isOpen, fncExit, onClickRow, isAll}) => {
         isSearchReset,
         isSearchInit,
         handleTableSearch,
+        handleRetrySearch,
         handleSearchChange,
         handleSearchInit,
         handleSortChange,
         handlePageClick,
-    } = useTableSearch({columns, getDataFunction: getData, pageNum, setPageNum, rowSize, order, setOrder});
+    } = useTableSearch({columns, getDataFunction: getData, pageNum, setPageNum, rowSize, order, setOrder, retrySearchText, setRetrySearchText});
 
     // 모달 오픈시 메인 화면 스크롤 정지
     useEffect(() => {
@@ -125,11 +135,24 @@ const SearchAllProjectModal = ({isOpen, fncExit, onClickRow, isAll}) => {
                             </div>
                         </div>
                         
-                        <div style={{ display: 'flex', alignItems: 'center', borderRadius: "5px", border: "Solid #aaa 1px", padding: "10px", marginTop: "5px", height: "60px" }}>
+                        <div style={{ display: 'flex', borderRadius: "5px", marginTop: "5px" }}>
                             <div style={{marginLeft: "auto"}}>
                                 {
                                     isSearchInit || order !== "" ? <Button text={"초기화"} onClick={handleSearchInit}/> : null
                                 }
+                            </div>
+                            <Search
+                                searchOptions={searchOptions}
+                                width={"300px"}
+                                height="38px"
+                                fncSearchKeywords={handleRetrySearch}
+                                retrySearchText={retrySearchText}
+                            />
+                        </div>
+
+                        <div className="table-header">
+                            <div className="table-header-right">
+                                <div id="search-keyword-portal"></div>
                             </div>
                         </div>
                     
