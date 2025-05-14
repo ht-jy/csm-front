@@ -3,6 +3,7 @@ import { Axios } from "../../../../../utils/axios/Axios";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import { ObjChk } from "../../../../../utils/ObjChk";
 import { useAuth } from "../../../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import SiteBaseContext from "../../../../context/SiteBaseContext";
 import SiteBaseReducer from "./SiteBaseReducer";
 import Loading from "../../../../module/Loading";
@@ -52,6 +53,7 @@ const SiteBase = () => {
         workStateCodes: [],
     })
 
+    const navigate = useNavigate();
     const { user, project } = useAuth();
     const tableRef = useRef();
 
@@ -177,17 +179,22 @@ const SiteBase = () => {
             
 
             setIsLoading(true);
-            const res = await Axios.POST("worker/site-base/deadline", deadlines);
-            
-            if (res?.data?.result === "Success") {
-                setIsModal(true);
-                setModalText("근로자 마감에 성공하였습니다.");
-                await getData();
-            }else {
-                setIsModal(true);
-                setModalText("근로자 마감에 실패하였습니다.");
+            try {
+                const res = await Axios.POST("worker/site-base/deadline", deadlines);
+                
+                if (res?.data?.result === "Success") {
+                    setIsModal(true);
+                    setModalText("근로자 마감에 성공하였습니다.");
+                    await getData();
+                }else {
+                    setIsModal(true);
+                    setModalText("근로자 마감에 실패하였습니다.");
+                }
+            } catch(err) {
+                navigate("/error");
+            } finally {
+                setIsLoading(false);
             }
-            setIsLoading(false);
         }
     }
 
@@ -253,17 +260,22 @@ const SiteBase = () => {
             });
             
             setIsLoading(true);
-            const res = await Axios.POST("worker/site-base/project", workers);
-            
-            if (res?.data?.result === "Success") {
-                setIsModal(true);
-                setModalText("프로젝트 변경에 성공하였습니다.");
-                await getData();
-            }else {
-                setIsModal(true);
-                setModalText("프로젝트 변경에 실패하였습니다.\n해당 날짜 프로젝트에 등록되어 었는지 확인하시기 바랍니다.");
+            try {
+                const res = await Axios.POST("worker/site-base/project", workers);
+                
+                if (res?.data?.result === "Success") {
+                    setIsModal(true);
+                    setModalText("프로젝트 변경에 성공하였습니다.");
+                    await getData();
+                }else {
+                    setIsModal(true);
+                    setModalText("프로젝트 변경에 실패하였습니다.\n해당 날짜 프로젝트에 등록되어 었는지 확인하시기 바랍니다.");
+                }
+            } catch(err) {
+                navigate("/error");
+            } finally {
+                setIsLoading(false);
             }
-            setIsLoading(false);
         }
     }
 
@@ -356,34 +368,42 @@ const SiteBase = () => {
         });
         
         setIsLoading(true);
-        const res = await Axios.POST("/worker/site-base", params);
-        
-        if (res?.data?.result === "Success") {
-            setIsModal(true);
-            setModalText("근로자 추가/수정에 성공하였습니다.");
-            if(tableRef.current){
-                tableRef.current.editModeCancel();
+        try {
+            const res = await Axios.POST("/worker/site-base", params);
+            
+            if (res?.data?.result === "Success") {
+                setIsModal(true);
+                setModalText("근로자 추가/수정에 성공하였습니다.");
+                if(tableRef.current){
+                    tableRef.current.editModeCancel();
+                }
+                setIsEdit(false);
+                getData();
+            }else {
+                setIsModal(true);
+                setModalText("근로자 추가/수정에 실패하였습니다.");
             }
-            setIsEdit(false);
-            getData();
-        }else {
-            setIsModal(true);
-            setModalText("근로자 추가/수정에 실패하였습니다.");
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-
-        setIsLoading(false);
     }
 
     // 출퇴근상태 코드 조회
     const getWorkStateDate = async() => {
         setIsLoading(true);
 
-        const res = await Axios.GET(`/code?p_code=WORK_STATE`);
-        if (res?.data?.result === "Success") {
-            dispatch({ type: "WORK_STATE_CODE", code: res?.data?.values?.list });
+        try {
+            const res = await Axios.GET(`/code?p_code=WORK_STATE`);
+            if (res?.data?.result === "Success") {
+                dispatch({ type: "WORK_STATE_CODE", code: res?.data?.values?.list });
+            }
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-
-        setIsLoading(false);
     }
 
     // 현장 근로자 조회
@@ -400,16 +420,21 @@ const SiteBase = () => {
         if (project.sno == null) return;
         setIsLoading(true);
 
-        const res = await Axios.GET(`/worker/site-base?page_num=${pageNum}&row_size=${rowSize}&order=${order}&rnum_order=${rnumOrder}&search_start_time=${searchStartTime}&search_end_time=${searchEndTime}&jno=${project.jno}&user_id=${searchValues.user_id}&user_nm=${searchValues.user_nm}&department=${searchValues.department}&retry_search=${retrySearchText}`);
-        if (res?.data?.result === "Success") {
-            if(res?.data?.values?.list.length === 0) {
-                setIsModal(true);
-                setModalTitle("현장 근로자 조회");
-                setModalText("조회된 현장 근로자 데이터가 없습니다.");
+        try {
+            const res = await Axios.GET(`/worker/site-base?page_num=${pageNum}&row_size=${rowSize}&order=${order}&rnum_order=${rnumOrder}&search_start_time=${searchStartTime}&search_end_time=${searchEndTime}&jno=${project.jno}&user_id=${searchValues.user_id}&user_nm=${searchValues.user_nm}&department=${searchValues.department}&retry_search=${retrySearchText}`);
+            if (res?.data?.result === "Success") {
+                if(res?.data?.values?.list.length === 0) {
+                    setIsModal(true);
+                    setModalTitle("현장 근로자 조회");
+                    setModalText("조회된 현장 근로자 데이터가 없습니다.");
+                }
+                dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
             }
-            dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false);
     };
 
     const { 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useReducer, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Axios } from "../../../../../utils/axios/Axios"
 import { dateUtil } from "../../../../../utils/DateUtil";
 import { useAuth } from "../../../../context/AuthContext";
@@ -51,6 +52,7 @@ const Site = () => {
         dailyWhether: [],
     })
 
+    const navigate = useNavigate();
     const { user } = useAuth();
 
     const [isMod, setIsMod] = useState(false);
@@ -162,21 +164,25 @@ const Site = () => {
         };
 
         setIsLoading(true);
-        const res = await Axios.POST("/site", param);
+        try{
+            const res = await Axios.POST("/site", param);
 
-        setModalTitle2("현장 생성");
-        if (res?.data?.result === "Success") {
-            setModalText2("선택한 프로젝트로 현장이 생성되었습니다.");
-            getData();
-        } else {
-            setModalText2("선택한 프로젝트로 현장을 생성하는데 실패하였습니다.");
+            setModalTitle2("현장 생성");
+            if (res?.data?.result === "Success") {
+                setModalText2("선택한 프로젝트로 현장이 생성되었습니다.");
+                getData();
+            } else {
+                setModalText2("선택한 프로젝트로 현장을 생성하는데 실패하였습니다.");
+            }
+            setModal2Confirm("확인");
+            setModal2Cancel("");
+            setModal2Type("ADD_SITE_RES");
+            setIsModal2(true);
+        } catch (err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-        setModal2Confirm("확인");
-        setModal2Cancel("");
-        setModal2Type("ADD_SITE_RES");
-        setIsModal2(true);
-
-        setIsLoading(false);
     }
 
     // 현장 상세 화면 종료
@@ -193,18 +199,22 @@ const Site = () => {
             mod_user: user.userName,
         }
         
-        const res = await Axios.PUT("/site", data);
-        
-        if (res?.data?.result === "Success") {
-            setModalText("현장 수정에 성공하였습니다.")
-            setIsDetail(false);
-            getData();
-        } else {
-            setModalText("현장 수정에 실패하였습니다.")
-            setIsMod(false);
+        try {
+            const res = await Axios.PUT("/site", data);
+            
+            if (res?.data?.result === "Success") {
+                setModalText("현장 수정에 성공하였습니다.")
+                setIsDetail(false);
+                getData();
+            } else {
+                setModalText("현장 수정에 실패하였습니다.")
+                setIsMod(false);
+            }
+            setModalTitle("현장관리 수정")
+            setIsOpenModal(true);
+        } catch(err) {
+            navigate("/error");
         }
-        setModalTitle("현장관리 수정")
-        setIsOpenModal(true);
     }
 
     // 날씨(강수형태) && 날씨(하늘상태)
@@ -289,19 +299,27 @@ const Site = () => {
 
     // 현장상태 조회
     const getSiteStatsData = async () => {
-        const res = await Axios.GET(`/site/stats?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}`);
+        try {
+            const res = await Axios.GET(`/site/stats?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}`);
 
-        if (res?.data?.result === "Success") {
-            dispatch({ type: "STATS", list: res?.data?.values?.list });
+            if (res?.data?.result === "Success") {
+                dispatch({ type: "STATS", list: res?.data?.values?.list });
+            }
+        } catch(err) {
+            navigate("/error");
         }
     }
 
     // 프로젝트별 근로자 수 조회
     const getWorkerCountData = async () => {
-        const res = await Axios.GET(`/project/worker-count?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}`);
-        
-        if (res?.data?.result === "Success") {
-            dispatch({ type: "COUNT", list: res?.data?.values?.list });
+        try {
+            const res = await Axios.GET(`/project/worker-count?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}`);
+            
+            if (res?.data?.result === "Success") {
+                dispatch({ type: "COUNT", list: res?.data?.values?.list });
+            }
+        } catch(err) {
+            navigate("/error");
         }
     }
 
@@ -309,35 +327,46 @@ const Site = () => {
     // 현장 정보 조회
     const getData = async () => {
         setIsLoading(true);
-
-        const res = await Axios.GET(`/site?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}&pCode=SITE_STATUS`);
-        
-        if (res?.data?.result === "Success") {
-            dispatch({ type: "INIT", site: res?.data?.values?.site, code: res?.data?.values?.code });
+        try {
+            const res = await Axios.GET(`/site?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}&pCode=SITE_STATUS`);
+            
+            if (res?.data?.result === "Success") {
+                dispatch({ type: "INIT", site: res?.data?.values?.site, code: res?.data?.values?.code });
+            }
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-
-        setIsLoading(false);
     }
 
     // 기상특보 현황 조회
     const getWarningData = async () => {
-        const res = await Axios.GET(`/api/whether/wrn`)
+        try {
+            const res = await Axios.GET(`/api/whether/wrn`)
 
-        if (res?.data?.result === "Success") {
-            setWarningData(res.data.values.list)
-        } else if (res?.data?.result === "Failure") {
+            if (res?.data?.result === "Success") {
+                setWarningData(res.data.values.list)
+            } else if (res?.data?.result === "Failure") {
 
+            }
+        } catch(err) {
+            navigate("/error");
         }
     }
 
     // 날씨 조회
     const getWhetherData = async () => {
-        const res = await Axios.GET(`/api/whether/srt`)
-        
-        if (res?.data?.result === "Success") {
-            dispatch({ type: "WHETHER", list: res?.data?.values?.list });
-        } else if (res?.data?.result === "Failure") {
+        try {
+            const res = await Axios.GET(`/api/whether/srt`)
+            
+            if (res?.data?.result === "Success") {
+                dispatch({ type: "WHETHER", list: res?.data?.values?.list });
+            } else if (res?.data?.result === "Failure") {
 
+            }
+        } catch(err) {
+            navigate("/error");
         }
     }
 

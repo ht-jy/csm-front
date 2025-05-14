@@ -1,9 +1,12 @@
+import { ObjChk } from "../../../../../utils/ObjChk";
+
 const SiteReducer = (state, action) => {
 
     switch (action.type){
         case "INIT":
             const setColor = (code) => {
-                const foundItem = action.code.find(item => item.code == code);
+                const codeList = ObjChk.ensureArray(action.code);
+                const foundItem = codeList.find(item => item.code == code);
                 return foundItem ? foundItem.code_color : undefined;
             }
 
@@ -18,10 +21,11 @@ const SiteReducer = (state, action) => {
                 equip_count: 0,
             };
             
-            action.site.map((site, idx) => {
+            const siteList = Array.isArray(action.site) ? action.site : [];
+            siteList.map((site, idx) => {
                 const projectList = site.project_list;
-                const defaultProject = projectList?.find((prj) => prj.is_default === "Y");
-                const projectLength = projectList?.length;
+                const defaultProject = Array.isArray(projectList) ? projectList.find(prj => prj.is_default === "Y") : null;
+                const projectLength = Array.isArray(projectList) ? projectList.length : 0;
                 const rowSpan = projectLength > 1 ? projectList?.length + 1 : 1;
                 const originalOrderCompName = defaultProject?.order_comp_name ?? "";
                 const siteStatsColor = setColor(site.current_site_stats);
@@ -30,10 +34,10 @@ const SiteReducer = (state, action) => {
                     {...site, type: "main", rowSpan: rowSpan, originalOrderCompName: originalOrderCompName, siteStatsColor: siteStatsColor}
                 );
                 
-                if(projectList.length > 1){
-                    projectList.map(item => {
+                if (Array.isArray(projectList) && projectList.length > 1) {
+                    projectList.forEach(item => {
                         sites.push({...item, type: "sub"});
-                    })
+                    });
                 }
             });
 
@@ -51,7 +55,7 @@ const SiteReducer = (state, action) => {
                             total.equip_count += item.equip_count;
             
                             if (Array.isArray(item.daily_content_list)) {
-                                const contents = item.daily_content_list.map(item2 => item2.content);
+                                const contents = Array.isArray(item.daily_content_list) ? item.daily_content_list.map(item2 => item2.content) : [];
                                 dailyContents.push(...contents);
                             }
                         });
@@ -66,12 +70,12 @@ const SiteReducer = (state, action) => {
             return {...state, list: JSON.parse(JSON.stringify(newSites)), code: JSON.parse(JSON.stringify(action.code)), dailyTotalCount: JSON.parse(JSON.stringify(total))};
         case "STATS":
             const setColor2 = (code) => {
-                const foundItem = state.code.find(item => item.code == code);
+                const foundItem = state?.code?.find(item => item.code == code);
                 return foundItem ? foundItem.code_color : undefined;
             }
 
-            const stats = action.list;
-            let list = state.list;
+            const stats = Array.isArray(action?.list) ? action.list : [];;
+            let list = Array.isArray(state?.list) ? state.list : [];
             list = list?.map(site => {
                 const matchingItem = stats.find(item => site.sno === item.sno);
                 if (matchingItem) {
@@ -82,7 +86,7 @@ const SiteReducer = (state, action) => {
 
             return {...state, list: JSON.parse(JSON.stringify(list))};
         case "COUNT":
-            const count = action.list;
+            const count = Array.isArray(action?.list) ? action.list : [];
             let list2 = state.list;
             const total2 = {
                 worker_count_date: 0,
@@ -98,33 +102,36 @@ const SiteReducer = (state, action) => {
                     const matchingItems = count.filter(item => item.sno === site.sno);
                     site.project_list.map(item => {
                         const matchingItem = matchingItems.find(obj => obj.jno === item.jno);
-                        item.worker_count_all = matchingItem.worker_count_all;
-                        item.worker_count_date = matchingItem.worker_count_date;
-                        item.worker_count_htenc = matchingItem.worker_count_htenc;
-                        item.worker_count_manager = matchingItem.worker_count_manager;
-                        item.worker_count_not_manager = matchingItem.worker_count_not_manager;
-                        item.worker_count_safe = matchingItem.worker_count_safe;
-                        item.worker_count_work = matchingItem.worker_count_work;
-                        
-                        total2.worker_count_date += matchingItem.worker_count_date;
-                        total2.worker_count_htenc += matchingItem.worker_count_htenc;
-                        total2.worker_count_manager += matchingItem.worker_count_manager;
-                        total2.worker_count_not_manager += matchingItem.worker_count_not_manager;
-                        total2.worker_count_safe += matchingItem.worker_count_safe;
-                        total2.worker_count_work += matchingItem.worker_count_work;
-                        total2.equip_count += matchingItem.equip_count;
-
+                        if (matchingItem){
+                            item.worker_count_all = matchingItem.worker_count_all;
+                            item.worker_count_date = matchingItem.worker_count_date;
+                            item.worker_count_htenc = matchingItem.worker_count_htenc;
+                            item.worker_count_manager = matchingItem.worker_count_manager;
+                            item.worker_count_not_manager = matchingItem.worker_count_not_manager;
+                            item.worker_count_safe = matchingItem.worker_count_safe;
+                            item.worker_count_work = matchingItem.worker_count_work;
+                            
+                            total2.worker_count_date += matchingItem.worker_count_date;
+                            total2.worker_count_htenc += matchingItem.worker_count_htenc;
+                            total2.worker_count_manager += matchingItem.worker_count_manager;
+                            total2.worker_count_not_manager += matchingItem.worker_count_not_manager;
+                            total2.worker_count_safe += matchingItem.worker_count_safe;
+                            total2.worker_count_work += matchingItem.worker_count_work;
+                            total2.equip_count += matchingItem.equip_count;
+                        }
                         return item;
                     })
                 }else{
                     const matchingItem = count.find(obj => obj.jno === site.jno);
-                    site.worker_count_all = matchingItem.worker_count_all;
-                    site.worker_count_date = matchingItem.worker_count_date;
-                    site.worker_count_htenc = matchingItem.worker_count_htenc;
-                    site.worker_count_manager = matchingItem.worker_count_manager;
-                    site.worker_count_not_manager = matchingItem.worker_count_not_manager;
-                    site.worker_count_safe = matchingItem.worker_count_safe;
-                    site.worker_count_work = matchingItem.worker_count_work;
+                    if (matchingItem) {
+                        site.worker_count_all = matchingItem.worker_count_all;
+                        site.worker_count_date = matchingItem.worker_count_date;
+                        site.worker_count_htenc = matchingItem.worker_count_htenc;
+                        site.worker_count_manager = matchingItem.worker_count_manager;
+                        site.worker_count_not_manager = matchingItem.worker_count_not_manager;
+                        site.worker_count_safe = matchingItem.worker_count_safe;
+                        site.worker_count_work = matchingItem.worker_count_work;
+                    }
                 }
                 return site;
             });
@@ -133,12 +140,16 @@ const SiteReducer = (state, action) => {
         
         case "WHETHER" :
             const whethers = [];
-            action.list.map(item => {
+            const whetherList = Array.isArray(action?.list) ? action.list : [];
+            whetherList.map(item => {
                 if(item.whether.length !== 0){
                     whethers.push(item);
                 }
             });
             return {...state, dailyWhether: structuredClone(whethers)};
+
+        default:
+            return state;
     }
 }
 

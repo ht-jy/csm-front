@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react"
+import { useAuth } from "../../../../context/AuthContext";
+import { Axios } from "../../../../../utils/axios/Axios";
+import { useNavigate } from "react-router-dom";
+import { ObjChk } from "../../../../../utils/ObjChk";
+import { arrayMove, verticalListSortingStrategy, SortableContext } from '@dnd-kit/sortable';
+import { DndContext, pointerWithin } from '@dnd-kit/core';
+import Modal from "../../../../module/Modal";
 import TextInput from "../../../../module/TextInput";
 import Toggle from "../../../../module/Toggle";
 import Button from "../../../../module/Button"
 import ColorInput from "../../../../module/ColorInput";
-import { useAuth } from "../../../../context/AuthContext";
-import { Axios } from "../../../../../utils/axios/Axios";
-import Modal from "../../../../module/Modal";
-import { ObjChk } from "../../../../../utils/ObjChk";
 import Loading from "../../../../module/Loading";
 import SortedTableRow from "./SortedTableRow";
-import { arrayMove, verticalListSortingStrategy, SortableContext } from '@dnd-kit/sortable';
-import { DndContext, pointerWithin } from '@dnd-kit/core';
 /**
  * @description: 
  * 
@@ -37,6 +38,7 @@ import { DndContext, pointerWithin } from '@dnd-kit/core';
  *    @dnd-kit/core: 드래그앤드롭 이벤트
  */
 const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
+    const navigate = useNavigate();
 
     const [isLoading, setIsLoading] = useState(false);
     const [isAdd, setIsAdd] = useState(false);
@@ -55,46 +57,51 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
 
     // 코드추가 버튼 클릭 시
     const handleAddCode = () => {
-        setIsAdd(true)
+        setIsAdd(true);
     }
 
     // 순서변경 버튼 클릭 시
     const handleSortNoChange = () => {
-        setCodeTrees([...data[0].codeTrees])
-        setIsSortNoEdit(true)
+        setCodeTrees([...data[0].codeTrees]);
+        setIsSortNoEdit(true);
     }
 
     // 순서 저장 Axios 요청
     const sortNoSave = async () => {
 
-        setIsOpenModal(false)
-        setIsConfirmButton(false)
-        setIsLoading(true)
-        const sortSet = []
-        codeTrees.map((codeTree, index) => (
-            sortSet.push({ idx: codeTree.idx, sort_no: index })
-        ))
+        setIsOpenModal(false);
+        setIsConfirmButton(false);
+        setIsLoading(true);
+        try {
+            const sortSet = [];
+            codeTrees.map((codeTree, index) => (
+                sortSet.push({ idx: codeTree.idx, sort_no: index })
+            ));
 
-        const res = await Axios.POST(`/code/sort`, sortSet)
+            const res = await Axios.POST(`/code/sort`, sortSet);
 
-        if (res?.data?.result === "Success") {
+            if (res?.data?.result === "Success") {
 
-            // 데이터 초기화
-            funcRefreshData()
-        } else {
+                // 데이터 초기화
+                funcRefreshData();
+            } else {
+            }
+            setIsSortNoEdit(false);
+        } catch (err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-        setIsSortNoEdit(false)
-        setIsLoading(false)
 
     }
 
     // 순서 저장 버튼 클릭 시
     const handleSortNoSave = () => {
 
-        setIsOpenModal(true)
-        setIsConfirmButton(true)
-        setModalTitle("저장하시겠습니까?")
-        setModalText("저장 시 현재 화면은 초기화 됩니다.")
+        setIsOpenModal(true);
+        setIsConfirmButton(true);
+        setModalTitle("저장하시겠습니까?");
+        setModalText("저장 시 현재 화면은 초기화 됩니다.");
     }
 
 
@@ -117,17 +124,17 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
                 sort_no: null,
                 is_use: null,
                 etc: "",
-            }
-            setCodeSet({ ...code })
+            };
+            setCodeSet({ ...code });
         }
         else {
-            setCodeSet({ ...set })
+            setCodeSet({ ...set });
         }
     }
 
     // 데이터 추가 시 값 변경
     const onChangeTableData = (name, value) => {
-        codeSet[name] = value
+        codeSet[name] = value;
     }
 
     // 저장 버튼 클릭 시
@@ -135,152 +142,167 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
 
         // 코드ID 미기입 시
         if (ObjChk.all(codeSet.code)) {
-            setIsOpenModal(true)
-            setIsConfirmButton(false)
-            setModalTitle("입력 오류")
-            setModalText("코드ID를 입력해 주세요.")
-            return
+            setIsOpenModal(true);
+            setIsConfirmButton(false);
+            setModalTitle("입력 오류");
+            setModalText("코드ID를 입력해 주세요.");
+            return;
         }
         // 코드명 미기입 시
         else if (ObjChk.all(codeSet.code_nm)) {
-            setIsOpenModal(true)
-            setIsConfirmButton(false)
-            setModalTitle("입력 오류")
-            setModalText("코드명을 입력해 주세요.")
-            return
+            setIsOpenModal(true);
+            setIsConfirmButton(false);
+            setModalTitle("입력 오류");
+            setModalText("코드명을 입력해 주세요.");
+            return;
         } else if(!isEdit) { // 초기 생성 시에만 codeID 중복확인하도록 설정
             // codeID 중복 확인
-            const res = await Axios.GET(`code/check?code=${codeSet.code}`)
+            try {
+                const res = await Axios.GET(`code/check?code=${codeSet.code}`);
 
-            if (res?.data?.result === "Success") {
-                if (res?.data?.values) {
-                    // true면 중복이라는 뜻
-                    setIsOpenModal(true)
-                    setIsConfirmButton(false)
-                    setModalTitle("중복 오류")
-                    setModalText("코드ID는 중복이 불가합니다. 다른 값을 입력해 주세요.")
-                    return
+                if (res?.data?.result === "Success") {
+                    if (res?.data?.values) {
+                        // true면 중복이라는 뜻
+                        setIsOpenModal(true);
+                        setIsConfirmButton(false);
+                        setModalTitle("중복 오류");
+                        setModalText("코드ID는 중복이 불가합니다. 다른 값을 입력해 주세요.");
+                        return;
+                    }
+
+                // 중복 확인 실패한 경우
+                } else {
+                    setIsOpenModal(true);
+                    setIsConfirmButton(false);
+                    setModalTitle("서버에러");
+                    setModalText("서버가 불안정합니다. 다시 시도해주세요.");
+                    return;
                 }
-
-            // 중복 확인 실패한 경우
-            } else {
-                setIsOpenModal(true)
-                setIsConfirmButton(false)
-                setModalTitle("서버에러")
-                setModalText("서버가 불안정합니다. 다시 시도해주세요.")
-                return
+            } catch(err) {
+                navigate("/error");
             }
         }
 
         // 저장하시겠습니까? 모달 띄우기 확인을 누를 경우 save 실행
-        setIsOpenModal(true)
-        setIsConfirmButton(true)
-        setModalTitle("저장하시겠습니까?")
-        setModalText("저장 시 현재 화면은 초기화됩니다.")
+        setIsOpenModal(true);
+        setIsConfirmButton(true);
+        setModalTitle("저장하시겠습니까?");
+        setModalText("저장 시 현재 화면은 초기화됩니다.");
 
     }
 
     // 저장 확인을 누르면 실행되는 함수
     const save = async () => {
-        setIsLoading(true)
+        setIsLoading(true);
 
-        codeSet.reg_uno = user.uno
-        codeSet.reg_user = user.userName
+        codeSet.reg_uno = user.uno;
+        codeSet.reg_user = user.userName;
 
-        const res = await Axios.POST("/code", codeSet)
-        if (res?.data?.result === "Success") {
-            setIsEdit(false)
-            initCodeSet()
-            // 화면 초기화하기
-            funcRefreshData()
+        try {
+            const res = await Axios.POST("/code", codeSet);
+            if (res?.data?.result === "Success") {
+                setIsEdit(false);
+                initCodeSet();
+                // 화면 초기화하기
+                funcRefreshData();
 
-        } else {
+            } else {
 
+            }
+            setIsOpenModal(false);
+            setIsConfirmButton(false);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-        setIsOpenModal(false)
-        setIsLoading(false)
-        setIsConfirmButton(false)
     }
 
     // 삭제 확인을 누르면 실행되는 함수
     const deleteCode = async () => {
-        setIsLoading(true)
-        setIsOpenModal(false)
+        setIsLoading(true);
+        setIsOpenModal(false);
 
         if (idx === -1) {
-            setIsOpenModal(true)
-            setIsConfirmButton(false)
-            setModalTitle("삭제 실패")
-            setModalText("삭제에 실패했습니다.")
+            setIsOpenModal(true);
+            setIsConfirmButton(false);
+            setModalTitle("삭제 실패");
+            setModalText("삭제에 실패했습니다.");
 
-            setIsLoading(false)
-            return
+            setIsLoading(false);
+            return;
         }
 
-        const res = await Axios.DELETE(`/code/${idx}`)
-        setIsLoading(false)
-        if (res?.data?.result === "Success") {
-            setIsOpenModal(true)
-            setIsConfirmButton(false)
-            setModalTitle("삭제 성공")
-            setModalText("삭제에 성공했습니다.")
-            funcRefreshData()
-        } else {
-            setIsOpenModal(true)
-            setIsConfirmButton(false)
-            setModalTitle("삭제 실패")
-            setModalText("삭제에 실패했습니다.")
+        try {
+            const res = await Axios.DELETE(`/code/${idx}`);
+            
+            if (res?.data?.result === "Success") {
+                setIsOpenModal(true);
+                setIsConfirmButton(false);
+                setModalTitle("삭제 성공");
+                setModalText("삭제에 성공했습니다.");
+                funcRefreshData();
+            } else {
+                setIsOpenModal(true);
+                setIsConfirmButton(false);
+                setModalTitle("삭제 실패");
+                setModalText("삭제에 실패했습니다.");
+            }
+            setIdx(-1);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-        setIdx(-1)
     }
 
     // 삭제 버튼 클릭 시
     const onCilckDeleteButton = (idx) => {
         // IDX로 삭제 API
-        setIdx(idx)
-        setIsOpenModal(true)
-        setIsConfirmButton(true)
-        setModalTitle("삭제하시겠습니까?")
-        setModalText("삭제 시 영원히 복구 할 수 없습니다.")
+        setIdx(idx);
+        setIsOpenModal(true);
+        setIsConfirmButton(true);
+        setModalTitle("삭제하시겠습니까?");
+        setModalText("삭제 시 영원히 복구 할 수 없습니다.");
     }
 
     // 취소 버튼 클릭 시
     const onCilckCancleButton = (mode) => {
         // 이전 값으로 돌려놓기. edit모드를 제거하면 될 것 같음.
         if (mode === "EDIT") {
-            setIsEdit(false)
+            setIsEdit(false);
         }
         else if (mode === "ADD") {
-            setIsAdd(false)
+            setIsAdd(false);
         }
-        initCodeSet()
+        initCodeSet();
     }
 
     // 수정 버튼 클릭 시
     const onCilckEditButton = (no, data) => {
-        initCodeSet(data)
-        setIsEdit(true)
-        setEditNo(no)
+        initCodeSet(data);
+        setIsEdit(true);
+        setEditNo(no);
     }
 
     // 순서 변경 시 아이콘을 놓으면 배열 순서 변경
     const handleDragEnd = ({ active, over }) => {
-        if (!over || !active || active.id.idx === over.id.idx) { return }
+        if (!over || !active || active.id.idx === over.id.idx) { return; }
 
-        const oldIndex = codeTrees.findIndex(codeTree => codeTree.idx === active.id.idx)
-        const newIndex = codeTrees.findIndex(codeTree => codeTree.idx === over.id.idx)
+        const oldIndex = codeTrees.findIndex(codeTree => codeTree.idx === active.id.idx);
+        const newIndex = codeTrees.findIndex(codeTree => codeTree.idx === over.id.idx);
         if (oldIndex !== -1 && newIndex !== -1) {
-            const newData = arrayMove(codeTrees, oldIndex, newIndex)
-            setCodeTrees([...newData])
+            const newData = arrayMove(codeTrees, oldIndex, newIndex);
+            setCodeTrees([...newData]);
         }
     }
 
 
     // 데이터가 변경 시 추가 테이블 삭제 및 순서변경모드 해제
     useEffect(() => {
-        setIsAdd(false)
-        setIsSortNoEdit(false)
-        setEditNo(-1)
+        setIsAdd(false);
+        setIsSortNoEdit(false);
+        setEditNo(-1);
     }, [data])
 
     // 추가값 변경 시 

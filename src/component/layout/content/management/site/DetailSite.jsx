@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import { Axios } from "../../../../../utils/axios/Axios";
 import DateInput from "../../../../module/DateInput";
@@ -36,6 +37,7 @@ import { useAuth } from "../../../../context/AuthContext";
  * 
  */
 const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChangeValue, addressData, isSiteAdd}) => {
+    const navigate = useNavigate();
     const { user } = useAuth();
 
     const { getData, setIsDetail } = useContext(SiteContext);
@@ -217,6 +219,7 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
         setIsNonUseCheckOpen(false);
         
         setIsLoading(true);
+        try {
             const res = await Axios.PUT(`/site/non-use`, {
                 sno: data.sno || 0,
                 mod_uno: user.uno,
@@ -229,7 +232,11 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
                 setNonUseConfirmText("현장 완료 처리에 실패하였습니다.\n잠시 후에 다시 시도하여 주세요.");
             }
             setIsNonUseConfirm(true);
-        setIsLoading(false);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     // 작업완료 성공 확인 이벤트

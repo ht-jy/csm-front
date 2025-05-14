@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
+import { useNavigate } from "react-router-dom";
 import Table from "../../../../module/Table";
 import "../../../../../assets/css/Table.css";
 
@@ -18,6 +19,8 @@ import "../../../../../assets/css/Table.css";
  *    Http Method - GET : /company/job-info (jon(프로젝트) 정보)
  */
 const CompanyJobInfo = ({jno, styles}) => {
+    const navigate = useNavigate();
+
     const [jobInfo, setJobInfo] = useState([]);
 
     const columns = [
@@ -40,9 +43,13 @@ const CompanyJobInfo = ({jno, styles}) => {
     // jon(프로젝트) 정보 조회
     const getData = async () => {
         if (jno != null) {   
-            const res = await Axios.GET(`/company/job-info?jno=${jno}`);
-            if (res?.data?.result === "Success") {
-                addJonInfo(res.data.values.data); // null 체크 후 데이터 추가
+            try {
+                const res = await Axios.GET(`/company/job-info?jno=${jno}`);
+                if (res?.data?.result === "Success") {
+                    addJonInfo(res.data.values.data); // null 체크 후 데이터 추가
+                }
+            } catch(err) {
+                navigate("/error");
             }
         }
     };

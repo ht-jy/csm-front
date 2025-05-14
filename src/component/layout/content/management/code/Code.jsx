@@ -1,6 +1,7 @@
 import CodeList from "./CodeList"
 import SubCodeList from "./SubCodeList"
 import { Axios } from "../../../../../utils/axios/Axios"
+import { useNavigate } from "react-router-dom";
 import { useEffect, useReducer, useState } from "react";
 import CodeReducer, { initialState } from "./CodeReducer";
 import Loading from "../../../../module/Loading";
@@ -21,6 +22,7 @@ import Loading from "../../../../module/Loading";
  * - 주요 상태 관리: CodeReducer
  */
 const Code = () => {
+    const navigate = useNavigate();
     const [state, dispatch] = useReducer(CodeReducer, initialState);
     const [treeData, setTreeData] = useState([]);
     const [isDataChange, setIsDataChange] = useState(true);
@@ -46,17 +48,21 @@ const Code = () => {
     // codeTrees 데이터 가져오는 API
     const getData = async () => {
         setIsLoading(true)
+        try {
+            const res = await Axios.GET("/code/tree")
 
-        const res = await Axios.GET("/code/tree")
+            if (res.data?.result === "Success") {
+                setTreeData(res.data?.values?.code_trees)
 
-        if (res.data?.result === "Success") {
-            setTreeData(res.data?.values?.code_trees)
-
-        } else {
+            } else {
+            }
+            setIsDataChange(false)
+            dispatch({type: "path", path: ""})
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false)
         }
-        setIsDataChange(false)
-        dispatch({type: "path", path: ""})
-        setIsLoading(false)
     }
 
     // 처음에 데이터 가져오기. 저장 시 가져오기

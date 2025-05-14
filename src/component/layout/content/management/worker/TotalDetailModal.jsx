@@ -3,6 +3,7 @@ import { Axios } from "../../../../../utils/axios/Axios";
 import { Common } from "../../../../../utils/Common";
 import { ObjChk } from "../../../../../utils/ObjChk";
 import { dateUtil } from "../../../../../utils/DateUtil";
+import { useNavigate } from "react-router-dom";
 import Radio from "../../../../module/Radio";
 import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
 import DateInput from "../../../../module/DateInput";
@@ -39,6 +40,8 @@ import Modal from "../../../../module/Modal";
  *  removeBtnClick: 삭제버튼 function
  */
 const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, detailData, selectList, exitBtnClick, saveBtnClick, removeBtnClick, isCancle = true }) => {
+    const navigate = useNavigate();
+
     const [isEdit, setIsEdit] = useState(false);
     const [formData, setFormData] = useState({});
     const [initialData, setInitialData] = useState([]); // 원본 데이터 저장
@@ -66,11 +69,16 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
             onChangeFormData("site_nm", "-");
             return
         }
-        const res = await Axios.GET(`/site/nm?page_num=${1}&row_size=${10}&order=&sno=${sno}&site_nm=&loc_name=&etc=`);
-        if (res?.data?.result === "Success") {
-            onChangeFormData("site_nm", res.data.values?.list[0]?.site_nm);
-        } else{
-            onChangeFormData("site_nm", "-");
+
+        try {
+            const res = await Axios.GET(`/site/nm?page_num=${1}&row_size=${10}&order=&sno=${sno}&site_nm=&loc_name=&etc=`);
+            if (res?.data?.result === "Success") {
+                onChangeFormData("site_nm", res.data.values?.list[0]?.site_nm);
+            } else{
+                onChangeFormData("site_nm", "-");
+            }
+        } catch(err) {
+            navigate("/error");
         }
     }
 
@@ -161,10 +169,14 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
 
     // 근로자 구분 코드 조회
     const getWorkerType = async() => {
-        const res = await Axios.GET(`/code?p_code=WORKER_TYPE`);
+        try {
+            const res = await Axios.GET(`/code?p_code=WORKER_TYPE`);
 
-        if (res?.data?.result === "Success") {
-            setWorkerTypes(res?.data?.values?.list);
+            if (res?.data?.result === "Success") {
+                setWorkerTypes(res?.data?.values?.list);
+            }
+        } catch(err) {
+            navigate("/error");
         }
     }
 
