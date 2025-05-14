@@ -12,6 +12,7 @@ import CancelIcon from "../../../../../assets/image/cancel.png";
 import EyeIcon from "../../../../../assets/image/eye-alert.png";
 import "../../../../../assets/css/TotalDetailModal.css";
 import "../../../../../assets/css/Input.css";
+import Modal from "../../../../module/Modal";
 
 /**
  * @description: 전체 근로자 상세화면 모달 컴포넌트
@@ -48,7 +49,9 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
     /** 근로자 코드 **/
     const [workerTypes, setWorkerTypes] = useState([]);
     const [isProjectOpenModal, setIsProjectOpenModal] = useState(false);
-
+    /** 모달 **/
+    const [isModal, setIsModal] = useState(false);
+    const [modalText, setModalText] = useState("");
 
     // 입력값 변경 핸들러
     const onChangeFormData = (key, value) => {
@@ -113,7 +116,16 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
     // 저장, 수정
     const handleSave = (e) => {
         document.body.style.overflow = 'unset';
-        saveBtnClick(formData, gridMode);  // 최종 데이터를 전달            
+        
+        if(formData.project === undefined){
+            setModalText("프로젝트를 선택하여 주세요.");
+            setIsModal(true);
+        }else if(formData.user_id === undefined || formData.user_id === ""){
+            setModalText("아이디를 입력하여 주세요.");
+            setIsModal(true);
+        }else{
+            saveBtnClick(formData, gridMode);
+        }
     };
 
     // 삭제
@@ -213,6 +225,13 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
 
         return (
         <div>
+            <Modal
+                isOpen={isModal}
+                title={"전체 근로자 관리"}
+                text={modalText}
+                confirm={"확인"}
+                fncConfirm={() => setIsModal(false)}
+            />
             {isOpen ? (
                 <div style={overlayStyle}>
                     <div style={modalStyle}>

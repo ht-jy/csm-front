@@ -84,10 +84,10 @@ function Login() {
                             <img src={Logo} alt="hitech_logo" />
                             <h6>공 사 관 리 시 스 템</h6>
                             <form className="signin-form">
-                                <div className="form-input">
+                                <div className="login-input">
                                     <input onChange={handleUser} type="text" name="userId" placeholder="아이디" required="" autoComplete="username"/>
                                 </div>
-                                <div className="form-input">
+                                <div className="login-input">
                                     <input onChange={handlePwd} type="password" name="password" placeholder="패스워드" required="" autoComplete="current-password"/>
                                 </div>
                                 <div className="save-checkbox">

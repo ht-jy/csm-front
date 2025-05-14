@@ -138,7 +138,7 @@ a.brand-logo {
     margin-bottom: 20px;
 }
 
-.w3l-login .form-input input[type="email"], .w3l-login .form-input input[type="password"], .w3l-login .form-input input[type="text"] {
+.w3l-login .login-input input[type="email"], .w3l-login .login-input input[type="password"], .w3l-login .login-input input[type="text"] {
     background: #fff;
     border: none;
     outline: none;
@@ -152,14 +152,14 @@ a.brand-logo {
     border-radius: 4px;
 }
 
-.w3l-login .form-input input[type="email"]:focus, .w3l-login .form-input input[type="password"]:focus, .w3l-login .form-input input[type="text"]:focus {
+.w3l-login .login-input input[type="email"]:focus, .w3l-login .login-input input[type="password"]:focus, .w3l-login .login-input input[type="text"]:focus {
     background: #fff;
     color: #090909;
     border: 1px solid #1976d2;
     border-radius: 4px;
 }
 
-.w3l-login .form-input {
+.w3l-login .login-input {
     margin: 10px 0 10px 0;
     background: rgba(249, 250, 255, 0.09);
     display: grid;
