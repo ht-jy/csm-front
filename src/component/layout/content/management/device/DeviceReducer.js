@@ -1,31 +1,28 @@
+import { ObjChk } from "../../../../../utils/ObjChk";
 
 
 const DeviceReducer = (state, action) => {
     switch (action.type) {
         case "INIT":
 
-            const devices = action.list.map((device) =>  ( {...device} ) )
-            devices.forEach( device => {
-                if(device.is_use === "Y"){
-                    device.is_use = "사용중"
-                }else{
-                    device.is_use = "사용안함"
-                }
-            });
+            const devices = (ObjChk.ensureArray(action.list)).map(device => ({
+                ...device,
+                is_use: device?.is_use === "Y" ? "사용중" : "사용안함"
+            }));
             
-            return { ...state, list: JSON.parse(JSON.stringify(action.list)), count: action.count, devices: JSON.parse(JSON.stringify(devices))};
+            return { ...state, list: structuredClone(ObjChk.ensureArray(action.list)), count: action.count ?? 0, devices: structuredClone(ObjChk.ensureArray(action.list))};
 
         case "SITE_NM":
 
-            const siteNm = [];
-            action.list.map((item, idx) => {
-                siteNm.push({ value: item.sno, label: item.site_nm });
-            })
+            const siteNm = ObjChk.ensureArray(action.list).map((item, idx) => ({ value: item.sno, label: item.site_nm }))
 
             const selectList = {
                 siteNm: siteNm
             }
             return { ...state, selectList: JSON.parse(JSON.stringify(selectList)) };
+        
+        default:
+            return state;
     }
 }
 

@@ -11407,3 +11407,64 @@ html, body, #root, .App {
 .content-title-sub {
   padding-bottom: 4px;
 }
+
+.marker-button {
+  position: absolute;
+  top: 287px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  background-color: rgba(0, 0, 0, 0.35);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  width: 42px;
+  height: 40px;
+}
+.marker-button:hover {
+  background-color: rgba(0, 0, 0, 0.45);
+}
+
+.fullscreen-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 500;
+  background-color: rgba(0, 0, 0, 0.35);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+.fullscreen-button:hover {
+  background-color: rgba(0, 0, 0, 0.45);
+}
+
+.map-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+}
+
+.fullscreen-map-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1200px;
+  height: 800px;
+  background-color: white;
+  z-index: 1001;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  overflow: hidden;
+}

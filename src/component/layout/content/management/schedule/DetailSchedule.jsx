@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
+import { useNavigate } from "react-router-dom";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import Loading from "../../../../module/Loading";
 import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
@@ -34,6 +35,8 @@ import { ObjChk } from "../../../../../utils/ObjChk";
  * dailyJobRemoveBtnClick: 작업내용 삭제 함수
  */
 const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBtnClick, restModifyBtnClick, restRemoveBtnClick, dailyJobModifyBtnClick, dailyJobRemoveBtnClick}) => {
+    const navigate = useNavigate();
+
     const [isLoading, setIsLoading] = useState(false);
     const [remove, setRemove] = useState("N");
     const [edit, setEdit] = useState("N");
@@ -137,18 +140,21 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
     // 프로젝트 리스트 조회
     const getProjectData = async () => {
         setIsLoading(true);
-
-        const res = await Axios.GET(`/project/job_name`);
-        if (res?.data?.result === "Success") {
-            const options = [{value:0, label: "전체 적용"}];
-            res?.data?.values?.list.map(item => {
-                options.push({value: item.jno, label: item.project_nm});
-            });
-            setProjectOptions(options);
-        }
-
+        try {
+            const res = await Axios.GET(`/project/job_name`);
+            if (res?.data?.result === "Success") {
+                const options = [{value:0, label: "전체 적용"}];
+                res?.data?.values?.list.map(item => {
+                    options.push({value: item.jno, label: item.project_nm});
+                });
+                setProjectOptions(options);
+            }
+            return true;
+        } catch(err) {
+            navigate("/error");
+        } finally {
         setIsLoading(false);
-        return true;
+        }
     }
 
     /***** useEffect *****/

@@ -8,7 +8,7 @@ export const Axios = {
         .then(res => {
             data = res;
         }).catch(err => {
-            console.log("Axios GET error / url:", url, " err:", err);
+            // console.log("Axios GET error / url:", url, " err:", err);
         });
 
         return data;
@@ -18,7 +18,7 @@ export const Axios = {
         .then(res => {
             data = res;
         }).catch(err => {
-            console.log("Axios POST error / url:", url, " err:", err);
+            // console.log("Axios POST error / url:", url, " err:", err);
         });
 
         return data;
@@ -28,7 +28,7 @@ export const Axios = {
         .then(res => {
             data = res;
         }).catch(err => {
-            console.log("Axios PUT error / url:", url, " err:", err);
+            // console.log("Axios PUT error / url:", url, " err:", err);
         });
 
         return data;
@@ -38,7 +38,7 @@ export const Axios = {
         .then(res => {
             data = res;
         }).catch(err => {
-            console.log("Axios DELETE error / url:", url, " err:", err);
+            // console.log("Axios DELETE error / url:", url, " err:", err);
         });
 
         return data;
@@ -68,7 +68,7 @@ export const Axios = {
                 data = {data:{result:"Success"}};
             }
         }).catch(err => {
-            console.log("Axios POST error / url:", url, " err:", err);
+            // console.log("Axios POST error / url:", url, " err:", err);
         });
 
         return data;

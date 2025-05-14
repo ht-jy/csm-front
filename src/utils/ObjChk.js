@@ -8,4 +8,7 @@ export const ObjChk = {
     , all(obj){
         return obj === null || obj === undefined || obj == "" ? true : false;
     }
+    , ensureArray(obj){
+        return Array.isArray(obj) ? obj : [];
+    }
 }

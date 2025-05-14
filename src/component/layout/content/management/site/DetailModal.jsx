@@ -167,17 +167,21 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
 
     // 프로젝트 추가
     const addProject = async() => {
-        const res  = await Axios.POST("/project", addItem)
-                
-        if( res?.data?.result === "Success"){
-            setModalText("프로젝트 추가에 성공하였습니다.");
-        }else{
-            setModalText("프로젝트 추가에 실패하였습니다.");
+        try {
+            const res  = await Axios.POST("/project", addItem)
+                    
+            if( res?.data?.result === "Success"){
+                setModalText("프로젝트 추가에 성공하였습니다.");
+            }else{
+                setModalText("프로젝트 추가에 실패하였습니다.");
+            }
+            setModalConfirmText("확인");
+            setModalfncType("addProjectResult")
+            setModalTitle("현장 프로젝트 추가");
+            setIsModal(true);
+        } catch(err) {
+            navigate("/error");
         }
-        setModalConfirmText("확인");
-        setModalfncType("addProjectResult")
-        setModalTitle("현장 프로젝트 추가");
-        setIsModal(true);
     }
 
     // 프로젝트 삭제
@@ -198,17 +202,21 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
 
     // 프로젝트 삭제
     const deleteProject = async() => {
-        const res  = await Axios.DELETE(`/project/${deleteItem.sno}/${deleteItem.jno}`)
-                
-        if( res?.data?.result === "Success"){
-            setModalText("프로젝트 삭제에 성공하였습니다.");
-        }else{
-            setModalText("프로젝트 삭제에 실패하였습니다.");
+        try {
+            const res  = await Axios.DELETE(`/project/${deleteItem.sno}/${deleteItem.jno}`)
+                    
+            if( res?.data?.result === "Success"){
+                setModalText("프로젝트 삭제에 성공하였습니다.");
+            }else{
+                setModalText("프로젝트 삭제에 실패하였습니다.");
+            }
+            setModalConfirmText("확인");
+            setModalfncType("deleteProjectResult")
+            setModalTitle("현장 프로젝트 삭제");
+            setIsModal(true);
+        } catch(err) {
+            navigate("/error");
         }
-        setModalConfirmText("확인");
-        setModalfncType("deleteProjectResult")
-        setModalTitle("현장 프로젝트 삭제");
-        setIsModal(true);
     }
 
     /***** useEffect *****/

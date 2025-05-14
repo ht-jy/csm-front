@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useState } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { useAuth } from "../../../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import Select from 'react-select';
 import useTableControlState from "../../../../../utils/hooks/useTableControlState";
 import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons";
@@ -44,6 +45,7 @@ const Notice = () => {
         selectList: {},
     });
 
+    const navigate = useNavigate();
     const { user, project } = useAuth();
     const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(20);
 
@@ -91,14 +93,19 @@ const Notice = () => {
     const getNotices = async () => {
         setIsLoading(true);
         // FIXME: 관리자 권한인 경우 분리해서 요청 보내기.
-        const res = await Axios.GET(`/notice/${user.uno}?role=ADMIN&page_num=${pageNum}&row_size=${rowSize}&order=${order}&jno=${project?.jno}&job_loc_name=${searchValues.job_loc_name}&job_name=${searchValues.job_name}&title=${searchValues.title}&user_info=${searchValues.user_info}`);
-        if (res?.data?.result === "Success") {
-            dispatch({ type: "INIT", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
-        } else if (res?.data?.result === "Failure") {
-            setIsMod(false);
-            setIsOpenModal(true);
+        try {
+            const res = await Axios.GET(`/notice/${user.uno}?role=ADMIN&page_num=${pageNum}&row_size=${rowSize}&order=${order}&jno=${project?.jno}&job_loc_name=${searchValues.job_loc_name}&job_name=${searchValues.job_name}&title=${searchValues.title}&user_info=${searchValues.user_info}`);
+            if (res?.data?.result === "Success") {
+                dispatch({ type: "INIT", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
+            } else if (res?.data?.result === "Failure") {
+                setIsMod(false);
+                setIsOpenModal(true);
+            }
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false);
     }
 
     // 상세페이지 상태 변경

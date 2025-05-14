@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
+import { useNavigate } from "react-router-dom";
 import Table from "../../../../module/Table";
 import "../../../../../assets/css/Table.css";
 
@@ -18,6 +19,8 @@ import "../../../../../assets/css/Table.css";
  *    Http Method - GET : /company/site-manager (현장소장)
  */
 const CompanySiteManager = ({jno, styles}) => {
+    const navigate = useNavigate();
+
     const [manager, setManager] = useState([]);
 
     const columns = [
@@ -27,10 +30,14 @@ const CompanySiteManager = ({jno, styles}) => {
     // 현장소장 정보 조회
     const getData = async () => {
         if (jno != null) {   
-            const res = await Axios.GET(`/company/site-manager?jno=${jno}`);
-            
-            if (res?.data?.result === "Success") {
-                setManager(res?.data?.values?.list);
+            try {
+                const res = await Axios.GET(`/company/site-manager?jno=${jno}`);
+                
+                if (res?.data?.result === "Success") {
+                    setManager(res?.data?.values?.list);
+                }
+            } catch(err) {
+                navigate("/error");
             }
         }
     };

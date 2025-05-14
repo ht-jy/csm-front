@@ -3,6 +3,7 @@ import { Axios } from "../../../../../utils/axios/Axios";
 import { Common } from "../../../../../utils/Common";
 import { ObjChk } from "../../../../../utils/ObjChk";
 import { dateUtil } from "../../../../../utils/DateUtil";
+import { useNavigate } from "react-router-dom";
 import Radio from "../../../../module/Radio";
 import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
 import DateInput from "../../../../module/DateInput";
@@ -12,6 +13,7 @@ import CancelIcon from "../../../../../assets/image/cancel.png";
 import EyeIcon from "../../../../../assets/image/eye-alert.png";
 import "../../../../../assets/css/TotalDetailModal.css";
 import "../../../../../assets/css/Input.css";
+import Modal from "../../../../module/Modal";
 
 /**
  * @description: 전체 근로자 상세화면 모달 컴포넌트
@@ -38,8 +40,10 @@ import "../../../../../assets/css/Input.css";
  *  removeBtnClick: 삭제버튼 function
  */
 const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, detailData, selectList, exitBtnClick, saveBtnClick, removeBtnClick, isCancle = true }) => {
+    const navigate = useNavigate();
+
     const [isEdit, setIsEdit] = useState(false);
-    const [formData, setFormData] = useState([]);
+    const [formData, setFormData] = useState({});
     const [initialData, setInitialData] = useState([]); // 원본 데이터 저장
     /** 마스킹 된 주민번호 **/
     const [maskRegNo, setMaskRegNo ] = useState();
@@ -48,7 +52,9 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
     /** 근로자 코드 **/
     const [workerTypes, setWorkerTypes] = useState([]);
     const [isProjectOpenModal, setIsProjectOpenModal] = useState(false);
-
+    /** 모달 **/
+    const [isModal, setIsModal] = useState(false);
+    const [modalText, setModalText] = useState("");
 
     // 입력값 변경 핸들러
     const onChangeFormData = (key, value) => {
@@ -63,11 +69,16 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
             onChangeFormData("site_nm", "-");
             return
         }
-        const res = await Axios.GET(`/site/nm?page_num=${1}&row_size=${10}&order=&sno=${sno}&site_nm=&loc_name=&etc=`);
-        if (res?.data?.result === "Success") {
-            onChangeFormData("site_nm", res.data.values?.list[0]?.site_nm);
-        } else{
-            onChangeFormData("site_nm", "-");
+
+        try {
+            const res = await Axios.GET(`/site/nm?page_num=${1}&row_size=${10}&order=&sno=${sno}&site_nm=&loc_name=&etc=`);
+            if (res?.data?.result === "Success") {
+                onChangeFormData("site_nm", res.data.values?.list[0]?.site_nm);
+            } else{
+                onChangeFormData("site_nm", "-");
+            }
+        } catch(err) {
+            navigate("/error");
         }
     }
 
@@ -113,7 +124,16 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
     // 저장, 수정
     const handleSave = (e) => {
         document.body.style.overflow = 'unset';
-        saveBtnClick(formData, gridMode);  // 최종 데이터를 전달            
+        
+        if(formData.project === undefined){
+            setModalText("프로젝트를 선택하여 주세요.");
+            setIsModal(true);
+        }else if(formData.user_id === undefined || formData.user_id === ""){
+            setModalText("아이디를 입력하여 주세요.");
+            setIsModal(true);
+        }else{
+            saveBtnClick(formData, gridMode);
+        }
     };
 
     // 삭제
@@ -149,10 +169,14 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
 
     // 근로자 구분 코드 조회
     const getWorkerType = async() => {
-        const res = await Axios.GET(`/code?p_code=WORKER_TYPE`);
+        try {
+            const res = await Axios.GET(`/code?p_code=WORKER_TYPE`);
 
-        if (res?.data?.result === "Success") {
-            setWorkerTypes(res?.data?.values?.list);
+            if (res?.data?.result === "Success") {
+                setWorkerTypes(res?.data?.values?.list);
+            }
+        } catch(err) {
+            navigate("/error");
         }
     }
 
@@ -213,6 +237,13 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
 
         return (
         <div>
+            <Modal
+                isOpen={isModal}
+                title={"전체 근로자 관리"}
+                text={modalText}
+                confirm={"확인"}
+                fncConfirm={() => setIsModal(false)}
+            />
             {isOpen ? (
                 <div style={overlayStyle}>
                     <div style={modalStyle}>
@@ -329,7 +360,7 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                     <div className="grid-input" style={{ flex: 1 }}>
                                         {
                                             isEdit && gridMode === "SAVE" ?
-                                                <input type="text" value={formData.user_id} onChange={(e) => onChangeFormData("user_id", e.target.value)}/>
+                                                <input type="text" value={formData.user_id || ""} onChange={(e) => onChangeFormData("user_id", e.target.value)}/>
                                             :
                                                 formData.user_id
                                         }
@@ -341,7 +372,7 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                     <div className="grid-input" style={{ flex: 1 }}>
                                         {
                                             isEdit ?
-                                                <input type="text" value={formData.user_nm} onChange={(e) => onChangeFormData("user_nm", e.target.value)}/>
+                                                <input type="text" value={formData.user_nm || ""} onChange={(e) => onChangeFormData("user_nm", e.target.value)}/>
                                             :
                                                 formData.user_nm
                                         }
@@ -353,7 +384,7 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                     <div className="grid-input" style={{ flex: 1 }}>
                                         {
                                             isEdit ?
-                                                <input type="text" value={formData.department} onChange={(e) => onChangeFormData("department", e.target.value)}/>
+                                                <input type="text" value={formData.department || ""} onChange={(e) => onChangeFormData("department", e.target.value)}/>
                                             :
                                                 formData.department
                                         }
@@ -365,7 +396,7 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                     <div className="grid-input" style={{ flex: 1 }}>
                                         {
                                             isEdit ?
-                                                <input type="text" value={formData.phone} onChange={(e) => onChangeFormData("phone", Common.formatMobileNumber(e.target.value))}/>
+                                                <input type="text" value={formData.phone || ""} onChange={(e) => onChangeFormData("phone", Common.formatMobileNumber(e.target.value))}/>
                                             :
                                                 formData.phone
                                         }
@@ -378,8 +409,8 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                         {
                                             isEdit ?
                                                 <>
-                                                    <input type="text" value={showFullRegNo ? formData.reg_no : Common.maskResidentNumber(maskRegNo)} onChange={(e) => onChangeRegMasking(e.target.value)}/>
-                                                    <input type="hidden" value={formData.reg_no}/>
+                                                    <input type="text" value={showFullRegNo ? formData.reg_no || "" : Common.maskResidentNumber(maskRegNo) || ""} onChange={(e) => onChangeRegMasking(e.target.value)}/>
+                                                    <input type="hidden" value={formData.reg_no || ""}/>
                                                 </>
                                             :
                                             showFullRegNo ? formData.reg_no : Common.maskResidentNumber(formData.reg_no)
@@ -399,7 +430,7 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                     <div className="grid-input" style={{ flex: 1 }}>
                                         {
                                             isEdit ?
-                                                <input type="text" value={formData.disc_name} onChange={(e) => onChangeFormData("disc_name", e.target.value)}/>
+                                                <input type="text" value={formData.disc_name || ""} onChange={(e) => onChangeFormData("disc_name", e.target.value)}/>
                                             :
                                                 formData.disc_name
                                         }

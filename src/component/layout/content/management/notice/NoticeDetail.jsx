@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useState } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { useAuth } from "../../../../context/AuthContext";
+import { Navigate, useNavigate } from "react-router-dom";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import Modal from "../../../../module/Modal";
 import NoticeReducer from "./NoticeReducer";
@@ -32,6 +33,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
         selectList: {},
     });
 
+    const navigate = useNavigate();
     const { user } = useAuth(); 
 
     // [GridModal]
@@ -140,22 +142,27 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
         } else {
             idx = Number(item[6].value)
         }
-        const res = await Axios.DELETE(`notice/${idx}`)
+        try {
+            const res = await Axios.DELETE(`notice/${idx}`)
 
-        if (res?.data?.result === "Success") {
-            // 성공 모달
-            setIsMod(true);
-            setIsOpenModal(true);
-            setIsDetail(false);
-        } else {
-            // 실패 모달
-            setIsMod(false);
-            setIsOpenModal(true);
+            if (res?.data?.result === "Success") {
+                // 성공 모달
+                setIsMod(true);
+                setIsOpenModal(true);
+                setIsDetail(false);
+            } else {
+                // 실패 모달
+                setIsMod(false);
+                setIsOpenModal(true);
+            }
+
+            setGridMode("REMOVE");
+            setIsGridModal(false);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-
-        setGridMode("REMOVE");
-        setIsGridModal(false);
-        setIsLoading(false);
 
     }
     
@@ -170,13 +177,18 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
     const getSiteData = async () => {
         setIsLoading(true);
 
-        // FIXME : 관리자권한
-        const res = await Axios.GET(`/project/my-job_name/${user.uno}?role=ADMIN`);
+        try {
+            // FIXME : 관리자권한
+            const res = await Axios.GET(`/project/my-job_name/${user.uno}?role=ADMIN`);
 
-        if (res?.data?.result === "Success") {
-            dispatch({ type: "PROJECT_NM", projectNm: res?.data?.values?.project_nm });
+            if (res?.data?.result === "Success") {
+                dispatch({ type: "PROJECT_NM", projectNm: res?.data?.values?.project_nm });
+            }
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false);
     }
 
     // [GridModal-Post] 저장 버튼을 눌렀을 경우
@@ -226,32 +238,36 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
 
             let res;
 
-            if (gridMode === "SAVE") {
-                res = await Axios.POST(`/notice`, notice);
-            } else {
-                notice.idx = Number(item[6].value);
-                notice.mod_user = user.userName || "";
-                notice.mod_uno = Number(user.uno) || 0;
+            try {
+                if (gridMode === "SAVE") {
+                    res = await Axios.POST(`/notice`, notice);
+                } else {
+                    notice.idx = Number(item[6].value);
+                    notice.mod_user = user.userName || "";
+                    notice.mod_uno = Number(user.uno) || 0;
 
-                res = await Axios.PUT(`/notice`, notice);
+                    res = await Axios.PUT(`/notice`, notice);
+                }
+
+                if (res?.data?.result === "Success") {
+                    // Axios 요청 성공했을 경우
+                    setIsMod(true);
+                    setIsDetail(false);
+
+
+                } else {
+                    // Axios 요청 실패했을 경우
+                    setIsMod(false);
+                    setIsDetail(false);
+                }
+                setDetail([]);
+                setIsGridModal(false);
+                setIsOpenModal(true);
+            } catch(err) {
+                navigate("/error");
+            } finally {
+                setIsLoading(false);
             }
-
-            if (res?.data?.result === "Success") {
-                // Axios 요청 성공했을 경우
-                setIsMod(true);
-                setIsDetail(false);
-
-
-            } else {
-                // Axios 요청 실패했을 경우
-                setIsMod(false);
-                setIsDetail(false);
-            }
-
-            setIsLoading(false);
-            setDetail([]);
-            setIsGridModal(false);
-            setIsOpenModal(true);
         }
     }
 

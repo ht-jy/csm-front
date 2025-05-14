@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
+import { useNavigate } from "react-router-dom";
 import "../../../../../assets/css/Table.css";
 import CheckIcon from "../../../../../assets/image/check-icon.png";
 
@@ -17,15 +18,21 @@ import CheckIcon from "../../../../../assets/image/check-icon.png";
  *    Http Method - GET : /company/company-info (협력업체), /company/work-info (공종정보)
  */
 const CompanyInfo = ({jno, styles}) => {
+    const navigate = useNavigate();
+
     const [header, setHeader] = useState([]);
     const [company, setCompany] = useState([]);
 
     // 공종 정보 조회
     const getHeaderText = async () => {
-        const res = await Axios.GET(`/company/work-info`);
-        
-        if (res?.data?.result === "Success") {
-            setHeader(res?.data?.values?.list);
+        try {
+            const res = await Axios.GET(`/company/work-info`);
+            
+            if (res?.data?.result === "Success") {
+                setHeader(res?.data?.values?.list);
+            }
+        } catch(err) {
+            navigate("/error");
         }
     };
 
@@ -33,10 +40,14 @@ const CompanyInfo = ({jno, styles}) => {
     const getData = async () => {
 
         if (jno != null) {   
-            const res = await Axios.GET(`/company/company-info?jno=${jno}`);
-            
-            if (res?.data?.result === "Success") {
-                setCompany(res?.data?.values?.list);
+            try {
+                const res = await Axios.GET(`/company/company-info?jno=${jno}`);
+                
+                if (res?.data?.result === "Success") {
+                    setCompany(res?.data?.values?.list);
+                }
+            } catch(err) {
+                navigate("/error");
             }
         }
     };

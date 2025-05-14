@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import { Axios } from "../../../../../utils/axios/Axios";
 import DateInput from "../../../../module/DateInput";
@@ -36,6 +37,7 @@ import { useAuth } from "../../../../context/AuthContext";
  * 
  */
 const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChangeValue, addressData, isSiteAdd}) => {
+    const navigate = useNavigate();
     const { user } = useAuth();
 
     const { getData, setIsDetail } = useContext(SiteContext);
@@ -217,6 +219,7 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
         setIsNonUseCheckOpen(false);
         
         setIsLoading(true);
+        try {
             const res = await Axios.PUT(`/site/non-use`, {
                 sno: data.sno || 0,
                 mod_uno: user.uno,
@@ -229,7 +232,11 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
                 setNonUseConfirmText("현장 완료 처리에 실패하였습니다.\n잠시 후에 다시 시도하여 주세요.");
             }
             setIsNonUseConfirm(true);
-        setIsLoading(false);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     // 작업완료 성공 확인 이벤트
@@ -304,7 +311,7 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
             />
             <div className="grid-site">
             {/* 첫 번째 열 */}
-            <div className="form-control text-none-border" style={{ gridColumn: "1 / span 2", gridRow: "1" }}>
+            <div className="form-control text-none-border" style={{ gridColumn: "1 / span 2", gridRow: "1", height: "50px" }}>
                 <div className="grid-site-title">
                     <span style={{paddingTop: "3px"}}>현장상세</span>
                     <div style={{marginLeft: "auto", marginRight: "2px"}}>
@@ -313,18 +320,6 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
                 </div>
             </div>
             <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "2" }}>
-                <div className="text-overflow">
-                    <label className="text-label">
-                        지역 (코드)
-                    </label>
-                    <div className="form-input" style={{ flex: 1 }}>
-                        <div className="read-only-input">
-                            {data.loc_name}{`(${data.loc_code||"-"})`}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "3" }}>
                 <div className="text-overflow">
                     <label className="text-label">
                         현장명
@@ -336,7 +331,7 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "4" }}>
+            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "3" }}>
                 <div className="text-overflow">
                     <label className="text-label">
                         시작일
@@ -352,7 +347,7 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "5" }}>
+            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "4" }}>
                 <div className="text-overflow">
                     <label className="text-label">
                         종료일(계획)
@@ -368,7 +363,7 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "6" }}>
+            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "5" }}>
                 <div className="text-overflow">
                     <label className="text-label">
                         종료일(예정)
@@ -384,7 +379,7 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "7" }}>
+            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "6" }}>
                 <div className="text-overflow">
                     <label className="text-label">
                         종료일(실행)
@@ -400,7 +395,7 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "8" }}>
+            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "7" }}>
                 <div className="text-overflow">
                     <label className="text-label">
                         공정률
@@ -428,7 +423,7 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "9" }}>
+            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "8" }}>
                 <div className="text-overflow">
                     <label className="text-label">
                         기본 프로젝트
@@ -464,7 +459,7 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "10" }}>
+            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "9" }}>
                 <div className="text-overflow">
                     <label className="text-label">
                         주소
@@ -493,7 +488,7 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "11" }}>
+            <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "10" }}>
                 <div className="text-overflow">
                     <label className="text-label">
                         현장 날씨
@@ -517,7 +512,7 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
                     </div>
                 </div>
             </div>
-            <div className="form-control text-none-border" style={{ gridColumn: "1 / span 2", gridRow: "12" }}>
+            <div className="form-control text-none-border" style={{ gridColumn: "1 / span 2", gridRow: "11", marginTop: "7px" }}>
                 <div style={{ width: "100%" }}>
                     <label className="text-label">비고</label>
                     <div className="form-textbox">
@@ -543,7 +538,7 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
             </div>
 
             {/* 두 번째 열 */}
-            <div className="form-control" style={{ gridColumn: "2", gridRow: "2 / span 10" }}>
+            <div className="form-control" style={{ gridColumn: "2", gridRow: "2 / span 9" }}>
                  <Map roadAddress={data?.site_pos?.road_address}></Map>
             </div>
         </div>
