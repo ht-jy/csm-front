@@ -46,6 +46,7 @@
     grid-template-rows: repeat(5, auto); 
     gap: 0px;
     padding: 0px;
+    margin: 0px;
 }
 
 .grid-site-title {
@@ -113,6 +114,7 @@
     width: 100%;
     white-space: nowrap;
     text-overflow: ellipsis;
+    height: 39px;
 }
 
 .text-label {
@@ -138,7 +140,9 @@
 }
 
 .form-textbox {
-    margin: 10px 0 10px 0;
+    /* margin: 10px 0 10px 0; */
+    margin-top: 10px;
+    margin-bottom: -3px;
     background: rgba(249, 250, 255, 0.09);
     display: flex;
     align-items: flex-start;    
@@ -171,8 +175,8 @@
 
 .read-only-input {
     width: 100%;
-    padding: 0.5rem;
-    height: 40px;
+    padding: 0rem 0.5rem;
+    height: 35px;
     display: flex;
     align-items: center;
     border-radius: 4px;
@@ -182,14 +186,14 @@
 }
 
 .form-input {
-    margin: 2px !important;
+    margin: 0px !important;
     background: rgba(249, 250, 255, 0.09);
     display: grid;
     align-items: center;
     border: 0px solid #dcdcdc;
     border-radius: 4px;
     font-size: 16px;
-    height: 44px;
+    height: 35px;
 }
 
 .form-input input[type="email"], .form-input input[type="password"], .form-input input[type="text"] {
