@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../../../context/AuthContext";
 import { Axios } from "../../../../../utils/axios/Axios";
+import { useNavigate } from "react-router-dom";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import DateInput from "../../../../module/DateInput";
 import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
@@ -29,6 +30,7 @@ import Modal from "../../../../module/Modal";
  * jobSaveBtnClick: 작업내용 저장 함수
  */
 const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, jobSaveBtnClick }) => {
+    const navigate = useNavigate();
     const { project} = useAuth();
     /** 프로젝트 **/
     const [simpleProjects, setSimpleProjects] = useState([]);
@@ -78,21 +80,24 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
     // 프로젝트 리스트 조회 및 셀렉트 옵션 생성
     const getProjectData = async () => {
         setIsLoading(true);
-
-        const res = await Axios.GET(`/project/job_name`);
-        if (res?.data?.result === "Success") {
-            // 프로젝트 정보
-            setSimpleProjects(res?.data?.values?.list);
-            // 셀렉트 옵션
-            const options = [{value:0, label: "전체 적용"}];
-            res?.data?.values?.list.map(item => {
-                options.push({value: item.jno, label: item.project_nm});
-            });
-            setProjectOptions(options);
+        try {
+            const res = await Axios.GET(`/project/job_name`);
+            if (res?.data?.result === "Success") {
+                // 프로젝트 정보
+                setSimpleProjects(res?.data?.values?.list);
+                // 셀렉트 옵션
+                const options = [{value:0, label: "전체 적용"}];
+                res?.data?.values?.list.map(item => {
+                    options.push({value: item.jno, label: item.project_nm});
+                });
+                setProjectOptions(options);
+            }
+            return true;
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-
-        setIsLoading(false);
-        return true;
     }
 
     /***** useEffect *****/

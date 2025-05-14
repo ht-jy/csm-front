@@ -2,6 +2,7 @@ import { useState, useReducer, useEffect, useRef } from "react";
 import Select from 'react-select';
 import { Axios } from "../../../../../utils/axios/Axios";
 import { useAuth } from "../../../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import DeviceReducer from "./DeviceReducer";
 import Loading from "../../../../module/Loading";
 import GridModal from "../../../../module/GridModal";
@@ -48,6 +49,7 @@ const Device = () => {
         devices: [],
     });
 
+    const navigate = useNavigate();
     const { user } = useAuth();
 
     const [isLoading, setIsLoading] = useState(false);
@@ -109,13 +111,17 @@ const Device = () => {
     // 미등록 장치 체크
     const getNonRegisteredDevice = async () => {
         setIsLoading(true);
-        const res = await Axios.GET("device/check-registered")
+        try {
+            const res = await Axios.GET("device/check-registered")
 
-        if(res.data?.result === "Success"){
-            setDevices([...res.data.values.list]);
+            if(res.data?.result === "Success"){
+                setDevices([...res.data.values.list]);
+            }
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-        
-        setIsLoading(false);
     }
     
     // GridModal 띄우기 - 추가 또는 리스트 row 클릭시
@@ -183,23 +189,27 @@ const Device = () => {
         
         setIsLoading(true);
 
-        let res;
-        if (gridMode === "SAVE") {
-            res = await Axios.POST(`/device`, device);
-        } else {
-            res = await Axios.PUT(`/device`, device);
-        }
+        try {
+            let res;
+            if (gridMode === "SAVE") {
+                res = await Axios.POST(`/device`, device);
+            } else {
+                res = await Axios.PUT(`/device`, device);
+            }
 
-        if (res?.data?.result === "Success") {
-            setIsMod(true);
-            getData();
-        } else {
-            setIsMod(false);
+            if (res?.data?.result === "Success") {
+                setIsMod(true);
+                getData();
+            } else {
+                setIsMod(false);
+            }
+            setIsGridModal(false);
+            setIsModal(true);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-
-        setIsLoading(false);
-        setIsGridModal(false);
-        setIsModal(true);
     }
 
     // GridModal의 삭제 버튼 이벤트
@@ -207,18 +217,22 @@ const Device = () => {
         setIsLoading(true);
         setGridMode("REMOVE")
 
-        const res = await Axios.DELETE(`/device/${item[0].value}`);
+        try {
+            const res = await Axios.DELETE(`/device/${item[0].value}`);
 
-        if (res?.data?.result === "Success") {
-            setIsMod(true);
-            getData();
-        } else {
-            setIsMod(false);
+            if (res?.data?.result === "Success") {
+                setIsMod(true);
+                getData();
+            } else {
+                setIsMod(false);
+            }
+            setIsGridModal(false);
+            setIsModal(true);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-
-        setIsLoading(false);
-        setIsGridModal(false);
-        setIsModal(true);
     }
 
     // GridModal의 gridMode props 변경 이벤트
@@ -257,18 +271,22 @@ const Device = () => {
             isUse = searchValues.is_use;
         }
 
-        const res = await Axios.GET(`/device?page_num=${pageNum}&row_size=${rowSize}&order=${'' + order}&device_nm=${searchValues.device_nm}&device_sn=${searchValues.device_sn}&site_nm=${searchValues.site_nm}&etc=${searchValues.etc}&is_use=${isUse}&retry_search_text=${retrySearchText}`);
-        
-        if (res?.data?.result === "Success") {
-            dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
-        } else if (res?.data?.result === "Failure") {
+        try {
+            const res = await Axios.GET(`/device?page_num=${pageNum}&row_size=${rowSize}&order=${'' + order}&device_nm=${searchValues.device_nm}&device_sn=${searchValues.device_sn}&site_nm=${searchValues.site_nm}&etc=${searchValues.etc}&is_use=${isUse}&retry_search_text=${retrySearchText}`);
+            
+            if (res?.data?.result === "Success") {
+                dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
+            } else if (res?.data?.result === "Failure") {
 
-            setIsModal2(true);
-            setModal2Title("근태인식기 조회");
-            setModal2Text("근태인식기를 조회하는데 실패하였습니다. 잠시 후에 다시 시도하여 주시기 바랍니다.");
+                setIsModal2(true);
+                setModal2Title("근태인식기 조회");
+                setModal2Text("근태인식기를 조회하는데 실패하였습니다. 잠시 후에 다시 시도하여 주시기 바랍니다.");
+            }
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-
-        setIsLoading(false);
 
     };
 

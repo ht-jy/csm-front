@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
+import { useNavigate } from "react-router-dom";
 import "../../../../../assets/css/Table.css";
 
 /**
@@ -16,15 +17,21 @@ import "../../../../../assets/css/Table.css";
  *    Http Method - GET : /company/safe-manager (안전관리자)
  */
 const CompanySafeManager = ({jno, styles}) => {
+    const navigate = useNavigate();
+
     const [manager, setManager] = useState([]);
 
     // 안전관리자 정보 조회
     const getData = async () => {
         if (jno != null) {   
-            const res = await Axios.GET(`/company/safe-manager?jno=${jno}`);
-            
-            if (res?.data?.result === "Success") {
-                setManager(res?.data?.values?.list);
+            try {
+                const res = await Axios.GET(`/company/safe-manager?jno=${jno}`);
+                
+                if (res?.data?.result === "Success") {
+                    setManager(res?.data?.values?.list);
+                }
+            } catch(err) {
+                navigate("/error");
             }
         }
     };

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
+import { Navigate, useNavigate } from "react-router-dom";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import { useAuth } from "../../../../context/AuthContext";
 import Select from 'react-select';
@@ -35,6 +36,7 @@ import "../../../../../assets/css/Schedule.css";
  * - 주요 상태 관리: 
  */
 const Schedule = () => {
+    const navigate = useNavigate();
     const { project, user } = useAuth();
 
     const [isLoading, setIsLoading] = useState(false);
@@ -217,29 +219,33 @@ const Schedule = () => {
     const getRestData = async() => {
         setIsLoading(true);
 
-        // 공휴일
-        let res = await Axios.GET(`/api/rest-date?year=${currentYear}&month=`);
-        
-        if (res?.data?.result === "Success") {
-            let rests = res?.data?.values?.list || [];
-            rests = rests.map(item => {
-                return {...item, date: dateUtil.formatNumericDate(item.rest_date)};
-            });
-            setHoildays([...rests]);
-        }
+        try {
+            // 공휴일
+            let res = await Axios.GET(`/api/rest-date?year=${currentYear}&month=`);
+            
+            if (res?.data?.result === "Success") {
+                let rests = res?.data?.values?.list || [];
+                rests = rests.map(item => {
+                    return {...item, date: dateUtil.formatNumericDate(item.rest_date)};
+                });
+                setHoildays([...rests]);
+            }
 
-        // 휴무일
-        let jno = 0;
-        if(project !== null){
-            jno = project.jno;
+            // 휴무일
+            let jno = 0;
+            if(project !== null){
+                jno = project.jno;
+            }
+            res = await Axios.GET(`/schedule/rest?jno=${jno}&year=${currentYear}&month=${currentMonth}`);
+            
+            if (res?.data?.result === "Success") {
+                setRestDays(res?.data?.values?.list);
+            }
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-        res = await Axios.GET(`/schedule/rest?jno=${jno}&year=${currentYear}&month=${currentMonth}`);
-        
-        if (res?.data?.result === "Success") {
-            setRestDays(res?.data?.values?.list);
-        }
-
-        setIsLoading(false);
     }
 
     // 작업내용 조회
@@ -250,17 +256,22 @@ const Schedule = () => {
         if(project !== null){
             jno = project.jno;
         }
-        let res = await Axios.GET(`/schedule/daily-job?jno=${jno}&target_date=${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2, '0')}`);
-        
-        if (res?.data?.result === "Success") {
-            const jobs = [];
-            res?.data?.values?.list.map(item => {
-                jobs.push({...item, date: dateUtil.parseToDate(item.targetDate)});
-            });
-            setDailyJobs(jobs);
-        }
 
-        setIsLoading(false);
+        try {
+            let res = await Axios.GET(`/schedule/daily-job?jno=${jno}&target_date=${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2, '0')}`);
+            
+            if (res?.data?.result === "Success") {
+                const jobs = [];
+                res?.data?.values?.list.map(item => {
+                    jobs.push({...item, date: dateUtil.parseToDate(item.targetDate)});
+                });
+                setDailyJobs(jobs);
+            }
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     /***** 상세 모달 *****/
@@ -287,33 +298,44 @@ const Schedule = () => {
         }
 
         setIsLoading(true);
-        const res = await Axios.PUT(`/schedule/rest`, rest);
-        
-        if (res?.data?.result === "Success") {
-            getRestData();
-            setModalText("휴무일 수정에 성공하였습니다.");
-            setIsDetailModal(false);
-        }else{
-            setModalText("휴무일 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+
+        try {
+            const res = await Axios.PUT(`/schedule/rest`, rest);
+            
+            if (res?.data?.result === "Success") {
+                getRestData();
+                setModalText("휴무일 수정에 성공하였습니다.");
+                setIsDetailModal(false);
+            }else{
+                setModalText("휴무일 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+            }
+            setIsModal(true);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-        setIsModal(true);
-        setIsLoading(false);
     }
 
     // 휴무일 삭제
     const onClickRestRemove = async(item) => {
         setIsLoading(true);
-        const res = await Axios.DELETE(`/schedule/rest/${item.cno}`);
-        
-        if (res?.data?.result === "Success") {
-            getRestData();
-            setModalText("휴무일 삭제에 성공하였습니다.");
-            setIsDetailModal(false);
-        }else{
-            setModalText("휴무일 삭제에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+        try {
+            const res = await Axios.DELETE(`/schedule/rest/${item.cno}`);
+            
+            if (res?.data?.result === "Success") {
+                getRestData();
+                setModalText("휴무일 삭제에 성공하였습니다.");
+                setIsDetailModal(false);
+            }else{
+                setModalText("휴무일 삭제에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+            }
+            setIsModal(true);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-        setIsModal(true);
-        setIsLoading(false);
     }
 
     // 작업내용 수정
@@ -328,33 +350,43 @@ const Schedule = () => {
         }
         
         setIsLoading(true);
-        const res = await Axios.PUT(`/schedule/daily-job`, job);
-        
-        if (res?.data?.result === "Success") {
-            getDailyJobData();
-            setModalText("작업내용 수정에 성공하였습니다.");
-            setIsDetailModal(false);
-        }else{
-            setModalText("작업내용 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+        try {
+            const res = await Axios.PUT(`/schedule/daily-job`, job);
+            
+            if (res?.data?.result === "Success") {
+                getDailyJobData();
+                setModalText("작업내용 수정에 성공하였습니다.");
+                setIsDetailModal(false);
+            }else{
+                setModalText("작업내용 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+            }
+            setIsModal(true);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-        setIsModal(true);
-        setIsLoading(false);
     }
 
     // 작업내용 삭제
     const onClickDailyJobRemove = async(item) => {
         setIsLoading(true);
-        const res = await Axios.DELETE(`/schedule/daily-job/${item.cno}`);
-        
-        if (res?.data?.result === "Success") {
-            getDailyJobData();
-            setModalText("작업내용 삭제에 성공하였습니다.");
-            setIsDetailModal(false);
-        }else{
-            setModalText("작업내용 삭제에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+        try {
+            const res = await Axios.DELETE(`/schedule/daily-job/${item.cno}`);
+            
+            if (res?.data?.result === "Success") {
+                getDailyJobData();
+                setModalText("작업내용 삭제에 성공하였습니다.");
+                setIsDetailModal(false);
+            }else{
+                setModalText("작업내용 삭제에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+            }
+            setIsModal(true);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-        setIsModal(true);
-        setIsLoading(false);
     }
     
     /***** 추가 모달 *****/
@@ -387,17 +419,22 @@ const Schedule = () => {
         }
         
         setIsLoading(true);
-        const res = await Axios.POST(`/schedule/rest`, rests);
-        
-        if (res?.data?.result === "Success") {
-            getRestData();
-            setModalText("휴무일 추가에 성공하였습니다.");
-            setIsAddDetailModal(false);
-        }else{
-            setModalText("휴무일 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+        try {
+            const res = await Axios.POST(`/schedule/rest`, rests);
+            
+            if (res?.data?.result === "Success") {
+                getRestData();
+                setModalText("휴무일 추가에 성공하였습니다.");
+                setIsAddDetailModal(false);
+            }else{
+                setModalText("휴무일 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+            }
+            setIsModal(true);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-        setIsModal(true);
-        setIsLoading(false);
     }
 
     // 작업내용 저장
@@ -420,17 +457,22 @@ const Schedule = () => {
         }
         
         setIsLoading(true);
-        const res = await Axios.POST(`/schedule/daily-job`, jobs);
-        
-        if (res?.data?.result === "Success") {
-            getDailyJobData();
-            setModalText("작업내용 추가에 성공하였습니다.");
-            setIsAddDetailModal(false);
-        }else{
-            setModalText("작업내용 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+        try {
+            const res = await Axios.POST(`/schedule/daily-job`, jobs);
+            
+            if (res?.data?.result === "Success") {
+                getDailyJobData();
+                setModalText("작업내용 추가에 성공하였습니다.");
+                setIsAddDetailModal(false);
+            }else{
+                setModalText("작업내용 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+            }
+            setIsModal(true);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-        setIsModal(true);
-        setIsLoading(false);
     }
 
     /***** useEffect *****/

@@ -2,7 +2,7 @@ import { useState, useEffect, useReducer } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import { useAuth } from "../../../../context/AuthContext";
-import { Common } from "../../../../../utils/Common";
+import { useNavigate } from "react-router-dom";
 import Button from "../../../../module/Button";
 import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
@@ -55,6 +55,7 @@ const Total = () => {
         selectList: [],
     });
 
+    const navigate = useNavigate();
     const { user } = useAuth();
 
     // 로딩
@@ -130,27 +131,32 @@ const Total = () => {
         }
         
         setIsLoading(true);
-        let res;
-        if (detailMode === "SAVE") {
-            res = await Axios.POST(`/worker/total`, worker);
-        } else {
-            res = await Axios.PUT(`/worker/total`, worker);
-        }
-        
-        if (res?.data?.result === "Success") {
-            setModalTitle(`근로자 ${getModeString()}`);
-            setModalText(`근로자 ${getModeString()}에 성공하였습니다.`);
-            setIsMod(true);
-            getData();
-        } else {
-            setModalTitle(`근로자 ${getModeString()}`);
-            setModalText(`근로자 ${getModeString()}에 실패하였습니다. \n잠시 후에  다시 시도하여 주시기 바랍니다.`);
-            setIsMod(false);
-        }
+        try {
+            let res;
+            if (detailMode === "SAVE") {
+                res = await Axios.POST(`/worker/total`, worker);
+            } else {
+                res = await Axios.PUT(`/worker/total`, worker);
+            }
+            
+            if (res?.data?.result === "Success") {
+                setModalTitle(`근로자 ${getModeString()}`);
+                setModalText(`근로자 ${getModeString()}에 성공하였습니다.`);
+                setIsMod(true);
+                getData();
+            } else {
+                setModalTitle(`근로자 ${getModeString()}`);
+                setModalText(`근로자 ${getModeString()}에 실패하였습니다. \n잠시 후에  다시 시도하여 주시기 바랍니다.`);
+                setIsMod(false);
+            }
 
-        setIsLoading(false);
-        setIsDetailModal(false);
-        setIsModal(true);
+            setIsDetailModal(false);
+            setIsModal(true);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     // 근로자 구분 코드로 변환
@@ -170,16 +176,20 @@ const Total = () => {
     const getCodeData = async () => {
         setIsLoading(true);
 
-        const res = await Axios.GET(`/code?p_code=WORKER_TYPE`);
-        if (res?.data?.result === "Success") {
-            dispatch({ type: "CODE", code: res?.data?.values?.list });
-            return res?.data?.values?.list;
-        } else if (res?.data?.result === "Failure") {
-            return [];
+        try {
+            const res = await Axios.GET(`/code?p_code=WORKER_TYPE`);
+            if (res?.data?.result === "Success") {
+                dispatch({ type: "CODE", code: res?.data?.values?.list });
+                return res?.data?.values?.list;
+            } else if (res?.data?.result === "Failure") {
+                return [];
+            }
+            return true;
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-
-        setIsLoading(false);
-        return true;
     }
     
     // 전체근로자 조회
@@ -201,27 +211,30 @@ const Total = () => {
             retry_search: retrySearchText
           };
 
-          const queryString = Object.entries(params)
+        const queryString = Object.entries(params)
             .filter(([key, value]) => value !== '' && value != null)
             .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
             .join('&');
-          
-          const res = await Axios.GET(`/worker/total?${queryString}`);
-
-        // const res = await Axios.GET(`/worker/total?page_num=${pageNum}&row_size=${rowSize}&order=${order}&user_id=${searchValues.user_id}&user_nm=${searchValues.user_nm}&department=${searchValues.department}&phone=${searchValues.phone}&worker_type=${convertWorkerTypeToCode(searchValues.worker_type_nm)}&retry_search=${retrySearchText}`);
         
-        if (res?.data?.result === "Success") {
-            if(state.workerTypeCodes.length === 0) {
-                const code = await getCodeData();
-                dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count, code: code });
-            }else{
-                dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count, code: state.workerTypeCodes });
-            }
+        try {
+            const res = await Axios.GET(`/worker/total?${queryString}`);
+
+            // const res = await Axios.GET(`/worker/total?page_num=${pageNum}&row_size=${rowSize}&order=${order}&user_id=${searchValues.user_id}&user_nm=${searchValues.user_nm}&department=${searchValues.department}&phone=${searchValues.phone}&worker_type=${convertWorkerTypeToCode(searchValues.worker_type_nm)}&retry_search=${retrySearchText}`);
             
+            if (res?.data?.result === "Success") {
+                if(state.workerTypeCodes.length === 0) {
+                    const code = await getCodeData();
+                    dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count, code: code });
+                }else{
+                    dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count, code: state.workerTypeCodes });
+                }
+                
+            }
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
         }
-
-
-        setIsLoading(false);
     };
 
     // 테이블 조작
