@@ -1,7 +1,8 @@
 
 export const initialState = {
     subCodeList: [],
-    path: ""
+    path: "",
+    pCode:"root",
 };
 
 const CodeReducer = (state, action) => {
@@ -11,6 +12,9 @@ const CodeReducer = (state, action) => {
 
         case "path":
             return { ...state, path: action.path }
+        
+        case "pCode" :
+            return { ...state, pCode: action.pCode}
     }
 }
 

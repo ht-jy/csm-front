@@ -36,7 +36,7 @@ import { DndContext, pointerWithin } from '@dnd-kit/core';
  *    @dnd-kit/sortable: 순서정렬 및 배열변경
  *    @dnd-kit/core: 드래그앤드롭 이벤트
  */
-const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
+const SubCodeList = ({ data, dispatch, path, funcRefreshData, pCode }) => {
 
     const [isLoading, setIsLoading] = useState(false);
     const [isAdd, setIsAdd] = useState(false);
@@ -106,7 +106,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
                 level: 0,
                 idx: 0,
                 code: null,
-                p_code: null,
+                p_code: pCode,
                 code_nm: null,
                 code_color: null,
                 udf_val_03: null,
@@ -115,7 +115,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
                 udf_val_06: null,
                 udf_val_07: "",
                 sort_no: null,
-                is_use: null,
+                is_use: 'Y',
                 etc: "",
             }
             setCodeSet({ ...code })
@@ -186,7 +186,8 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
 
         codeSet.reg_uno = user.uno
         codeSet.reg_user = user.userName
-
+        codeSet.p_code = pCode
+        
         const res = await Axios.POST("/code", codeSet)
         if (res?.data?.result === "Success") {
             setIsEdit(false)
@@ -288,6 +289,9 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
 
     }, [isAdd, isEdit, editNo, codeTrees])
 
+    // 부모코드 변경 시, 하위코드 데이터 변경
+
+
     return <div style={{ margin: "0px 10px 10px 10px" }}>
         <Loading isOpen={isLoading} />
         <Modal
@@ -353,7 +357,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
 
                                     :
                                     <>
-                                        {codeData.codeTrees?.length === 0 && !isAdd ?
+                                        { codeData?.codeTrees?.length === 0  && !isAdd ?
                                             <tr>
                                                 <td colSpan={12} style={{ textAlign: 'center', padding: '10px' }}>등록된 하위 코드가 없습니다.</td>
                                             </tr>
@@ -362,7 +366,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
                                                 isEdit && editNo === index ?
                                                     <tr key={index}>
                                                         <td className="center">{index + 1}</td>
-                                                        <td>{codeTree.code_set.code}</td>
+                                                        <td>{codeTree.code_set?.code}</td>
                                                         <td><TextInput style={{ ...textInputStyle }} initText={codeTree.code_set.code_nm} setText={(value) => onChangeTableData("code_nm", value)} /></td>
                                                         <td><ColorInput style={{ ...colorInputStyle }} initColor={codeTree.code_set.code_color} setColor={(value) => onChangeTableData("code_color", value)} ></ColorInput> </td>
                                                         <td><TextInput style={{ ...textInputStyle }} initText={codeTree.code_set.udf_val_03} setText={(value) => onChangeTableData("udf_val_03", value)} /></td>
@@ -400,7 +404,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
 
                                         {isAdd ?
                                             <tr>
-                                                <td className="center">{data[0] && data[0]?.codeTrees.length !== 0 ? data[0]?.codeTrees.length + 1 : "1"}</td>
+                                                <td className="center">{data[0] && data[0]?.codeTrees.length !== 0 ? data[0]?.codeTrees?.length + 1 : "1"}</td>
                                                 <td><TextInput style={{ ...textInputStyle }} initText={""} setText={(value) => onChangeTableData("code", value)} /></td>
                                                 <td><TextInput style={{ ...textInputStyle }} initText={""} setText={(value) => onChangeTableData("code_nm", value)} /></td>
                                                 <td><ColorInput style={{ ...colorInputStyle }} initColor={""} setColor={(value) => onChangeTableData("code_color", value)} /></td>
@@ -414,7 +418,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData }) => {
                                                 <td className="center">
                                                     <Button text={"저장"} style={{ ...buttonStyle }} onClick={() => {
                                                         // 부모코드 넣기 및 정렬순서 추가
-                                                        onChangeTableData("p_code", data[0]?.codeSet.code)
+                                                        onChangeTableData("p_code", data[0]?.codeSet?.code)
                                                         onChangeTableData("sort_no", data[0]?.codeTrees.length !== 0 ? data[0]?.codeTrees.length + 1 : 1)
                                                         // 저장
                                                         onCilckSaveButton()

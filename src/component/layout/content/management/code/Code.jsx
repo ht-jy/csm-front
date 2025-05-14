@@ -47,33 +47,43 @@ const Code = () => {
     const getData = async () => {
         setIsLoading(true)
 
-        const res = await Axios.GET("/code/tree")
-
+        const res = await Axios.GET(`/code/tree?p_code=`)
         if (res.data?.result === "Success") {
             setTreeData(res.data?.values?.code_trees)
 
         } else {
         }
         setIsDataChange(false)
-        dispatch({type: "path", path: ""})
         setIsLoading(false)
+    }
+
+    const getTreeData = async () => {
+
+        setIsLoading(true)
+        const res = await Axios.GET(`code/tree?p_code=${state.pCode === "root" ? "" : state.pCode}`) 
+
+        if (res.data?.result === "Success") {
+            const tree = {
+                codeSet: state.codeSet ? state.codeSet : codeSet,
+                codeTrees: res.data?.values?.code_trees
+            }
+            dispatch({type:"subCodeList", list:tree})
+        }
+        setIsLoading(false)
+
     }
 
     // 처음에 데이터 가져오기. 저장 시 가져오기
     useEffect(() => {
         if (isDataChange) {
-            getData()
+            getData()         
         }
     }, [isDataChange])
 
-    // 초기 데이터 세팅
+    // 부모코드 변경 시, 하위코드 데이터 변경
     useEffect(() => {
-        const tree = {
-            codeSet: codeSet,
-            codeTrees: treeData ? treeData : []
-        }
-        dispatch({ type: "subCodeList", list: tree })
-    }, [treeData])
+        getTreeData()
+    }, [state.pCode])
 
     return (
         <div>
@@ -119,7 +129,11 @@ const Code = () => {
                                 data={state.subCodeList}
                                 dispatch={dispatch}
                                 path={state.path}
-                                funcRefreshData={() => { setIsDataChange(true) }}
+                                funcRefreshData={() => { 
+                                    setIsDataChange(true); 
+                                    getTreeData() 
+                                }}
+                                pCode={state.pCode}
                             >
                             </SubCodeList>
                         </div>
