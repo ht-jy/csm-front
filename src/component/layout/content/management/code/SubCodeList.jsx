@@ -198,19 +198,17 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData, pCode }) => {
     const save = async () => {
         setIsLoading(true);
 
-
-        codeSet.reg_uno = user.uno
-        codeSet.reg_user = user.userName
+        codeSet.reg_uno = user.uno;
+        codeSet.reg_user = user.userName;
         codeSet.p_code = pCode
-        
-        const res = await Axios.POST("/code", codeSet)
-        if (res?.data?.result === "Success") {
-            setIsEdit(false)
-            initCodeSet()
-            // 화면 초기화하기
-            funcRefreshData()
 
-
+        try {
+            const res = await Axios.POST("/code", codeSet);
+            if (res?.data?.result === "Success") {
+                setIsEdit(false);
+                initCodeSet();
+                // 화면 초기화하기
+                funcRefreshData();
             } else {
 
             }

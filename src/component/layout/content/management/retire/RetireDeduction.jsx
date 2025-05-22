@@ -93,7 +93,7 @@ const RetireDeduction = () => {
 
     // 엑셀 업로드
     const excelUpload = async(e) => {
-        const res = await handleSelectAndUpload(e, "/excel/import/deduction");
+        const res = await handleSelectAndUpload("/excel/import/deduction", e);
         console.log(res);
     }
 
