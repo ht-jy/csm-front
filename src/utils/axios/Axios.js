@@ -47,17 +47,19 @@ export const Axios = {
         await AxiosInstance().post(url, param, {responseType: 'blob'})
         .then(response => {
             const contentType = response.headers['content-type'];
-            if (contentType.includes('application/json')) {
+            if (contentType && contentType.includes('application/json')) {
                 // 실패로 JSON이 온 경우
                 data = response;
             }else {
                 // 정상 다운로드 처리
                 const contentDisposition = response.headers['content-disposition'];
-                let fileName = 'retirement_fund.xlsx'; 
-                const match = contentDisposition?.match(/filename=([^;]+)/);
+                let fileName = 'download.xlsx';
+
+                const match = contentDisposition?.match(/filename\*?=UTF-8''([^;]+)/);
                 if (match && match[1]) {
-                    fileName = match[1].replace(/['"]/g, '').trim();
+                    fileName = decodeURIComponent(match[1].replace(/['"]/g, '').trim());
                 }
+
                 const url = window.URL.createObjectURL(new Blob([response.data]));
                 const link = document.createElement('a');
                 link.href = url;
@@ -65,6 +67,8 @@ export const Axios = {
                 document.body.appendChild(link);
                 link.click();
                 link.remove();
+                window.URL.revokeObjectURL(url);
+
                 data = {data:{result:"Success"}};
             }
         }).catch(err => {

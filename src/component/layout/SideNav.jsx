@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import htencLogo from "../../assets/image/hitecheng_logo_default.png";
 import Deducted from "../../assets/image/deducted.png";
+import DeadlineIcon from "../../assets/image/deadline.png";
 
 const SideNav = () => {
     return(
@@ -36,9 +37,14 @@ const SideNav = () => {
                                     </nav>
                                 </div>
 
-                                <Link className="nav-link" to="/retire">
+                                {/* <Link className="nav-link" to="/retire">
                                     <div className="sb-nav-link-icon"><img src={Deducted} width='20px' /></div>
                                     퇴직 공제
+                                </Link> */}
+
+                                <Link className="nav-link" to="/daily-deadline">
+                                    <div className="sb-nav-link-icon"><img src={DeadlineIcon} width='20px' /></div>
+                                    일일 마감
                                 </Link>
 
                                 <Link className="nav-link" to="/equip">

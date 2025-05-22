@@ -30,3 +30,118 @@
     font-size: 16px;
     width: 100%;
 }
+
+/* 파일 input */
+.file-section {
+    display: flex; 
+    flex-direction: column;
+    gap: 5px;
+    max-width: 600px;
+    width: 100%; 
+}
+
+.file-upload {
+    display: flex;
+    align-items: center;
+    min-width: 600px;
+    gap: 10px;
+}
+.file-upload input[type="file"] {
+    display: none;
+}
+
+@media (max-width: 680px) {
+    .file-section {
+        max-width: 400px;
+    }
+
+    .file-upload {
+        min-width: 300px;
+    }
+
+    .file-label {
+        font-size: 12px !important;
+    }
+
+    .file-button1 {
+        width: 60px !important;
+        font-size: 11px !important;
+        padding: 0 5px !important;
+    }
+
+    .file-button2 {
+        width: 60px !important;
+        font-size: 11px !important;
+        padding: 0 5px !important;
+    }
+}
+
+/* 라벨 전체를 입력 박스처럼 꾸밈 */
+.file-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border: 1px solid #d2d2d2;
+    border-radius: 4px;
+    height: 40px;
+    width: 100%;
+    padding-left: 12px;
+    font-size: 16px;
+    color: #000;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+/* 포커스 스타일 */
+.file-upload input[type="file"]:focus + .file-label,
+.file-label:focus-within {
+    border: 1px solid #1976d2;
+}
+
+/* 파일 라벨 텍스트 */
+.file-label-text {
+    width: 80px;
+    flex-shrink: 0;
+}
+
+/* 파일 이름 텍스트 */
+.file-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+/* 버튼 */
+.file-button1 {
+    background: #f1f1f1;
+    /* background-color: #0d6efd; */
+    border: none;
+    border-left: 1px solid #d2d2d2;
+    padding: 0 10px;
+    height: 100%;
+    font-size: 14px;
+    color: #333;
+    /* color: white; */
+    cursor: pointer;
+    width: 100px;
+    flex-shrink: 0;
+}
+
+.file-button2 {
+    background: #f1f1f1;
+    /* background-color: #0d6efd; */
+    border: none;
+    border-left: 1px solid #d2d2d2;
+    padding: 0 10px;
+    height: 100%;
+    font-size: 14px;
+    color: #333;
+    /* color: white; */
+    cursor: pointer;
+    border-radius: 0 4px 4px 0;
+    width: 100px;
+    flex-shrink: 0;
+}

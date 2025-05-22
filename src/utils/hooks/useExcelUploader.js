@@ -68,6 +68,7 @@ const useExcelUploader = () => {
         })
 
         if (res?.data?.result === resultType.SUCCESS) {
+            setSelectFile(null); 
             return {
                 result: resultType.SUCCESS,
                 alert: `${selectFile.name} 업로드에 성공하였습니다.`
@@ -81,7 +82,7 @@ const useExcelUploader = () => {
     }
 
     // 엑셀 파일 선택 + 파일 업로드
-    const handleSelectAndUpload = async(e, url) => {
+    const handleSelectAndUpload = async(url, e, extraData = {}) => {
         const files = e.target.files;
 
         if(files.length != 1){
@@ -108,28 +109,47 @@ const useExcelUploader = () => {
         }
 
         const formData = new FormData();
+
         formData.append("file", file);
+        for (const [key, value] of Object.entries(extraData)) {
+            formData.append(key, value);
+        }
 
-        const res = await Axios.POST(url, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
+        let res = null;
+        try{
+            res = await Axios.POST(url, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                },
+            })
+            console.log(res);
+            if (res?.data?.result === resultType.SUCCESS) {
+                e.target.value = "";
+                setSelectFile(null); 
+                return {
+                    result: resultType.SUCCESS,
+                    alert: "업로드에 성공하였습니다."
+                }
+            }else {
+                e.target.value = "";
+                setSelectFile(null);
+                return {
+                    result: resultType.FAILURE,
+                    alert: "업로드에 실패하였습니다.\n잠시후에 다시 시도하여 주세요.",
+                    message: res?.data?.message
+                }
             }
-        })
-
-        if (res?.data?.result === resultType.SUCCESS) {
-            return {
-                result: resultType.SUCCESS,
-                alert: "업로드에 성공하였습니다."
-            }
-        }else {
+        } catch(error) {
             e.target.value = "";
             setSelectFile(null);
             return {
                 result: resultType.FAILURE,
                 alert: "업로드에 실패하였습니다.\n잠시후에 다시 시도하여 주세요.",
-                message: res?.data?.message
+                message: error?.message || "Network error"
             }
         }
+
+        
     }
 
     return { handleFileChange,handleUpload, handleSelectAndUpload, selectFile };
