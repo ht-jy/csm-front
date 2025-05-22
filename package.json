@@ -35,7 +35,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "dev": "cross-env PORT=3002 HOST=0.0.0.0 react-scripts start",
+    "local": "cross-env PORT=3002 HOST=0.0.0.0 react-scripts start",
+    "dev": "cross-env PORT=3002 HOST=127.0.0.1 react-scripts start",
+    "build:local": "cross-env REACT_APP_ENV=local react-scripts build",
     "build:dev": "cross-env REACT_APP_ENV=dev react-scripts build",
     "build:prod": "cross-env REACT_APP_ENV=prod react-scripts build"
   },
