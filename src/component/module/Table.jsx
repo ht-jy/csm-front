@@ -2,6 +2,7 @@ import React, { useState, useEffect, forwardRef, useImperativeHandle } from "rea
 import { dateUtil } from "../../utils/DateUtil";
 import { ObjChk } from "../../utils/ObjChk";
 import { Common } from "../../utils/Common";
+import { useTableContext } from "../context/TableContext";
 import DateInput from "./DateInput";
 import Time12Input from "./Time12Input";
 import ToggleInput from "./ToggleInput";
@@ -21,6 +22,9 @@ import HiddenLeftArrowIcon from "../../assets/image/hidden-left-arrow.png";
 import CheckIcon from "../../assets/image/check-icon.png";
 import NonCheckIcon from "../../assets/image/non-check-icon.png";
 import ImportantIcon from "../../assets/image/important.png";
+import CompareSIcom from "../../assets/image/compare_s.png";
+import CompareWIcom from "../../assets/image/compare_w.png";
+import CompareCIcom from "../../assets/image/compare_c.png";
 import "../../assets/css/Table.css";
 
 /**
@@ -63,8 +67,11 @@ const Table = forwardRef(({
     const [addRowIdx, setAddRowIdx] = useState([]);
     const [editAddList, setEditAddList] = useState([]);
     const [checkedItemList, setCheckedItemList] = useState([]);
+
     // 툴팁
     useTooltip([data]);
+    // 테이블 context
+    const { setCheckedList } = useTableContext();
     
     // 정렬 아이콘 클릭 시 상태 변경 및 정렬 함수 실행
     const handleSortChange = (itemName) => {
@@ -133,11 +140,21 @@ const Table = forwardRef(({
                 return {...item, row_checked: "Y"};
             });
             setCheckedItemList(newTableData);
+
+            // context
+            if(typeof setCheckedList === "function") {
+                setCheckedList(newTableData);
+            }
         }else{
             newTableData = tableDataCopy.map(item => {
                 return {...item, row_checked: "N"};
             });
             setCheckedItemList([]);
+
+            // context
+            if(typeof setCheckedList === "function") {
+                setCheckedList([]);
+            }
         }
         setTableData(newTableData);
     }
@@ -157,6 +174,12 @@ const Table = forwardRef(({
         });
 
         const newCheckedItem = newTableData.filter(item => item.row_checked === "Y");
+
+        // context
+        if(typeof setCheckedList === "function") {
+            setCheckedList(newCheckedItem);
+        }
+
         setCheckedItemList(newCheckedItem);
         setTableData(newTableData);
     }
@@ -171,6 +194,11 @@ const Table = forwardRef(({
             newCheckedItem = checkedItemList.filter(obj => obj.index !== item.index);
         }
         setCheckedItemList(newCheckedItem);
+
+        // context
+        if(typeof setCheckedList === "function") {
+            setCheckedList(newCheckedItem);
+        }
 
         const tableDataCopy = structuredClone(tableData);
         let newTableData = [];
@@ -510,6 +538,7 @@ const Table = forwardRef(({
             <thead className={isHeaderFixed ? "fixed" : ""}>
                 <tr>
                     {columns.map((col, idx) => (
+                        col.colSpan === 0 ? null :
                         <th
                             key={`${col.itemName}${idx}`}
                             className={hoverState === col.itemName ? "th-hover" : ""}
@@ -520,6 +549,7 @@ const Table = forwardRef(({
                             }}
                             onMouseEnter={() => col.isSlide && setHoverState(col.itemName)}
                             onMouseLeave={() => col.isSlide && setHoverState(null)}
+                            colSpan={col.colSpan}
                         >
                             {
                                 col.itemName === "row_checked" && !isEdit ?
@@ -879,9 +909,16 @@ const Table = forwardRef(({
                                             : item[col.itemName]
                                         /***** Non Edit *****/
                                         : col.itemName === "row_checked" ?
-                                            <div>
-                                                <CheckInput checkFlag={item[col.itemName]} setCheckFlag={(value) => onClickRowCheck(value, item)}/>
-                                            </div>
+                                            col.checkedItemName ?
+                                                col.checkedState.find(state => state === item[col.checkedItemName]) && (
+                                                    <div>
+                                                        <CheckInput checkFlag={item[col.itemName]} setCheckFlag={(value) => onClickRowCheck(value, item)}/>
+                                                    </div>
+                                                )
+                                            :
+                                                <div>
+                                                    <CheckInput checkFlag={item[col.itemName]} setCheckFlag={(value) => onClickRowCheck(value, item)}/>
+                                                </div>
                                         : col.isDate ?
                                             formatDate(item[col.itemName], col.dateFormat)
                                         : col.isItemSplit ? 
@@ -926,6 +963,23 @@ const Table = forwardRef(({
                                             />
                                         : col.type === "number" ?
                                             Common.formatNumber(item[col.itemName])
+                                        : col.type === "daliy-compare" ?
+                                            item[col.itemName] === "S" ?
+                                                <div style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+                                                    <img src={CompareSIcom} style={{width: "20px"}}/>
+                                                    <span style={{paddingLeft: "5px"}}>반영</span>
+                                                </div>
+                                            : item[col.itemName] === "W" ?
+                                                <div style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+                                                    <img src={CompareWIcom} style={{width: "20px"}}/>
+                                                    <span style={{paddingLeft: "5px"}}>확인필요</span>
+                                                </div>
+                                            : item[col.itemName] === "C" ?
+                                                <div style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+                                                    <img src={CompareCIcom} style={{width: "20px"}}/>
+                                                    <span style={{paddingLeft: "5px"}}>경고</span>
+                                                </div>
+                                            : "-"
                                         : item[col.itemName]
                                         
                                     }

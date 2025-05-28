@@ -1,7 +1,24 @@
+import { dateUtil } from "../../../../../utils/DateUtil";
 import { ObjChk } from "../../../../../utils/ObjChk";
 
-const DailyDeadlineReducer = (state, action) => {
+const DailyCompareReducer = (state, action) => {
     switch(action.type){
+        case "COMPARE_INIT":
+            const compareList = ObjChk.ensureArray(action.list);
+            
+            const newcompareList = compareList.map((item, idx) => {
+                return {
+                    ...item, 
+                    worker_in_time: dateUtil.formatDateTime(item.worker_in_time),
+                    worker_out_time: dateUtil.formatDateTime(item.worker_out_time),
+                    deduction_in_time:dateUtil.formatDateTime(item.deduction_in_time),
+                    deduction_out_time: dateUtil.formatDateTime(item.deduction_out_time),
+                    index: idx,
+                };
+            });
+
+            return {...state, compareList: structuredClone(newcompareList)};
+
         case "FILE_INIT":
             let uploadList = [];
             let tbmList = [];
@@ -44,4 +61,4 @@ const DailyDeadlineReducer = (state, action) => {
     }
 }
 
-export default DailyDeadlineReducer;
+export default DailyCompareReducer;

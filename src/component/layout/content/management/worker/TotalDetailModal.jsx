@@ -126,14 +126,17 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
         document.body.style.overflow = 'unset';
         
         if(formData.project === undefined){
-            setModalText("프로젝트를 선택하여 주세요.");
-            setIsModal(true);
+            if(gridMode === "SAVE"){
+                setModalText("프로젝트를 선택하여 주세요.");
+                setIsModal(true);
+                return;
+            }
         }else if(formData.user_id === undefined || formData.user_id === ""){
             setModalText("아이디를 입력하여 주세요.");
             setIsModal(true);
-        }else{
-            saveBtnClick(formData, gridMode);
+            return;
         }
+        saveBtnClick(formData, gridMode);
     };
 
     // 삭제

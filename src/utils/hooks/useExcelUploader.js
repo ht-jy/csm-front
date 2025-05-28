@@ -84,7 +84,7 @@ const useExcelUploader = () => {
     // 엑셀 파일 선택 + 파일 업로드
     const handleSelectAndUpload = async(url, e, extraData = {}) => {
         const files = e.target.files;
-
+        
         if(files.length != 1){
             e.target.value = "";
             setSelectFile(null);
@@ -96,16 +96,12 @@ const useExcelUploader = () => {
         }
 
         const file = files[0];
-        const allowedExtensions = /(\.xlsx|\.xls)$/i;
+        const validation = validateExcelFile(file);
 
-        if(!allowedExtensions.exec(file.name)){
+        if (validation.result !== resultType.SUCCESS) {
             e.target.value = "";
             setSelectFile(null);
-
-            return {
-                result: resultType.FAILURE,
-                alert: "엑셀 파일만 업로드 가능합니다.(.xlsx, xls)"
-            }
+            return validation;
         }
 
         const formData = new FormData();
@@ -122,7 +118,7 @@ const useExcelUploader = () => {
                     'Content-Type': 'multipart/form-data'
                 },
             })
-            console.log(res);
+            
             if (res?.data?.result === resultType.SUCCESS) {
                 e.target.value = "";
                 setSelectFile(null); 
@@ -148,8 +144,28 @@ const useExcelUploader = () => {
                 message: error?.message || "Network error"
             }
         }
+    }
 
-        
+    const validateExcelFile = (file) => {
+        const name = file.name.toLowerCase();
+
+        if (!name.endsWith(".xlsx") && !name.endsWith(".xls")) {
+            return {
+                result: resultType.EXCEL_FORMAT_ERROR,
+                alert: "엑셀 파일만 업로드 가능합니다.\n확인 후 다시 업로드하여 주시기 바랍니다."
+            };
+        }
+
+        if (name.endsWith(".xls")) {
+            return {
+                result: resultType.EXCEL_FORMAT_ERROR,
+                alert: ".xls 형식은 지원되지 않습니다.\n\n엑셀 파일을 다시 열어 다음과 같이 저장 후 업로드해 주세요.\n\n1. 엑셀에서 파일을 열기\n2. [파일] → [다른 이름으로 저장]\n3. 파일 형식에서 Excel 통합 문서 (*.xlsx) 선택\n4. 저장 후 다시 업로드\n\n※ `.xlsx` 파일만 업로드 가능합니다.\n"
+            };
+        }
+
+        return {
+            result: resultType.SUCCESS
+        };
     }
 
     return { handleFileChange,handleUpload, handleSelectAndUpload, selectFile };
