@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import htencLogo from "../../assets/image/hitecheng_logo_default.png";
+import CompareIcon from "../../assets/image/compare.png";
 import Deducted from "../../assets/image/deducted.png";
 import DeadlineIcon from "../../assets/image/deadline.png";
 
@@ -42,9 +43,14 @@ const SideNav = () => {
                                     퇴직 공제
                                 </Link> */}
 
-                                <Link className="nav-link" to="/daily-deadline">
+                                {/* <Link className="nav-link" to="/daily-deadline">
                                     <div className="sb-nav-link-icon"><img src={DeadlineIcon} width='20px' /></div>
                                     일일 마감
+                                </Link> */}
+
+                                <Link className="nav-link" to="/daily-compare">
+                                    <div className="sb-nav-link-icon"><img src={CompareIcon} width='19px' /></div>
+                                    일일근로자 비교
                                 </Link>
 
                                 <Link className="nav-link" to="/equip">
