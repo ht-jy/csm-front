@@ -88,6 +88,11 @@ const SideNav = () => {
                                     코드 관리
                                 </Link>
 
+                                <Link className="nav-link" to="/project">
+                                    <div className="sb-nav-link-icon"><img src="/svg/menu/project-management.svg" width='20px' /></div>
+                                    프로젝트 설정
+                                </Link>
+
                             {/* </nav>
                         </div> */}
 
