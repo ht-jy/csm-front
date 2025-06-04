@@ -39,6 +39,8 @@ export const Common = {
     },
     // '-'으로 핸드폰번호 포맷
     formatMobileNumber(phoneNumber) {
+      if(phoneNumber === null) return "";
+      
       const numbers = phoneNumber.replace(/\D/g, '');
   
       let formatted = '';
@@ -153,19 +155,36 @@ export const Common = {
             cleaned = cleaned.slice(0, 13);
         }
 
-          // 생년월일(6자리) 미만이면 그대로 반환
-          if (cleaned.length < 7) {
-              return cleaned;
-          }
-          
-          // 6자리보다 길면 앞 6자리는 그대로, 그 이후 첫 자리는 노출, 나머지는 마스킹 처리
-          const birth = cleaned.slice(0, 6);
-          const remainder = cleaned.slice(6);
+        // 생년월일(6자리) 미만이면 그대로 반환
+        if (cleaned.length < 7) {
+            return cleaned;
+        }
+        
+        // 6자리보다 길면 앞 6자리는 그대로, 그 이후 첫 자리는 노출, 나머지는 마스킹 처리
+        const birth = cleaned.slice(0, 6);
+        const remainder = cleaned.slice(6);
 
-          const visible = remainder.charAt(0);
-          const masked = '*'.repeat(remainder.length > 1 ? remainder.length - 1 : 0);
-          
-          return `${birth}-${visible}${masked}`;
+        const visible = remainder.charAt(0);
+        const masked = '*'.repeat(remainder.length > 1 ? remainder.length - 1 : 0);
+        
+        return `${birth}-${visible}${masked}`;
+    },
+    // 주민번호 마스킹(뒷자리)
+    maskResidentBackNumber(jumin) {
+        if(ObjChk.all(jumin)) return "";
+
+        // 모든 숫자가 아닌 문자는 제거
+        let cleaned = jumin.replace(/[^0-9*]/g, '');
+
+          if (cleaned.length > 7) {
+            cleaned = cleaned.slice(0, 7);
+        }
+        
+        // 6자리보다 길면 앞 6자리는 그대로, 그 이후 첫 자리는 노출, 나머지는 마스킹 처리
+        const visible = cleaned.charAt(0);
+        const masked = '*'.repeat(cleaned.length > 1 ? cleaned.length - 1 : 0);
+        
+        return `${visible}${masked}`;
     },
     // 특정길이 반환
     clipToMaxLength(size, str){
@@ -179,6 +198,7 @@ export const Common = {
             return str;
         }
     },
+    // 숫자 천 단위 ','
     formatNumber(input) {
       if (input === undefined || input === null) {
           return "";
@@ -198,7 +218,6 @@ export const Common = {
           }
       }
       
-      // 천 단위 콤마 삽입
       return numericStr.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     },
     sanitizeNumberInput(input) {

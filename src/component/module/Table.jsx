@@ -3,6 +3,7 @@ import { dateUtil } from "../../utils/DateUtil";
 import { ObjChk } from "../../utils/ObjChk";
 import { Common } from "../../utils/Common";
 import { useTableContext } from "../context/TableContext";
+import Select from 'react-select';
 import DateInput from "./DateInput";
 import Time12Input from "./Time12Input";
 import ToggleInput from "./ToggleInput";
@@ -26,6 +27,7 @@ import CompareSIcom from "../../assets/image/compare_s.png";
 import CompareWIcom from "../../assets/image/compare_w.png";
 import CompareCIcom from "../../assets/image/compare_c.png";
 import "../../assets/css/Table.css";
+import SelectInput from "./SelectInput";
 
 /**
  * @description: 
@@ -37,7 +39,31 @@ import "../../assets/css/Table.css";
  * @additionalInfo
  * - props
  *  columns: 테이블 th/td 설정 리스트
- *      [{isSearch: true|false(검색여부), isOrder: true|false(정렬여부), isSlide: true|false(정렬/검색 숨김여부), width: th/td size, header: th 제목/input placeholder , itemName: 실제값 명칭, isItemSplit: true|false(여러 아이템 사용여부. '|' split 하여 ' ' 공백으로 연결), bodyAlign: "center"|"left"|"right"(td align), isEllipsis: true|false(td 줄임말(...)여부), isDate: true|false(날짜필드여부), dateFormat: (dateUtils 기준)}, ...]
+ *      [{
+ *          isSearch: true|false(검색여부), 
+ *          isOrder: true|false(정렬여부), 
+ *          isSlide: true|false(정렬/검색 숨김여부), 
+ *          width: th/td size, 
+ *          header: th 제목/input placeholder, 
+ *          itemName: 실제값 명칭 | "row_checked" -> 체크박스 사용 필드 지정
+ *              itemName이 "row_checked" 경우에 사용
+ *              - checkType: "all"|"reverse" -> 전체선택 | 반전선택 , defalut: all
+ *              - checkedItemName: 체크박스 사용 비교 state 필드명칭 -> checkedItemName가 없을시 "row_checked"로 지정된 열은 체크박스로 사용되고, 있을시 checkedItemName에 적혀있는 필드의 값으로 비교하게 된다.
+ *              - checkedState: [], checkedItemName에 있는 값에서 사용할 값의 배열
+ *          isItemSplit: true|false(여러 아이템 사용여부. '|' split 하여 ' ' 공백으로 연결), 
+ *          bodyAlign: "center"|"left"|"right"(td align), 
+ *          isEllipsis: true|false(td 줄임말(...)여부), 
+ *          isDate: true|false(날짜필드여부), 
+ *          dateFormat: (dateUtils 기준)},
+ *          type:
+ *              - number: 숫자필드로 사용 3자리 단위로 ',' 구분됨
+ *              - daliy-compare: 일일근로자 비교 화면의 상태에 사용되기 위한 타입
+ *              - non-edit-select: 테이블 수정모드가 아닌 상태에서도 select를 사용
+ *          condition: [], 배열형태로 여러 포맷에서 조건에 맞게 사용
+ *              - 사용중: 
+ *                  type: "non-edit-select",
+ *          ...
+ *      ]
  *  data: 실제 값 리스트
  *  searchValues={}: 검색 필드 객체
  *  onSearch: 검색 시 부모 컴포넌트 실행 함수(검색input에서 enter 입력시 실행)
@@ -71,7 +97,7 @@ const Table = forwardRef(({
     // 툴팁
     useTooltip([data]);
     // 테이블 context
-    const { setCheckedList } = useTableContext();
+    const { setCheckedList, nonEditSelect } = useTableContext();
     
     // 정렬 아이콘 클릭 시 상태 변경 및 정렬 함수 실행
     const handleSortChange = (itemName) => {
@@ -185,8 +211,9 @@ const Table = forwardRef(({
     }
 
     // row 체크박스 클릭
-    const onClickRowCheck = (checked, item) => {
-        const checkedItemListCopy = structuredClone(checkedItemList);
+    const onClickRowCheck = (checked, index) => {
+        const item = tableData.find(data => data.index === index) || {};
+
         let newCheckedItem = [];
         if(checked === "Y"){
             newCheckedItem = [...checkedItemList, item];
@@ -239,6 +266,21 @@ const Table = forwardRef(({
             });
             setTableData(tableNewData);
         }
+
+        // 체크된 리스트 데이터 변경
+        const newCheckedItemList = checkedItemList.map(item => {
+            if(item.index === idx){
+                return { ...item, [col.itemName]: value };
+            }
+            return item;
+        });
+        setCheckedItemList(newCheckedItemList);
+        // context
+        if(typeof setCheckedList === "function") {
+            setCheckedList(newCheckedItemList);
+        }
+
+        if(!isEdit) return;
         
         // editList(추가/수정 row) 수정
         const editRow = editList.find(item => item.index === idx)
@@ -912,12 +954,12 @@ const Table = forwardRef(({
                                             col.checkedItemName ?
                                                 col.checkedState.find(state => state === item[col.checkedItemName]) && (
                                                     <div>
-                                                        <CheckInput checkFlag={item[col.itemName]} setCheckFlag={(value) => onClickRowCheck(value, item)}/>
+                                                        <CheckInput checkFlag={item[col.itemName]} setCheckFlag={(value) => onClickRowCheck(value, item.index)}/>
                                                     </div>
                                                 )
                                             :
                                                 <div>
-                                                    <CheckInput checkFlag={item[col.itemName]} setCheckFlag={(value) => onClickRowCheck(value, item)}/>
+                                                    <CheckInput checkFlag={item[col.itemName]} setCheckFlag={(value) => onClickRowCheck(value, item.index)}/>
                                                 </div>
                                         : col.isDate ?
                                             formatDate(item[col.itemName], col.dateFormat)
@@ -939,9 +981,10 @@ const Table = forwardRef(({
                                                     style={{width: "16px"}}
                                                 />
                                         : col.isFormat ?
-                                            Common[col.valid](item[col.itemName]) ?
+                                            // Common[col.valid](item[col.itemName]) ?
+                                            //     Common[col.format](item[col.itemName])
+                                            // :   
                                                 Common[col.format](item[col.itemName])
-                                            :   Common[col.format](item[col.itemName])
                                         : col.importantName ? 
                                             item[col.importantName] === 'Y' ?
                                             <>
@@ -980,6 +1023,14 @@ const Table = forwardRef(({
                                                     <span style={{paddingLeft: "5px"}}>경고</span>
                                                 </div>
                                             : "-"
+                                        : col.type === "non-edit-select" ?
+                                            col.condition[2].includes(item[col.condition[1]]) ?
+                                                <SelectInput
+                                                    options={nonEditSelect[col.condition[0]] || []}
+                                                    defaultValue={item[col.itemName] || "NONE"}
+                                                    onChange={(value) => onChangeTableData(item.index, col, value)}
+                                                />
+                                            : ObjChk.ensureArray(nonEditSelect[col.condition[0]]).find(opt => opt.value === item[col.itemName])?.label
                                         : item[col.itemName]
                                         
                                     }

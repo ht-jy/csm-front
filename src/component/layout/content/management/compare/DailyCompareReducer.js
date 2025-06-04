@@ -55,6 +55,16 @@ const DailyCompareReducer = (state, action) => {
                 newUploadFile = [...notTbmFileList, findTbmFile];
             }
             return {...state, uploadList: structuredClone(newUploadFile)}
+        
+        case "PROJECT_OPTION":
+            const projectOptions = [];
+            ObjChk.ensureArray(action.list).forEach(item => {
+                projectOptions.push(
+                    {value: item.jno, label: item.project_nm},
+                );
+            });
+            
+            return {...state, tableProjectOptions: structuredClone(projectOptions)};
 
         default:
             return state;

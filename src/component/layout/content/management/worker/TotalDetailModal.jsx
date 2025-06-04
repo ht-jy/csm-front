@@ -46,7 +46,10 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
     const [formData, setFormData] = useState({});
     const [initialData, setInitialData] = useState([]); // 원본 데이터 저장
     /** 마스킹 된 주민번호 **/
-    const [maskRegNo, setMaskRegNo ] = useState();
+    const [frontReg, setFrontReg] = useState("");
+    const [backReg, setBackReg] = useState("");
+    const [initFrontReg, setInitFrontReg] = useState("");
+    const [initBackReg, setInitBackReg] = useState("");
     /** 마스킹 아이콘 클릭중 **/
     const [showFullRegNo, setShowFullRegNo] = useState(false);
     /** 근로자 코드 **/
@@ -82,24 +85,24 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
         }
     }
 
-    // 주민번호 마스킹 변경 처리 
-    const onChangeRegMasking = (value) => {
-        let newRegNo = formData.reg_no.replaceAll("-", "") || "";
-        const maskLength = value?.replaceAll("-", "").length || 0;
-        const realLength = newRegNo.length;
-        
+    // 주민번호 마스킹 변경 처리
+    const onChangeBackReg = (value) => {
+        if(value.length > 7) value=value.substring(0, 7);
 
-        if(maskLength === 0) {
-            newRegNo = "";
-        }else if(maskLength < realLength){
-            newRegNo = newRegNo.slice(0, maskLength);
-        }else{
-            newRegNo += value?.replaceAll("-", "").slice(-1);
+        const lastAsteriskIndex = value.lastIndexOf("*");
+        if(lastAsteriskIndex === -1){
+            setBackReg(value);
+            return;
         }
 
-        newRegNo = Common.residentNumber(newRegNo);
-        setMaskRegNo(value);
-        onChangeFormData("reg_no", newRegNo);
+        const nextCharIndex = lastAsteriskIndex + 1 < value.length ? lastAsteriskIndex + 1 : -1;
+        if(nextCharIndex === -1){
+            setBackReg(backReg.substring(0, lastAsteriskIndex+1));
+            return;
+        }else{
+            setBackReg(backReg.substring(0, lastAsteriskIndex+1)+value.substring(nextCharIndex));
+            return;
+        }
     }
 
     // "X"
@@ -112,6 +115,8 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
     // "취소" 버튼 클릭 시 원래 데이터로 복구
     const handleCancel = () => {
         setFormData(initialData); // 초기 데이터로 되돌리기
+        setFrontReg(initFrontReg);
+        setBackReg(initBackReg);
         setIsEditfalse();
     };
 
@@ -124,6 +129,12 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
     // 저장, 수정
     const handleSave = (e) => {
         document.body.style.overflow = 'unset';
+
+        if(backReg === ""){
+            formData.reg_no = frontReg;
+        }else{
+            formData.reg_no = `${frontReg}-${backReg}`;
+        }
         
         if(formData.project === undefined){
             if(gridMode === "SAVE"){
@@ -188,7 +199,29 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
         setFormData(structuredClone(detailData));
         setInitialData(structuredClone(detailData)); // 초기 데이터 저장
         /** 주민번호 **/
-        setMaskRegNo(detailData.reg_no);
+        if(ObjChk.all(detailData.reg_no)){
+            setFrontReg("");
+            setBackReg("");
+            setInitFrontReg("");
+            setInitBackReg("");
+        }else{
+            if(detailData.reg_no.includes("-")){
+                setFrontReg(detailData.reg_no.split("-")[0]);
+                setBackReg(detailData.reg_no.split("-")[1]);
+                setInitFrontReg(detailData.reg_no.split("-")[0]);
+                setInitBackReg(detailData.reg_no.split("-")[1]);
+            }else if(detailData.reg_no.length > 6) {
+                setFrontReg(detailData.reg_no.substring(0,6));
+                setBackReg(detailData.reg_no.substring(6));
+                setInitFrontReg(detailData.reg_no.substring(0,6));
+                setInitBackReg(detailData.reg_no.substring(6));
+            }else{
+                setFrontReg(detailData.reg_no);
+                setBackReg("");
+                setInitFrontReg(detailData.reg_no);
+                setInitBackReg("");
+            }
+        }
         /** 근로자 구분 코드 조회 **/
         getWorkerType();
         
@@ -199,14 +232,6 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
     }, [formData.project])
 
     useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'unset';
-        }
-    }, [isOpen]);
-
-    useEffect(() => {
         if (gridMode === "SAVE" || gridMode === "EDIT") {
             setIsEdit(true);
         }else {
@@ -215,30 +240,28 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
     }, [gridMode]);
 
     useEffect(() => {
-            if (isOpen) {
-                document.body.style.overflow = "hidden";
-    
-                // 엔터 키 이벤트 핸들러
-                const handleKeyDown = (event) => {
-                    if (event.key === "Escape") {
-                        handleExit();
-                    }
-                };
-    
-                document.addEventListener("keydown", handleKeyDown);
-    
-                return () => {
-                    document.body.style.overflow = "unset";
-                    document.removeEventListener("keydown", handleKeyDown);
-                };
-            }
+        if (isOpen) {
+            document.body.style.overflow = "hidden";
 
-        }, [isOpen]);
+            // 엔터 키 이벤트 핸들러
+            const handleKeyDown = (event) => {
+                if (event.key === "Escape") {
+                    handleExit();
+                }
+            };
 
-        useEffect(() => {
-        }, [formData.site_nm])
+            document.addEventListener("keydown", handleKeyDown);
 
-        return (
+            return () => {
+                document.body.style.overflow = "unset";
+                document.removeEventListener("keydown", handleKeyDown);
+            };
+        }else {
+            document.body.style.overflow = "unset";
+        }
+    }, [isOpen]);
+
+    return (
         <div>
             <Modal
                 isOpen={isModal}
@@ -411,10 +434,13 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                     <div className="grid-input" style={{ flex: 1, marginRight: "10px" }}>
                                         {
                                             isEdit ?
-                                                <>
-                                                    <input type="text" value={showFullRegNo ? formData.reg_no || "" : Common.maskResidentNumber(maskRegNo) || ""} onChange={(e) => onChangeRegMasking(e.target.value)}/>
-                                                    <input type="hidden" value={formData.reg_no || ""}/>
-                                                </>
+                                                <div style={{display: "flex", alignItems: "center"}}>
+                                                    <input type="text" value={frontReg} onChange={(e) => setFrontReg(e.target.value)} style={{width: "100px"}}/>
+                                                    &nbsp;-&nbsp;
+                                                    <input type="text" value={showFullRegNo ? backReg : Common.maskResidentBackNumber(backReg)} onChange={(e) => onChangeBackReg(e.target.value)} style={{width: "100px"}}/>
+                                                    {/* <input type="text" value={showFullRegNo ? formData.reg_no || "" : Common.maskResidentNumber(maskRegNo) || ""} onChange={(e) => onChangeRegMasking(e.target.value)}/>
+                                                    <input type="hidden" value={formData.reg_no || ""}/> */}
+                                                </div>
                                             :
                                             showFullRegNo ? formData.reg_no : Common.maskResidentNumber(formData.reg_no)
                                         }
