@@ -30,6 +30,7 @@ const DailyCompare = () => {
         tbmList: [],
         departList: [{ value: "NONE", label: "프로젝트를 선택하여 주세요." }],
         initDepartList: [{ value: "NONE", label: "프로젝트를 선택하여 주세요." }],
+        tableProjectOptions: [],
     });
 
     const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder, rnumOrder, setRnumOrder, retrySearchText, setRetrySearchText, editList, setEditList } = useTableControlState(100);
@@ -38,11 +39,14 @@ const DailyCompare = () => {
     const columns = [
         { itemName: "row_checked", checked: "N", checkType: "all", width: "35px", bodyAlign: "center", checkedState: ["W"], checkedItemName: "compare_state" },
         { isSearch: false, isOrder: false, width: "100px", header: "상태", itemName: "compare_state", bodyAlign: "center", isEllipsis: false, type: "daliy-compare" },
-        { isSearch: false, isOrder: true, width: "150px", header: "근로자 이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: true },
-        { isSearch: false, isOrder: true, width: "150px", header: "부서/조직명", itemName: "department", bodyAlign: "left", isEllipsis: true },
+        { isSearch: false, isOrder: true, width: "80px", header: "근로자 이름", itemName: "user_nm", bodyAlign: "center", isEllipsis: true },
+        { isSearch: false, isOrder: true, width: "120px", header: "부서/조직명", itemName: "department", bodyAlign: "left", isEllipsis: true },
+        { isSearch: false, isOrder: false, width: "100px", header: "번호", itemName: "user_id", bodyAlign: "center", isEllipsis: true, isFormat: true, format: "formatMobileNumber"},
+        { isSearch: false, isOrder: false, width: "50px", header: "성별", itemName: "gender", bodyAlign: "center", isEllipsis: true },
+        { isSearch: false, isOrder: false, width: "200px", header: "프로젝트", itemName: "jno", bodyAlign: "left", isEllipsis: true, type: "non-edit-select", condition: ["PROJECT", "compare_state", ["W"]] },
+        { isSearch: false, isOrder: false, width: "50px", header: "TBM", itemName: "is_tbm", bodyAlign: "center", isEllipsis: false, isChecked: true },
         { isSearch: false, isOrder: false, width: "250px", header: "홍채인식기", itemName: "worker_in_time", bodyAlign: "center", isEllipsis: true, colSpan: 2 },
-        { isSearch: false, isOrder: false, width: "250px", header: "", itemName: "worker_out_time", bodyAlign: "center", isEllipsis: true, colSpan: 0 },
-        { isSearch: false, isOrder: false, width: "150px", header: "TBM", itemName: "is_tbm", bodyAlign: "center", isEllipsis: false, isChecked: true },
+        { isSearch: false, isOrder: false, width: "250px", header: "", itemName: "worker_out_time", bodyAlign: "center", isEllipsis: true, colSpan: 0 },        
         { isSearch: false, isOrder: false, width: "250px", header: "퇴직공제", itemName: "deduction_in_time", bodyAlign: "center", isEllipsis: true, colSpan: 2 },
         { isSearch: false, isOrder: false, width: "250px", header: "퇴직공제", itemName: "deduction_out_time", bodyAlign: "center", isEllipsis: true, colSpan: 0 },
     ];
@@ -66,7 +70,11 @@ const DailyCompare = () => {
     // 모달 (예, 아니오)
     const [isModal2, setIsModal2] = useState(false);
     const [modalText2, setModalText2] = useState("");
-    const [fncConfirm, setFncConfirm] = useState(() => {});
+    const [fncConfirm, setFncConfirm] = useState(() => () => {});
+    // 모달 (파일업로드 알림)
+    const [isFileModal, setIsFileModal] = useState(false);
+    const [fileModalText, setFileModalText] = useState("");
+    const [fileFncConfirm, setFileFncConfirm] = useState(() => () => {});
 
     // 날짜
     const [searchStartDate, setSearchStartDate] = useState(dateUtil.now());
@@ -81,7 +89,7 @@ const DailyCompare = () => {
     // 선택한 근로자 반영
     const registeredWorkers = async() => {
         setIsModal2(false);
-        
+
         if(ObjChk.ensureArray(checkedList).length === 0){
             setModalText("선택된 근로자가 없습니다.");
             setIsModal(true);
@@ -91,9 +99,11 @@ const DailyCompare = () => {
         const params = [];
         checkedList.forEach(item => {
             const param = {
+                sno: project.sno || 0,
                 jno: item.jno || 0,
                 user_id: item.user_id || "",
                 user_nm: item.user_nm || "",
+                department: item.department || "",
                 before_state: item.compare_state,
                 record_date: item.record_date,
                 after_state: "S",
@@ -168,10 +178,21 @@ const DailyCompare = () => {
             return;
         }
 
+        const fileModalText = {
+            "TBM": "엑셀에 작성된 회사명과 날짜가 아닌 선택한 회사명과 근무날짜로 저장이 됩니다.\n\n기존에 올린 파일이 있다면 삭제되며, 새롭게 올린 파일에 서명된 근로자만 비교 리스트에 적용이 됩니다.",
+            "DEDUCTION": "엑셀에 작성된 현장 중에서 선택한 프로젝트가 포함된 현장과 근로날짜만 저장이 됩니다.\n\n기존에 올린 파일이 있다면 삭제되며, 새롭게 올린 파일에 작성된 근로자만 비교 리스트에 적용이 됩니다.\n\n※공사관리시스템에 입력된 현장명, 소속업체와 동일하게 작성되지 않으면 동일 근로자로 등록이 안 될 수도 있습니다."
+        }
+
+        setFileModalText(fileModalText[type]);
+        setFileFncConfirm(() => () => inputFileOpen(type));
+        setIsFileModal(true);
+        
+    }
+    const inputFileOpen = (type) => {
+        setIsFileModal(false);
         if(excelRefs.current[type]){
             excelRefs.current[type].click();
         }
-        
     }
 
     // 파일 리스트 선택 TBM|else
@@ -203,6 +224,7 @@ const DailyCompare = () => {
             res = await handleSelectAndUpload("/excel/import", e, {
                 file_type: type,
                 work_date: searchStartDate, 
+                sno: project.sno,
                 jno: project.jno,
                 department: "TBM" ? selectedDepart.label || "" : "",
                 reg_user: user.userName,
@@ -305,11 +327,28 @@ const DailyCompare = () => {
     const getData = async() => {
         setIsLoading(true);
         try{
-            const res = await Axios.GET(`/compare?jno=${project.jno}&start_date=${searchStartDate}&order=${order}&retry_search=${retrySearchText}`);
+            const res = await Axios.GET(`/compare?sno=${project.sno}&jno=${project.jno}&start_date=${searchStartDate}&order=${order}&retry_search=${retrySearchText}`);
             
             if(res?.data?.result === resultType.SUCCESS){
                 dispatch({type: "COMPARE_INIT", list: res?.data?.values || []});
                 setCheckedList([]);
+            }
+        } catch {
+            
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    // 같은 현장 프로젝트 조회
+    const getProjectData = async() => {
+        setIsLoading(true);
+
+        try{
+            const res = await Axios.GET(`/project/project-by-site?sno=${project.sno}`);
+            
+            if(res?.data?.result === resultType.SUCCESS){
+                dispatch({type: "PROJECT_OPTION", list: res?.data?.values || []});
             }
         } catch {
             
@@ -337,6 +376,7 @@ const DailyCompare = () => {
         getData();
         getUploadData();
         getDepartData();
+        getProjectData();
         if(project === null){
             dispatch({type: "FILE_EMPTY"});
             dispatch({type: "DEPART_EMPTY"});
@@ -368,6 +408,13 @@ const DailyCompare = () => {
                 fncConfirm={fncConfirm}
                 cancel={"아니오"}
                 fncCancel={() => setIsModal2(false)}
+            />
+            <Modal 
+                isOpen={isFileModal}
+                title={"일일 근로자 비교"}
+                text={fileModalText}
+                confirm={"확인"}
+                fncConfirm={fileFncConfirm}
             />
             <div className="container-fluid px-4">
                 <ol className="breadcrumb mb-4 content-title-box">
@@ -414,12 +461,12 @@ const DailyCompare = () => {
                                                         options={state.departList}
                                                         value={selectedDepart}
                                                         styles={{
-                                                        container: (provided) => ({
-                                                        ...provided,
-                                                        width: "300px",
-                                                        zIndex: 100,
-                                                        }),
-                                                    }}
+                                                            container: (provided) => ({
+                                                            ...provided,
+                                                            width: "300px",
+                                                            zIndex: 100,
+                                                            }),
+                                                        }}
                                                     />
                                                 )
                                             }
@@ -466,8 +513,8 @@ const DailyCompare = () => {
                 </div>
 
                 <div className="table-wrapper">
-                    <div className="table-container" style={{overflow: "auto", maxHeight: "calc(100vh - 350px)"}}>
-                        <TableProvider setCheckedList={setCheckedList}>
+                    <div className="table-container" id="table-container" style={{overflow: "auto", maxHeight: "calc(100vh - 350px)"}}>
+                        <TableProvider setCheckedList={setCheckedList} nonEditSelect={{PROJECT: state.tableProjectOptions}}>
                             <Table 
                                 ref={tableRef}
                                 columns={columns} 
