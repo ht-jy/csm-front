@@ -325,3 +325,7 @@ tbody .fixed-right {
   padding-left: 10px;
   text-align: left;
 }
+
+.td-backgroud-sort {
+  background-color: #fff4d384 !important;
+}

@@ -22,6 +22,7 @@ import "react-calendar/dist/Calendar.css";
 import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Paginate.css";
 import "../../../../../assets/css/Calendar.css";
+import { TableProvider } from "../../../../context/TableContext";
 
 /**
  * @description: 현장 근로자 관리
@@ -117,6 +118,17 @@ const SiteBase = () => {
         { value: "USER_NM", label: "근로자 이름" },
         { value: "DEPARTMENT", label: "부서/조직명" },
     ];
+
+    // 수정모드에서 추가생성한 데이터 bool
+    const isEditModeAddData = (item) => {
+        if(ObjChk.all(item.compare_state)) return false;
+
+        // X: 현장근로자에서 추가한 데이터
+        if(item.compare_state === "X"){
+            return true;
+        }
+        return false;
+    }
 
     // 테이블 수정상태로 변경
     const onClickEditBtn = () => {
@@ -247,12 +259,16 @@ const SiteBase = () => {
             const workers = [];
             forwradRes.map(item => {
                 const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
+                const message = `jno[before:${item.jno}, after:${selectedProject.jno}]`;
+
                 const worker = {
                     sno: item.sno,
                     jno: item.jno,
                     after_jno: selectedProject.jno,
                     user_id: item.user_id,
                     record_date: dateUtil.goTime(record_date),
+                    work_state: item.work_state,
+                    message: message,
                     mod_uno: user.uno,
                     mod_user: user.user_nm,
                 }
@@ -351,6 +367,27 @@ const SiteBase = () => {
             const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
             const in_recog_time = item.in_recog_time === "0001-01-01T00:00:00Z" ? item.in_recog_time : dateUtil.goTime(record_date + "T" + item.in_recog_time?.split("T")[1]);
             const out_recog_time = item.out_recog_time === "0001-01-01T00:00:00Z" ? item.out_recog_time : dateUtil.goTime(record_date + "T" + item.out_recog_time?.split("T")[1]);
+
+            let message = [];
+            const find = state.list.find(data => data.sno === item.sno && data.user_id === item.user_id);
+            if(find !== undefined){
+                if(dateUtil.getTime(find.in_recog_time) !== dateUtil.getTime(item.in_recog_time)){
+                    message.push(`in_recog_time[before:${find.in_recog_time}, after:${item.in_recog_time}]`);
+                }
+
+                if(dateUtil.getTime(find.out_recog_time) !== dateUtil.getTime(item.out_recog_time)){
+                    message.push(`in_recog_time[before:${find.in_recog_time}, after:${item.in_recog_time}]`);
+                }
+
+                if(find.is_deadline !== item.is_deadline){
+                    message.push(`in_recog_time[before:${find.in_recog_time}, after:${item.in_recog_time}]`);
+                }
+
+                if(find.is_overtime !== item.is_overtime){
+                    message.push(`in_recog_time[before:${find.in_recog_time}, after:${item.in_recog_time}]`);
+                }
+            }
+
             const param = {
                 sno: project.sno,
                 jno: project.jno,
@@ -361,6 +398,7 @@ const SiteBase = () => {
                 is_deadline: item.is_deadline,
                 is_overtime: item.is_overtime,
                 work_state: item.work_state,
+                message: message.join(" | "),
                 mod_user: user.userName,
                 mod_uno: user.uno,
             }
@@ -617,7 +655,7 @@ const SiteBase = () => {
                     
                     <div className="table-wrapper">
                         <div className="table-container" style={{overflow: "auto", maxHeight: "calc(100vh - 350px)"}}>
-                            <SiteBaseContext.Provider value={{searchTime: searchStartTime}}>
+                            <TableProvider searchTime={searchStartTime} funcIsEditModeAddData={isEditModeAddData}>
                                 <Table 
                                     ref={tableRef}
                                     columns={columns} 
@@ -634,7 +672,7 @@ const SiteBase = () => {
                                     editInfo={editInfo}
                                     onChangeEditList={handleEditList}
                                 />
-                            </SiteBaseContext.Provider>
+                            </TableProvider>
                         </div>
                     </div>
                     <div>
