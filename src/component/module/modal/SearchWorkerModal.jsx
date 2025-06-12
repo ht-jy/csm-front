@@ -11,6 +11,7 @@ import Search from "../search/Search";
 import Button from "../Button";
 import DateInput from "../DateInput";
 import SiteBaseContext from "../../context/SiteBaseContext";
+import { useTableContext } from "../../context/TableContext";
 import "../../../assets/css/SearchWorkerModal.css";
 
 /**
@@ -28,7 +29,7 @@ import "../../../assets/css/SearchWorkerModal.css";
  *    Http Method - GET : worker/total/simple (전체 근로자 조회)
  */
 const SearchWorkerModal = ({isOpen=false, fncExit, onClickRow}) => {
-    const { searchTime } = useContext(SiteBaseContext);
+    const { searchTime } = useTableContext();
     const { project } = useAuth();
     const [userId, setUserId] = useState("");
     const [data, setData] = useState([]);

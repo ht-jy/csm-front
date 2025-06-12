@@ -97,7 +97,7 @@ const Table = forwardRef(({
     // 툴팁
     useTooltip([data]);
     // 테이블 context
-    const { setCheckedList, nonEditSelect } = useTableContext();
+    const { setCheckedList, nonEditSelect, funcIsEditModeAddData } = useTableContext();
     
     // 정렬 아이콘 클릭 시 상태 변경 및 정렬 함수 실행
     const handleSortChange = (itemName) => {
@@ -124,6 +124,16 @@ const Table = forwardRef(({
             return [...prevList, { name: itemName, order: newOrder }];
         });
     };
+
+    // 수정모드에서 추가생성한 데이터 bool
+    const isEditModeAddData = (item) => {
+        // context
+        if(typeof funcIsEditModeAddData === "function") {
+            return funcIsEditModeAddData(item);
+        }else{
+            return false;
+        }
+    }
 
     // Enter 키 이벤트 처리
     const handleKeyPress = (e, itemName) => {
@@ -839,12 +849,11 @@ const Table = forwardRef(({
                                 : 
                                     () => onClickRow(item, "DETAIL")
                             }
-                            // style={{height: "36px"}}
                         >
                             {columns.map((col, col_idx) => (
                                 <td
                                     key={`cell-${idx}-${col.itemName}`}
-                                    className={`${col.bodyAlign} ${col.isEllipsis ? "ellipsis-tooltip" : ""} ${item[col.boldItemName] === 'Y' || item[col.boldItemName] === true ? "fw-bold" : ""}`}
+                                    className={`${col.bodyAlign} ${col.isEllipsis ? "ellipsis-tooltip" : ""} ${item[col.boldItemName] === 'Y' || item[col.boldItemName] === true ? "fw-bold" : ""} ${isEditModeAddData(item) ? "td-backgroud-sort" : ""}`}
                                     style={editInfo ? tdEditStyle(col, editInfo[col_idx]) : {maxWidth: col.width}}
                                 >
                                     {

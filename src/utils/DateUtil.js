@@ -214,7 +214,9 @@ export const dateUtil = {
         // go의 time.Time
         const goTimeRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
         if (goTimeRegex.test(dateStr)) {
-            return dateStr;
+            const dateObj = new Date(dateStr);
+            const kst = new Date(dateObj.getTime() + 9 * 60 * 60 * 1000);
+            return kst.toISOString().replace('Z', '+09:00');
         }
 
         // "YYYY-MM-DD"
@@ -230,10 +232,8 @@ export const dateUtil = {
             return "0001-01-01T00:00:00Z";
         }
         
-        const isoString = dateObj.toISOString();
-        const goFormatted = isoString.replace(/\.\d{3}Z$/, 'Z');
-        
-        return goFormatted;
+        const kst = new Date(dateObj.getTime() + 9 * 60 * 60 * 1000);
+        return kst.toISOString().replace('Z', '+09:00');
     },
     // 'YYYY-MM-DD' 형식의 문자열인이 체크
     isYYYYMMDD(dateString){
@@ -243,4 +243,18 @@ export const dateUtil = {
         }
         return false;
     },
+    // 0001-01-01T00:00:00+09:00 -> hh:mm:00
+    getTime(dateString){
+        if (!dateString || dateString === '0001-01-01T00:00:00Z') return "00:00:00";
+
+        if(!dateString.includes("T")) return "00:00:00";
+
+        const t = dateString.split("T");
+        if(!t[1].includes(":")) return "00:00:00";
+
+        const time = t[1].split(":");
+        if(time.length < 3) return "00:00:00";
+
+        return `${time[0]}:${time[1]}:00`;
+    }
 }
