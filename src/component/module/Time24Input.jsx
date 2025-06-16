@@ -13,7 +13,7 @@ import { ObjChk } from '../../utils/ObjChk';
  * @additionalInfo
  * btnStyle, time, setTime
  */
-const Time24Input = ({btnStyle, time, setTime}) => {
+const Time24Input = ({style, time, setTime}) => {
     const [hour, setHour] = useState("00");
     const [min, setMin] = useState("00");
 
@@ -61,7 +61,7 @@ const Time24Input = ({btnStyle, time, setTime}) => {
     }, [time]);
     
     return(
-        <div style={{display: "flex", alignItems: "center", justifyContent: "center", gap: "5px"}}>
+        <div style={{display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", ...style}}>
             <input className="time-input" type="text" value={hour} onChange={onChangeHour}/> : <input className="time-input" type="text" value={min} onChange={onChangeMin}/>
         </div>
     );

@@ -32,7 +32,7 @@ const Code = () => {
         level: 0,
         idx: 0,
         code: "",
-        p_code: "",
+        p_code: "root",
         code_nm: "HOME",
         code_color: "",
         udf_val_03: "",
@@ -50,7 +50,7 @@ const Code = () => {
         setIsLoading(true)
 
         try {
-             const res = await Axios.GET(`/code/tree?p_code=`)
+             const res = await Axios.GET(`/code/tree?p_code=root`)
               if (res.data?.result === "Success") {
                   setTreeData(res.data?.values?.code_trees)
 
@@ -69,7 +69,7 @@ const Code = () => {
     const getTreeData = async () => {
 
         setIsLoading(true)
-        const res = await Axios.GET(`code/tree?p_code=${state.pCode === "root" ? "" : state.pCode}`) 
+        const res = await Axios.GET(`code/tree?p_code=${state.pCode}`) 
 
         if (res.data?.result === "Success") {
             const tree = {

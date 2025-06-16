@@ -1,0 +1,22 @@
+.number-input {
+    border: 1px solid #ccc;
+    width: 150px;
+    height: 35px;
+    border-radius: 5px;
+    text-align: center;
+    padding-left: 10px;
+}
+
+.number-input:hover {
+    /* background: #e9ecef; */
+    border-color: #bbb;
+    border-color: #007bff;
+}
+
+.number-input:focus {
+    border-color: #007bff;
+}
+
+input::-webkit-inner-spin-button {
+  -webkit-appearance: inner-spin-button;
+}

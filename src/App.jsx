@@ -17,6 +17,7 @@ import Code from "./component/layout/content/management/code/Code";
 import DailyDeadline from "./component/layout/content/management/deadline/DailyDeadline";
 import RetireDeduction from "./component/layout/content/management/retire/RetireDeduction";
 import DailyCompare from "./component/layout/content/management/compare/DailyCompare";
+import Project from "./component/layout/content/management/project/SettingProject";
 import ErrorBoundary from "./component/error/ErrorBoundary";
 import ErrorPage from "./component/error/ErrorPage";
 import NotFound from "./component/error/NotFound";
@@ -50,6 +51,7 @@ function App() {
                             <Route path="/retire" element={<RetireDeduction />} />
                             <Route path="/daily-deadline" element={<DailyDeadline />} />
                             <Route path="/daily-compare" element={<DailyCompare />} />
+                            <Route path="/project" element={<Project />} />
                         </Route>
                         {/* 잘못된 경로 */}
                         <Route path="*" element={<NotFound />} />
