@@ -1,0 +1,25 @@
+.h5-style {
+    background-color: beige;
+    color: black;
+    padding: 1rem;
+    text-align: center;
+    margin: 0.5rem;
+    margin-bottom: 0px
+} 
+
+.h5-div-style {
+    background-color: beige;
+    color: black;
+    padding: 1rem;
+    text-align: center;
+}
+
+.text-style {
+    width:100px;
+    text-align: center;
+}
+
+.button-style  {
+    padding: 3px 5px;
+    font-size: 14px;
+}
