@@ -9,6 +9,13 @@ const SettingProjectReducer = (state, action) => {
                 })                
         
             return { ...state, selectOptions: selectOptions };
+            
+        case "MAN_HOURS":
+            return { ...state, manHours: [...action.manHours]}
+        case "SETTING":
+            return { ...state, setting: {...action.setting}}
+
+
 
         default:
             return state;
