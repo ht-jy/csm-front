@@ -28,6 +28,7 @@ import CompareWIcom from "../../assets/image/compare_w.png";
 import CompareCIcom from "../../assets/image/compare_c.png";
 import "../../assets/css/Table.css";
 import SelectInput from "./SelectInput";
+import DigitFormattedInput from "./DigitFormattedInput";
 
 /**
  * @description: 
@@ -868,21 +869,30 @@ const Table = forwardRef(({
                                                     />
                                                 :   null
                                             :   col.itemName === "row_checked" ?
-                                                    null                                            
+                                                    null                                      
                                             :   editInfo[col_idx].editType === "delete" && item[col.itemName] === "ADD_ROW" ?
                                                     <Button
                                                         text={"삭제"}
                                                         onClick={() => editDeleteRow(item.index)}
                                                         style={{height: "28px", padding: 0, fontSize: "13px", paddingLeft: "5px", paddingRight: "5px"}}
                                                     />
+                                            :   editInfo[col_idx].editType === "number" ?
+                                                    item["unableEdit"] ?
+                                                        item[col.itemName]
+                                                    : 
+                                                        <DigitFormattedInput 
+                                                            initNum={item[col.itemName]}
+                                                            setNum={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
+                                                            format={editInfo[col_idx].format}
+                                                            style={{width: "80%", height: "28px"}}
+                                                        />  
                                             :   editInfo[col_idx].editType === "toggleText" ?
                                                     item["unableEdit"] ?
                                                         item[col.itemName]
-                                                    :   
-                                                        <ToggleInput
+                                                    : 
+                                                        <TextInput 
                                                             initText={item[col.itemName]}
-                                                            toggleTexts={editInfo[col_idx].toggleTexts}
-                                                            setToggleText={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
+                                                            setText={(value) => onChangeTableData(item.index, editInfo[col_idx], value)}
                                                         />
                                             :   editInfo[col_idx].editType === "text" ?
                                                     item["unableEdit"] ?

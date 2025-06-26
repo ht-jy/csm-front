@@ -18,6 +18,7 @@ import PaginationWithCustomButtons from "../../../../module/PaginationWithCustom
 import Search from "../../../../module/search/Search";
 import EditTable from "../../../../module/EditTable";
 import SearchProjectModal from "../../../../module/modal/SearchProjectModal";
+import dayjs from 'dayjs';
 import "react-calendar/dist/Calendar.css";
 import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Paginate.css";
@@ -52,6 +53,8 @@ const SiteBase = () => {
         initialList: [],
         siteNmList: [],
         workStateCodes: [],
+        deadlineCode: [],
+        projectSetting: {},
     })
 
     const navigate = useNavigate();
@@ -80,20 +83,25 @@ const SiteBase = () => {
     const [isDeadlineModal, setIsDeadlineModal] = useState(false);
     // 일괄마감 선택 모달
     const [isDeadlineSelect, setIsDeadlineSelect] = useState(false);
+    // 근로자 삭제 확인 모달
+    const [isDelWorker, setIsDelWorker] = useState(false);
+    // 마감 취소 확인 모달
+    const [isDeadlineCancel, setIsDeadlineCancel] = useState(false);
 
     // 테이블 컬럼 정보
     const columns = [
         { itemName: "row_checked", checked: "N", checkType: "all", width: "35px", bodyAlign: "center" },
         { isSearch: false, isOrder: true, width: "70px", header: "순번", itemName: "rnum", bodyAlign: "center", isEllipsis: false, type: "number"},
-        { isSearch: true, isOrder: true, width: "150px", header: "아이디", itemName: "user_id", bodyAlign: "center", isEllipsis: false },
+        { isSearch: true, isOrder: true, width: "160px", header: "아이디", itemName: "user_id", bodyAlign: "center", isEllipsis: false },
         { isSearch: true, isOrder: true, width: "150px", header: "근로자 이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false },
         { isSearch: true, isOrder: true, width: "190px", header: "부서/조직명", itemName: "department", bodyAlign: "left", isEllipsis: false },
         { isSearch: false, isOrder: true, width: "150px", header: "날짜", itemName: "record_date", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'format' },
         { isSearch: false, isOrder: true, width: "150px", header: "출근시간", itemName: "in_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'formatTime24' },
         { isSearch: false, isOrder: true, width: "150px", header: "퇴근시간", itemName: "out_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'formatTime24' },
-        { isSearch: false, isOrder: true, width: "190px", header: "상태", itemName: "work_state", bodyAlign: "center", isEllipsis: false, isRadio: true, radioValues: state.workStateCodes.map(item => item.code), radioLabels: state.workStateCodes.map(item => item.code_nm), code: state.workStateCodes },
-        { isSearch: false, isOrder: true, width: "150px", header: "철야", itemName: "is_overtime", bodyAlign: "center", isEllipsis: false, isChecked: true},
-        { isSearch: false, isOrder: true, width: "150px", header: "마감여부", itemName: "is_deadline", bodyAlign: "center", isEllipsis: false, isChecked: true },
+        { isSearch: false, isOrder: true, width: "80px", header: "공수", itemName: "work_hour", bodyAlign: "center", isEllipsis: false },
+        { isSearch: false, isOrder: true, width: "150px", header: "상태", itemName: "work_state", bodyAlign: "center", isEllipsis: false, isRadio: true, radioValues: state.workStateCodes.map(item => item.code), radioLabels: state.workStateCodes.map(item => item.code_nm), code: state.workStateCodes },
+        { isSearch: false, isOrder: true, width: "80px", header: "철야", itemName: "is_overtime", bodyAlign: "center", isEllipsis: false, isChecked: true},
+        { isSearch: false, isOrder: true, width: "80px", header: "마감여부", itemName: "is_deadline", bodyAlign: "center", isEllipsis: false, isChecked: true },
     ];
 
     // 테이블 수정 정보
@@ -106,6 +114,7 @@ const SiteBase = () => {
         {itemName: "record_date", editType: "", dependencyModal: "workerByUserId", defaultValue: ""},
         {itemName: "in_recog_time", editType: "time24", defaultValue: "2006-01-02T08:00:00+09:00"},
         {itemName: "out_recog_time", editType: "time24", defaultValue: "2006-01-02T17:00:00+09:00"},
+        {itemName: "work_hour", editType: "number", format: "1.1", defaultValue: "1.0"},
         {itemName: "work_state", editType: "radio", radioValues: state.workStateCodes.map(item => item.code), radioLabels: state.workStateCodes.map(item => item.code_nm), defaultValue: "02"},
         {itemName: "is_overtime", editType: "check", defaultValue:"N"},
         {itemName: "is_deadline", editType: "check", defaultValue: "N"},
@@ -183,8 +192,9 @@ const SiteBase = () => {
                     jno: item.jno,
                     user_id: item.user_id,
                     record_date: dateUtil.goTime(record_date),
+                    message: `[DEADLINE FINISH]`,
                     mod_uno: user.uno,
-                    mod_user: user.user_nm,
+                    mod_user: user.userName,
                 }
                 deadlines.push(deadline);
             });
@@ -206,6 +216,193 @@ const SiteBase = () => {
                 navigate("/error");
             } finally {
                 setIsLoading(false);
+            }
+        }
+    }
+
+    // 근로자 리스트의 마감일 유효성 검사
+    // {'Y' | 'N' | 'C'} - 'Y': 유효, 'N': 유효하지 않음, 'C': 마감코드 없음
+    const isDeadlineValid = (forwradRes) => {
+        if (
+            !state?.projectSetting?.cancel_code ||
+            !Array.isArray(state.deadlineCode) ||
+            !Array.isArray(forwradRes)
+        ) {
+            return 'C';
+        }
+        
+        const cancelCode = state.projectSetting.cancel_code;
+        const matchedDeadline = state.deadlineCode.find((d) => d.code === cancelCode);
+
+        if (!matchedDeadline) {
+            return 'C';
+        }
+
+        const codeNm = parseInt(matchedDeadline.code_nm, 10);
+        if (isNaN(codeNm)) return 'C';
+
+        const today = dayjs().startOf('day');
+
+        for (const worker of forwradRes) {
+            const recordDate = dayjs(worker.record_date);
+            let deadlineDate;
+
+            if (codeNm === 0) {
+                deadlineDate = recordDate;
+            } else if (codeNm % 30 === 0) {
+                const monthsToAdd = codeNm / 30;
+                deadlineDate = recordDate.add(monthsToAdd, 'month').endOf('month');
+            } else {
+                deadlineDate = recordDate.add(codeNm, 'day');
+            }
+
+            if (deadlineDate.isBefore(today)) {
+                return 'N';
+            }
+        }
+
+        return 'Y';
+    };
+
+    // 현장 근로자 마감 취소
+    // 체크한 근로자가 있는지 확인하고 후 취소 모달 오픈
+    // 실제 변경시도하는 로직은 다른 함수에 구현
+    const onClickDeadlineCancelBtn = () => {
+        if(tableRef.current){
+            setModalTitle("마감 취소");
+            const forwradRes = tableRef.current.getCheckedItemList();
+            
+            if(forwradRes.length === 0){
+                setModalText("마감 취소할 근로자를 선택하세요.");
+                setIsModal(true);
+                return;
+            }
+
+            const deadlineArr = forwradRes.filter(item => item.is_deadline === "N");
+            if(deadlineArr.length > 0){
+                setModalText("마감 상태가 아닌 근로자가 있습니다.\n선택한 근로자를 확인해주세요.");
+                setIsModal(true);
+                return;
+            }
+
+            const deadlineValid = isDeadlineValid(forwradRes);
+            if(deadlineValid === "C"){
+                setModalText("마감 코드에 해당하는 항목이 없습니다.\n프로젝트 설정에서 마감취소기간을 재설정이후 다시 시도하여 주세요.");
+                setIsModal(true);
+                return;
+            }else if(deadlineValid === "N"){
+                setModalText("마감 취소 가능 기간이 넘은 근로자가 있습니다.\n선택한 근로자를 확인해주세요.");
+                setIsModal(true);
+                return;
+            }
+        }
+        
+        setIsDeadlineCancel(true);
+    }
+
+    // 마감 취소
+    const deadlineCancel = async() => {
+        setIsModal(false);
+        if(tableRef.current){
+            const selectWorkers = tableRef.current.getCheckedItemList();
+            
+            const workers = [];
+            selectWorkers.map(item => {
+                const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
+                const deadline = {
+                    sno: item.sno,
+                    jno: item.jno,
+                    user_id: item.user_id,
+                    record_date: dateUtil.goTime(record_date),
+                    message: `[DEADLINE CANCEL]`,
+                    mod_uno: user.uno,
+                    mod_user: user.userName,
+                }
+                workers.push(deadline);
+            });
+
+            setIsLoading(true);
+            try {
+                const res = await Axios.POST("worker/site-base/deadline-cancel", workers);
+                
+                if (res?.data?.result === "Success") {
+                    setModalText("마감 취소에 성공하였습니다.");
+                    await getData();
+                }else {
+                    setModalText("마감 취소에 실패하였습니다.\n잠시후에 다시 시도하거나 관리자에게 문의하여 주세요.");
+                }
+            } catch(err) {
+                navigate("/error");
+            } finally {
+                setIsLoading(false);
+                setIsDeadlineCancel(false);
+                setIsModal(true);
+            }
+        }
+    }
+
+    // 현장 근로자 삭제
+    // 체크한 근로자가 있는지 확인하고 후 삭제 모달 오픈
+    // 실제 변경시도하는 로직은 다른 함수에 구현
+    const onClickDeleteWorkerBtn = () => {
+        if(tableRef.current){
+            setModalTitle("근로자 삭제");
+            const forwradRes = tableRef.current.getCheckedItemList();
+            
+            if(forwradRes.length === 0){
+                setModalText("삭제할 근로자를 선택하세요.");
+                setIsModal(true);
+                return;
+            }
+
+            const deadlineArr = forwradRes.filter(item => item.is_deadline === "Y");
+            if(deadlineArr.length > 0){
+                setModalText("마감처리된 근로자는 삭제를 할 수 없습니다.\n선택한 근로자를 확인해주세요.");
+                setIsModal(true);
+                return;
+            }
+        }
+        
+        setIsDelWorker(true);
+    }
+
+    // 현장 근로자 삭제 처리
+    const deleteWorkers = async() => {
+        setIsModal(false);
+        if(tableRef.current){
+            const selectWorkers = tableRef.current.getCheckedItemList();
+            
+            const workers = [];
+            selectWorkers.map(item => {
+                const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
+                const deadline = {
+                    sno: item.sno,
+                    jno: item.jno,
+                    user_id: item.user_id,
+                    record_date: dateUtil.goTime(record_date),
+                    message: `[DELETE DATA]in_recog_time: ${item.in_recog_time}|out_recog_time: ${item.out_recog_time}|work_hour: ${item.work_hour}`,
+                    mod_uno: user.uno,
+                    mod_user: user.userName,
+                }
+                workers.push(deadline);
+            });
+
+            setIsLoading(true);
+            try {
+                const res = await Axios.POST("worker/site-base/delete", workers);
+                
+                if (res?.data?.result === "Success") {
+                    setModalText("근로자 삭제에 성공하였습니다.");
+                    await getData();
+                }else {
+                    setModalText("근로자 삭제에 실패하였습니다.\n잠시후에 다시 시도하거나 관리자에게 문의하여 주세요.");
+                }
+            } catch(err) {
+                navigate("/error");
+            } finally {
+                setIsLoading(false);
+                setIsDelWorker(false);
+                setIsModal(true);
             }
         }
     }
@@ -242,7 +439,7 @@ const SiteBase = () => {
         setIsModal2(true);
     }
 
-    // 프로젝트 선택용 모달 "예" 클릭
+    // 프로젝트 변경 선택용 모달 "예" 클릭
     const handleProjectModConfirm = async() => {
         setIsModal2(false);
         if(tableRef.current){
@@ -259,7 +456,7 @@ const SiteBase = () => {
             const workers = [];
             forwradRes.map(item => {
                 const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
-                const message = `jno[before:${item.jno}, after:${selectedProject.jno}]`;
+                const message = `[PROJECT MOVE]jno[before:${item.jno}, after:${selectedProject.jno}]`;
 
                 const worker = {
                     sno: item.sno,
@@ -270,7 +467,7 @@ const SiteBase = () => {
                     work_state: item.work_state,
                     message: message,
                     mod_uno: user.uno,
-                    mod_user: user.user_nm,
+                    mod_user: user.userName,
                 }
                 workers.push(worker);
             });
@@ -367,25 +564,39 @@ const SiteBase = () => {
             const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
             const in_recog_time = item.in_recog_time === "0001-01-01T00:00:00Z" ? item.in_recog_time : dateUtil.goTime(record_date + "T" + item.in_recog_time?.split("T")[1]);
             const out_recog_time = item.out_recog_time === "0001-01-01T00:00:00Z" ? item.out_recog_time : dateUtil.goTime(record_date + "T" + item.out_recog_time?.split("T")[1]);
-
+            
             let message = [];
-            const find = state.list.find(data => data.sno === item.sno && data.user_id === item.user_id);
-            if(find !== undefined){
-                if(dateUtil.getTime(find.in_recog_time) !== dateUtil.getTime(item.in_recog_time)){
-                    message.push(`in_recog_time[before:${find.in_recog_time}, after:${item.in_recog_time}]`);
-                }
+            if(item.rnum === "ADD_ROW"){
+                message = `[ADD DATA]in_recog_time: ${item.in_recog_time}|out_recog_time: ${item.out_recog_time}|work_hour: ${item.work_hour}`;
+            }else{
+                const find = state.list.find(data => data.sno === item.sno && data.user_id === item.user_id);
+                if(find !== undefined){
+                    if(dateUtil.getTime(find.in_recog_time) !== dateUtil.getTime(item.in_recog_time)){
+                        message.push(`in_recog_time[before:${find.in_recog_time}, after:${item.in_recog_time}]`);
+                    }
 
-                if(dateUtil.getTime(find.out_recog_time) !== dateUtil.getTime(item.out_recog_time)){
-                    message.push(`in_recog_time[before:${find.in_recog_time}, after:${item.in_recog_time}]`);
-                }
+                    if(dateUtil.getTime(find.out_recog_time) !== dateUtil.getTime(item.out_recog_time)){
+                        message.push(`out_recog_time[before:${find.out_recog_time}, after:${item.out_recog_time}]`);
+                    }
 
-                if(find.is_deadline !== item.is_deadline){
-                    message.push(`in_recog_time[before:${find.in_recog_time}, after:${item.in_recog_time}]`);
-                }
+                    if(find.work_hour !== item.work_hour){
+                        message.push(`work_hour[before:${find.work_hour}, after:${item.work_hour}]`);
+                    }
 
-                if(find.is_overtime !== item.is_overtime){
-                    message.push(`in_recog_time[before:${find.in_recog_time}, after:${item.in_recog_time}]`);
+                    if(find.work_state !== item.work_state){
+                        message.push(`work_state[before:${find.work_state}, after:${item.work_state}]`);
+                    }
+
+                    if(find.is_overtime !== item.is_overtime){
+                        message.push(`is_overtime[before:${find.is_overtime}, after:${item.is_overtime}]`);
+                    }
+
+                    if(find.is_deadline !== item.is_deadline){
+                        message.push(`is_deadline[before:${find.is_deadline}, after:${item.is_deadline}]`);
+                    }
                 }
+                message.join(" | ")
+                message = find.is_deadline !== item.is_deadline ? "[UPDATE DATA | DEADLINE FINISH]" + message : "[UPDATE DATA]" + message;
             }
 
             const param = {
@@ -398,7 +609,8 @@ const SiteBase = () => {
                 is_deadline: item.is_deadline,
                 is_overtime: item.is_overtime,
                 work_state: item.work_state,
-                message: message.join(" | "),
+                work_hour: item.work_hour,
+                message: message,
                 mod_user: user.userName,
                 mod_uno: user.uno,
             }
@@ -475,6 +687,42 @@ const SiteBase = () => {
         }
     };
 
+    // 프로젝트 마감 유예기간 코드 불러오기
+    const getProjectSettingCode = async() => {
+        setIsLoading(true);
+
+        try {
+            const res = await Axios.GET(`/code?p_code=PROJECT_SETTING`);
+            
+            if (res?.data?.result === "Success") {
+                dispatch({type: "DEADLINE_CANCEL_CODE", list: res?.data?.values?.list}) ;
+            }
+        } catch (err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    // 프로젝트 설정 조회
+    const getProjectSetData = async() => {
+        setIsLoading(true);
+        
+        try {
+            if(ObjChk.all(project?.jno)) return;
+
+            const res = await Axios.GET(`/project-setting/${project.jno}`)
+            
+            if(res?.data?.result === "Success"){
+                dispatch({type:"PROJECT_SETTING", list: ObjChk.ensureArray(res?.data?.values?.project)});
+            }
+        } catch (err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     const { 
         searchValues,
         activeSearch, setActiveSearch, 
@@ -493,6 +741,7 @@ const SiteBase = () => {
 
     useEffect(() => {
         getWorkStateDate();
+        getProjectSettingCode();
     }, []);
 
     // 상단 프로젝트 변경
@@ -503,6 +752,7 @@ const SiteBase = () => {
             tableRef.current.initEditList();
         }
         setEditList([]);
+        getProjectSetData();
     }, [project, searchStartTime, searchEndTime]);
 
     // 시작 날짜보다 끝나는 날짜가 빠를 시: 끝나는 날짜를 변경한 경우 (시작 날짜를 끝나는 날짜로)
@@ -554,6 +804,24 @@ const SiteBase = () => {
                 fncConfirm={workerDeadline}
                 cancel={"아니요"}
                 fncCancel={() => setIsDeadlineModal(false)}
+            />
+            <Modal
+                isOpen={isDelWorker}
+                title={"현장 근로자 삭제"}
+                text={"선택한 근로자를 삭제 하시겠습니까?\n삭제한 기록은 복구하실 수 없습니다."}
+                confirm={"예"}
+                fncConfirm={deleteWorkers}
+                cancel={"아니요"}
+                fncCancel={() => setIsDelWorker(false)}
+            />
+            <Modal
+                isOpen={isDeadlineCancel}
+                title={"마감 취소"}
+                text={"선택한 근로자를 마감취소 하시겠습니까?"}
+                confirm={"예"}
+                fncConfirm={deadlineCancel}
+                cancel={"아니요"}
+                fncCancel={() => setIsDeadlineCancel(false)}
             />
             <SelectModal
                 isOpen={isDeadlineSelect}
@@ -628,6 +896,8 @@ const SiteBase = () => {
                                         <>
                                             <Button text={"일괄마감"} onClick={onClickDeadLineBtn} />
                                             <Button text={"프로젝트 변경"} onClick={onClickModProjectBtn} />
+                                            <Button text={"근로자 삭제"} onClick={onClickDeleteWorkerBtn} />
+                                            <Button text={"마감 취소"} onClick={onClickDeadlineCancelBtn} />
                                         </>
                                     : null
                                 }
