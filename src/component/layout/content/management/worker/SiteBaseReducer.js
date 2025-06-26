@@ -19,6 +19,17 @@ const SiteBaseReducer = (state, action) => {
         case "WORK_STATE_CODE":
             return {...state, workStateCodes: structuredClone(Array.isArray(action.code) ? action.code : [])};
 
+        case "PROJECT_SETTING":
+            let projectSet = {};
+            if(action.list.length > 0){
+                projectSet = action.list[0];
+            }
+            
+            return {...state, projectSetting: projectSet};
+
+        case "DEADLINE_CANCEL_CODE":
+            return {...state, deadlineCode: action.list};
+
         default:
             return state;
     }
