@@ -238,7 +238,7 @@ const SiteBase = () => {
             return 'C';
         }
 
-        const codeNm = parseInt(matchedDeadline.code_nm, 10);
+        const codeNm = parseInt(matchedDeadline.code_nm.replace(/[^0-9]/g, ''), 10);
         if (isNaN(codeNm)) return 'C';
 
         const today = dayjs().startOf('day');
@@ -247,10 +247,21 @@ const SiteBase = () => {
             const recordDate = dayjs(worker.record_date);
             let deadlineDate;
 
+            // `일`이 기준이 되면 일수를 +하여 검사하고
+            // `월`이 기준이 되면 월을 +하고 말일로 하고 검사
             if (codeNm === 0) {
                 deadlineDate = recordDate;
-            } else if (codeNm % 30 === 0) {
-                const monthsToAdd = codeNm / 30;
+            // } else if (codeNm % 30 === 0) {
+            //     // 30, 60, 90 ... , 30일 기준으로 월로 기준을 잡음
+            //     // 30을 기준으로 1개월로 하여 날짜중 월을 +하고 그 달의 말일로 설정
+            //     // ex) 30/2025-06-01 -> 2025-07-31, 90/2025-06-01 -> 2025-09-30
+            //     const monthsToAdd = codeNm / 30;
+            //     deadlineDate = recordDate.add(monthsToAdd, 'month').endOf('month');
+            } else if (codeNm >= 30) {
+                // 30~59 → 1, 60~89 → 2, ..., 30일 보다 클 경우 월로 기준을 잡음
+                // 30을 기준으로 1개월 이상의 일 수이면 일 수는 반영하지 않고 월만 +하고 그 달의 말일로 설정
+                // ex) 30/2025-06-01 -> 2025-07-31, 49/2025-06-01 -> 2025-07-31, 101/2025-06-01 -> 2025-09-30
+                const monthsToAdd = Math.floor(codeNm / 30); 
                 deadlineDate = recordDate.add(monthsToAdd, 'month').endOf('month');
             } else {
                 deadlineDate = recordDate.add(codeNm, 'day');
