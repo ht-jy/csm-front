@@ -12,6 +12,7 @@ const SettingProjectReducer = (state, action) => {
             
         case "MAN_HOURS":
             return { ...state, manHours: [...action.manHours]}
+
         case "SETTING":
             return { ...state, setting: {...action.setting}}
 
