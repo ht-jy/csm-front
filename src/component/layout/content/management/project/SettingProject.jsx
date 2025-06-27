@@ -57,7 +57,7 @@ const SettingProject = () => {
     const [manHourExpand, setManHourExpand] = useState(true)     // 공수 +/-  
     const [inOutTimeExpand, setInOutTimeExpand] = useState(true)    // 출/퇴근 시간 +/-
     const [cancelCodeExpand, setCancelCodeExpand] = useState(true)     // 마감취소 +/-
-    const [deleteNo, setDeleteNo] = useState(null);
+    const [deleteMH, setDeleteMH] = useState(null);
 
     // 모달
     const [isModal, setIsModal] = useState(false);
@@ -71,6 +71,50 @@ const SettingProject = () => {
     // 프로젝트 기본 정보
     const [setting, setSetting] = useState(null)
     const [manHours, setManHours] = useState([])
+
+        
+    // 모달 확인 클릭 시 실행할 함수
+    const fncConfirm = () => {
+        setIsModal(false)
+        if(isManHourEdit){
+
+            // 삭제를 확인 누르는 경우
+            if (deleteMH !== null) {
+                deleteManHour(deleteMH)
+
+            // 공수시간 저장 누르는 경우
+            } else if (manHours.length !== 0){
+                saveManHours()
+            }
+        // 프로젝트설정정보 저장 누르는 경우
+        }else if (isCancelCodeEdit || isInOutTimeEdit) {
+            saveProjectSetting()
+        }
+        
+    }
+
+    // 수정모드 변환
+    const editMode = (func) => {
+        setIsManHourEdit(false)
+        setIsInOutTimeEdit(false)
+        setIsCancelCodeEdit(false)
+
+        if (ObjChk.all(func)) return;
+        func(true)
+
+        if (func !== setIsInOutTimeEdit) {
+            initSetting("inOutTime")
+        }
+        
+        if (func !== setIsCancelCodeEdit) {
+            initSetting("cancelCode")
+        }
+
+        if (func !== setIsManHourEdit){
+            initSetting("editManHour")
+        }
+        
+    }
 
     // 프로젝트 유예기간 코드 불러오기
     const getProjectSettingCode = async() => {
@@ -111,6 +155,64 @@ const SettingProject = () => {
 
     }
 
+    // 설정 저장
+    const saveProjectSetting = async() => {
+        setIsLoading(true)
+
+        try {
+            setting.cancel_code = cancelCode.value
+
+            // 데이터 변화 감지 해서 로그 메시지 넣기.
+            let message = "[UPDATE] "
+            let flag = false
+            if (setting.respite_time !== state.setting.respite_time){
+                message += `respite_time:[before:${state.setting.respite_time}, after:${setting.respite_time}]`
+                flag = true
+            }
+            if (setting.in_time !== state.setting.in_time){
+                message += `in_time:[before:${state.setting.in_time}, after:${setting.in_time}]`
+                flag = true
+            }
+            if (setting.out_time !== state.setting.out_time){
+                message += `out_time:[before:${state.setting.out_time}, after:${setting.out_time}]`
+                flag = true
+            }
+            if (setting.cancel_code !== state.setting.cancel_code){
+                message += `cancel_code:[before:${state.setting.cancel_code}, after:${setting.cancel_code}]`
+                flag = true
+            }
+            if (flag){
+                setting.message = message
+            }
+
+            // axios 요청보내기
+            const res = await Axios.POST(`/project-setting`, {
+                ...setting,
+                reg_user: user.userName || "",
+                reg_uno: Number(user.uno) || 0,
+                mod_user: user.userName || "",
+                mod_uno: Number(user.uno) || 0
+
+            })
+
+            if(res?.data?.result === "Success"){
+                editMode()
+                getData()
+            }else{
+                setModalTitle("저장 실패")
+                setModalText("저장에 실패하였습니다. \n다시 한번 시도해주세요. \n")
+                setIsConfirmButton(false)
+                setIsModal(true)
+
+            }
+
+        } catch(err) {
+            navigate("/error")
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
     // 초기 값으로 초기화
     const initSetting = (type) => {
         if (type === "inOutTime") {
@@ -124,91 +226,11 @@ const SettingProject = () => {
         }else if (type === "editManHour"){
             setIsManHourEdit(false)
             setManHours(state.manHours)
-            setDeleteNo(null)
+            setDeleteMH(null)
         }
     }
 
-    // 수정모드 변환
-    const editMode = (func) => {
-        setIsManHourEdit(false)
-        setIsInOutTimeEdit(false)
-        setIsCancelCodeEdit(false)
-
-        if (ObjChk.all(func)) return;
-        func(true)
-
-        if (func !== setIsInOutTimeEdit) {
-            initSetting("inOutTime")
-        }
-        
-        if (func !== setIsCancelCodeEdit) {
-            initSetting("cancelCode")
-        }
-
-        if (func !== setIsManHourEdit){
-            initSetting("editManHour")
-        }
-        
-    }
-
-    // 저장 확인 모달
-    const fncConfirm = () => {
-        setIsModal(false)
-        if(isManHourEdit){
-
-            // 삭제를 확인 누르는 경우
-            if (deleteNo !== null) {
-                deleteManHour(deleteNo)
-
-            // 공수시간 저장 누르는 경우
-            } else if (manHours.length != 0){
-                saveManHours()
-            }
-        // 프로젝트설정정보 저장 누르는 경우
-        }else if (isCancelCodeEdit || isInOutTimeEdit) {
-            saveProjectSetting()
-        }
-        
-    }
-
-    // 설정 저장
-    const saveProjectSetting = async() => {
-        setIsLoading(true)
-
-        try {
-            setting.cancel_code = cancelCode.value
-
-            const res = await Axios.POST(`/project-setting`, {
-                ...setting,
-                reg_user: user.userName || "",
-                reg_uno: Number(user.uno) || 0
-
-            })
-
-            if(res?.data?.result === "Success"){
-                editMode()
-                getData()
-            }
-
-        } catch(err) {
-            navigate("/error")
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
-    // 삭제 확인 모달 띄우기
-    const confirmDeleteManHour = (mhno) => {
-
-        setDeleteNo(mhno)
-
-        setModalTitle("삭제하시겠습니까?")
-        setModalText("삭제 시 현재 화면은 초기화됩니다.\n")
-        setIsConfirmButton(true)
-        setIsModal(true)
-        
-    }
-
+    
     // 저장 확인 모달 띄우기
     const confirmSave = () => {
         setModalTitle("저장하시겠습니까?")
@@ -217,7 +239,76 @@ const SettingProject = () => {
         setIsModal(true)
     }
 
-    // 공수 저장 시 유효성 검증
+    // 공수 삭제 Axios 요청
+    const deleteManHour = async(manhour) => {
+        setIsLoading(true)
+
+        try {
+            if (ObjChk.all(manhour?.mhno)) return;
+            
+            manhour.message = `[DELETE] mhno:[before:${manhour.mhno}, after: N/A]|work_hour:[before:${manhour.work_hour}, after: N/A]|man_hour:[before:${manhour.man_hour}, after: N/A]|jno:[before:${manhour.jno}, after: N/A]|etc:[before:${manhour.etc}, after: N/A]`
+            manhour.reg_uno = Number(user.uno) || 0
+            manhour.reg_user = user.userName || ""
+            manhour.mod_uno = Number(user.uno) || 0
+            manhour.mod_user = user.userName || ""
+            const res = await Axios.POST(`/project-setting/man-hours/ew${manhour.mhno}`, manhour)
+
+            if (res?.data?.result === "Success"){
+                editMode()
+                getData()
+            }else {
+                setModalTitle("삭제 실패")
+                setModalText("삭제에 실패하였습니다. \n다시 한번 시도해주세요. \n")
+                setIsConfirmButton(false)
+                setIsModal(true)
+            }
+        } catch(err) {
+
+        } finally {
+            setIsLoading(false)
+            setDeleteMH(null)
+        }
+    }
+
+    // 삭제 확인 모달 띄우기
+    const confirmDeleteManHour = (manhour) => {
+
+        setDeleteMH(manhour)
+
+        setModalTitle("삭제하시겠습니까?")
+        setModalText("삭제 시 현재 화면은 초기화됩니다.\n")
+        setIsConfirmButton(true)
+        setIsModal(true)
+        
+    }
+
+    // 공수 저장 Axios 요청
+    const saveManHours = async() => {
+        setIsLoading(true)
+        try {
+            if (project?.jno === null) return;
+
+            const res = await Axios.POST(`/project-setting/man-hours`, manHours)
+
+            if(res?.data?.result === "Success"){
+                editMode()              
+                getData()
+            } else {
+                setModalTitle("저장 실패")
+                setModalText("저장에 실패하였습니다. \n다시 한번 시도해주세요. \n")
+                setIsConfirmButton(false)
+                setIsModal(true)
+            }
+
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false)
+        }
+
+    }
+
+    // 공수 저장 시 유효성 검증 및 로그 삽입
     const validManHours = () => {
         
         const sorted = [...manHours].sort((o1, o2) => o2.work_hour - o1.work_hour)
@@ -225,7 +316,8 @@ const SettingProject = () => {
         const result = []
         let before_work = 0;
         let before_man = 0;
-        for (const [, manhour] of sorted.entries()) {
+        let message;
+        for (const [idx, manhour] of sorted.entries()) {
 
             // 값이 입력되지 않은 것은 넘기기
             if (manhour.work_hour === 0 || manhour.man_hour === 0){
@@ -276,10 +368,44 @@ const SettingProject = () => {
 
             before_work = manhour.work_hour
             before_man = manhour.man_hour
+            
+            
+            let flag = false // 변화한 값 있는지 여부 확인
+
+            if ( manhour.mhno !== null ) { // 원래 있던 데이터 존재
+                const find = state.manHours.find(item => item.mhno === manhour.mhno);
+                // 변경된 부분 찾기
+                message = `[UPDATE]mhno:${manhour.mhno}`
+
+                if (find.work_hour !== manhour.work_hour){
+                    flag = true
+                    message += `|work_hour:[before:${find.work_hour}, after:${manhour.work_hour}]`
+                }
+                if(find.man_hour !== manhour.man_hour){
+                    flag = true
+                    message += `|man_hour:[before:${find.man_hour}, after:${manhour.man_hour}]`
+                }
+                if(find.etc !== manhour.etc){
+                    flag = true
+                    message += `|etc:[before:${find.etc}, after:${manhour.etc}]`
+                }
+
+            } else { // 데이터 새로 추가
+                flag = true
+                message = `[ADD] work_hour:[before:N/A, after:${manhour.work_hour}]|man_hour:[before:N/A, after:${manhour.man_hour}]|etc:[before:N/A, after:${manhour.etc}]`
+            }
+
+            if (flag){
+                manhour.message = message
+            }
+
+            // 다시 배열 넣기
             result.push({
                 ...manhour,
-                reg_uno: user.uno,
-                reg_user: user.username
+                reg_uno: Number(user.uno) || 0,
+                reg_user: user.userName || "",                
+                mod_uno: Number(user.uno) || 0,
+                mod_user: user.userName || ""                
             })
         }
 
@@ -288,49 +414,6 @@ const SettingProject = () => {
         setIsConfirmButton(true)
         setIsModal(true)
         setManHours(result)
-
-    }
-
-    // 공수 저장 Axios 요청
-    const saveManHours = async() => {
-        setIsLoading(true)
-        try {
-            if (project?.jno === null) return;
-            
-            const res = await Axios.POST(`/project-setting/man-hours`, manHours)
-
-            if(res?.data?.result === "Success"){
-                editMode()              
-                getData()
-            }
-
-        } catch(err) {
-            navigate("/error");
-        } finally {
-            setIsLoading(false)
-        }
-
-    }
-
-    // 공수 삭제 Axios 요청
-    const deleteManHour = async(mhno) => {
-        setIsLoading(true)
-
-        try {
-            if (ObjChk.all(mhno)) return;
-
-            const res = await Axios.DELETE(`/project-setting/man-hours/${mhno}`)
-
-            if (res?.data?.result === "Success"){
-                editMode()
-                getData()
-            }
-        } catch(err) {
-
-        } finally {
-            setIsLoading(false)
-            setDeleteNo(null)
-        }
 
     }
 
@@ -398,7 +481,6 @@ const SettingProject = () => {
         ))
    } 
 
-
     // 화면이 로딩될 때, SelectCode 불러오기 
     useEffect(() => {
         getProjectSettingCode()
@@ -421,7 +503,6 @@ const SettingProject = () => {
             setModalTitle("프로젝트 설정")
             setModalText("프로젝트를 선택해 주세요.")
         }else{
-            // setIsEdit(false)
             getData()
         }
 
@@ -437,7 +518,7 @@ const SettingProject = () => {
                 confirm={isConfirmButton ? "확인": null}
                 fncConfirm={() => fncConfirm()}
                 cancel={isConfirmButton ? "취소" : "확인"}
-                fncCancel={() => { setIsModal(false); setDeleteNo(null)}}
+                fncCancel={() => { setIsModal(false); setDeleteMH(null)}}
 
             />
             <ol className="breadcrumb mb-2 content-title-box">
@@ -576,7 +657,7 @@ const SettingProject = () => {
                                                         {/* <Button style={{...buttonStyle}} text={"취소"} onClick={() => setIsManHourEdit(false)}></Button> */}
                                                         {
                                                             manhour.mhno ?
-                                                            <Button style={{ ...deleteButton }} text={"삭제"} onClick={() => { confirmDeleteManHour(manhour.mhno); } }></Button>
+                                                            <Button style={{ ...deleteButton }} text={"삭제"} onClick={() => { confirmDeleteManHour(manhour); } }></Button>
                                                             :
                                                             <Button style={{...buttonStyle}} text={"취소"} onClick={() =>addCancelClick(idx)}></Button>
                                                         }
