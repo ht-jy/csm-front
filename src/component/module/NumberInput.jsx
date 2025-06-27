@@ -23,8 +23,13 @@ const NumberInput = ( {initNum, setNum, min = 0, max = 10000, step=1, style} ) =
     const [inputNum, setInputNum] = useState("");
 
     const onChangeNumber = (e) => {
-        setNum(e.target.value);
-        setInputNum(e.target.value);        
+        let value = e.target.value;
+
+        if (value > max) {
+            value = max;
+        }
+        setNum(value);
+        setInputNum(value);        
     }
 
     useEffect(() => {
