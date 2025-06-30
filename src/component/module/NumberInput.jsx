@@ -19,21 +19,49 @@ import "../../assets/css/NumberInput.css"
  * - step: 이동하는 크기(default = 1)
  * - style: 스타일 객체
  */
-const NumberInput = ( {initNum, setNum, min = 0, max = 10000, step=1, style} ) => {
+const NumberInput = ( {initNum, setNum, min = 0, max = 10000, fixed = null, step=1, style} ) => {
     const [inputNum, setInputNum] = useState("");
+    const minValue = Number(min);
+    const maxValue = Number(max);
 
     const onChangeNumber = (e) => {
         let value = e.target.value;
 
-        if (value > max) {
-            value = max;
+
+        // 숫자 또는 소수점만 허용
+        if (!/^\d*\.?\d*$/.test(value)) return;
+
+        // 단일 '.' 입력 시 0 처리
+        if (value === ".") {
+            setNum(inputNum);   
+            return;
+        }else if (String(value).endsWith('.') ){
+            return;
         }
+        value = String(Number(value));
+
+
+        if (value > maxValue) {
+            value = maxValue;
+        } else  if (value < minValue) {
+            value = minValue
+        }
+
         setNum(value);
         setInputNum(value);        
     }
 
+    // 사용자가 직접 입력 시 fixed 적용
+    const onBlurNumber = () => {
+        if (fixed !== null) {
+            const rounded = Number(inputNum).toFixed(fixed);
+            setInputNum(rounded);
+            setNum(rounded);
+        }        
+    }
+
     useEffect(() => {
-        setInputNum(initNum)
+        setInputNum(initNum || 0)
     }, [initNum]);
 
 
@@ -43,10 +71,11 @@ const NumberInput = ( {initNum, setNum, min = 0, max = 10000, step=1, style} ) =
                 className="number-input"
                 type="number" 
                 id="quantity" 
-                min={min} 
-                max={max} 
+                min={minValue} 
+                max={maxValue} 
                 value={inputNum} 
-                onChange={onChangeNumber} 
+                onChange={onChangeNumber}
+                onBlur={onBlurNumber}
                 step={step}
                 style={{...style}}/>
         </div>

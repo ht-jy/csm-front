@@ -198,13 +198,19 @@ const SettingProject = () => {
             if(res?.data?.result === "Success"){
                 editMode()
                 getData()
+
+                // 성공 모달
+                setModalTitle("저장 성공")
+                setModalText("저장에 성공하였습니다. \n")
+                setIsConfirmButton(false)
+                setIsModal(true)
             }else{
                 setModalTitle("저장 실패")
                 setModalText("저장에 실패하였습니다. \n다시 한번 시도해주세요. \n")
                 setIsConfirmButton(false)
                 setIsModal(true)
-
             }
+            
 
         } catch(err) {
             navigate("/error")
@@ -239,8 +245,8 @@ const SettingProject = () => {
         setIsModal(true)
     }
 
-    // 공수 삭제 Axios 요청
-    const deleteManHour = async(manhour) => {
+    // 공수 삭제 시 삭제한 행 work_hour, man_hour 0으로 변경
+    const deleteManHour = (manhour) => {
         setIsLoading(true)
 
         try {
@@ -251,17 +257,27 @@ const SettingProject = () => {
             manhour.reg_user = user.userName || ""
             manhour.mod_uno = Number(user.uno) || 0
             manhour.mod_user = user.userName || ""
-            const res = await Axios.POST(`/project-setting/man-hours/ew${manhour.mhno}`, manhour)
+            
+            setManHours( prev => 
+                prev.map((item, idx) => 
+                    item.mhno === manhour.mhno ?
+                        {...item, "work_hour": 0, "man_hour": 0} 
+                    :
+                        item
+                )
+            )
+                        
+            // const res = await Axios.POST(`/project-setting/man-hours/${manhour.mhno}`, manhour)
 
-            if (res?.data?.result === "Success"){
-                editMode()
-                getData()
-            }else {
-                setModalTitle("삭제 실패")
-                setModalText("삭제에 실패하였습니다. \n다시 한번 시도해주세요. \n")
-                setIsConfirmButton(false)
-                setIsModal(true)
-            }
+            // if (res?.data?.result === "Success"){
+            //     editMode()
+            //     getData()
+            // }else {
+            //     setModalTitle("삭제 실패")
+            //     setModalText("삭제에 실패하였습니다. \n다시 한번 시도해주세요. \n")
+            //     setIsConfirmButton(false)
+            //     setIsModal(true)
+            // }
         } catch(err) {
 
         } finally {
@@ -271,16 +287,16 @@ const SettingProject = () => {
     }
 
     // 삭제 확인 모달 띄우기
-    const confirmDeleteManHour = (manhour) => {
+    // const confirmDeleteManHour = (manhour) => {
 
-        setDeleteMH(manhour)
+    //     setDeleteMH(manhour)
 
-        setModalTitle("삭제하시겠습니까?")
-        setModalText("삭제 시 현재 화면은 초기화됩니다.\n")
-        setIsConfirmButton(true)
-        setIsModal(true)
+    //     setModalTitle("삭제하시겠습니까?")
+    //     setModalText("삭제는 취소 버튼을 누를 시 초기화됩니다.\n")
+    //     setIsConfirmButton(true)
+    //     setIsModal(true)
         
-    }
+    // }
 
     // 공수 저장 Axios 요청
     const saveManHours = async() => {
@@ -293,6 +309,12 @@ const SettingProject = () => {
             if(res?.data?.result === "Success"){
                 editMode()              
                 getData()
+
+                // 성공 모달
+                setModalTitle("저장 성공")
+                setModalText("저장에 성공하였습니다. \n")
+                setIsConfirmButton(false)
+                setIsModal(true)
             } else {
                 setModalTitle("저장 실패")
                 setModalText("저장에 실패하였습니다. \n다시 한번 시도해주세요. \n")
@@ -320,7 +342,7 @@ const SettingProject = () => {
         for (const [idx, manhour] of sorted.entries()) {
 
             // 값이 입력되지 않은 것은 넘기기
-            if (manhour.work_hour === 0 || manhour.man_hour === 0){
+            if ( !manhour.mhno && (manhour.work_hour === 0 || manhour.man_hour === 0)){
                 continue
             }
 
@@ -352,7 +374,7 @@ const SettingProject = () => {
             // 이미 설정된 시간에 비해 공수가 적은 경우
             }else if(before_work < manhour.work_hour && before_man > manhour.man_hour ){
                 setModalTitle("입력 오류")
-                setModalText(`${before_work}시간 이상인 경우 ${before_man}로 설정되어 있습니다.\n공수를 더 높게 변경해 주세요.\n`)
+                setModalText(`${before_work}시간 이상인 경우 ${before_man}로 설정되어 있습니다.\n${manhour.work_hour}시간 공수를 더 높게 변경해 주세요.\n`)
                 setIsConfirmButton(false)
                 setIsModal(true)
                 return
@@ -360,7 +382,7 @@ const SettingProject = () => {
             // 이미 설정된 시간에 비해 공수가 큰 경우
             }else if (before_work > manhour.work_hour && before_man < manhour.man_hour){
                 setModalTitle("입력 오류")
-                setModalText(`${before_work}시간 이상인 경우 ${before_man}로 설정되어 있습니다.\n공수를 더 낮게 변경해 주세요.\n`)
+                setModalText(`${before_work}시간 이상인 경우 ${before_man}로 설정되어 있습니다.\n${manhour.work_hour}시간 공수를 더 낮게 변경해 주세요.\n`)
                 setIsConfirmButton(false)
                 setIsModal(true)
                 return
@@ -368,14 +390,16 @@ const SettingProject = () => {
 
             before_work = manhour.work_hour
             before_man = manhour.man_hour
-            
-            
+                        
             let flag = false // 변화한 값 있는지 여부 확인
 
-            if ( manhour.mhno !== null ) { // 원래 있던 데이터 존재
-                const find = state.manHours.find(item => item.mhno === manhour.mhno);
+            const find = state.manHours.find(item => item.mhno === manhour.mhno);
+            if ( before_work === 0 && before_man === 0 && manhour.mhno) {
+                manhour.message = `[DELETE] mhno:[before:${manhour.mhno}, after: N/A]|work_hour:[before:${find.work_hour}, after: N/A]|man_hour:[before:${find.man_hour}, after: N/A]|jno:[before:${find.jno}, after: N/A]|etc:[before:${find.etc}, after: N/A]`
+
+            } else if ( manhour.mhno !== null ) {
                 // 변경된 부분 찾기
-                message = `[UPDATE]mhno:${manhour.mhno}`
+                message = `[UPDATE] mhno:${manhour.mhno}`
 
                 if (find.work_hour !== manhour.work_hour){
                     flag = true
@@ -398,7 +422,6 @@ const SettingProject = () => {
             if (flag){
                 manhour.message = message
             }
-
             // 다시 배열 넣기
             result.push({
                 ...manhour,
@@ -440,7 +463,6 @@ const SettingProject = () => {
         setManHours(prev => 
             prev.filter((item, idx) => idx !== index )
         )
-
     }
 
     // select 체인지 이벤트
@@ -474,9 +496,9 @@ const SettingProject = () => {
                 :
                     {...item, [name]: name === "etc" ? value : Number(value)}  
             : 
-                index < idx && (value < item[name]) ? // 변경 된 값이 아래 행의 값 보다 적은 경우 0으로 초기화
-                    {...item, "work_hour": 0, "man_hour": 0}
-                :
+                // index < idx && (value < item[name]) ? // 변경 된 값이 아래 행의 값 보다 적은 경우 0으로 초기화
+                //     {...item, "work_hour": 0, "man_hour": 0}
+                // :
                 item
         ))
    } 
@@ -548,13 +570,13 @@ const SettingProject = () => {
                             : 
                                 <Button text={"수정"} style={{ ...titleButtonStyle }} onClick={() => editMode(setIsManHourEdit)}></Button>
                         }
-                        {
+                        {/* {
 
                         isManHourEdit && 
                         <div className="ms-auto me-0">
                             <i className="fa-solid fa-bell"></i> 삭제는 한 건씩 가능합니다.
                         </div>
-                        }
+                        } */}
                     </ol>
 
                     <div className="m-2 ms-4" style={{width:"98%"}}>
@@ -582,7 +604,7 @@ const SettingProject = () => {
                                     return (
                                         idx === 0 ?
                                             <React.Fragment  key={idx}>
-                                                <tr key={idx}> 
+                                                <tr key={idx}>
                                                     <td className="center">
                                                         {isManHourEdit ?
                                                             <NumberInput initNum={manhour.work_hour} setNum={(val) => changeHour("work_hour", val, idx)} min={"1"} max={"24"} style={{ width: "100px", marginLeft: "5px" }}></NumberInput>
@@ -593,34 +615,23 @@ const SettingProject = () => {
                                                     <td className="center">
                                                             {1}
                                                     </td>
-                                                    <td className="center">
-                                                        <div className="text-success center">
+                                                    <td className="center text-success">
                                                             {manhour.work_hour}시간 이상인 경우 1공수
-                                                        </div>
                                                     </td>
                                                     <td className="center">{""}</td>
-                                                    <td className="left">
-                                                        {isManHourEdit &&
-                                                            <>
-                                                                {/* <Button style={{ ...buttonStyle, marginLeft: "calc(50% - 40px)" }} text={"저장"} onClick={() => validManHours(setting.man_hours[idx])}></Button> */}
-                                                                {/* <Button style={{...buttonStyle}} text={"취소"} onClick={() => setIsManHourEdit(false)}></Button> */}
-                                                            </>
-                                                        }
-                                                    </td>
+                                                    <td className="left">{}</td>
                                                 </tr>
-                                                <tr>  
+                                                <tr>
                                                     <td className="center">{manhour.work_hour}시간 이하</td>
                                                     <td className="center">
                                                         {isManHourEdit
                                                             ?
-                                                            <NumberInput initNum={manhour.man_hour} setNum={(val) => changeHour("man_hour", val, idx)} min={"0.00"} max={"1.00"} step={0.05} style={{ width: "100px", marginLeft: "5px" }}></NumberInput>
+                                                            <NumberInput initNum={manhour.man_hour} setNum={(val) => changeHour("man_hour", val, idx)} min={"0"} max={"1.0"} fixed={1} step={0.1} style={{ width: "100px", marginLeft: "5px" }}></NumberInput>
                                                             :
                                                             `${manhour.man_hour}`}
                                                     </td>
-                                                    <td className="center">
-                                                        <div className="text-success center">
+                                                    <td className="center text-success">
                                                             {manhour.work_hour}시간 이하인 경우 {manhour.man_hour}공수
-                                                        </div>
                                                     </td>
                                                     <td className="center">
                                                             {isManHourEdit ?
@@ -629,37 +640,26 @@ const SettingProject = () => {
                                                                 manhour.etc
                                                             }
                                                     </td>
-                                                    <td className="left">
-                                                        {isManHourEdit &&
-                                                            <>
-                                                                {/* <Button style={{ ...buttonStyle, marginLeft: "calc(50% - 40px)" }} text={"저장"} onClick={() => validManHours(setting.man_hours[idx])}></Button> */}
-                                                                {/* <Button style={{...buttonStyle}} text={"취소"} onClick={() => setIsManHourEdit(false)}></Button> */}
-                                                            </>
-                                                        }
-
-                                                    </td>
+                                                    <td className="left">{""}</td>
                                                 </tr>
                                             </React.Fragment>
                                             :
                                             (
                                             isManHourEdit ?
+                                                manhour.mhno && manhour.work_hour === 0 ? null :
                                                 <tr key={idx}>
-                                                    <td className="center"><NumberInput initNum={manhour.work_hour} setNum={(val) => changeHour("work_hour", val, idx)} min={"1"} max={manHours[idx-1].work_hour > 1 ? manHours[idx-1].work_hour - 1 : 0} style={{ width: "100px", marginLeft: "5px" }}></NumberInput></td>
-                                                    <td className="center"><NumberInput initNum={manhour.man_hour} setNum={(val) => changeHour("man_hour", val, idx)} min={"0.00"} max={manHours[idx-1].man_hour > 0.01 ? manHours[idx-1].man_hour - 0.01 : 0.00} step={0.05} style={{ width: "100px", marginLeft: "5px" }}></NumberInput></td>
-                                                    <td className="center">
-                                                        <div className="text-success center">
-                                                            {manhour.work_hour}시간 이하인 경우 {manhour.man_hour}공수
-                                                        </div>
+                                                    <td className="center"><NumberInput initNum={manhour.work_hour} setNum={(val) => changeHour("work_hour", val, idx)} min={"1"} max={manHours[0].work_hour - 1} style={{ width: "100px", marginLeft: "5px" }}></NumberInput></td>
+                                                    <td className="center"><NumberInput initNum={manhour.man_hour} setNum={(val) => changeHour("man_hour", val, idx)} min={"0"} max={(manHours[0].man_hour - 0.1).toFixed(1)} fixed={1} step={0.1} style={{ width: "100px", marginLeft: "5px" }}></NumberInput></td>
+                                                    <td className="center text-success">
+                                                        {manhour.work_hour}시간 이하인 경우 {manhour.man_hour}공수
                                                     </td>
                                                     <td className="center"><TextInput initText={manhour.etc || ""} setText={(val) => changeHour("etc", val, idx)} style={{width:"95%"}} ></TextInput></td>
                                                     <td className="center">
-                                                        {/* <Button style={{ ...buttonStyle, marginLeft: "calc(50% - 40px)" }} text={"저장"} onClick={() => { validManHours(setting.man_hours[idx]); } }></Button> */}
-                                                        {/* <Button style={{...buttonStyle}} text={"취소"} onClick={() => setIsManHourEdit(false)}></Button> */}
                                                         {
                                                             manhour.mhno ?
-                                                            <Button style={{ ...deleteButton }} text={"삭제"} onClick={() => { confirmDeleteManHour(manhour); } }></Button>
+                                                            <Button style={{ ...deleteButton }} text={"삭제"} onClick={() => { deleteManHour(manhour); } }></Button>
                                                             :
-                                                            <Button style={{...buttonStyle}} text={"취소"} onClick={() =>addCancelClick(idx)}></Button>
+                                                            <Button style={{ ...deleteButton }} text={"삭제"} onClick={() =>addCancelClick(idx)}></Button>
                                                         }
                                                     </td>
                                                 </tr>
@@ -667,13 +667,11 @@ const SettingProject = () => {
                                                 <tr key={idx}>
                                                     <td className="center">{manhour.work_hour}</td>
                                                     <td className="center">{manhour.man_hour}</td>
-                                                    <td className="center">
-                                                        <div className="text-success center">
-                                                            {manhour.work_hour}시간 이하인 경우 {manhour.man_hour}공수
-                                                        </div>
+                                                    <td className="center text-success">
+                                                        {manhour.work_hour}시간 이하인 경우 {manhour.man_hour}공수
                                                     </td>
                                                     <td className="center">{manhour.etc}</td>
-                                                    <td className="center">{""}</td>  {/* 버튼 */}
+                                                    <td className="center">{""}</td>
                                                 </tr>
                                             )
                                         )
@@ -686,7 +684,7 @@ const SettingProject = () => {
                                                 <Button text={"추가"} style={{ ...titleButtonStyle }} onClick={() => addManHourSet()}></Button>
                                             </td>
                                             <td>{""}</td>
-                                            <td className="center">{"0시간 또는 0공수는 저장되지 않습니다."}</td>
+                                            <td className="center">{""}</td>
                                             <td>{""}</td>
                                             <td>{""}</td>
                                         </tr>
@@ -725,7 +723,7 @@ const SettingProject = () => {
                                 <div style={{display: "flex", height: "20px", margin:"20px 10px"}}>
                                     <div style={{width: "80px"}}>출근시간</div>
                                     { isInOutTimeEdit ?
-                                        <Time24Input time={state.setting.in_time} setTime={(time) => setSetting((prev) => ({...prev, in_time : time}))} style={{width:"100px", marginRight:"5px"}}></Time24Input>
+                                        <Time24Input time={setting.in_time} setTime={(time) => setSetting((prev) => ({...prev, in_time : time}))} style={{width:"100px", marginRight:"5px"}}></Time24Input>
                                     :
                                         <div className="text-style">{calMinutes(setting.in_time, 0)}</div>
                                     }
@@ -743,9 +741,9 @@ const SettingProject = () => {
                                 <div style={{display: "flex", height: "20px", margin: "20px 10px", alignItems: "center"}}>
                                     <div style={{width: "80px"}}>유예시간</div>
                                     { isInOutTimeEdit ?
-                                        <><NumberInput initNum={state.setting.respite_time} setNum={(time) => setSetting((prev) => ({...prev, respite_time : Number(time)}))} min={0} max={1440} step={10} style={{width:"100px", marginRight:"5px"}}></NumberInput>{"분"}</>
+                                        <><NumberInput initNum={setting.respite_time} setNum={(time) => setSetting((prev) => ({...prev, respite_time : Number(time)}))} min={0} max={1440} step={5} style={{width:"100px", marginRight:"5px"}}></NumberInput>{"분"}</>
                                         :
-                                        <div className="text-style">{state.setting.respite_time} 분</div>
+                                        <div className="text-style">{setting.respite_time} 분</div>
                                     } 
 
                                 </div>
