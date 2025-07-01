@@ -15,15 +15,10 @@ import useTableSearch from "../../../utils/hooks/useTableSearch";
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-25
- * @modified 최종 수정일: 
- * @modifiedBy 최종 수정자: 
- * @usedComponents
- * - Radio 라디오 버튼
- * - Table 테이블
- * - ReactPaginate 페이지네이션
- * - Button 버튼
- * - useTableControlState 테이블 state 커스텀 훅
- * - useTableSearch 테이블 이벤트 커스텀 훅
+ * @modified 최종 수정일: 2025-07-01
+ * @modifiedBy 최종 수정자: 김진우
+ * @modified Description
+ * 2025-07-01: 프로젝트 선택시 사용자의 프로젝트권한 조회
  * 
  * - props
  *   isUsedProject true 인 경우는 상단의 선택처럼 3가지의 프로젝트 경우의 수가 아닌 공사관리시스템에 등록된 프로젝트만 나오게 됨
@@ -31,10 +26,10 @@ import useTableSearch from "../../../utils/hooks/useTableSearch";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /project (공사관리 프로젝트 조회), /project/enterprise (전사 프로젝트 조회), /project/my-org/{uno} (본인이 속한 조직도 프로젝트 조회)
+ *    Http Method - GET : /project (공사관리 프로젝트 조회), /project/enterprise (전사 프로젝트 조회), /project/my-org/{uno} (본인이 속한 조직도 프로젝트 조회), /user/role?jno=${jno}&uno=${uno} (프로젝트 사용자 권한 조회)
  */
 const SearchProjectModal = ({isOpen, fncExit, isUsedProject, onClickRow}) => {
-    const { user, setProject, setProjectName } = useAuth();
+    const { user, setProject, setProjectName, setJobRole } = useAuth();
     const [selectedValue, setSelectedValue] = useState("1");
     const [data, setData] = useState([]);
     const [count, setCount] = useState(0);
@@ -73,12 +68,22 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, onClickRow}) => {
             // 화면 상단의 클릭시 실행
             setProject(item);
             setProjectName(item.job_name);
+            getProjectRole(item.jno, user.uno);
         }else{
             // 현장근태 프로젝트 조회/선택 목적의 실행
             onClickRow(item);
         }
         fncExit();
     }
+
+    // 프로젝트 사용자 권한 조회
+    const getProjectRole = async (jno, uno) => {
+        const res = await Axios.GET(`/user/role?jno=${jno}&uno=${uno}`);
+
+        if (res?.data?.result === "Success") {
+            setJobRole(res?.data?.values);
+        }
+    };
 
     // 공사관리 프로젝트 조회
     const getUsedData = async () => {
