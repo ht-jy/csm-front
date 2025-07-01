@@ -26,6 +26,7 @@ import TextInput from "../../../../module/TextInput.jsx";
  * @usedComponents
  * - Time24Input: 시간 입력
  * - NumberInput: 숫자 입력
+ * - TextInput: 글자 입력
  * - Select: 셀렉트 박스
  * - Loading: 로딩 스피너
  * - Modal: 알림 모달
@@ -34,15 +35,14 @@ import TextInput from "../../../../module/TextInput.jsx";
  * @additionalInfo
  * - API: 
  *    Http Method - GET : /project-setting/{jno} (프로젝트설정 조회), /code (마감취소기간 코드 조회)
- *    Http Method - POST : /project-setting (프로젝트설정 추가 및 수정), /project-setting/man-hours (공수 추가 및 수정)
- *    Http Method - DELETE : /project-setting/man-hours/{mhno} (공수 삭제)
+ *    Http Method - POST : /project-setting (프로젝트설정 추가 및 수정), /project-setting/man-hours (공수 추가 및 수정), /project-setting/man-hours/{mhno} (공수 삭제)
  * - 주요 상태 관리: SettingProjectReducer
  */
 const SettingProject = () => {
     const {project, user} = useAuth();
     const navigate = useNavigate();
     
-     const [state, dispatch] = useReducer(SettingProjectReducer, {
+    const [state, dispatch] = useReducer(SettingProjectReducer, {
         selectOptions: {},
         manHours: [],
         setting: {}
@@ -210,8 +210,6 @@ const SettingProject = () => {
                 setIsConfirmButton(false)
                 setIsModal(true)
             }
-            
-
         } catch(err) {
             navigate("/error")
         } finally {
@@ -226,6 +224,7 @@ const SettingProject = () => {
             setting.out_time = state.setting.out_time
             setting.respite_time = state.setting.respite_time    
             setIsInOutTimeEdit(false)
+
         }else if (type === "cancelCode") {
             setCancelCode(selectInput(setting.cancel_code))
 
@@ -245,25 +244,23 @@ const SettingProject = () => {
         setIsModal(true)
     }
 
-    // 공수 삭제 시 삭제한 행 work_hour, man_hour 0으로 변경
+    // 공수 삭제 시 해당 객체 없애고 다음 객체
     const deleteManHour = (manhour) => {
         setIsLoading(true)
 
         try {
             if (ObjChk.all(manhour?.mhno)) return;
             
-            manhour.message = `[DELETE] mhno:[before:${manhour.mhno}, after: N/A]|work_hour:[before:${manhour.work_hour}, after: N/A]|man_hour:[before:${manhour.man_hour}, after: N/A]|jno:[before:${manhour.jno}, after: N/A]|etc:[before:${manhour.etc}, after: N/A]`
+            // manhour.message = `[DELETE] mhno:[before:${manhour.mhno}, after: N/A]|work_hour:[before:${manhour.work_hour}, after: N/A]|man_hour:[before:${manhour.man_hour}, after: N/A]|jno:[before:${manhour.jno}, after: N/A]|etc:[before:${manhour.etc}, after: N/A]`
             manhour.reg_uno = Number(user.uno) || 0
             manhour.reg_user = user.userName || ""
             manhour.mod_uno = Number(user.uno) || 0
             manhour.mod_user = user.userName || ""
             
+            // mhno와 같은 객체를 빼고 반환
             setManHours( prev => 
-                prev.map((item, idx) => 
-                    item.mhno === manhour.mhno ?
-                        {...item, "work_hour": 0, "man_hour": 0} 
-                    :
-                        item
+                prev.filter((item, idx) => 
+                    item.mhno !== manhour.mhno 
                 )
             )
                         
@@ -315,6 +312,7 @@ const SettingProject = () => {
                 setModalText("저장에 성공하였습니다. \n")
                 setIsConfirmButton(false)
                 setIsModal(true)
+
             } else {
                 setModalTitle("저장 실패")
                 setModalText("저장에 실패하였습니다. \n다시 한번 시도해주세요. \n")
@@ -336,13 +334,13 @@ const SettingProject = () => {
         const sorted = [...manHours].sort((o1, o2) => o2.work_hour - o1.work_hour)
 
         const result = []
-        let before_work = 0;
-        let before_man = 0;
+        let before_work = -1;
+        let before_man = -1;
         let message;
         for (const [idx, manhour] of sorted.entries()) {
-
+    
             // 값이 입력되지 않은 것은 넘기기
-            if ( !manhour.mhno && (manhour.work_hour === 0 || manhour.man_hour === 0)){
+            if (idx !== 0 && (manhour.work_hour === 0 ) ){
                 continue
             }
 
@@ -366,7 +364,7 @@ const SettingProject = () => {
             // 시간은 다른데 공수가 같은 경우
             } else if (before_work !== manhour.work_hour && before_man === manhour.man_hour){
                 setModalTitle("입력 오류")
-                setModalText(`이미 ${before_work}시간 이하는 ${manhour.man_hour}로 설정되어 있습니다. \n다른 공수를 입력해 주세요.\n`)
+                setModalText(`이미 ${before_work}시간 이하인 경우 ${manhour.man_hour}공수로 설정되어 있습니다. \n다른 공수를 입력해 주세요.\n`)
                 setIsConfirmButton(false)
                 setIsModal(true)
                 return    
@@ -374,7 +372,7 @@ const SettingProject = () => {
             // 이미 설정된 시간에 비해 공수가 적은 경우
             }else if(before_work < manhour.work_hour && before_man > manhour.man_hour ){
                 setModalTitle("입력 오류")
-                setModalText(`${before_work}시간 이상인 경우 ${before_man}로 설정되어 있습니다.\n${manhour.work_hour}시간 공수를 더 높게 변경해 주세요.\n`)
+                setModalText(`${before_work}시간 이상인 경우 ${before_man}공수로 설정되어 있습니다.\n${manhour.work_hour}시간 공수를 더 높게 변경해 주세요.\n`)
                 setIsConfirmButton(false)
                 setIsModal(true)
                 return
@@ -382,7 +380,7 @@ const SettingProject = () => {
             // 이미 설정된 시간에 비해 공수가 큰 경우
             }else if (before_work > manhour.work_hour && before_man < manhour.man_hour){
                 setModalTitle("입력 오류")
-                setModalText(`${before_work}시간 이상인 경우 ${before_man}로 설정되어 있습니다.\n${manhour.work_hour}시간 공수를 더 낮게 변경해 주세요.\n`)
+                setModalText(`${before_work}시간 이상인 경우 ${before_man}공수로 설정되어 있습니다.\n${manhour.work_hour}시간 공수를 더 낮게 변경해 주세요.\n`)
                 setIsConfirmButton(false)
                 setIsModal(true)
                 return
@@ -391,6 +389,7 @@ const SettingProject = () => {
             before_work = manhour.work_hour
             before_man = manhour.man_hour
                         
+            /*
             let flag = false // 변화한 값 있는지 여부 확인
 
             const find = state.manHours.find(item => item.mhno === manhour.mhno);
@@ -418,10 +417,15 @@ const SettingProject = () => {
                 flag = true
                 message = `[ADD] work_hour:[before:N/A, after:${manhour.work_hour}]|man_hour:[before:N/A, after:${manhour.man_hour}]|etc:[before:N/A, after:${manhour.etc}]`
             }
-
+                
             if (flag){
                 manhour.message = message
             }
+            */
+                   
+            message = `[ADD] work_hour:[before:N/A, after:${manhour.work_hour}]|man_hour:[before:N/A, after:${manhour.man_hour}]|etc:[before:N/A, after:${manhour.etc}]`
+            manhour.message = message
+
             // 다시 배열 넣기
             result.push({
                 ...manhour,
@@ -491,9 +495,9 @@ const SettingProject = () => {
         setManHours( prev => 
             prev.map((item, idx) => 
             index === idx ? 
-                name === "work_hour" && item.mhno === null ? // 추가할 행의 work_hour을 변경 시 man_hour 초기화 
-                    {...item, [name]: Number(value), "man_hour": 0} 
-                :
+                // name === "work_hour" && item.mhno === null ? // 추가할 행의 work_hour을 변경 시 man_hour 초기화 
+                //     {...item, [name]: Number(value), "man_hour": 0} 
+                // :
                     {...item, [name]: name === "etc" ? value : Number(value)}  
             : 
                 // index < idx && (value < item[name]) ? // 변경 된 값이 아래 행의 값 보다 적은 경우 0으로 초기화
@@ -607,7 +611,7 @@ const SettingProject = () => {
                                                 <tr key={idx}>
                                                     <td className="center">
                                                         {isManHourEdit ?
-                                                            <NumberInput initNum={manhour.work_hour} setNum={(val) => changeHour("work_hour", val, idx)} min={"1"} max={"24"} style={{ width: "100px", marginLeft: "5px" }}></NumberInput>
+                                                            <NumberInput initNum={manhour.work_hour} setNum={(val) => changeHour("work_hour", val, idx)} fixed={0} min={"0"} max={"24"} style={{ width: "100px", marginLeft: "5px" }}></NumberInput>
                                                             :
                                                             `${manhour.work_hour}시간 이상`
                                                         }
@@ -646,10 +650,9 @@ const SettingProject = () => {
                                             :
                                             (
                                             isManHourEdit ?
-                                                manhour.mhno && manhour.work_hour === 0 ? null :
                                                 <tr key={idx}>
-                                                    <td className="center"><NumberInput initNum={manhour.work_hour} setNum={(val) => changeHour("work_hour", val, idx)} min={"1"} max={manHours[0].work_hour - 1} style={{ width: "100px", marginLeft: "5px" }}></NumberInput></td>
-                                                    <td className="center"><NumberInput initNum={manhour.man_hour} setNum={(val) => changeHour("man_hour", val, idx)} min={"0"} max={(manHours[0].man_hour - 0.1).toFixed(1)} fixed={1} step={0.1} style={{ width: "100px", marginLeft: "5px" }}></NumberInput></td>
+                                                    <td className="center"><NumberInput initNum={manhour.work_hour} setNum={(val) => changeHour("work_hour", val, idx)} fixed={0}  min={"0"} max={manHours[0].work_hour - 1} style={{ width: "100px", marginLeft: "5px" }}></NumberInput></td>
+                                                    <td className="center"><NumberInput initNum={manhour.man_hour} setNum={(val) => changeHour("man_hour", val, idx)} min={"0"} max={manHours[0].man_hour < 0.1 ? 0 : (manHours[0].man_hour - 0.1).toFixed(1)} fixed={1} step={0.1} style={{ width: "100px", marginLeft: "5px" }}></NumberInput></td>
                                                     <td className="center text-success">
                                                         {manhour.work_hour}시간 이하인 경우 {manhour.man_hour}공수
                                                     </td>
@@ -741,7 +744,7 @@ const SettingProject = () => {
                                 <div style={{display: "flex", height: "20px", margin: "20px 10px", alignItems: "center"}}>
                                     <div style={{width: "80px"}}>유예시간</div>
                                     { isInOutTimeEdit ?
-                                        <><NumberInput initNum={setting.respite_time} setNum={(time) => setSetting((prev) => ({...prev, respite_time : Number(time)}))} min={0} max={1440} step={5} style={{width:"100px", marginRight:"5px"}}></NumberInput>{"분"}</>
+                                        <><NumberInput initNum={setting.respite_time} setNum={(time) => setSetting((prev) => ({...prev, respite_time : Number(time)}))} fixed={0} min={0} max={1440} step={5} style={{width:"100px", marginRight:"5px"}}></NumberInput>{"분"}</>
                                         :
                                         <div className="text-style">{setting.respite_time} 분</div>
                                     } 
