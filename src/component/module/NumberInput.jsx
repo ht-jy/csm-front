@@ -26,7 +26,11 @@ const NumberInput = ( {initNum, setNum, min = 0, max = 10000, fixed = null, step
 
     const onChangeNumber = (e) => {
         let value = e.target.value;
+        const [intPart, fracPart = ""] = String(Number(value)).split(".");
 
+        // 소수부 길이 초과 시 제한
+        if (fixed !== null && fracPart.length > fixed)
+            return
 
         // 숫자 또는 소수점만 허용
         if (!/^\d*\.?\d*$/.test(value)) return;
@@ -38,14 +42,14 @@ const NumberInput = ( {initNum, setNum, min = 0, max = 10000, fixed = null, step
         }else if (String(value).endsWith('.') ){
             return;
         }
-        value = String(Number(value));
-
 
         if (value > maxValue) {
             value = maxValue;
         } else  if (value < minValue) {
             value = minValue
         }
+
+        value = String(Number(value));
 
         setNum(value);
         setInputNum(value);        
