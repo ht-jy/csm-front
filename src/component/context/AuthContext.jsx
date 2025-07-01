@@ -1,6 +1,23 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Axios } from "../../utils/axios/Axios";
 
+/**
+ * @description: 로그인 사용자 정보 저장 및 상단 프로젝트 저장
+ * @author 작성자: 김진우
+ * @created 작성일: 2025-02-??
+ * @modified 최종 수정일: 2025-07-01
+ * @modifiedBy 최종 수정자: 김진우
+ * @modified Description: 
+ * 2025-07-01: 프로젝트 선택시 사용자의 프로젝트권한 state 추가
+ *
+ * @additionalInfo
+ * - API: 
+ *    Http Method - GET : /jwt-validation (사용자 jwt 유효성 검사)
+ *    Http Method - POST : 
+ *    Http Method - PUT : 
+ *    Http Method - DELETE : 
+ */
+
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -9,11 +26,12 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [project, setProject] = useState(null);
     const [projectName, setProjectName] = useState("");
+    const [jobRole, setJobRole] = useState(null);
 
     const fetchToken = async () => {
         try {
             const res = await Axios.GET("/jwt-validation");
-
+            
             if (res?.data?.result === "Success") {
                 setIsAuthenticated(true);
                 setUser({
@@ -22,7 +40,6 @@ export const AuthProvider = ({ children }) => {
                     userName: res?.data?.values?.claims?.user_name,
                     role: res?.data?.values?.claims?.role,
                 });
-
             } else {
                 setIsAuthenticated(false);
                 setUser(null);
@@ -40,7 +57,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, isLoading, user, fetchToken, project, setProject, projectName, setProjectName }}>
+        <AuthContext.Provider value={{ isAuthenticated, isLoading, user, fetchToken, project, setProject, projectName, setProjectName, jobRole, setJobRole }}>
             {children}
         </AuthContext.Provider>
     );

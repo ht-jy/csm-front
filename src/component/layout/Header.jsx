@@ -13,12 +13,29 @@ import CancelIcon from "../../assets/image/cancel.png";
 import UserIcon from "../../assets/image/user.png";
 import MenuIcon from "../../assets/image/menu.png";
 
+/**
+ * @description: 헤더 컴포넌트
+ * @author 작성자: 김진우
+ * @created 작성일: 2025-02-??
+ * @modified 최종 수정일: 2025-07-01
+ * @modifiedBy 최종 수정자: 김진우
+ * @modified Description: 
+ * 2025-07-01: 프로젝트 선택시 사용자의 프로젝트권한 설정
+ *
+ * @additionalInfo
+ * - API: 
+ *    Http Method - GET : 
+ *    Http Method - POST : 
+ *    Http Method - PUT : 
+ *    Http Method - DELETE : 
+ */
+
 const Header = () => {
     const [isSidebarToggled, setIsSidebarToggled] = useState(false);
     const [isProjectOpen, setIsProjectOpen] = useState(false);
     const [isOrganizationOpen, setIsOrganizationOpen] = useState(false);
 
-    const { user, projectName, setProject, setProjectName } = useAuth();
+    const { user, projectName, setProject, setProjectName, setJobRole } = useAuth();
     const navigete = useNavigate();
 
     // 사이드 메뉴 열고 닫기
@@ -47,6 +64,7 @@ const Header = () => {
     const handleRefreshProject = () => {
         setProject(null);
         setProjectName("");
+        setJobRole(null);
     }
 
     useEffect(() => {
