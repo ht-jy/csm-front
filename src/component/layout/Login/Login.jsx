@@ -6,6 +6,7 @@ import Logo from "../../../assets/image/hitecheng_logo_default.png";
 import { Axios } from "../../../utils/axios/Axios";
 import { useAuth } from "../../context/AuthContext";  // AuthContext 가져오기
 import Modal from "../../module/Modal";
+import DigitFormattedInput from './../../module/DigitFormattedInput';
 
 function Login() {
     const navigate = useNavigate();
@@ -16,11 +17,8 @@ function Login() {
     const [userId, setUserId] = useState("");
     const [pwd, setPwd] = useState("");
     const [modalText, setModalText] = useState("");
-
-    const handleCheckbox = (e) => {
-        e.preventDefault();
-        setIsSave(!isSave);
-    };
+    //협력업체로그인
+    const [isCompany, setIsCompany] = useState(false);
 
     const handleUser = (e) => {
         e.preventDefault();
@@ -42,11 +40,12 @@ function Login() {
             user_id: userId,
             user_pwd: pwd,
             is_saved: isSave,
+            is_company: isCompany,
         };
         
         try {
             const res = await Axios.POST("/login", user);
-
+            
             if (res?.data?.result === "Success") {
                 await fetchToken();  // 로그인 후 fetchToken 실행 (사용자 정보 업데이트)
                 navigate("/site");  // 페이지 이동
@@ -90,10 +89,15 @@ function Login() {
                                 <div className="login-input">
                                     <input onChange={handlePwd} type="password" name="password" placeholder="패스워드" required="" autoComplete="current-password"/>
                                 </div>
-                                <div className="save-checkbox">
-                                    <FormCheckInput checked={isSave} onChange={handleCheckbox}/> 아이디 저장
+                                <div className="checkbox-container">
+                                    <div className="save-checkbox-left">
+                                        <FormCheckInput checked={isSave} onChange={() => setIsSave(!isSave)}/> 아이디 저장
+                                    </div>
+                                    <div className="save-checkbox-right">
+                                        <FormCheckInput checked={isCompany} onChange={() => setIsCompany(!isCompany)}/> 협력업체 로그인
+                                    </div>
                                 </div>
-                                <button onClick={login} className="btn btn-primary theme-button mt-4">Log in</button>
+                                <button onClick={login} className="btn btn-primary theme-button mt-3">Log in</button>
                             </form>
                         </div>
                     </div>

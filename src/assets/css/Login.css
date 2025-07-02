@@ -85,8 +85,21 @@ h1, h2, h3, h4, h5, h6, p, ul, ol {
     text-align: center;
 }
 
-.save-checkbox{
-    padding-top: 11px;
+.checkbox-container {
+    display: flex;
+    justify-content: space-between; /* 좌우 정렬 */
+    align-items: center;            /* 수직 정렬 */
+    width: 100%;                    /* 전체 너비 사용 */
+}
+
+.save-checkbox-left {
+    padding-top: 3px;
+    color: #4791db;
+}
+
+.save-checkbox-right {
+    padding-top: 3px;
+    color: #4791db;
 }
 
 a.brand-logo {
