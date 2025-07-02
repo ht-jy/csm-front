@@ -91,7 +91,7 @@ function Login() {
                                 </div>
                                 <div className="checkbox-container">
                                     <div className="save-checkbox-left">
-                                        <FormCheckInput checked={isSave} onChange={() => setIsSave(!isSave)}/> 아이디 저장
+                                        <FormCheckInput checked={isSave} onChange={() => setIsSave(!isSave)}/> 로그인 상태 유지
                                     </div>
                                     <div className="save-checkbox-right">
                                         <FormCheckInput checked={isCompany} onChange={() => setIsCompany(!isCompany)}/> 협력업체 로그인
