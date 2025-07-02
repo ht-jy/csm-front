@@ -30,7 +30,7 @@ function App() {
     return (
         <div className="App">
             <AuthProvider>
-                {/* <ErrorBoundary> */}
+                <ErrorBoundary>
                     <Routes>
                         <Route path="/login" element={<Login />} />
                         <Route path="/error" element={<ErrorPage />} />
@@ -56,7 +56,7 @@ function App() {
                         {/* 잘못된 경로 */}
                         <Route path="*" element={<NotFound />} />
                     </Routes>
-                {/* </ErrorBoundary> */}
+                </ErrorBoundary>
             </AuthProvider>
             {/* 툴팁 전역 설정 */}
             <ReactTooltip id="highlightTooltip" delayShow={0} positionStrategy="fixed" style={{ zIndex: 99999 }}/>
