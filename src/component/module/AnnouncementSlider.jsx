@@ -5,12 +5,13 @@ import "../../assets/css/slider.css";
 import upAndDown from "../../assets/image/up-and-down.png";
 import NoticeDetail from "../layout/content/management/notice/NoticeDetail";
 import NoticeReducer from "../layout/content/management/notice/NoticeReducer";
+import { previousDay } from "date-fns";
 
 
 function AnnouncementSlider() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
-    const { user } = useAuth();
+    const { user, jobRole, project } = useAuth();
     const [hoverOpen, setHoverOpen] = useState(false);
 
     const sliderRef = useRef();
@@ -30,11 +31,10 @@ function AnnouncementSlider() {
 
     // 공지사항 데이터 불러오기
     const getNotices = async () => {
-        // FIXME: 관리자 권한에 따라 변경하기
-        const res = await Axios.GET(`/notice/${user.uno}?role=ADMIN&page_num=${1}&row_size=${50}&order=POSTING_START_DATE DESC, POSTING_END_DATE ASC`);
+        const res = await Axios.GET(`/notice/${user.uno}?role=${jobRole}|${user.role}&page_num=${1}&row_size=${50}&jno=${project?.jno}`);
 
         if (res?.data?.result === "Success") {
-            dispatch({ type: "HEADER", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
+           dispatch({ type: "HEADER", notices: res?.data?.values?.notices, count: res?.data?.values?.count })
         }
     }
 
@@ -56,9 +56,9 @@ function AnnouncementSlider() {
 
     // 다음 공지로 넘기기
     const handleNext = () => {
-        if (isAnimating) return;
+        if (state.headerList.length <= 1 || isAnimating) return;
         setIsAnimating(true);
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % (state.headerList.length === 0 ? 10 : state.headerList.length));
+        setCurrentIndex( (prevIndex) =>(prevIndex + 1) % state.headerList.length)
         resetAutoSlide();
     };
 
@@ -78,22 +78,25 @@ function AnnouncementSlider() {
     // Index 조절하기
     useEffect(() => {
         if (state.headerList.length > 0) {
-            setCurrentIndex((prevIndex) => (prevIndex + 1) % state.headerList.length);
+            setCurrentIndex(0);
         }
+
     }, [state.headerList]);
 
     // 공지사항 데이터 로드
     useEffect(() => {
         getNotices()
-    }, [])
+    }, [project?.jno])
 
     // 3초마다 다음 공지 띄우기.
     useEffect(() => {
+        if (state.headerList.length <= 1) return
+
         const interval = setInterval(() => {
             handleNext();
         }, 3000);
         return () => clearInterval(interval);
-    }, [currentIndex]);
+    }, [state.headerList.length]);
 
     // 0.5초 후 적용하기(텍스트 변경되는 시간)
     useEffect(() => {
@@ -119,6 +122,7 @@ function AnnouncementSlider() {
             document.body.removeEventListener("click", handleClick);
         };
     }, []);
+
     return (
         <>
             <NoticeDetail
@@ -164,9 +168,11 @@ function AnnouncementSlider() {
                             state.headerList.length === 0 ? 
                                 <span>공지사항이 없습니다.</span>
                             :
-                            <span className="slide">                                    
+                            <span className="slide">               
+                            
                                     {state.headerList[currentIndex]?.job_name === "전체" ?
-                                    `전체` : `PROJ`} - {state.headerList[currentIndex]?.title}
+                                        `전체` : `PROJ`} - {state.headerList[currentIndex]?.title}
+                                              
                             </span>
                         }
                     </div>

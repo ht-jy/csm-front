@@ -102,7 +102,7 @@ const Code = () => {
                     <li className="breadcrumb-item content-title">코드 관리</li>
                     <li className="breadcrumb-item active content-title-sub">관리</li>
 
-                    <li style={{ position: 'absolute', right: "2vw" }}>
+                    <li className="ms-auto me-4">
                         <i className="fa-solid fa-bell"></i> 수정 및 추가는 하나씩만 가능합니다
                     </li>
 

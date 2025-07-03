@@ -54,7 +54,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
         { type: "text", span: "full", label: "제목", value: "", isRequired: true },
         { type: "date", span: "double", label: "시작일", isRequired: true},
         { type: "date", span: "double", label: "마감일", isRequired: true},
-        { type: "project", span: "double", label: "프로젝트", value: {job_name: ""}, isRequired: true, isAll: true},
+        { type: "project", span: "double", label: "프로젝트", value: {job_name: "", jno:0}, isRequired: true, isAll: true},
         { type: "checkbox", span: "double", label: "중요공지여부", value: "N" },
         { type: "html", span: "full", label: "내용", vlaue: ""},
         { type: "hidden", value: "" },
@@ -84,6 +84,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
             arr[1].value = dateUtil.format(notice.posting_start_date);
             arr[2].value = dateUtil.format(notice.posting_end_date);
             arr[3].value.job_name = (mode === "COPY") ? "" : notice.job_name;
+            arr[3].value.jno = notice.jno
             arr[4].value = notice.is_important;
             arr[5].value = notice.content;
             arr[6].value = Number(notice.idx);
@@ -99,23 +100,22 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
         setIsGridModal(true);
         setNoticeData(notice);
         setDetail(arr);
-        getSiteData();
+        // getSiteData();
     }
 
     // [GridModal-Get] 공지사항 상세
     const handleGetGridModal = (mode, notice) => {
             setGridMode(mode)
             const arr = [...gridData]
-
             if (mode === "DETAIL") { 
                 arr[0].value = notice.title;
                 arr[1].value = dateUtil.format(notice.posting_start_date);
                 arr[2].value = dateUtil.format(notice.posting_end_date);
                 arr[3].value.job_name = notice.job_name;
+                arr[3].value.jno = notice.jno
                 arr[4].value = notice.is_important;
                 arr[5].value = notice.content;
                 arr[6].value = Number(notice.idx);
-
                 // FIXME: 수정 삭제 버튼 작성자만 볼 수 있도록
                 // if (user.uno == notice.reg_uno) {
                 //     setIsAuthorization(true);
@@ -174,22 +174,21 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
         }
     
     // [GridModal-Post] 현장데이터 조회
-    const getSiteData = async () => {
-        setIsLoading(true);
+    // const getSiteData = async () => {
+    //     setIsLoading(true);
 
-        try {
-            // FIXME : 관리자권한
-            const res = await Axios.GET(`/project/my-job_name/${user.uno}?role=ADMIN`);
-
-            if (res?.data?.result === "Success") {
-                dispatch({ type: "PROJECT_NM", projectNm: res?.data?.values?.project_nm });
-            }
-        } catch(err) {
-            navigate("/error");
-        } finally {
-            setIsLoading(false);
-        }
-    }
+    //     try {
+    //         // FIXME : 관리자권한 이 데이터가 쓰이는 곳이 없음. project 필터로 변경되었음.
+    //         const res = await Axios.GET(`/project/my-job_name/${user.uno}?role=ADMIN`);
+    //         if (res?.data?.result === "Success") {
+    //             dispatch({ type: "PROJECT_NM", projectNm: res?.data?.values?.project_nm });
+    //         }
+    //     } catch(err) {
+    //         navigate("/error");
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // }
 
     // [GridModal-Post] 저장 버튼을 눌렀을 경우
     const onClickModalSave = async (item, mode) => {
