@@ -142,7 +142,7 @@ const SiteReducer = (state, action) => {
             const whethers = [];
             const whetherList = Array.isArray(action?.list) ? action.list : [];
             whetherList.map(item => {
-                if(item.whether.length !== 0){
+                if (Array.isArray(item.whether) && item.whether.length !== 0) {
                     whethers.push(item);
                 }
             });
