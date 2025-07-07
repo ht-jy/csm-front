@@ -611,7 +611,7 @@ const Schedule = () => {
                         />
                     </div>
                     <div>
-                    <Button text={<img src={ArrowRightIcon} style={{width: "15px", height: "15px", filter: "brightness(0) invert(1)"}}/>} style={{margin: 0, width: "35px", height: "38px", display: "flex", justifyContent: "center", alignItems: "center"}} onClick={() => onClickMonthBtn(-1)}/>
+                    <Button text={<img src={ArrowRightIcon} style={{width: "15px", height: "15px", filter: "brightness(0) invert(1)"}}/>} style={{margin: 0, width: "35px", height: "38px", display: "flex", justifyContent: "center", alignItems: "center"}} onClick={() => onClickMonthBtn(1)}/>
                     </div>
                 </div>
 

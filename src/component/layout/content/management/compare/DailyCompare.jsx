@@ -162,7 +162,7 @@ const DailyCompare = () => {
         "퇴직공제", 
         // "작업일보"
     ];
-    const excelRefs = useRef({});;
+    const excelRefs = useRef({});
 
     // file label click
     const fileLabelClick = (type) => {

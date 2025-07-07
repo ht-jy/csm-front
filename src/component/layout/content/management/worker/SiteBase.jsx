@@ -24,6 +24,8 @@ import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Paginate.css";
 import "../../../../../assets/css/Calendar.css";
 import { TableProvider } from "../../../../context/TableContext";
+import { resultType } from "../../../../../utils/Enum";
+import useExcelUploader from "../../../../../utils/hooks/useExcelUploader";
 
 /**
  * @description: 현장 근로자 관리
@@ -60,6 +62,10 @@ const SiteBase = () => {
     const navigate = useNavigate();
     const { user, project } = useAuth();
     const tableRef = useRef();
+    const excelRefs = useRef({});
+
+    // 엑셀 커스텀 훅
+    const { handleSelectAndUpload } = useExcelUploader();
 
     const [searchStartTime, setSearchStartTime] = useState(dateUtil.now());
     const [searchEndTime, setSearchEndTime] = useState(dateUtil.now());    
@@ -87,6 +93,10 @@ const SiteBase = () => {
     const [isDelWorker, setIsDelWorker] = useState(false);
     // 마감 취소 확인 모달
     const [isDeadlineCancel, setIsDeadlineCancel] = useState(false);
+    // 현장근로자 엑셀 업로드 모달
+    const [isWorkerExcel, setIsWorkerExcel] = useState(false);
+    const [workerExcelText, setWorkerExcelText] = useState("");
+    const [fncWorkerExcelFile, setFncWorkerExcelFile] = useState(() => () => {});
 
     // 테이블 컬럼 정보
     const columns = [
@@ -734,6 +744,77 @@ const SiteBase = () => {
         }
     }
 
+    // 현장근로자 엑셀 양식 다운로드
+    const getDailyWorkerFormExport = async() =>{
+        let res = undefined;
+        try {
+            setIsLoading(true);
+            res = await Axios.GET_BLOB(`/excel/daily-worker/form/export`);
+            
+            if(res?.data?.result === resultType.SUCCESS){
+                
+            }else if(res?.message.includes("failed to parse Excel file")){
+                setModalText("다운로드에 실패하였습니다.\n잠시 후 다시 시도하거나 관리자에게 문의하여 주세요.");
+                setIsModal(true);
+            }
+        } catch (err) {
+            setModalText("다운로드에 실패하였습니다.\n잠시 후 다시 시도하거나 관리자에게 문의하여 주세요.");
+            setIsModal(true);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    // 현장 근로자 엑셀 업로드
+    const dailyWorkerExcelImport = () => {
+        setWorkerExcelText("상단에 선택되어 있는 프로젝트가 기준이 되고 등록되어 있지 않은 근로자는 업로드가 되지 않습니다.\n\n※양식 다운로드를 통해 작성된 엑셀 파일이 아닌 경우 업로드에 실패할 수도 있습니다.");
+        setFncWorkerExcelFile(() => () => inputFileOpen());
+        setIsWorkerExcel(true);
+    }
+
+    const inputFileOpen = () => {
+        setIsWorkerExcel(false);
+        if(excelRefs.current){
+            excelRefs.current.click();
+        }
+    }
+
+    // excel upload
+    const excelUpload = async(e) => {
+        let res = undefined;
+        try {
+            setIsLoading(true);
+            res = await handleSelectAndUpload("/excel/import", e, {
+                file_type: "ADD_DAILY_WORKER",
+                work_date: dateUtil.format(Date.now()), 
+                sno: project.sno,
+                jno: project.jno,
+                reg_user: user.userName,
+                reg_uno: user.uno,
+            });
+            
+            if(res?.result === resultType.SUCCESS){
+                setModalText("업로드에 성공하였습니다.");
+                await getData();
+                setIsModal(true);
+            }else if(res?.result === resultType.EXCEL_FORMAT_ERROR){
+                setModalText(res?.alert);
+                setIsModal(true);
+            }else if(res?.message.includes("failed to parse Excel file")){
+                setModalText("엑셀 양식이 잘못되었습니다.\n확인 후 다시 업로드하여 주시기 바랍니다.");
+                setIsModal(true);
+            }else {
+                setModalText("업로드에 실패하였습니다.\n잠시후에 다시 시도하거나 관리자에게 문의하여 주세요.");
+                setIsModal(true);
+            }
+        } catch (err) {
+            setModalText("업로드에 실패하였습니다.\n잠시후에 다시 시도하거나 관리자에게 문의하여 주세요.");
+            setIsModal(true);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     const { 
         searchValues,
         activeSearch, setActiveSearch, 
@@ -834,6 +915,13 @@ const SiteBase = () => {
                 cancel={"아니요"}
                 fncCancel={() => setIsDeadlineCancel(false)}
             />
+            <Modal
+                isOpen={isWorkerExcel}
+                title={"현장 근로자 등록"}
+                text={workerExcelText}
+                confirm={"확인"}
+                fncConfirm={() => fncWorkerExcelFile()}
+            />
             <SelectModal
                 isOpen={isDeadlineSelect}
                 title={"일괄마감"}
@@ -877,7 +965,12 @@ const SiteBase = () => {
                                     </>
                                 // :   state.list.length > 0 ?
                                 :   project !== null ?
-                                        <Button text={"수정"} onClick={onClickEditBtn} />
+                                        <>
+                                            <Button text={"양식 다운로드"} onClick={getDailyWorkerFormExport} />
+                                            <Button text={"엑셀 업로드"} onClick={dailyWorkerExcelImport} />
+                                            <Button text={"수정"} onClick={onClickEditBtn} />
+                                            <input ref={(e) => (excelRefs.current = e)} type="file" id="fileInput" accept=".xlsx, .xls" onChange={(e) => excelUpload(e)} style={{display: "none"}}/>                              
+                                        </>
                                     :   null
                             }
                         </div>
