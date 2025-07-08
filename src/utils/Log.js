@@ -1,19 +1,23 @@
+import { useAuth } from "../component/context/AuthContext";
+import { dateUtil } from "./DateUtil";
 
-export const Log = {
-    // 개발
-    debug(text){
-        if(process.env.NODE_ENV == "development"){
-            console.log(text);
-        }
-    }
-    // 운영
-    , info(text){
-        if(process.env.NODE_ENV == "production"){
-            console.log(text);
-        }
-    }
-    // 항상
-    , warn(text){
-        console.log(text);
-    }
-}
+export const useLogParam = () => {
+    const { user } = useAuth();
+
+    const createLogParam = ({ type = "", menu = "", before = {}, after = {}, item = {} }) => {
+        return {
+            time: dateUtil.format(Date.now(), 'yyyy-MM-dd HH:mm:ss'),
+            type,
+            menu,
+            user_name: user?.userName || '',
+            user_uno: user?.uno || 0,
+            record: {
+                before,
+                after,
+            },
+            item,
+        };
+    };
+
+    return { createLogParam };
+};
