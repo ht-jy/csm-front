@@ -815,6 +815,96 @@ const SiteBase = () => {
         }
     }
 
+    // 근태정보 다운로드
+    const onClickRecordData = () => {
+        getRecordData();
+    }
+
+    // 근태정보 조회
+    const getRecordData = async() => {
+        setIsLoading(true);
+        
+        try {
+            const res = await Axios.GET(`/worker/site-base/record?jno=${project.jno}&start_date=${searchStartTime}&end_date=${searchEndTime}`);
+            
+            if(res?.data?.result === "Success"){
+                const groupMap = {};
+                ObjChk.ensureArray(res?.data?.values).forEach(item => {
+                    const key = `${item.job_name}|${item.user_nm}|${item.department}|${item.phone}`;
+
+                    if (!groupMap[key]) {
+                        groupMap[key] = {
+                            job_name: item.job_name,
+                            user_nm: item.user_nm,
+                            department: item.department,
+                            phone: item.phone,
+                            sum_work_hour: 0,
+                            sum_work_date: 0,
+                            worker_time_excel: [],
+                            __work_date_set: new Set()
+                        };
+                    }
+
+                    if (item.work_hour != null) {
+                        groupMap[key].sum_work_hour += item.work_hour;
+                    }
+
+                    const dateKey = item.record_date?.slice(0, 10);
+                    if (dateKey && !groupMap[key].__work_date_set.has(dateKey)) {
+                        groupMap[key].__work_date_set.add(dateKey);
+                        groupMap[key].sum_work_date += 1;
+                    }
+
+                    groupMap[key].worker_time_excel.push({
+                        record_date: item.record_date?.slice(0, 10),                      // '2025-07-02'
+                        in_recog_time: item.in_recog_time?.slice(11, 16),                 // '08:00'
+                        out_recog_time: item.out_recog_time?.slice(11, 16),               // '17:00'
+                        work_hour: item.work_hour,
+                        is_deadline: item.is_deadline,
+                    });
+                });
+
+                const groupedWorkers = Object.values(groupMap).map(worker => {
+                    delete worker.__work_date_set;
+                    return worker;
+                });
+
+                const recordData = {
+                    start_date: searchStartTime,
+                    end_date: searchEndTime,
+                    worker_excel: groupedWorkers
+                };
+
+                dailyWorkerRecordExport(recordData);
+            }
+        } catch (err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    // 근로자 근태기록 export
+    const dailyWorkerRecordExport = async(param) => {
+        let res = undefined;
+        try {
+            setIsLoading(true);
+            res = await Axios.POST_BLOB(`/excel/daily-worker/record/export`, param);
+            
+            if(res?.data?.result === resultType.SUCCESS){
+                
+            }else if(res?.message.includes("failed to parse Excel file")){
+                setModalText("다운로드에 실패하였습니다.\n잠시 후 다시 시도하거나 관리자에게 문의하여 주세요.");
+                setIsModal(true);
+            }
+        } catch (err) {
+            setModalText("다운로드에 실패하였습니다.\n잠시 후 다시 시도하거나 관리자에게 문의하여 주세요.");
+            setIsModal(true);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     const { 
         searchValues,
         activeSearch, setActiveSearch, 
@@ -1002,6 +1092,7 @@ const SiteBase = () => {
                                             <Button text={"프로젝트 변경"} onClick={onClickModProjectBtn} />
                                             <Button text={"근로자 삭제"} onClick={onClickDeleteWorkerBtn} />
                                             <Button text={"마감 취소"} onClick={onClickDeadlineCancelBtn} />
+                                            <Button text={"근태정보 다운로드"} onClick={onClickRecordData} />
                                         </>
                                     : null
                                 }
