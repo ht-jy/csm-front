@@ -16,6 +16,8 @@ import Search from "../../../../module/search/Search";
 import Notification from "../../../../../assets/image/notification_empty.png"
 import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Paginate.css";
+import { dateUtil } from "../../../../../utils/DateUtil";
+import { useLogParam } from "../../../../../utils/Log";
 
 /**
  * @description: 
@@ -51,6 +53,7 @@ const Device = () => {
 
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { createLogParam } = useLogParam();
 
     const [isLoading, setIsLoading] = useState(false);
     const [isGridModal, setIsGridModal] = useState(false);
@@ -86,7 +89,7 @@ const Device = () => {
         { type: "text", span: "double", width: "110px", label: "장치명", value: "", isRequired: true },
         { type: "text", span: "double", width: "110px", label: "시리얼번호", value: "", isRequired: true },
         { type: "site", span: "full", width: "110px", label: "현장이름", value: {sno: 100, site_nm:"미지정"}, isRequired: true, isAll: true },
-        { type: "checkbox", span: "double", width: "110px", label: "사용여부", value: "", checkedLabel: "사용중|사용안함" },
+        // { type: "checkbox", span: "double", width: "110px", label: "사용여부", value: "", checkedLabel: "사용중|사용안함" },
         { type: "text", span: "full", width: "110px", label: "비고", value: "" },
     ];
 
@@ -96,7 +99,7 @@ const Device = () => {
         { isSearch: true, isOrder: true, isSlide: false, header: "시리얼번호", width: "80px", itemName: "device_sn", bodyAlign: "left", isDate: false, isEllipsis: false },
         { isSearch: true, isOrder: true, isSlide: false, header: "현장이름", width: "150px", itemName: "site_nm", bodyAlign: "left", isDate: false, isEllipsis: true },
         { isSearch: true, isOrder: true, isSlide: false, header: "비고", width: "150px", itemName: "etc", bodyAlign: "left", isDate: false, isEllipsis: true },
-        { isSearch: true, isOrder: true, isSlide: true, header: "사용여부", width: "50px", itemName: "is_use", bodyAlign: "center", isDate: false, isEllipsis: false },
+        // { isSearch: true, isOrder: true, isSlide: true, header: "사용여부", width: "50px", itemName: "is_use", bodyAlign: "center", isDate: false, isEllipsis: false },
         { isSearch: false, isOrder: true, isSlide: true, header: "최초 생성일시", width: "60px", itemName: "reg_date", bodyAlign: "center", isDate: true, isEllipsis: false, dateFormat: "format" },
         { isSearch: false, isOrder: true, isSlide: true, header: "최종 수정일시", width: "60px", itemName: "mod_date", bodyAlign: "center", isDate: true, isEllipsis: false, dateFormat: "format" },
     ]
@@ -137,8 +140,8 @@ const Device = () => {
                 sno: item.sno,
                 site_nm: item.site_nm
             };
-            arr[4].value = item.is_use === "사용중" ? "Y" : "N" ;
-            arr[5].value = item.etc;
+            // arr[4].value = item.is_use === "사용중" ? "Y" : "N" ;
+            arr[4].value = item.etc;
         }
         setDetail(arr);
         setIsGridModal(true);
@@ -159,8 +162,8 @@ const Device = () => {
             device_nm: item[1].value || "",
             device_sn: item[2].value || "",
             sno: item[3].value.sno || 0,
-            is_use: item[4].value || "",
-            etc: item[5].value || "",
+            // is_use: item[4].value || "",
+            etc: item[4].value || "",
             reg_user: user.userId || "",
             mod_user: user.userId || "",
         }
@@ -186,15 +189,35 @@ const Device = () => {
             setModal2Text("현장이름을 선택해주세요.")
             return
         }
-        
+
+        // const param = {
+        //     time: dateUtil.format(Date.now(), 'yyyy-MM-dd HH:mm:ss'),
+        //     menu: "device",
+        //     user_name: user.userName||"",
+        //     user_uno: user.uno||0,
+        //     record: {
+        //         before: state.list.find(item => item.dno === device.dno)||{},
+        //         after: device,
+        //     },
+        //     item: device,
+        // }
+        const param = createLogParam({
+            menu: "device", 
+            before: state.list.find(item => item.dno === device.dno)||{}, 
+            after: device, 
+            item: device,
+        });
+
         setIsLoading(true);
 
         try {
             let res;
             if (gridMode === "SAVE") {
-                res = await Axios.POST(`/device`, device);
+                param.type = "ADD";
+                res = await Axios.POST(`/device`, param);
             } else {
-                res = await Axios.PUT(`/device`, device);
+                param.type = "MODIFY";
+                res = await Axios.PUT(`/device`, param);
             }
 
             if (res?.data?.result === "Success") {
@@ -217,8 +240,16 @@ const Device = () => {
         setIsLoading(true);
         setGridMode("REMOVE")
 
+        const param = createLogParam({ 
+            type: "REMOVE", 
+            menu: "device", 
+            before: state.list.find(obj => obj.dno === item[0].value)||{}, 
+            after: {}, 
+            item: state.list.find(obj => obj.dno === item[0].value)||{},
+        });
+
         try {
-            const res = await Axios.DELETE(`/device/${item[0].value}`);
+            const res = await Axios.POST(`/device/delete`, param);
 
             if (res?.data?.result === "Success") {
                 setIsMod(true);
@@ -258,21 +289,21 @@ const Device = () => {
     const getData = async () => {
         setIsLoading(true);
 
-        let isUse;
-        if("사용중".includes(searchValues.is_use) && "사용안함".includes(searchValues.is_use)){
-            isUse = "";
-        }
-        else if("사용중".includes(searchValues.is_use)){
-            isUse = "Y";
-        }
-        else if("사용안함".includes(searchValues.is_use)){
-            isUse = "N";
-        }else {
-            isUse = searchValues.is_use;
-        }
+        // let isUse;
+        // if("사용중".includes(searchValues.is_use) && "사용안함".includes(searchValues.is_use)){
+        //     isUse = "";
+        // }
+        // else if("사용중".includes(searchValues.is_use)){
+        //     isUse = "Y";
+        // }
+        // else if("사용안함".includes(searchValues.is_use)){
+        //     isUse = "N";
+        // }else {
+        //     isUse = searchValues.is_use;
+        // }
 
         try {
-            const res = await Axios.GET(`/device?page_num=${pageNum}&row_size=${rowSize}&order=${'' + order}&device_nm=${searchValues.device_nm}&device_sn=${searchValues.device_sn}&site_nm=${searchValues.site_nm}&etc=${searchValues.etc}&is_use=${isUse}&retry_search_text=${retrySearchText}`);
+            const res = await Axios.GET(`/device?page_num=${pageNum}&row_size=${rowSize}&order=${'' + order}&device_nm=${searchValues.device_nm}&device_sn=${searchValues.device_sn}&site_nm=${searchValues.site_nm}&etc=${searchValues.etc}&retry_search_text=${retrySearchText}`);
             
             if (res?.data?.result === "Success") {
                 dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
