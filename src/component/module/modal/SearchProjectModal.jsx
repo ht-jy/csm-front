@@ -15,10 +15,11 @@ import useTableSearch from "../../../utils/hooks/useTableSearch";
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-25
- * @modified 최종 수정일: 2025-07-01
+ * @modified 최종 수정일: 2025-07-09
  * @modifiedBy 최종 수정자: 김진우
  * @modified Description
  * 2025-07-01: 프로젝트 선택시 사용자의 프로젝트권한 조회
+ * 2025-07-09: 프로젝트 선택시 사용자 권한 조회 기능 추가
  * 
  * - props
  *   isUsedProject true 인 경우는 상단의 선택처럼 3가지의 프로젝트 경우의 수가 아닌 공사관리시스템에 등록된 프로젝트만 나오게 됨
@@ -29,7 +30,7 @@ import useTableSearch from "../../../utils/hooks/useTableSearch";
  *    Http Method - GET : /project (공사관리 프로젝트 조회), /project/enterprise (전사 프로젝트 조회), /project/my-org/{uno} (본인이 속한 조직도 프로젝트 조회), /user/role?jno=${jno}&uno=${uno} (프로젝트 사용자 권한 조회)
  */
 const SearchProjectModal = ({isOpen, fncExit, isUsedProject, onClickRow}) => {
-    const { user, setProject, setProjectName, setJobRole } = useAuth();
+    const { user, setProject, setProjectName, setJobRole, setUserRole } = useAuth();
     const [selectedValue, setSelectedValue] = useState("1");
     const [data, setData] = useState([]);
     const [count, setCount] = useState(0);
@@ -69,6 +70,7 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, onClickRow}) => {
             setProject(item);
             setProjectName(item.job_name);
             getProjectRole(item.jno, user.uno);
+            getUserRole(user.uno);
         }else{
             // 현장근태 프로젝트 조회/선택 목적의 실행
             onClickRow(item);
@@ -76,12 +78,21 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, onClickRow}) => {
         fncExit();
     }
 
-    // 프로젝트 사용자 권한 조회
+    // 프로젝트 사용자 권한 조회(조직도에 지정되어 있는 {현장소장 | 현장관리자 | 안전관리자 | 관리감독자 | 협력업체관리자} 권한 조회)
     const getProjectRole = async (jno, uno) => {
         const res = await Axios.GET(`/user/role?jno=${jno}&uno=${uno}`);
-
+        
         if (res?.data?.result === "Success") {
             setJobRole(res?.data?.values);
+        }
+    };
+
+    // 프로젝트 사용자 권한 조회(DB 권한 테이블에 저장되어 있는 권한 조회)
+    const getUserRole = async (uno) => {
+        const res = await Axios.GET(`/user-role/uno?uno=${uno}`);
+        
+        if (res?.data?.result === "Success") {
+            setUserRole(res?.data?.values);
         }
     };
 
