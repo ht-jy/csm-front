@@ -7,7 +7,7 @@ const DeviceReducer = (state, action) => {
 
             const devices = (ObjChk.ensureArray(action.list)).map(device => ({
                 ...device,
-                is_use: device?.is_use === "Y" ? "사용중" : "사용안함"
+                // is_use: device?.is_use === "Y" ? "사용중" : "사용안함"
             }));
             
             return { ...state, list: structuredClone(ObjChk.ensureArray(action.list)), count: action.count ?? 0, devices: structuredClone(ObjChk.ensureArray(action.list))};

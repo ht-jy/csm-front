@@ -144,6 +144,7 @@ const SiteReducer = (state, action) => {
             weatherList.map(item => {
                 if(item.weather.length !== 0){
                     weathers.push(item);
+
                 }
             });
             return {...state, dailyWeather: structuredClone(weathers)};
