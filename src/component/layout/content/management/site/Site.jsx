@@ -12,19 +12,21 @@ import Modal from "../../../../module/Modal";
 import Button from "../../../../module/Button";
 import useTooltip from "../../../../../utils/hooks/useTooltip";
 import NonUsedProjectModal from "../../../../module/modal/NonUsedProjectModal";
-import whether0 from "../../../../../assets/image/whether/0.png";
-import whether1 from "../../../../../assets/image/whether/1.png";
-import whether2 from "../../../../../assets/image/whether/2.png";
-import whether3 from "../../../../../assets/image/whether/3.png";
-import whether4 from "../../../../../assets/image/whether/4.png";
-import whether5 from "../../../../../assets/image/whether/5.png";
-import whether6 from "../../../../../assets/image/whether/6.png";
-import whether7 from "../../../../../assets/image/whether/7.png";
-import whether13 from "../../../../../assets/image/whether/13.png";
-import whether14 from "../../../../../assets/image/whether/14.png";
-import warningWhether from "../../../../../assets/image/warningWhether.png"
+import weather0 from "../../../../../assets/image/weather/0.png";
+import weather1 from "../../../../../assets/image/weather/1.png";
+import weather2 from "../../../../../assets/image/weather/2.png";
+import weather3 from "../../../../../assets/image/weather/3.png";
+import weather4 from "../../../../../assets/image/weather/4.png";
+import weather5 from "../../../../../assets/image/weather/5.png";
+import weather6 from "../../../../../assets/image/weather/6.png";
+import weather7 from "../../../../../assets/image/weather/7.png";
+import weather13 from "../../../../../assets/image/weather/13.png";
+import weather14 from "../../../../../assets/image/weather/14.png";
+import warningWeather from "../../../../../assets/image/warningWeather.png"
 import LoadingIcon from "../../../../../assets/image/Loading.gif";
 import "../../../../../assets/css/Table.css";
+import DateInput from "../../../../module/DateInput";
+import { ObjChk } from "../../../../../utils/ObjChk";
 
 /**
  * @description: 현장 관리 페이지
@@ -49,7 +51,7 @@ const Site = () => {
         list: [],
         code: [],
         dailyTotalCount: {},
-        dailyWhether: [],
+        dailyWeather: [],
     })
 
     const navigate = useNavigate();
@@ -60,10 +62,12 @@ const Site = () => {
     const [isDetail, setIsDetail] = useState(false);
     const [detailTitle, setDetailTitle] = useState("");
     const [detailData, setDetailData] = useState({});
-    const [detailWhether, setDetailWhether] = useState([]);
+    const [detailWeather, setDetailWeather] = useState([]);
     const [isSiteAdd, setIsSiteAdd] = useState({});
     const [isNonPjModal, setIsNonPjModal] = useState(false);
     const [addSiteJno, setAddSiteJno] = useState("");
+    const [selectedDate, setSelectedDate] = useState(null)
+    const [showWeatherList, setShowWeatherList] = useState(-1)
 
     // 기상특보
     const [warningListOpen, setWarningListOpen] = useState(false);
@@ -81,8 +85,12 @@ const Site = () => {
     const [modal2type, setModal2Type] = useState("");
     const [modal2Confirm, setModal2Confirm] = useState("");
     const [modal2Cancel, setModal2Cancel] = useState("");
+    
     // 날씨정보
-    const [whetherInfo, setWhetherInfo] = useState([]);
+    const [weatherInfo, setWeatherInfo] = useState([]);
+    const weatherRef = useRef()
+
+    
     // 툴팁
     useTooltip([state.list]);
 
@@ -103,11 +111,11 @@ const Site = () => {
         setDetailTitle(`${item.site_nm}`)
         setDetailData(item);
         
-        const findWhether = state.dailyWhether.find(whether => whether.sno === item.sno);
-        if(findWhether !== undefined){
-            setDetailWhether(findWhether.whether);
+        const findWeather = state.dailyWeather.find(weather => weather.sno === item.sno);
+        if(findWeather !== undefined){
+            setDetailWeather(findWeather.weather);
         }else{
-            setDetailWhether([]);
+            setDetailWeather([]);
         }
         
         setIsDetail(true);
@@ -217,90 +225,126 @@ const Site = () => {
         }
     }
 
-    // 날씨(강수형태) && 날씨(하늘상태)
-    const getPtyNSkyData = (whether) => {
+    // 강수량과 하늘 수치로 정보 반환
+    const convertWeather = (rainy, cloudy) => {
+        let weatherIcon = weather0
+        let weatherText = "맑음" 
 
-        let whetherIcon = whether0
-        let whetherText = "맑음" 
-
-        const temp = whether?.filter(item => item.key === "PTY");
-        // 하늘 상태 추가
-        const cloudy = whether?.filter(item => item.key === "SKY");
-        switch (temp[0]?.value) {
+        switch (rainy) {
             case "0":
-                switch (cloudy[0]?.value) {
+                switch (cloudy) {
                     case "1":
-                        whetherIcon = whether0;
-                        whetherText = "맑음";
+                        weatherIcon = weather0;
+                        weatherText = "맑음";
                         break;
                     case "3":
-                        whetherIcon = whether13;
-                        whetherText = "구름많음";
+                        weatherIcon = weather13;
+                        weatherText = "구름많음";
                         break;
                     case "4":
-                        whetherIcon = whether14;
-                        whetherText = "흐림";
+                        weatherIcon = weather14;
+                        weatherText = "흐림";
                 }
                 break;
             case "1":
-                whetherIcon = whether1;
-                whetherText = "비";
+                weatherIcon = weather1;
+                weatherText = "비";
                 break;
             case "2":
-                whetherIcon = whether2;
-                whetherText = "비/눈";
+                weatherIcon = weather2;
+                weatherText = "비/눈";
                 break;
             case "3":
-                whetherIcon = whether3;
-                whetherText = "눈";
+                weatherIcon = weather3;
+                weatherText = "눈";
                 break;
             case "4":
-                whetherIcon = whether4;
-                whetherText = "소나기";
+                weatherIcon = weather4;
+                weatherText = "소나기";
                 break;
             case "5":
-                whetherIcon = whether5;
-                whetherText = "빗방울";
+                weatherIcon = weather5;
+                weatherText = "빗방울";
                 break;
             case "6":
-                whetherIcon = whether6;
-                whetherText = "비/눈";
+                weatherIcon = weather6;
+                weatherText = "비/눈";
                 break;
             case "7":
-                whetherIcon = whether7
-                whetherText = "눈";
+                weatherIcon = weather7
+                weatherText = "눈";
                 break;
-            default: return "";
         }
 
         return <>
-            <img src={whetherIcon} style={{ width: "19px" }} /> {whetherText}
-        </>
+            <img src={`${weatherIcon}`} style={{ width: "19px" }} /> {weatherText}
+            </>
+    }
+
+    // 날씨(강수형태) && 날씨(하늘상태)
+    const getPtyNSkyData = (weather) => {
+
+        const temp = weather?.filter(item => item.key === "PTY");
+        // 하늘 상태 추가
+        const cloudy = weather?.filter(item => item.key === "SKY");
+
+        return convertWeather(temp[0]?.value, cloudy[0]?.value)
     }
 
     // 날씨(강수량)
-    const getRn1Data = (whether) => {
-        const temp = whether?.filter(item => item.key === "RN1");
+    const getRn1Data = (weather) => {
+        const temp = weather?.filter(item => item.key === "RN1");
         return ` 강수량: ${temp[0]?.value}(㎜) `;
     }
 
     // 날씨(기온)
-    const getT1hData = (whether) => {
-        const temp = whether?.filter(item => item.key === "T1H");
+    const getT1hData = (weather) => {
+        const temp = weather?.filter(item => item.key === "T1H");
         return ` 기온: ${temp[0]?.value}(°C) `;
     }
 
     // 날씨(풍속,풍향)
-    const getWindData = (whether) => {
-        const temp1 = whether?.filter(item => item.key === "WSD");
-        const temp2 = whether?.filter(item => item.key === "VEC");
+    const getWindData = (weather) => {
+        const temp1 = weather?.filter(item => item.key === "WSD");
+        const temp2 = weather?.filter(item => item.key === "VEC");
         return ` ${temp2[0]?.value} ${temp1[0]?.value}(㎧) `;
+    }
+
+    // 날씨 버튼 클릭 시
+    const weatherListClickHandler = async (site, idx) => {
+        try{
+
+            if (!ObjChk.all(site?.sno)) {
+                
+                const res = await Axios.GET(`/api/weather/${site.sno}?targetDate=${selectedDate}`) 
+
+                if (res.data.result === "Success"){
+                    setWeatherInfo([...res.data.values.list])
+                     if (showWeatherList === idx){
+                        setShowWeatherList(-1)
+                    } else{
+                        setShowWeatherList(idx)
+                    }
+
+                } else{
+                    // 날씨를 불러올 수 없습니다.
+                    
+                }
+            }
+
+        }catch(err){
+            navigate("/error")
+
+        }finally {
+           
+        }
+
     }
 
     // 현장상태 조회
     const getSiteStatsData = async () => {
         try {
-            const res = await Axios.GET(`/site/stats?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}`);
+            const res = await Axios.GET(`/site/stats?targetDate=${dateUtil.format(selectedDate, "yyyy-MM-dd")}`);
 
             if (res?.data?.result === "Success") {
                 dispatch({ type: "STATS", list: res?.data?.values?.list });
@@ -313,7 +357,7 @@ const Site = () => {
     // 프로젝트별 근로자 수 조회
     const getWorkerCountData = async () => {
         try {
-            const res = await Axios.GET(`/project/worker-count?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}`);
+            const res = await Axios.GET(`/project/worker-count?targetDate=${dateUtil.format(selectedDate, "yyyy-MM-dd")}`);
             
             if (res?.data?.result === "Success") {
                 dispatch({ type: "COUNT", list: res?.data?.values?.list });
@@ -328,7 +372,7 @@ const Site = () => {
     const getData = async () => {
         setIsLoading(true);
         try {
-            const res = await Axios.GET(`/site?targetDate=${dateUtil.format(new Date(), "yyyy-MM-dd")}&pCode=SITE_STATUS`);
+            const res = await Axios.GET(`/site?targetDate=${dateUtil.format(selectedDate, "yyyy-MM-dd")}&pCode=SITE_STATUS`);
             
             if (res?.data?.result === "Success") {
                 dispatch({ type: "INIT", site: res?.data?.values?.site, code: res?.data?.values?.code });
@@ -343,7 +387,7 @@ const Site = () => {
     // 기상특보 현황 조회
     const getWarningData = async () => {
         try {
-            const res = await Axios.GET(`/api/whether/wrn`)
+            const res = await Axios.GET(`/api/weather/wrn`)
 
             if (res?.data?.result === "Success") {
                 setWarningData(res.data.values.list)
@@ -356,51 +400,58 @@ const Site = () => {
     }
 
     // 날씨 조회
-    const getWhetherData = async () => {
+    const getWeatherData = async () => {
         try {
-            const res = await Axios.GET(`/api/whether/srt`)
-            
-            if (res?.data?.result === "Success") {
-                dispatch({ type: "WHETHER", list: res?.data?.values?.list });
-            } else if (res?.data?.result === "Failure") {
+            const res = await Axios.GET(`/api/weather/srt`)
 
+            if (res?.data?.result === "Success") {
+                dispatch({ type: "WEATHER", list: res?.data?.values?.list });
+            } else if (res?.data?.result === "Failure") {
+                
             }
         } catch(err) {
             navigate("/error");
         }
     }
-
+    
+    
     // 현장상태 5초마다 갱신
     useEffect(() => {
+        
         getData();
         getWarningData();
-        getWhetherData();
-
-        const interval = setInterval(() => {
+        getWeatherData();
+        const isToday = dateUtil.format(selectedDate, "yyyy-MM-dd") === dateUtil.format(dateUtil.now(), "yyyy-MM-dd")
+        
+        const interval = isToday ? setInterval(() => {
             getSiteStatsData();
-        }, 5000);
-
+        }, 5000): null;
+        
         return () => clearInterval(interval);
-    }, []);
-
+    }, [selectedDate]);
+    
     // 프로젝트별 근로자 수 5초마다 갱신
     useEffect(() => {
-        const interval = setInterval(() => {
+        const isToday = dateUtil.format(selectedDate, "yyyy-MM-dd") === dateUtil.format(dateUtil.now(), "yyyy-MM-dd")
+        
+        const interval = isToday ? setInterval(() => {
             getWorkerCountData();
-        }, 5000);
+        }, 5000) : null;
 
         return () => clearInterval(interval);
-    }, []);
+    }, [selectedDate]);
 
     // 날씨 5분마다 갱신
     // 기상청api가 30분마다 갱신이 되기에 날씨가 변경되는 시간은 차이가 있음.
     useEffect(() => {
-        const interval = setInterval(() => {
-            getWhetherData();
-        }, 300000);
+        const isToday = dateUtil.format(selectedDate, "yyyy-MM-dd") === dateUtil.format(dateUtil.now(), "yyyy-MM-dd")
+
+        const interval = isToday? setInterval(() => {
+            getWeatherData();
+        }, 300000) : null;
 
         return () => clearInterval(interval);
-    }, []);
+    }, [selectedDate]);
 
     // 기상특보 외의 클릭 시
     useEffect(() => {
@@ -417,7 +468,23 @@ const Site = () => {
             document.body.removeEventListener("click", handleClick);
         };
     }, []);
-    
+
+    // 날씨 리스트 외의 영역 클릭 시
+    useEffect(() => {
+        const handleClick = (e) => {
+            if (weatherRef.current?.contains(e.target)) {
+                return;
+            } else {
+                setShowWeatherList(-1);
+            }
+        };
+
+        document.body.addEventListener("click", handleClick);
+        return () => {
+            document.body.removeEventListener("click", handleClick);
+        };
+    }, []);
+
     return (
         <div>
             <Loading
@@ -452,7 +519,7 @@ const Site = () => {
                         setIsOpen={setIsDetail}
                         title={detailTitle}
                         detailData={detailData}
-                        detailWhether={detailWhether}
+                        detailWeather={detailWeather}
                         isEditBtn={true}
                         exitBtnClick={handleExitBtn}
                         saveBtnClick={(data) => saveData(data)}
@@ -471,7 +538,14 @@ const Site = () => {
 
                 <div className="card mb-4">
                     <div className="card-body">
-                        <div className="square-title">현장 목록</div>
+                        <div className="square-title d-flex align-items-center">
+                            <div>현장 목록</div>
+                            <DateInput 
+                                time={dateUtil.format(selectedDate)} 
+                                setTime={(value) => setSelectedDate(value)} 
+                                dateInputStyle={{margin: "0px", marginLeft:"10px"}}
+                            ></DateInput>
+                        </div>
                         <div className="square-container">
                             {
                                 state.code.length === 0 ?
@@ -486,10 +560,10 @@ const Site = () => {
                             {/* 기상특보 현황 :: start */}
                             <div
                                 ref={warningRef}
-                                className="whether-report icon-hover"
+                                className="weather-report icon-hover"
                                 onClick={() => setWarningListOpen(prev => !prev)}
                             >
-                                <img src={warningWhether} style={{width:"30px", margin:"5px"}}></img>
+                                <img src={warningWeather} style={{width:"30px", margin:"5px"}}></img>
                                 기상특보현황
                             </div>
                             {
@@ -560,6 +634,43 @@ const Site = () => {
                                     </tr>
                                     :
                                     state.list.map((item, idx) => (
+                                        <>
+                                            {
+                                                showWeatherList === idx ?
+                                                <div style={{...weatherListStyle, marginTop:"30px"}}>
+                                                    
+                                                    <div 
+                                                        ref={weatherRef}
+                                                        onClick={() => setShowWeatherList(-1)}
+                                                    >
+                                                        {
+                                                        weatherInfo.length !== 0 ?
+                                                            weatherInfo.map((weather, idx)=> (
+                                                                <>
+                                                                    <li style={{margin:"0.5rem 1rem", fontWeight:"bold"}}>{dateUtil.formatTimeHHMM(weather.recog_time)} 시</li>
+                                                                    <div style={{marginRight:"1rem", marginLeft:"2rem"}}>
+                                                                        {convertWeather(weather.pty, weather.sky)}
+                                                                        {weather.rn1 && ` / 강수량: ${weather.rn1}(㎜) `}
+                                                                        <br />
+                                                                        {weather.t1h && ` 기온: ${weather.t1h}(°C) `}
+                                                                        
+                                                                        {weather.vec && weather.wsd &&`/ ${weather.vec} ${weather.wsd}(㎧) `}
+                                                                    </div>
+                                                                    <br />
+                                                                </>
+                                                            ))                                                        
+                                                        :
+                                                            <div style={{textAlign:"center", margin:"1rem 0rem"}}>
+                                                                해당 날짜의 날씨를 확인할 수 없습니다.
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                : 
+                                                null
+                                                
+                                            }
+                                        {
                                         item.type === "main" ?
                                             <tr key={idx}>
                                                 {/* 현장구분 */}
@@ -574,7 +685,7 @@ const Site = () => {
                                                     }}></div>
                                                 </td>
                                                 {/* 발주처 */}
-                                                <td className="center fixed-left" rowSpan={item.rowSpan} style={{ left: "10px" }}>{item.originalOrderCompName || ""}</td>
+                                                <td className="left fixed-left" rowSpan={item.rowSpan} style={{ left: "10px" }}>{item.originalOrderCompName || ""}</td>
                                                 {/* 현장 */}
                                                 <td className="left fixed-left ellipsis-tooltip" style={{ cursor: "pointer", left: "110px" }} onClick={() => onClickRow(idx)}>{item.site_nm || ""}</td>
                                                 {/* 공정률 */}
@@ -667,22 +778,31 @@ const Site = () => {
 
                                                 </td>
                                                 {/* 날씨 */}
-                                                <td className="center fixed-right" rowSpan={item.rowSpan}>
+                                                <td className="center fixed-right" rowSpan={item.rowSpan} >
                                                     {
-                                                        state.dailyWhether.length === 0 ?
+                                                        selectedDate !== dateUtil.now()
+                                                        ? 
+                                                        <div style={{position:"relative", overflow:"visible"}}>
+                                                            <Button text={"날씨"} onClick={() => weatherListClickHandler(item, idx)} style={{padding:"3px 5px", fontSize:"14px"}}></Button>
+                                                            
+                                                        </div>
+                                                        : 
+                                                        (
+                                                            state.dailyWeather.length === 0 ?
                                                             <img src={LoadingIcon} style={{width: "23px"}}/>
-                                                        :
-                                                            state.dailyWhether.find(whether => whether.sno === item.sno) !== undefined ?
-                                                                <>
-                                                                    <>{getPtyNSkyData(state.dailyWhether.find(whether => whether.sno === item.sno).whether)}</>
-                                                                    /
-                                                                    <>{getRn1Data(state.dailyWhether.find(whether => whether.sno === item.sno).whether)}</>
-                                                                    <br />
-                                                                    <>{getT1hData(state.dailyWhether.find(whether => whether.sno === item.sno).whether)}</>
-                                                                    /
-                                                                    <>{getWindData(state.dailyWhether.find(whether => whether.sno === item.sno).whether)}</>
-                                                                </>
+                                                            :
+                                                            state.dailyWeather.find(weather => weather.sno === item.sno) !== undefined ?
+                                                            <>
+                                                                <>{getPtyNSkyData(state.dailyWeather.find(weather => weather.sno === item.sno).weather)}</>
+                                                                /
+                                                                <>{getRn1Data(state.dailyWeather.find(weather => weather.sno === item.sno).weather)}</>
+                                                                <br />
+                                                                <>{getT1hData(state.dailyWeather.find(weather => weather.sno === item.sno).weather)}</>
+                                                                /
+                                                                <>{getWindData(state.dailyWeather.find(weather => weather.sno === item.sno).weather)}</>
+                                                            </>
                                                             : "날씨 정보가 없습니다."
+                                                        )
                                                     }
                                                 </td>
                                             </tr>
@@ -723,6 +843,8 @@ const Site = () => {
                                                 {/* 날씨 */}
                                                 {/* <td className="center">날씨....</td> */}
                                             </tr>
+                                        }
+                                    </>
                                     ))
                             }
                             <tr style={{fontWeight: "bold"}}>
@@ -739,6 +861,7 @@ const Site = () => {
                             </tr>
                         </tbody>
                     </table>
+                    
                 </div>
                 </div>
             </div>
@@ -793,4 +916,28 @@ const listStyle = {
     width: "85%",
     textWrap: "wrap",
     wordBreak: "break-all",
+}
+
+
+
+const weatherListStyle = {
+    position: "absolute",
+    right: "0px",
+    zIndex: '9998',
+    backgroundColor: 'rgb(255,255,255)',
+    padding: "10px 0px",
+    border: "1px solid rgb(200,200,200)",
+    borderRadius: "10px",
+    width: '10vw',
+    minWidth: "18rem",
+    maxWidth: "32rem",
+    height: "20rem",
+    boxShadow: '5px 5px 8px rgba(0, 0, 0, 0.5)',
+    margin: '10px',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: "unset",
+    overflowY: "auto",
+    overflowX: "hidden",
+
 }

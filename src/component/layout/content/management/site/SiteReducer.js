@@ -6,7 +6,7 @@ const SiteReducer = (state, action) => {
         case "INIT":
             const setColor = (code) => {
                 const codeList = ObjChk.ensureArray(action.code);
-                const foundItem = codeList.find(item => item.code == code);
+                const foundItem = codeList.find(item => item.code === code);
                 return foundItem ? foundItem.code_color : undefined;
             }
 
@@ -70,7 +70,7 @@ const SiteReducer = (state, action) => {
             return {...state, list: JSON.parse(JSON.stringify(newSites)), code: JSON.parse(JSON.stringify(action.code)), dailyTotalCount: JSON.parse(JSON.stringify(total))};
         case "STATS":
             const setColor2 = (code) => {
-                const foundItem = state?.code?.find(item => item.code == code);
+                const foundItem = state?.code?.find(item => item.code === code);
                 return foundItem ? foundItem.code_color : undefined;
             }
 
@@ -138,15 +138,15 @@ const SiteReducer = (state, action) => {
             
             return {...state, list: JSON.parse(JSON.stringify(list2)), dailyTotalCount: JSON.parse(JSON.stringify(total2))};
         
-        case "WHETHER" :
-            const whethers = [];
-            const whetherList = Array.isArray(action?.list) ? action.list : [];
-            whetherList.map(item => {
-                if(item.whether.length !== 0){
-                    whethers.push(item);
+        case "WEATHER" :
+            const weathers = [];
+            const weatherList = Array.isArray(action?.list) ? action.list : [];
+            weatherList.map(item => {
+                if(item.weather.length !== 0){
+                    weathers.push(item);
                 }
             });
-            return {...state, dailyWhether: structuredClone(whethers)};
+            return {...state, dailyWeather: structuredClone(weathers)};
 
         default:
             return state;
