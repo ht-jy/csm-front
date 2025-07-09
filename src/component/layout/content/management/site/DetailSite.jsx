@@ -8,16 +8,16 @@ import Select from 'react-select';
 import SiteContext from "../../../../context/SiteContext";
 import Slider from "rc-slider";
 import 'rc-slider/assets/index.css';
-import whether0 from "../../../../../assets/image/whether/0.png";
-import whether1 from "../../../../../assets/image/whether/1.png";
-import whether2 from "../../../../../assets/image/whether/2.png";
-import whether3 from "../../../../../assets/image/whether/3.png";
-import whether4 from "../../../../../assets/image/whether/4.png";
-import whether5 from "../../../../../assets/image/whether/5.png";
-import whether6 from "../../../../../assets/image/whether/6.png";
-import whether7 from "../../../../../assets/image/whether/7.png";
-import whether13 from "../../../../../assets/image/whether/13.png";
-import whether14 from "../../../../../assets/image/whether/14.png";
+import weather0 from "../../../../../assets/image/weather/0.png";
+import weather1 from "../../../../../assets/image/weather/1.png";
+import weather2 from "../../../../../assets/image/weather/2.png";
+import weather3 from "../../../../../assets/image/weather/3.png";
+import weather4 from "../../../../../assets/image/weather/4.png";
+import weather5 from "../../../../../assets/image/weather/5.png";
+import weather6 from "../../../../../assets/image/weather/6.png";
+import weather7 from "../../../../../assets/image/weather/7.png";
+import weather13 from "../../../../../assets/image/weather/13.png";
+import weather14 from "../../../../../assets/image/weather/14.png";
 import Map from "../../../../module/Map";
 import Modal from "../../../../module/Modal";
 import Loading from "../../../../module/Loading";
@@ -36,7 +36,7 @@ import { useAuth } from "../../../../context/AuthContext";
  * - DateInput: 커스텀 캘린더
  * 
  */
-const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChangeValue, addressData, isSiteAdd}) => {
+const DetailSite = ({isEdit, detailData, detailWeather, projectData, handleChangeValue, addressData, isSiteAdd}) => {
     const navigate = useNavigate();
     const { user } = useAuth();
 
@@ -116,96 +116,96 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
 
 
     // 날씨 api 정보 확인
-    const getIsWhether = (whether) => {
-        if(whether?.length === 0) return false;
+    const getIsWeather = (weather) => {
+        if(weather?.length === 0) return false;
         return true;
     }
 
     // 날씨(강수형태) && 날씨(하늘상태)
-    const getPtyNSkyData = (whether) => {
+    const getPtyNSkyData = (weather) => {
 
-        let whetherIcon = whether0
-        let whetherText = "맑음" 
+        let weatherIcon = weather0
+        let weatherText = "맑음" 
 
-        const temp = whether?.filter(item => item.key === "PTY");
+        const temp = weather?.filter(item => item.key === "PTY");
         // 하늘 상태 추가
-        const cloudy = whether?.filter(item => item.key === "SKY");
+        const cloudy = weather?.filter(item => item.key === "SKY");
         switch (temp[0]?.value) {
             case "0":
                 switch (cloudy[0]?.value) {
                     case "1":
-                        whetherIcon = whether0;
-                        whetherText = "맑음";
+                        weatherIcon = weather0;
+                        weatherText = "맑음";
                         break;
                     case "3":
-                        whetherIcon = whether13;
-                        whetherText = "구름많음";
+                        weatherIcon = weather13;
+                        weatherText = "구름많음";
                         break;
                     case "4":
-                        whetherIcon = whether14;
-                        whetherText = "흐림";
+                        weatherIcon = weather14;
+                        weatherText = "흐림";
                 }
                 break;
             case "1":
-                whetherIcon = whether1;
-                whetherText = "비";
+                weatherIcon = weather1;
+                weatherText = "비";
                 break;
             case "2":
-                whetherIcon = whether2;
-                whetherText = "비/눈";
+                weatherIcon = weather2;
+                weatherText = "비/눈";
                 break;
             case "3":
-                whetherIcon = whether3;
-                whetherText = "눈";
+                weatherIcon = weather3;
+                weatherText = "눈";
                 break;
             case "4":
-                whetherIcon = whether4;
-                whetherText = "소나기";
+                weatherIcon = weather4;
+                weatherText = "소나기";
                 break;
             case "5":
-                whetherIcon = whether5;
-                whetherText = "빗방울";
+                weatherIcon = weather5;
+                weatherText = "빗방울";
                 break;
             case "6":
-                whetherIcon = whether6;
-                whetherText = "비/눈";
+                weatherIcon = weather6;
+                weatherText = "비/눈";
                 break;
             case "7":
-                whetherIcon = whether7
-                whetherText = "눈";
+                weatherIcon = weather7
+                weatherText = "눈";
             default: break;
         }
 
         return <>
-            <img src={whetherIcon} style={{ width: "19px" }} /> {whetherText}
+            <img src={weatherIcon} style={{ width: "19px" }} /> {weatherText}
         </>
     }
 
     // 날씨(강수량)
-    const getRn1Data = (whether) => {
-        if(whether === undefined){
+    const getRn1Data = (weather) => {
+        if(weather === undefined){
             return;
         }
-        const temp = whether?.filter(item => item.key === "RN1");
+        const temp = weather?.filter(item => item.key === "RN1");
         return ` 강수량: ${temp[0]?.value}(㎜) `;
     }
 
     // 날씨(기온)
-    const getT1hData = (whether) => {
-        if(whether === undefined){
+    const getT1hData = (weather) => {
+        if(weather === undefined){
             return;
         }
-        const temp = whether?.filter(item => item.key === "T1H");
+        const temp = weather?.filter(item => item.key === "T1H");
         return ` 기온: ${temp[0]?.value}(°C) `;
     }
 
     // 날씨(풍속,풍향)
-    const getWindData = (whether) => {
-        if(whether === undefined){
+    const getWindData = (weather) => {
+        if(weather === undefined){
             return;
         }
-        const temp1 = whether?.filter(item => item.key === "WSD");
-        const temp2 = whether?.filter(item => item.key === "VEC");
+        const temp1 = weather?.filter(item => item.key === "WSD");
+        const temp2 = weather?.filter(item => item.key === "VEC");
         return ` ${temp2[0]?.value} ${temp1[0]?.value}(㎧) `;
     }
 
@@ -496,15 +496,15 @@ const DetailSite = ({isEdit, detailData, detailWhether, projectData, handleChang
                     <div className="form-input" style={{ flex: 1 }}>
                         <div className="read-only-input">
                             {
-                                detailWhether.length !== 0 ?
+                                detailWeather.length !== 0 ?
                                 <>
-                                    <>{getPtyNSkyData(detailWhether)}</>
+                                    <>{getPtyNSkyData(detailWeather)}</>
                                     /
-                                    <>{getRn1Data(detailWhether)}</>
+                                    <>{getRn1Data(detailWeather)}</>
                                     /
-                                    <>{getT1hData(detailWhether)}</>
+                                    <>{getT1hData(detailWeather)}</>
                                     /
-                                    <>{getWindData(detailWhether)}</>
+                                    <>{getWindData(detailWeather)}</>
                                 </>                                                         
                                 : "날씨 정보가 없습니다."
                             }

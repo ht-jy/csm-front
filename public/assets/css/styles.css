@@ -2602,7 +2602,7 @@ form.d-flex {
   border-radius: 15px;
 }
 
-.whether-report {
+.weather-report {
   font-weight: bold;
   font-size: 17px;
   margin-bottom: 10px;
@@ -2610,6 +2610,7 @@ form.d-flex {
   right: 1.5rem;
   cursor: pointer;
   padding: 2px 15px;
+
 }
 
 /* 화면 크기가 768px 이하일 때 검색창 숨기기 */

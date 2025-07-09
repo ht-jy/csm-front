@@ -256,5 +256,17 @@ export const dateUtil = {
         if(time.length < 3) return "00:00:00";
 
         return `${time[0]}:${time[1]}:00`;
+    },
+    // go time -> 'HH24:mm" 반환
+    formatTimeHHMM(dateString) {
+       if (dateString === '0001-01-01T00:00:00Z' || dateString === '' || dateString === '-' || dateString === null) {
+            return '-';
+        }
+        
+        const date = new Date(dateString);
+        const hours = String(dateString?.split("T")[1]?.split(":")[0] || "0").padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        
+        return `${hours}:${minutes}`;
     }
 }

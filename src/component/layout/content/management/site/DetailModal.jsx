@@ -34,7 +34,7 @@ import NonUsedProjectModal from "../../../../module/modal/NonUsedProjectModal";
  *  saveBtnClick: 저장버튼 function (저장, 수정 둘다 포함)
  *  removeBtnClick: 삭제버튼 function
  */
-const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detailWhether=[], exitBtnClick, saveBtnClick, isCancle = true, isSiteAdd=false }) => {
+const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detailWeather=[], exitBtnClick, saveBtnClick, isCancle = true, isSiteAdd=false }) => {
     const { user } = useAuth();
     const navigate = useNavigate();
     
@@ -314,7 +314,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                                     <DetailSite 
                                     isEdit={isEdit}
                                     detailData={formData}
-                                    detailWhether={detailWhether}
+                                    detailWeather={detailWeather}
                                     projectData={detailData?.project_list}
                                     handleChangeValue={handleChangeValue}
                                     addressData={address}
