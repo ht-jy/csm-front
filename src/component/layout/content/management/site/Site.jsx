@@ -315,7 +315,6 @@ const Site = () => {
         try{
 
             if (!ObjChk.all(site?.sno)) {
-                
                 const res = await Axios.GET(`/api/weather/${site.sno}?targetDate=${selectedDate}`) 
 
                 if (res.data.result === "Success"){
