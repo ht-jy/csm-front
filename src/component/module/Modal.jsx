@@ -1,9 +1,17 @@
+import React from "react";
 import { ObjChk } from "../../utils/ObjChk";
 import { useEffect } from "react";
 
-// alert, confirm 을 위한 커스텀 modal창 모듈
-// 기본제공되는 alert, confirm 또는 라이브러리는 일부 브라우저에서 작동을 안 하거나 에러가 발생한다고 함.
-const Modal = ({isOpen, title, text, confirm, fncConfirm, cancel, fncCancel}) => {
+/**
+ * @description: alert, confirm 을 위한 커스텀 modal창 모듈
+ * @author 작성자: 김진우
+ * @created 작성일: 2025-02-??
+ * @modified 최종 수정일: 2025-07-10
+ * @modifiedBy 최종 수정자: 김진우
+ * @modified Description: 
+ * 2025-07-10: content를 추가하여 jsx구문을 넣어서 모달로 띄울 수 있도록 함
+ */
+const Modal = ({isOpen, title, text, content, confirm, fncConfirm, cancel, fncCancel}) => {
 
     const scrollUnset = (e) => {
         document.body.style.overflow = 'unset';
@@ -18,11 +26,15 @@ const Modal = ({isOpen, title, text, confirm, fncConfirm, cancel, fncCancel}) =>
         if (isOpen) {
             document.body.style.overflow = "hidden";
 
-            // 엔터 키 이벤트 핸들러
             const handleKeyDown = (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                if (event.key === "Enter" || event.key === "Escape") {
+                const tag = event.target.tagName.toLowerCase();
+                const isInputField = tag === 'input' || tag === 'textarea';
+
+                // input이나 textarea가 아니어야만 단축키 작동
+                if (!isInputField && (event.key === "Enter" || event.key === "Escape")) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
                     if (ObjChk.all(cancel)) {
                         fncConfirm(); // cancel이 없으면 confirm 실행
                     } else {
@@ -60,6 +72,12 @@ const Modal = ({isOpen, title, text, confirm, fncConfirm, cancel, fncCancel}) =>
                                     <br />
                                 </div>
                             ))}
+
+                            {content && (
+                                <div style={{ marginTop: '10px' }}>
+                                    {typeof content === "function" ? content() : content}
+                                </div>
+                            )}
                         </div>
                         <div style={buttonDivStyle}>
                             {
