@@ -21,6 +21,13 @@ export const roleGroup = Object.freeze({
         userRole.ADMIN.code,
         userRole.SITE_MANAGER.code,
     ],
+    SITE_MANAGER: [
+        userRole.SYSTEM_ADMIN.code,
+        userRole.SUPER_ADMIN.code,
+        userRole.ADMIN.code,
+        userRole.SITE_DIRECTOR.code,
+        userRole.SITE_MANAGER.code
+    ]
 });
 
 // 권한 체크

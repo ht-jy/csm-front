@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../context/AuthContext";
 import { Axios } from "../../../../../utils/axios/Axios";
+import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
 import Exit from "../../../../../assets/image/exit.png";
 import "../../../../../assets/css/SiteDetail.css";
 import DetailSite from "./DetailSite";
@@ -11,7 +12,6 @@ import Button from "../../../../module/Button";
 import SearchProjectModal from "../../../../module/modal/SearchProjectModal";
 import Modal from "../../../../module/Modal";
 import NonUsedProjectModal from "../../../../module/modal/NonUsedProjectModal";
-
 /**
  * @description: 현장관리 전용 상세화면 모달 컴포넌트
  * 
@@ -37,7 +37,8 @@ import NonUsedProjectModal from "../../../../module/modal/NonUsedProjectModal";
 const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detailWeather=[], exitBtnClick, saveBtnClick, isCancle = true, isSiteAdd=false }) => {
     const { user } = useAuth();
     const navigate = useNavigate();
-    
+    const { isRoleValid } = useUserRole();
+                                
     const [isEdit, setIsEdit] = useState(false);
     const [formData, setFormData] = useState(null);
     const [initialData, setInitialData] = useState({}); // 원본 데이터 저장
@@ -290,6 +291,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                                             }
                                         </div>
                                     :
+                                        isRoleValid(roleGroup.SITE_MANAGER) && 
                                         <div>
                                             {
                                                 isEditBtn && !isSiteAdd ? 
