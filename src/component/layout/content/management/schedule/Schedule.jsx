@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import ReactDOM from 'react-dom';
+import { useState, useEffect, useRef } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { Navigate, useNavigate } from "react-router-dom";
 import { dateUtil } from "../../../../../utils/DateUtil";
@@ -16,6 +17,18 @@ import ArrowLeftIcon from "../../../../../assets/image/arrow-left.png";
 import ArrowRightIcon from "../../../../../assets/image/arrow-right.png";
 import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Schedule.css";
+import { ObjChk } from "../../../../../utils/ObjChk";
+import weather0 from "../../../../../assets/image/weather/0.png";
+import weather1 from "../../../../../assets/image/weather/1.png";
+import weather2 from "../../../../../assets/image/weather/2.png";
+import weather3 from "../../../../../assets/image/weather/3.png";
+import weather4 from "../../../../../assets/image/weather/4.png";
+import weather5 from "../../../../../assets/image/weather/5.png";
+import weather6 from "../../../../../assets/image/weather/6.png";
+import weather7 from "../../../../../assets/image/weather/7.png";
+import weather13 from "../../../../../assets/image/weather/13.png";
+import weather14 from "../../../../../assets/image/weather/14.png";
+import weather from "../../../../../assets/image/weather/schedule.png";
 
 /**
  * @description: 일정관리 - 휴무일, 작업내용을 달력 형태로 확인 / 휴무일, 작업내용, 프로젝트 공정률, 프로젝트 장비 수정
@@ -72,6 +85,12 @@ const Schedule = () => {
     const [modalText, setModalText] = useState("");
     /** 툴팁 **/
     useTooltip([dailyJobs, calendarSlice]);
+    // 날씨정보
+    const [weatherInfo, setWeatherInfo] = useState([]);
+    const [showWeatherList, setShowWeatherList] = useState(-1)
+    const weatherRef = useRef()
+    const weatherRefMap = useRef({});
+    const [weatherPopupPosition, setWeatherPopupPosition] = useState({ top: 0, left: 0 });
 
     // 날짜 비교 
     const isSameDay = (date1, date2) => {
@@ -272,6 +291,94 @@ const Schedule = () => {
         } finally {
             setIsLoading(false);
         }
+    }
+
+    // 이전 날씨 조회
+    const weatherListClickHandler = async (date, idx) => {
+        try {
+            if (project !== null) {
+                const res = await Axios.GET(`/api/weather/${project.sno}?targetDate=${date}`);
+
+                if (res.data.result === "Success") {
+                    setWeatherInfo([...res.data.values.list]);
+                    // 셀 위치 계산
+                    const tdElement = weatherRefMap.current[idx]; 
+                    if (tdElement) {
+                        const rect = tdElement.getBoundingClientRect();
+                        setWeatherPopupPosition({
+                            top: rect.top + window.scrollY + 0,
+                            left: rect.left + window.scrollX + rect.width - 308
+                        });
+                    }
+                    // show/hide
+                    if (showWeatherList === idx) {
+                        setShowWeatherList(-1);
+                    } else {
+                        setShowWeatherList(idx);
+                    }
+                } else {
+                    
+                }
+            }
+        } catch (err) {
+            navigate("/error");
+        }
+    };
+
+    // 강수량과 하늘 수치로 정보 반환
+    const convertWeather = (rainy, cloudy) => {
+        let weatherIcon = weather0
+        let weatherText = "맑음" 
+
+        switch (rainy) {
+            case "0":
+                switch (cloudy) {
+                    case "1":
+                        weatherIcon = weather0;
+                        weatherText = "맑음";
+                        break;
+                    case "3":
+                        weatherIcon = weather13;
+                        weatherText = "구름많음";
+                        break;
+                    case "4":
+                        weatherIcon = weather14;
+                        weatherText = "흐림";
+                }
+                break;
+            case "1":
+                weatherIcon = weather1;
+                weatherText = "비";
+                break;
+            case "2":
+                weatherIcon = weather2;
+                weatherText = "비/눈";
+                break;
+            case "3":
+                weatherIcon = weather3;
+                weatherText = "눈";
+                break;
+            case "4":
+                weatherIcon = weather4;
+                weatherText = "소나기";
+                break;
+            case "5":
+                weatherIcon = weather5;
+                weatherText = "빗방울";
+                break;
+            case "6":
+                weatherIcon = weather6;
+                weatherText = "비/눈";
+                break;
+            case "7":
+                weatherIcon = weather7
+                weatherText = "눈";
+                break;
+        }
+
+        return <>
+            <img src={`${weatherIcon}`} style={{ width: "19px" }} /> {weatherText}
+            </>
     }
 
     /***** 상세 모달 *****/
@@ -493,6 +600,22 @@ const Schedule = () => {
         setMonthOption(monthOptions.find(item => item.value === currentMonth));
     }, []);
 
+    // 날씨 리스트 외의 영역 클릭 시
+    useEffect(() => {
+        const handleClick = (e) => {
+            if (weatherRef.current?.contains(e.target)) {
+                return;
+            } else {
+                setShowWeatherList(-1);
+            }
+        };
+
+        document.body.addEventListener("click", handleClick);
+        return () => {
+            document.body.removeEventListener("click", handleClick);
+        };
+    }, []);
+
     // 달력 생성
     useEffect(() => {
         buildCalendarMatrix(currentYear, currentMonth);
@@ -635,8 +758,12 @@ const Schedule = () => {
                                         {
                                             week.map((item, item_idx) => (
                                                 <td 
-                                                    key={`item_${item_idx}`} 
+                                                    key={`item_${week_idx}_${item_idx}`} 
+                                                    ref={el => {
+                                                        if (el) weatherRefMap.current[`item_${week_idx}_${item_idx}`] = el;
+                                                    }}
                                                     style={{ 
+                                                        position:"relative",
                                                         verticalAlign: "top", 
                                                         textAlign: "left", 
                                                         padding: "10px", 
@@ -644,6 +771,65 @@ const Schedule = () => {
                                                         overflow: "hidden"
                                                     }}
                                                 >
+                                                    {
+                                                        item !== null && new Date(item) < new Date(new Date().setHours(0, 0, 0, 0)) && project !== null && (
+                                                            <img
+                                                                src={weather}
+                                                                alt="plus"
+                                                                onClick={() => weatherListClickHandler(dateUtil.format(item), `item_${week_idx}_${item_idx}`)}
+                                                                style={{
+                                                                    position: "absolute",
+                                                                    bottom: "5px",
+                                                                    right: "5px",
+                                                                    width: "30px",
+                                                                    height: "30px",
+                                                                    cursor: "pointer",
+                                                                    zIndex: 10
+                                                                }}
+                                                            />
+                                                        )
+                                                    }
+                                                    {
+                                                        // 날씨
+                                                        showWeatherList === `item_${week_idx}_${item_idx}` && (
+                                                            ReactDOM.createPortal(
+                                                            <div style={{
+                                                                ...weatherListStyle, 
+                                                                position: "fixed", 
+                                                                top: `${weatherPopupPosition.top}px`,
+                                                                left: `${weatherPopupPosition.left}px`}}
+                                                            >
+                                                                <div 
+                                                                    ref={weatherRef}
+                                                                    onClick={() => setShowWeatherList(-1)}
+                                                                >
+                                                                    {
+                                                                    weatherInfo.length !== 0 ?
+                                                                        weatherInfo.map((weather, idx)=> (
+                                                                            <div key={`weather_${idx}`}>
+                                                                                <li style={{margin:"0.5rem 1rem", fontWeight:"bold"}}>{dateUtil.formatTimeHHMM(weather.recog_time)} 시</li>
+                                                                                <div style={{marginRight:"1rem", marginLeft:"2rem"}}>
+                                                                                    {convertWeather(weather.pty, weather.sky)}
+                                                                                    {weather.rn1 && ` / 강수량: ${weather.rn1}(㎜) `}
+                                                                                    <br />
+                                                                                    {weather.t1h && ` 기온: ${weather.t1h}(°C) `}
+                                                                                    
+                                                                                    {weather.vec && weather.wsd &&`/ ${weather.vec} ${weather.wsd}(㎧) `}
+                                                                                </div>
+                                                                                <br />
+                                                                            </div>
+                                                                        ))                                                        
+                                                                    :
+                                                                        <div style={{textAlign:"center", margin:"1rem 0rem"}}>
+                                                                            해당 날짜의 날씨를 확인할 수 없습니다.
+                                                                        </div>
+                                                                    }
+                                                                </div>
+                                                            </div>,
+                                                             document.body
+                                                            )
+                                                        )
+                                                    }
                                                     {/* 날짜 */}
                                                     <div 
                                                         className="schedule-day"
@@ -709,3 +895,24 @@ const Schedule = () => {
 }
 
 export default Schedule;
+
+const weatherListStyle = {
+    position: "absolute",
+    right: "0px",
+    zIndex: '9998',
+    backgroundColor: 'rgb(255,255,255)',
+    padding: "10px 0px",
+    border: "1px solid rgb(200,200,200)",
+    borderRadius: "10px",
+    width: '10vw',
+    minWidth: "18rem",
+    maxWidth: "32rem",
+    height: "20rem",
+    boxShadow: '5px 5px 8px rgba(0, 0, 0, 0.5)',
+    margin: '10px',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: "unset",
+    overflowY: "auto",
+    overflowX: "hidden",
+}
