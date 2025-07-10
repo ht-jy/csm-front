@@ -25,23 +25,19 @@ import "../../../../../assets/css/Paginate.css";
 import "../../../../../assets/css/Calendar.css";
 import { TableProvider } from "../../../../context/TableContext";
 import { resultType } from "../../../../../utils/Enum";
+import { useLogParam } from "../../../../../utils/Log";
 import useExcelUploader from "../../../../../utils/hooks/useExcelUploader";
+import DigitFormattedInput from "../../../../module/DigitFormattedInput";
 
 /**
  * @description: 현장 근로자 관리
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-18
- * @modified 최종 수정일: 
- * @modifiedBy 최종 수정자: 
- * @usedComponents
- * - ReactPaginate: 페이지 버튼
- * - Select: 셀렉트 박스
- * - Loading: 로딩 스피너
- * - Modal: 알림 모달
- * - Table: 테이블
- * - Button: 버튼
- * - DateInput: 날짜 입력
+ * @modified 최종 수정일: 2025-07-10
+ * @modifiedBy 최종 수정자: 김진우
+ * @modified description
+ * 2025-07-10: 일괄공수입력 기능 추가
  * 
  * @additionalInfo
  * - API: 
@@ -66,6 +62,7 @@ const SiteBase = () => {
 
     // 엑셀 커스텀 훅
     const { handleSelectAndUpload } = useExcelUploader();
+    const { createLogParam } = useLogParam();
 
     const [searchStartTime, setSearchStartTime] = useState(dateUtil.now());
     const [searchEndTime, setSearchEndTime] = useState(dateUtil.now());    
@@ -85,13 +82,16 @@ const SiteBase = () => {
     const [selectedProject, setSelectedProject] = useState({});
     const [isModal2, setIsModal2] = useState(false);
     const [modalText2, setModalText2] = useState("");
+    // 공수 입력 state
+    const [isWorkHour, setIsWorkHour] = useState(false);
+    const [workHour, setWorkHour] = useState(0);
     // 마감 알림 모달
     const [isDeadlineModal, setIsDeadlineModal] = useState(false);
-    // 일괄마감 선택 모달
+    // 일괄마감 관련 state
     const [isDeadlineSelect, setIsDeadlineSelect] = useState(false);
-    // 근로자 삭제 확인 모달
+    // 근로자 삭제 관련 state
     const [isDelWorker, setIsDelWorker] = useState(false);
-    // 마감 취소 확인 모달
+    // 마감 취소 관련 state
     const [isDeadlineCancel, setIsDeadlineCancel] = useState(false);
     // 현장근로자 엑셀 업로드 모달
     const [isWorkerExcel, setIsWorkerExcel] = useState(false);
@@ -230,6 +230,242 @@ const SiteBase = () => {
         }
     }
 
+    // 공수입력 버튼 클릭
+    // 체크한 근로자가 있는지 확인하고 후 공수 입력 모달 오픈
+    // 실제 변경시도하는 로직은 다른 함수에 구현
+    const onClickWorkHourBtn = () => {
+        if(tableRef.current){
+            setModalTitle("일괄 공수 입력");
+            const forwradRes = tableRef.current.getCheckedItemList();
+            
+            if(forwradRes.length === 0){
+                setModalText("공수를 입력할 근로자를 선택하세요.");
+                setIsModal(true);
+                return;
+            }
+
+            const deadlineArr = forwradRes.filter(item => item.is_deadline === "Y");
+            if(deadlineArr.length > 0){
+                setModalText("마감처리된 근로자는 공수를 입력 할 수 없습니다.\n선택한 근로자를 확인해주세요.");
+                setIsModal(true);
+                return;
+            }
+        }
+        
+        setWorkHour(0);
+        setIsWorkHour(true);
+    }
+
+    // 일괄공수처리
+    const handleWorkHour = async() => {
+        if(tableRef.current){
+            setModalTitle("일괄 공수 입력");
+            let forwradRes
+            forwradRes = tableRef.current.getCheckedItemList();
+            setIsWorkHour(false);
+
+            const workers = [];
+            forwradRes.map(item => {
+                const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
+                const before = state.list.find(obj => obj.sno === item.sno && obj.jno === item.jno && obj.user_id === item.user_id);
+                const worker = {
+                    sno: item.sno,
+                    jno: item.jno,
+                    user_id: item.user_id,
+                    work_hour: workHour,
+                    record_date: dateUtil.goTime(record_date),
+                    message: `[WORK HOUR MOD]before: ${before.work_hour}, after: ${workHour}`,
+                    mod_uno: user.uno,
+                    mod_user: user.userName,
+                }
+                workers.push(worker);
+            });
+
+            const param = createLogParam({
+                type: "MODIFY",
+                menu: "site-base",
+                items: workers, 
+            });
+            
+            setIsLoading(true);
+            try {
+                const res = await Axios.POST("worker/site-base/work-hours", param);
+                
+                if (res?.data?.result === "Success") {
+                    setModalText("공수 입력에 성공하였습니다.");
+                    await getData();
+                }else {
+                    
+                    setModalText("공수 입력에 실패하였습니다.");
+                }
+            } catch(err) {
+                navigate("/error");
+            } finally {
+                setIsLoading(false);
+                setIsModal(true);
+            }
+        }
+    }
+
+    // 프로젝트 변경
+    // 체크한 근로자가 있는지 확인하고 변경할 프로젝트를 선택할 모달창 오픈.
+    // 실제 변경시도하는 로직은 다른 함수에 구현
+    const onClickModProjectBtn = () => {
+        if(tableRef.current){
+            setModalTitle("근로자 프로젝트 변경");
+            const forwradRes = tableRef.current.getCheckedItemList();
+            
+            if(forwradRes.length === 0){
+                setModalText("프로젝트를 변경할 근로자를 선택하세요.");
+                setIsModal(true);
+                return;
+            }
+
+            const deadlineArr = forwradRes.filter(item => item.is_deadline === "Y");
+            if(deadlineArr.length > 0){
+                setModalText("마감처리된 근로자는 프로젝트 이동을 할 수 없습니다.\n선택한 근로자를 확인해주세요.");
+                setIsModal(true);
+                return;
+            }
+        }
+        
+        setIsProjectModal(true);
+    }
+
+    // 프로젝트 모달의 row 클릭 이벤트
+    const handleProjectRowClick = (item) => {
+        setSelectedProject(item);
+        setModalText2(`${item.job_name} 으로 변경하시겠습니까?`);
+        setIsModal2(true);
+    }
+
+    // 프로젝트 변경 선택용 모달 "예" 클릭
+    const handleProjectModConfirm = async() => {
+        setIsModal2(false);
+        if(tableRef.current){
+            setModalTitle("근로자 프로젝트 변경");
+            const forwradRes = tableRef.current.getCheckedItemList();
+
+            const checkJno = forwradRes.filter(item => item.jno === selectedProject.jno);
+            if(checkJno.length !== 0){
+                setModalText("선택한 프로젝트와 근로자의 프로젝트가 동일합니다.");
+                setIsModal(true);
+                return;
+            }
+            
+            const workers = [];
+            forwradRes.map(item => {
+                const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
+                const message = `[PROJECT MOVE]jno[before:${item.jno}, after:${selectedProject.jno}]`;
+
+                const worker = {
+                    sno: item.sno,
+                    jno: item.jno,
+                    after_jno: selectedProject.jno,
+                    user_id: item.user_id,
+                    record_date: dateUtil.goTime(record_date),
+                    work_state: item.work_state,
+                    message: message,
+                    mod_uno: user.uno,
+                    mod_user: user.userName,
+                }
+                workers.push(worker);
+            });
+            
+            setIsLoading(true);
+            try {
+                const res = await Axios.POST("worker/site-base/project", workers);
+                
+                if (res?.data?.result === "Success") {
+                    setIsModal(true);
+                    setModalText("프로젝트 변경에 성공하였습니다.");
+                    await getData();
+                }else {
+                    setIsModal(true);
+                    setModalText("프로젝트 변경에 실패하였습니다.\n해당 날짜 프로젝트에 등록되어 었는지 확인하시기 바랍니다.");
+                }
+            } catch(err) {
+                navigate("/error");
+            } finally {
+                setIsLoading(false);
+            }
+        }
+    }
+
+    // 프로젝트 선택용 모달 "아니요" 클릭
+    const handleProjectModCancel = () => {
+        setIsModal2(false);
+        setModalTitle("근로자 프로젝트 변경");
+        setModalText("프로젝트 변경을 취소하였습니다.");
+        setIsModal(true);
+    }
+
+    // 현장 근로자 삭제
+    // 체크한 근로자가 있는지 확인하고 후 삭제 모달 오픈
+    // 실제 변경시도하는 로직은 다른 함수에 구현
+    const onClickDeleteWorkerBtn = () => {
+        if(tableRef.current){
+            setModalTitle("근로자 삭제");
+            const forwradRes = tableRef.current.getCheckedItemList();
+            
+            if(forwradRes.length === 0){
+                setModalText("삭제할 근로자를 선택하세요.");
+                setIsModal(true);
+                return;
+            }
+
+            const deadlineArr = forwradRes.filter(item => item.is_deadline === "Y");
+            if(deadlineArr.length > 0){
+                setModalText("마감처리된 근로자는 삭제를 할 수 없습니다.\n선택한 근로자를 확인해주세요.");
+                setIsModal(true);
+                return;
+            }
+        }
+        
+        setIsDelWorker(true);
+    }
+
+    // 현장 근로자 삭제 처리
+    const deleteWorkers = async() => {
+        setIsModal(false);
+        if(tableRef.current){
+            const selectWorkers = tableRef.current.getCheckedItemList();
+            
+            const workers = [];
+            selectWorkers.map(item => {
+                const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
+                const deadline = {
+                    sno: item.sno,
+                    jno: item.jno,
+                    user_id: item.user_id,
+                    record_date: dateUtil.goTime(record_date),
+                    message: `[DELETE DATA]in_recog_time: ${item.in_recog_time}|out_recog_time: ${item.out_recog_time}|work_hour: ${item.work_hour}`,
+                    mod_uno: user.uno,
+                    mod_user: user.userName,
+                }
+                workers.push(deadline);
+            });
+
+            setIsLoading(true);
+            try {
+                const res = await Axios.POST("worker/site-base/delete", workers);
+                
+                if (res?.data?.result === "Success") {
+                    setModalText("근로자 삭제에 성공하였습니다.");
+                    await getData();
+                }else {
+                    setModalText("근로자 삭제에 실패하였습니다.\n잠시후에 다시 시도하거나 관리자에게 문의하여 주세요.");
+                }
+            } catch(err) {
+                navigate("/error");
+            } finally {
+                setIsLoading(false);
+                setIsDelWorker(false);
+                setIsModal(true);
+            }
+        }
+    }
+
     // 근로자 리스트의 마감일 유효성 검사
     // {'Y' | 'N' | 'C'} - 'Y': 유효, 'N': 유효하지 않음, 'C': 마감코드 없음
     const isDeadlineValid = (forwradRes) => {
@@ -360,165 +596,6 @@ const SiteBase = () => {
                 setIsModal(true);
             }
         }
-    }
-
-    // 현장 근로자 삭제
-    // 체크한 근로자가 있는지 확인하고 후 삭제 모달 오픈
-    // 실제 변경시도하는 로직은 다른 함수에 구현
-    const onClickDeleteWorkerBtn = () => {
-        if(tableRef.current){
-            setModalTitle("근로자 삭제");
-            const forwradRes = tableRef.current.getCheckedItemList();
-            
-            if(forwradRes.length === 0){
-                setModalText("삭제할 근로자를 선택하세요.");
-                setIsModal(true);
-                return;
-            }
-
-            const deadlineArr = forwradRes.filter(item => item.is_deadline === "Y");
-            if(deadlineArr.length > 0){
-                setModalText("마감처리된 근로자는 삭제를 할 수 없습니다.\n선택한 근로자를 확인해주세요.");
-                setIsModal(true);
-                return;
-            }
-        }
-        
-        setIsDelWorker(true);
-    }
-
-    // 현장 근로자 삭제 처리
-    const deleteWorkers = async() => {
-        setIsModal(false);
-        if(tableRef.current){
-            const selectWorkers = tableRef.current.getCheckedItemList();
-            
-            const workers = [];
-            selectWorkers.map(item => {
-                const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
-                const deadline = {
-                    sno: item.sno,
-                    jno: item.jno,
-                    user_id: item.user_id,
-                    record_date: dateUtil.goTime(record_date),
-                    message: `[DELETE DATA]in_recog_time: ${item.in_recog_time}|out_recog_time: ${item.out_recog_time}|work_hour: ${item.work_hour}`,
-                    mod_uno: user.uno,
-                    mod_user: user.userName,
-                }
-                workers.push(deadline);
-            });
-
-            setIsLoading(true);
-            try {
-                const res = await Axios.POST("worker/site-base/delete", workers);
-                
-                if (res?.data?.result === "Success") {
-                    setModalText("근로자 삭제에 성공하였습니다.");
-                    await getData();
-                }else {
-                    setModalText("근로자 삭제에 실패하였습니다.\n잠시후에 다시 시도하거나 관리자에게 문의하여 주세요.");
-                }
-            } catch(err) {
-                navigate("/error");
-            } finally {
-                setIsLoading(false);
-                setIsDelWorker(false);
-                setIsModal(true);
-            }
-        }
-    }
-
-    // 프로젝트 변경
-    // 체크한 근로자가 있는지 확인하고 변경할 프로젝트를 선택할 모달창 오픈.
-    // 실제 변경시도하는 로직은 다른 함수에 구현
-    const onClickModProjectBtn = () => {
-        if(tableRef.current){
-            setModalTitle("근로자 프로젝트 변경");
-            const forwradRes = tableRef.current.getCheckedItemList();
-            
-            if(forwradRes.length === 0){
-                setModalText("프로젝트를 변경할 근로자를 선택하세요.");
-                setIsModal(true);
-                return;
-            }
-
-            const deadlineArr = forwradRes.filter(item => item.is_deadline === "Y");
-            if(deadlineArr.length > 0){
-                setModalText("마감처리된 근로자는 프로젝트 이동을 할 수 없습니다.\n선택한 근로자를 확인해주세요.");
-                setIsModal(true);
-                return;
-            }
-        }
-        
-        setIsProjectModal(true);
-    }
-
-    // 프로젝트 모달의 row 클릭 이벤트
-    const handleProjectRowClick = (item) => {
-        setSelectedProject(item);
-        setModalText2(`${item.job_name} 으로 변경하시겠습니까?`);
-        setIsModal2(true);
-    }
-
-    // 프로젝트 변경 선택용 모달 "예" 클릭
-    const handleProjectModConfirm = async() => {
-        setIsModal2(false);
-        if(tableRef.current){
-            setModalTitle("근로자 프로젝트 변경");
-            const forwradRes = tableRef.current.getCheckedItemList();
-
-            const checkJno = forwradRes.filter(item => item.jno === selectedProject.jno);
-            if(checkJno.length !== 0){
-                setModalText("선택한 프로젝트와 근로자의 프로젝트가 동일합니다.");
-                setIsModal(true);
-                return;
-            }
-            
-            const workers = [];
-            forwradRes.map(item => {
-                const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
-                const message = `[PROJECT MOVE]jno[before:${item.jno}, after:${selectedProject.jno}]`;
-
-                const worker = {
-                    sno: item.sno,
-                    jno: item.jno,
-                    after_jno: selectedProject.jno,
-                    user_id: item.user_id,
-                    record_date: dateUtil.goTime(record_date),
-                    work_state: item.work_state,
-                    message: message,
-                    mod_uno: user.uno,
-                    mod_user: user.userName,
-                }
-                workers.push(worker);
-            });
-            
-            setIsLoading(true);
-            try {
-                const res = await Axios.POST("worker/site-base/project", workers);
-                
-                if (res?.data?.result === "Success") {
-                    setIsModal(true);
-                    setModalText("프로젝트 변경에 성공하였습니다.");
-                    await getData();
-                }else {
-                    setIsModal(true);
-                    setModalText("프로젝트 변경에 실패하였습니다.\n해당 날짜 프로젝트에 등록되어 었는지 확인하시기 바랍니다.");
-                }
-            } catch(err) {
-                navigate("/error");
-            } finally {
-                setIsLoading(false);
-            }
-        }
-    }
-
-    // 프로젝트 선택용 모달 "아니요" 클릭
-    const handleProjectModCancel = () => {
-        setIsModal2(false);
-        setModalTitle("근로자 프로젝트 변경");
-        setModalText("프로젝트 변경을 취소하였습니다.");
-        setIsModal(true);
     }
 
     // 시작날짜 선택 이벤트
@@ -969,6 +1046,26 @@ const SiteBase = () => {
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
             />
+            <SelectModal
+                isOpen={isDeadlineSelect}
+                title={"일괄마감"}
+                text={"마감유형을 선택하세요."}
+                first={"전체 마감"}
+                fncFirst={() => workerDeadline("ALL")}
+                second={"퇴근자 마감"}
+                fncSecond={() => workerDeadline("OUT")}
+                cancel={"취소"}
+                fncCancel={() => setIsDeadlineSelect(false)}
+            />
+            <Modal
+                isOpen={isDeadlineModal}
+                title={"일괄마감"}
+                text={"마감처리를 하시겠습니까?"}
+                confirm={"예"}
+                fncConfirm={workerDeadline}
+                cancel={"아니요"}
+                fncCancel={() => setIsDeadlineModal(false)}
+            />
             <Modal 
                 isOpen={isModal2}
                 title={"근로자 프로젝트 변경"}
@@ -979,13 +1076,22 @@ const SiteBase = () => {
                 fncCancel={handleProjectModCancel}
             />
             <Modal
-                isOpen={isDeadlineModal}
-                title={"일괄마감"}
-                text={"마감처리를 하시겠습니까?"}
-                confirm={"예"}
-                fncConfirm={workerDeadline}
-                cancel={"아니요"}
-                fncCancel={() => setIsDeadlineModal(false)}
+                isOpen={isWorkHour}
+                title={"일괄 공수 입력"}
+                text={"저장할 공수를 입력해 주세요.\n공수 입력 후 마감처리를 하지 않으면 자정 이후에 프로젝트 설정에 따라 입력한 공수가 변경될 수 있습니다."}
+                content={
+                    <DigitFormattedInput
+                        initNum={workHour}
+                        setNum={(num) => setWorkHour(num)}
+                        format="1.1"
+                        step={0.1}
+                        style={{width: "100%"}}
+                    />
+                }
+                confirm={"확인"}
+                fncConfirm={() => handleWorkHour()}
+                cancel={"취소"}
+                fncCancel={() => setIsWorkHour(false)}
             />
             <Modal
                 isOpen={isDelWorker}
@@ -1011,17 +1117,6 @@ const SiteBase = () => {
                 text={workerExcelText}
                 confirm={"확인"}
                 fncConfirm={() => fncWorkerExcelFile()}
-            />
-            <SelectModal
-                isOpen={isDeadlineSelect}
-                title={"일괄마감"}
-                text={"마감유형을 선택하세요."}
-                first={"전체 마감"}
-                fncFirst={() => workerDeadline("ALL")}
-                second={"퇴근자 마감"}
-                fncSecond={() => workerDeadline("OUT")}
-                cancel={"취소"}
-                fncCancel={() => setIsDeadlineSelect(false)}
             />
             <SearchProjectModal
                 isOpen={isProjectModal}
@@ -1056,6 +1151,7 @@ const SiteBase = () => {
                                 // :   state.list.length > 0 ?
                                 :   project !== null ?
                                         <>
+                                            <Button text={"근태정보 다운로드"} onClick={onClickRecordData} />
                                             <Button text={"양식 다운로드"} onClick={getDailyWorkerFormExport} />
                                             <Button text={"엑셀 업로드"} onClick={dailyWorkerExcelImport} />
                                             <Button text={"수정"} onClick={onClickEditBtn} />
@@ -1089,10 +1185,10 @@ const SiteBase = () => {
                                     !isEdit && state.list.length > 0 ?
                                         <>
                                             <Button text={"일괄마감"} onClick={onClickDeadLineBtn} />
+                                            <Button text={"공수입력"} onClick={onClickWorkHourBtn} />
                                             <Button text={"프로젝트 변경"} onClick={onClickModProjectBtn} />
                                             <Button text={"근로자 삭제"} onClick={onClickDeleteWorkerBtn} />
-                                            <Button text={"마감 취소"} onClick={onClickDeadlineCancelBtn} />
-                                            <Button text={"근태정보 다운로드"} onClick={onClickRecordData} />
+                                            <Button text={"마감 취소"} onClick={onClickDeadlineCancelBtn} />                                            
                                         </>
                                     : null
                                 }
