@@ -256,12 +256,33 @@ const DailyCompare = () => {
         }
     }
 
-    // excel download
-    const excelDownload = async(type) => {
+    // upload excel download
+    const uploadExcelDownload = async(type) => {
         let res = undefined;
         try {
             setIsLoading(true);
             res = await Axios.GET_BLOB(`/excel/export?file_type=${type}&work_date=${searchStartDate}&jno=${project.jno}`);
+            
+            if(res?.data?.result === resultType.SUCCESS){
+                
+            }else if(res?.message.includes("failed to parse Excel file")){
+                setModalText("다운로드에 실패하였습니다.\n잠시 후 다시 시도하거나 관리자에게 문의하여 주세요.");
+                setIsModal(true);
+            }
+        } catch (err) {
+            setModalText("다운로드에 실패하였습니다.\n잠시 후 다시 시도하거나 관리자에게 문의하여 주세요.");
+            setIsModal(true);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    // 양식 download
+    const excelFormDownload = async(fileName) => {
+        let res = undefined;
+        try {
+            setIsLoading(true);
+            res = await Axios.GET_BLOB(`/excel/download?file_name=${fileName}`);
             
             if(res?.data?.result === resultType.SUCCESS){
                 
@@ -421,6 +442,8 @@ const DailyCompare = () => {
                     <li className="breadcrumb-item content-title">일일 근로자 비교</li>
                     <li className="breadcrumb-item active content-title-sub">관리</li>
                     <div className="table-header-right">
+                        <Button text={"TBM 양식"} onClick={() => excelFormDownload("tbm")}/>
+                        <Button text={"퇴직공제 양식"} onClick={() => excelFormDownload("deduction")}/>
                         <Button text={isFileSection ? "파일 숨기기" : "파일 펼치기"} onClick={isFileSection ? () => setIsFileSection(false) : () => setIsFileSection(true)}/>
                     </div>
                 </ol>
@@ -445,7 +468,7 @@ const DailyCompare = () => {
                                                     </span>
                                                     {
                                                         isFile(item) && (
-                                                            <button type="button" className="file-button1" onClick={() => excelDownload(item)}>다운로드</button>
+                                                            <button type="button" className="file-button1" onClick={() => uploadExcelDownload(item)}>다운로드</button>
                                                         )
                                                     }
                                                     {

@@ -112,8 +112,8 @@ const Total = () => {
         }
         
         const worker = {
-            sno: item.sno || 0,
-            jno: item.jno || 0,
+            sno: item.project.sno || 0,
+            jno: item.project.jno || 0,
             user_id: item.user_id || "",
             user_nm: item.user_nm || "",
             department: item.department || "",
