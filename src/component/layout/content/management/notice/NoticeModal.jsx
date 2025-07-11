@@ -3,6 +3,7 @@ import Exit from "../../../../../assets/image/exit.png";
 import Input from "../../../../module/Input"
 import { dateUtil } from "../../../../../utils/DateUtil";
 import Modal from "../../../../module/Modal";
+import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
 
 /**
  * @description: 상세화면 모달 컴포넌트
@@ -29,6 +30,10 @@ import Modal from "../../../../module/Modal";
  *  removeBtnClick: 삭제버튼 function
  */
 const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, detailData, selectList, exitBtnClick, saveBtnClick, removeBtnClick, isCancle = true, isCopy = false, copyBtnClick }) => {
+
+    
+    const {isRoleValid} = useUserRole();
+
     const [isEdit, setIsEdit] = useState(false);
     const [formData, setFormData] = useState([]);
     const [initialData, setInitialData] = useState([]); // 원본 데이터 저장
@@ -218,21 +223,21 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
                                         :
                                             <div>
                                                 {
-                                                    isCopy ?
+                                                    isRoleValid(roleGroup.NOTICE_ADD_MANAGER) && isCopy ?
                                                         <button type="button" className="btn btn-primary" onClick={handleCopy} name="confirm" style={{marginRight:"10px"}}>
                                                             복사
                                                         </button>
                                                     : null
                                                 }
                                                 {
-                                                    editBtn ? 
+                                                    isRoleValid(roleGroup.NOTICE_ALL_MOD_MANAGER) || editBtn ? 
                                                         <button type="button" className="btn btn-primary" onClick={handleEditMode} name="confirm" style={{marginRight:"10px"}}>
                                                             수정
                                                         </button>
                                                     : null
                                                 }
                                                 {
-                                                    removeBtn ?
+                                                    isRoleValid(roleGroup.NOTICE_ALL_MOD_MANAGER) || removeBtn ?
                                                         <button className="btn btn-primary" onClick={handleRemoveModal} name="confirm" style={{marginRight:"10px"}}>
                                                             삭제
                                                         </button>

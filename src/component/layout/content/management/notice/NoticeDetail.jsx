@@ -42,8 +42,8 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
     const [gridMode, setGridMode] = useState("DETAIL");
     const [isLoading, setIsLoading] = useState(false);
     const [isGridModal, setIsGridModal] = useState(false);
-    const [isAuthorization, setIsAuthorization] = useState(true); //  FIXME: 나중에 권한 넣을 때는 false로 변경해야함.
-    
+    const [isAuthorization, setIsAuthorization] = useState(false); 
+
     // [Modal]
     const [isMod, setIsMod] = useState(true);
     const [modalText, setModalText] = useState("")
@@ -115,12 +115,12 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
                 arr[3].value.jno = notice.jno
                 arr[4].value = notice.is_important;
                 arr[5].value = notice.content;
-                arr[6].value = Number(notice.idx);
-                // FIXME: 수정 삭제 버튼 작성자만 볼 수 있도록
-                // if (user.uno == notice.reg_uno) {
-                //     setIsAuthorization(true);
-                // }
-    
+                arr[6].value = Number
+                if (user.uno === notice.reg_uno) {
+                    setIsAuthorization(true);
+                }else{
+                    setIsAuthorization(false)
+                }   
             }
             setNoticeData(notice);
             setDetail(arr);
@@ -172,23 +172,6 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
             setIsGridModal(false);
             setIsDetail(false)
         }
-    
-    // [GridModal-Post] 현장데이터 조회
-    // const getSiteData = async () => {
-    //     setIsLoading(true);
-
-    //     try {
-    //         // FIXME : 관리자권한 이 데이터가 쓰이는 곳이 없음. project 필터로 변경되었음.
-    //         const res = await Axios.GET(`/project/my-job_name/${user.uno}?role=ADMIN`);
-    //         if (res?.data?.result === "Success") {
-    //             dispatch({ type: "PROJECT_NM", projectNm: res?.data?.values?.project_nm });
-    //         }
-    //     } catch(err) {
-    //         navigate("/error");
-    //     } finally {
-    //         setIsLoading(false);
-    //     }
-    // }
 
     // [GridModal-Post] 저장 버튼을 눌렀을 경우
     const onClickModalSave = async (item, mode) => {
