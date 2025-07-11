@@ -1,17 +1,19 @@
-import { useState, useEffect, useReducer, useRef } from "react";
+import React, { useState, useEffect, useReducer, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Axios } from "../../../../../utils/axios/Axios"
 import { dateUtil } from "../../../../../utils/DateUtil";
 import { useAuth } from "../../../../context/AuthContext";
 import { Common } from "../../../../../utils/Common";
+import { ObjChk } from "../../../../../utils/ObjChk";
+import useTooltip from "../../../../../utils/hooks/useTooltip";
 import SiteContext from "../../../../context/SiteContext";
-import SiteReducer from "./SiteReducer"
+import SiteReducer from "./SiteReducer";
 import DetailModal from "./DetailModal";
 import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
 import Button from "../../../../module/Button";
-import useTooltip from "../../../../../utils/hooks/useTooltip";
 import NonUsedProjectModal from "../../../../module/modal/NonUsedProjectModal";
+import DateInput from "../../../../module/DateInput";
 import weather0 from "../../../../../assets/image/weather/0.png";
 import weather1 from "../../../../../assets/image/weather/1.png";
 import weather2 from "../../../../../assets/image/weather/2.png";
@@ -22,11 +24,10 @@ import weather6 from "../../../../../assets/image/weather/6.png";
 import weather7 from "../../../../../assets/image/weather/7.png";
 import weather13 from "../../../../../assets/image/weather/13.png";
 import weather14 from "../../../../../assets/image/weather/14.png";
-import warningWeather from "../../../../../assets/image/warningWeather.png"
+import warningWeather from "../../../../../assets/image/warningWeather.png";
 import LoadingIcon from "../../../../../assets/image/Loading.gif";
 import "../../../../../assets/css/Table.css";
-import DateInput from "../../../../module/DateInput";
-import { ObjChk } from "../../../../../utils/ObjChk";
+import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
 
 /**
  * @description: 현장 관리 페이지
@@ -56,8 +57,8 @@ const Site = () => {
 
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { isRoleValid } = useUserRole();
 
-    const [isMod, setIsMod] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isDetail, setIsDetail] = useState(false);
     const [detailTitle, setDetailTitle] = useState("");
@@ -68,6 +69,8 @@ const Site = () => {
     const [addSiteJno, setAddSiteJno] = useState("");
     const [selectedDate, setSelectedDate] = useState(null)
     const [showWeatherList, setShowWeatherList] = useState(-1)
+
+    const [isToday, setIsToday] = useState(true)
 
     // 기상특보
     const [warningListOpen, setWarningListOpen] = useState(false);
@@ -90,7 +93,7 @@ const Site = () => {
     const [weatherInfo, setWeatherInfo] = useState([]);
     const weatherRef = useRef()
 
-    
+
     // 툴팁
     useTooltip([state.list]);
 
@@ -216,7 +219,7 @@ const Site = () => {
                 getData();
             } else {
                 setModalText("현장 수정에 실패하였습니다.")
-                setIsMod(false);
+                
             }
             setModalTitle("현장관리 수정")
             setIsOpenModal(true);
@@ -413,14 +416,12 @@ const Site = () => {
         }
     }
     
-    
     // 현장상태 5초마다 갱신
     useEffect(() => {
         
         getData();
         getWarningData();
         getWeatherData();
-        const isToday = dateUtil.format(selectedDate, "yyyy-MM-dd") === dateUtil.format(dateUtil.now(), "yyyy-MM-dd")
         
         const interval = isToday ? setInterval(() => {
             getSiteStatsData();
@@ -431,8 +432,7 @@ const Site = () => {
     
     // 프로젝트별 근로자 수 5초마다 갱신
     useEffect(() => {
-        const isToday = dateUtil.format(selectedDate, "yyyy-MM-dd") === dateUtil.format(dateUtil.now(), "yyyy-MM-dd")
-        
+       
         const interval = isToday ? setInterval(() => {
             getWorkerCountData();
         }, 5000) : null;
@@ -443,8 +443,7 @@ const Site = () => {
     // 날씨 5분마다 갱신
     // 기상청api가 30분마다 갱신이 되기에 날씨가 변경되는 시간은 차이가 있음.
     useEffect(() => {
-        const isToday = dateUtil.format(selectedDate, "yyyy-MM-dd") === dateUtil.format(dateUtil.now(), "yyyy-MM-dd")
-
+        
         const interval = isToday? setInterval(() => {
             getWeatherData();
         }, 300000) : null;
@@ -483,6 +482,20 @@ const Site = () => {
             document.body.removeEventListener("click", handleClick);
         };
     }, []);
+
+    useEffect(() => {
+        if (dateUtil.format(selectedDate, "yyyy-MM-dd") === dateUtil.format(dateUtil.now(), "yyyy-MM-dd")) {
+            setIsToday(true)
+        }else if (dateUtil.format(selectedDate, "yyyy-MM-dd") > dateUtil.format(dateUtil.now(), "yyyy-MM-dd") ){
+            setSelectedDate(dateUtil.now())
+            setModalTitle("현장 관리")
+            setModalText("오늘 이후의 날짜는 선택할 수 없습니다.")
+            setIsOpenModal(true)
+        } else {
+            setIsToday(false)
+        }
+
+    }, [selectedDate])
 
     return (
         <div>
@@ -530,9 +543,13 @@ const Site = () => {
                 <ol className="breadcrumb mb-2 content-title-box">
                     <li className="breadcrumb-item content-title">현장 관리</li>
                     <li className="breadcrumb-item active content-title-sub">관리</li>
-                    <div className="table-header-right">
-                        <Button text={"추가"} onClick={() => onClickSaveBtn()} />
-                    </div>
+                    
+                    {
+                    isRoleValid(roleGroup.SITE_MANAGER) &&   
+                        <div className="table-header-right">
+                            <Button text={"추가"} onClick={() => onClickSaveBtn()} />
+                        </div>
+                    }
                 </ol>
 
                 <div className="card mb-4">
@@ -557,14 +574,17 @@ const Site = () => {
                                     ))
                             }
                             {/* 기상특보 현황 :: start */}
-                            <div
+                            {
+                            isToday &&
+                                <div
                                 ref={warningRef}
                                 className="weather-report icon-hover"
                                 onClick={() => setWarningListOpen(prev => !prev)}
-                            >
-                                <img src={warningWeather} style={{width:"30px", margin:"5px"}}></img>
-                                기상특보현황
-                            </div>
+                                >
+                                    <img src={warningWeather} style={{width:"30px", margin:"5px"}}></img>
+                                    기상특보현황
+                                </div>
+                            }
                             {
                                 warningListOpen ?
                                     <div style={{ width: "70%", height: "70%" }}>
@@ -633,7 +653,7 @@ const Site = () => {
                                     </tr>
                                     :
                                     state.list.map((item, idx) => (
-                                        <>
+                                        <React.Fragment key={idx}>
                                             {
                                                 showWeatherList === idx ?
                                                 <div style={{...weatherListStyle, marginTop:"30px"}}>
@@ -645,8 +665,8 @@ const Site = () => {
                                                         {
                                                         weatherInfo.length !== 0 ?
                                                             weatherInfo.map((weather, idx)=> (
-                                                                <>
-                                                                    <li style={{margin:"0.5rem 1rem", fontWeight:"bold"}}>{dateUtil.formatTimeHHMM(weather.recog_time)} 시</li>
+                                                                <React.Fragment key={idx}>
+                                                                    <li style={{margin:"1rem 1rem 0rem 1rem", fontWeight:"bold"}}>{dateUtil.formatTimeHHMM(weather.recog_time)} 시</li>
                                                                     <div style={{marginRight:"1rem", marginLeft:"2rem"}}>
                                                                         {convertWeather(weather.pty, weather.sky)}
                                                                         {weather.rn1 && ` / 강수량: ${weather.rn1}(㎜) `}
@@ -655,8 +675,8 @@ const Site = () => {
                                                                         
                                                                         {weather.vec && weather.wsd &&`/ ${weather.vec} ${weather.wsd}(㎧) `}
                                                                     </div>
-                                                                    <br />
-                                                                </>
+                                                                    {/* <hr /> */}
+                                                                </React.Fragment>
                                                             ))                                                        
                                                         :
                                                             <div style={{textAlign:"center", margin:"1rem 0rem"}}>
@@ -762,8 +782,8 @@ const Site = () => {
                                                                     {
                                                                         item.daily_content_list.length > 1 ?
                                                                             // 작업내용이 여러개인 경우
-                                                                            item.daily_content_list.map(content => (
-                                                                                <div>● {content}</div>
+                                                                            item.daily_content_list.map( (content, idx) => (
+                                                                                <div key={idx}>● {content}</div>
                                                                             ))
                                                                         :   item.daily_content_list.length === 1 ?
                                                                             // 작업내용이 하나인 경우
@@ -782,7 +802,7 @@ const Site = () => {
                                                         selectedDate !== dateUtil.now()
                                                         ? 
                                                         <div style={{position:"relative", overflow:"visible"}}>
-                                                            <Button text={"날씨"} onClick={() => weatherListClickHandler(item, idx)} style={{padding:"3px 5px", fontSize:"14px"}}></Button>
+                                                            <Button text={"상세"} onClick={() => weatherListClickHandler(item, idx)} style={{padding:"3px 5px", fontSize:"14px"}}></Button>
                                                             
                                                         </div>
                                                         : 
@@ -828,8 +848,8 @@ const Site = () => {
                                                     {
                                                         item.daily_content_list.length > 1 ?
                                                             // 작업내용이 여러개인 경우
-                                                            item.daily_content_list.map(content => (
-                                                                <div>● {content}</div>
+                                                            item.daily_content_list.map( (content, idx) => (
+                                                                <div key={idx}>● {content}</div>
                                                             ))
                                                         :   item.daily_content_list.length === 1 ?
                                                             // 작업내용이 하나인 경우
@@ -843,7 +863,7 @@ const Site = () => {
                                                 {/* <td className="center">날씨....</td> */}
                                             </tr>
                                         }
-                                    </>
+                                    </React.Fragment>
                                     ))
                             }
                             <tr style={{fontWeight: "bold"}}>
@@ -885,7 +905,7 @@ const modalStyle = {
     width: '30vw',
     minWidth: "18rem",
     maxWidth: "32rem",
-    height: "30rem",
+    height: "35rem",
     boxShadow: '5px 5px 8px rgba(0, 0, 0, 0.5)',
     margin: '10px',
     display: 'flex',
@@ -905,7 +925,7 @@ const header = {
     justifyContent: "center",
     borderRadius: "10px",
     width: "90%",
-    height: "10%",
+    height: "3rem",
     margin: ".5rem .5rem",
     fontWeight: "bold",
 

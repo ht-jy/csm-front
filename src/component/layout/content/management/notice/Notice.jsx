@@ -14,6 +14,7 @@ import NoticeDetail from "./NoticeDetail";
 import NoticeReducer from "./NoticeReducer";
 import "../../../../../assets/css/Paginate.css";
 import "../../../../../assets/css/Table.css";
+import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
 
 /**
  * @description: 공지사항 CRUD
@@ -47,6 +48,7 @@ const Notice = () => {
 
     const navigate = useNavigate();
     const { user, project, jobRole } = useAuth();
+    const { isRoleValid } = useUserRole();
     const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(20);
 
     const [isLoading, setIsLoading] = useState(false);
@@ -170,7 +172,10 @@ const Notice = () => {
                             {
                                 isSearchInit ? <Button text={"초기화"} onClick={handleSearchInit} /> : null
                             }
-                            <Button text={"등록"} onClick={() => onClickRow(null)}></Button>
+                            {
+                                isRoleValid(roleGroup.NOTICE_MANAGER) &&
+                                <Button text={"등록"} onClick={() => onClickRow(null)}></Button>
+                            }
                         </div>
                     </div>
 
