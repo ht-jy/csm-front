@@ -435,7 +435,7 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                         {
                                             isEdit ?
                                                 <div style={{display: "flex", alignItems: "center"}}>
-                                                    <input type="text" value={frontReg} onChange={(e) => setFrontReg(e.target.value)} style={{width: "100px"}}/>
+                                                    <input type="text" value={frontReg} onChange={(e) => setFrontReg(Common.limitDigits(e.target.value, 6))} style={{width: "100px"}}/>
                                                     &nbsp;-&nbsp;
                                                     <input type="text" value={showFullRegNo ? backReg : Common.maskResidentBackNumber(backReg)} onChange={(e) => onChangeBackReg(e.target.value)} style={{width: "100px"}}/>
                                                     {/* <input type="text" value={showFullRegNo ? formData.reg_no || "" : Common.maskResidentNumber(maskRegNo) || ""} onChange={(e) => onChangeRegMasking(e.target.value)}/>

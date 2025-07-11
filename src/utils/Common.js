@@ -237,5 +237,10 @@ export const Common = {
       numberValue = Math.min(Math.max(numberValue, 0), 100);
       
       return numberValue;
+    },
+    // 숫자 n자리까지만 허용
+    limitDigits(value, maxDigits) {
+      const str = String(value).replace(/\D/g, "");
+      return str.slice(0, maxDigits);
     }
 } 
