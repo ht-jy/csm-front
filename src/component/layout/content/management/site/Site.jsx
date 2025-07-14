@@ -209,10 +209,10 @@ const Site = () => {
     const saveData = async (data) => {
         data = {
             ...data,
+            select_date: selectedDate,
             mod_uno: user.uno,
             mod_user: user.userName,
         }
-        
         try {
             const res = await Axios.PUT("/site", data);
             
