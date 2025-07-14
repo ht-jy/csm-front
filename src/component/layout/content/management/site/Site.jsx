@@ -28,7 +28,7 @@ import warningWeather from "../../../../../assets/image/warningWeather.png";
 import LoadingIcon from "../../../../../assets/image/Loading.gif";
 import "../../../../../assets/css/Table.css";
 import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
-
+import { createPortal } from "react-dom";
 /**
  * @description: 현장 관리 페이지
  * 
@@ -68,7 +68,7 @@ const Site = () => {
     const [isNonPjModal, setIsNonPjModal] = useState(false);
     const [addSiteJno, setAddSiteJno] = useState("");
     const [selectedDate, setSelectedDate] = useState(null)
-    const [showWeatherList, setShowWeatherList] = useState(-1)
+    const [showWeatherList, setShowWeatherList] = useState(false)
 
     const [isToday, setIsToday] = useState(true)
 
@@ -92,6 +92,9 @@ const Site = () => {
     // 날씨정보
     const [weatherInfo, setWeatherInfo] = useState([]);
     const weatherRef = useRef()
+
+    // FIXME
+    const [popupPos, setPopupPos] = useState({top :0, left:0});
 
 
     // 툴팁
@@ -277,6 +280,8 @@ const Site = () => {
                 weatherIcon = weather7
                 weatherText = "눈";
                 break;
+            default:
+                return "-";
         }
 
         return <>
@@ -314,20 +319,25 @@ const Site = () => {
     }
 
     // 날씨 버튼 클릭 시
-    const weatherListClickHandler = async (site, idx) => {
+    const weatherListClickHandler = async (e, site, idx) => {
         try{
+
+            if (ObjChk.all(idx)) return;
+
+            const rect = e.target.getBoundingClientRect();
+
+            setPopupPos({
+                top: rect.bottom + window.scrollY + 3,
+                left: rect.left + window.scrollX - 260
+            });
 
             if (!ObjChk.all(site?.sno)) {
                 const res = await Axios.GET(`/api/weather/${site.sno}?targetDate=${selectedDate}`) 
 
                 if (res.data.result === "Success"){
                     setWeatherInfo([...res.data.values.list])
-                     if (showWeatherList === idx){
-                        setShowWeatherList(-1)
-                    } else{
-                        setShowWeatherList(idx)
-                    }
-
+                    setShowWeatherList(true)
+                    
                 } else{
                     // 날씨를 불러올 수 없습니다.
                     
@@ -473,7 +483,7 @@ const Site = () => {
             if (weatherRef.current?.contains(e.target)) {
                 return;
             } else {
-                setShowWeatherList(-1);
+                setShowWeatherList(false);
             }
         };
 
@@ -619,7 +629,61 @@ const Site = () => {
 
                     </div>
                 </div>
+                <div>
+                    {
+                    createPortal(
+                    showWeatherList &&
+                        <div
+                            className="table-container"
+                            style={{
+                                position: "absolute",
+                                top: popupPos.top,
+                                left: popupPos.left,
+                                width: "400px",
+                                maxWidth:"400px",
+                                minWidth:"400px",
+                                background: "white",
+                                borderRadius: "8px",
+                                boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+                                overflowX:"hidden",
+                                zIndex: 9999
+                            }}
+                        ref={weatherRef}
+                        onClick={() => {setShowWeatherList(false); setPopupPos({top:0, left:0})}}
+                        >
+                            <table style={{minWidth:"400px"}}> 
+                                {/* <thead>
+                                    <tr>
+                                        <th style={{width:"100px"}}>시각</th>
+                                        <th>날씨</th>
+                                    </tr>
+                                </thead> */}
+                            <tbody>
+                            {
+                            weatherInfo.length !== 0 ?
+                                weatherInfo.map((weather, idx)=> (
+                                    <tr style={{width:"400px", maxWidth:"400px"}} key={idx}>
+                                        <td className="center" style={{width:"100px"}}>{dateUtil.formatTimeHHMM(weather.recog_time)}</td>
+                                        <td className="" >
+                                            {convertWeather(weather.pty, weather.sky)}
+                                            {weather.rn1 && ` / 강수량: ${weather.rn1}(㎜) `}
+                                            <br/>
+                                            {weather.t1h && ` 기온: ${weather.t1h}(°C) `}
+                                            {weather.vec && weather.wsd &&`/ ${weather.vec} ${weather.wsd}(㎧) `}
+                                        </td>
+                                    </tr>
+                                ))                                                        
+                            :
+                                <tr>
+                                    <td colSpan={2} style={{padding:"1rem 5rem"}}>해당 날짜의 날씨를 확인할 수 없습니다.</td>
+                                </tr>
+                            }
+                            </tbody>
+                            </table>
 
+                        </div>,
+                    document.body
+                )}</div>
                 <div className="table-wrapper">
                 <div className="table-container">
                     <table>
@@ -653,43 +717,7 @@ const Site = () => {
                                     </tr>
                                     :
                                     state.list.map((item, idx) => (
-                                        <React.Fragment key={idx}>
-                                            {
-                                                showWeatherList === idx ?
-                                                <div style={{...weatherListStyle, marginTop:"30px"}}>
-                                                    
-                                                    <div 
-                                                        ref={weatherRef}
-                                                        onClick={() => setShowWeatherList(-1)}
-                                                    >
-                                                        {
-                                                        weatherInfo.length !== 0 ?
-                                                            weatherInfo.map((weather, idx)=> (
-                                                                <React.Fragment key={idx}>
-                                                                    <li style={{margin:"1rem 1rem 0rem 1rem", fontWeight:"bold"}}>{dateUtil.formatTimeHHMM(weather.recog_time)} 시</li>
-                                                                    <div style={{marginRight:"1rem", marginLeft:"2rem"}}>
-                                                                        {convertWeather(weather.pty, weather.sky)}
-                                                                        {weather.rn1 && ` / 강수량: ${weather.rn1}(㎜) `}
-                                                                        <br />
-                                                                        {weather.t1h && ` 기온: ${weather.t1h}(°C) `}
-                                                                        
-                                                                        {weather.vec && weather.wsd &&`/ ${weather.vec} ${weather.wsd}(㎧) `}
-                                                                    </div>
-                                                                    {/* <hr /> */}
-                                                                </React.Fragment>
-                                                            ))                                                        
-                                                        :
-                                                            <div style={{textAlign:"center", margin:"1rem 0rem"}}>
-                                                                해당 날짜의 날씨를 확인할 수 없습니다.
-                                                            </div>
-                                                        }
-                                                    </div>
-                                                </div>
-                                                : 
-                                                null
-                                                
-                                            }
-                                        {
+                                        
                                         item.type === "main" ?
                                             <tr key={idx}>
                                                 {/* 현장구분 */}
@@ -802,7 +830,7 @@ const Site = () => {
                                                         selectedDate !== dateUtil.now()
                                                         ? 
                                                         <div style={{position:"relative", overflow:"visible"}}>
-                                                            <Button text={"상세"} onClick={() => weatherListClickHandler(item, idx)} style={{padding:"3px 5px", fontSize:"14px"}}></Button>
+                                                            <button  onClick={(e) => weatherListClickHandler(e, item, idx)} style={{...btnStyle}}>상세</button>
                                                             
                                                         </div>
                                                         : 
@@ -862,8 +890,7 @@ const Site = () => {
                                                 {/* 날씨 */}
                                                 {/* <td className="center">날씨....</td> */}
                                             </tr>
-                                        }
-                                    </React.Fragment>
+
                                     ))
                             }
                             <tr style={{fontWeight: "bold"}}>
@@ -960,3 +987,15 @@ const weatherListStyle = {
     overflowX: "hidden",
 
 }
+
+const btnStyle = {
+  color: "white",
+  background: "#0d6efd",
+  padding: ".25rem .375rem",
+  border: "1px solid teal",
+  borderRadius: ".25rem",
+  fontSize: "0.875rem",
+  lineHeight: 1.5,
+  marginLeft: "5px",
+  marginRight: "1px",
+};

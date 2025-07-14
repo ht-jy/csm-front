@@ -6,7 +6,7 @@ export const ObjChk = {
         return obj === undefined ? true : false;
     }
     , all(obj){
-        return obj === null || obj === undefined || obj == "" ? true : false;
+        return obj === null || obj === undefined || obj === "" ? true : false;
     }
     , ensureArray(obj){
         return Array.isArray(obj) ? obj : [];
