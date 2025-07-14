@@ -58,6 +58,8 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
     const [addItem, setAddItem] = useState({});
     /* 프로젝트 삭제 아이템 */
     const [deleteItem, setDeleteItem] = useState({});
+    // 공정률 모달
+    const [isWorkRate, setIsWorkRate] = useState(false);
 
     // "X"
     const handleExit = () => {
@@ -80,6 +82,17 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
 
     // 저장
     const handleSave = (e) => {
+        // IRIS_JOB_WORK_RATE 테이블에 해당 날짜의 값이 없는 경우
+        // 테이블에 해당 날짜의 레코드를 추가한 후에 수정해야 함
+        if (formData.project_list.some(project => {
+            const original = initialData.project_list.find(init => init.jno === project.jno);
+            return original &&
+                original.work_rate !== project.work_rate &&
+                original.is_work_rate === 'N';
+        })) {
+            setIsWorkRate(true);
+            return;
+        }
         document.body.style.overflow = 'unset';
         saveBtnClick(formData);    
     };
@@ -247,6 +260,13 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                 isOpen={isPjModal}
                 fncExit={() => setIsPjModal(false)}
                 onClickRow={handleClickRow}
+            />
+            <Modal 
+                isOpen={isWorkRate}
+                title={"현장 수정"}
+                text={"프로젝트의 공정률을 수정할 수 없습니다.\n관리자에게 문의하여 주세요."}
+                confirm={"확인"}
+                fncConfirm={() => setIsWorkRate(false)}
             />
             <Modal
                 isOpen={isModal}
