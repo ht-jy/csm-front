@@ -666,6 +666,25 @@ const Schedule = () => {
         }
     }
 
+    // 공정률 당일날 체크(아이콘 css 용도)
+    const workRateIconCss = (item) => {
+        if(dateUtil.format(item) === dateUtil.format(Date.now())){
+            return {
+                borderTopLeftRadius: "5px",
+                borderTopRightRadius: "5px",
+                borderBottomLeftRadius: "5px",
+                borderBottomRightRadius: "5px",
+                right: "5px",
+            }
+        }else{
+            return {
+                borderTopLeftRadius: "5px",
+                borderBottomLeftRadius: "5px",
+                right: "41px",
+            }
+        }
+    }
+
     /***** useEffect *****/
 
     // 셀렉트 연, 월 생성
@@ -886,16 +905,17 @@ const Schedule = () => {
                                                                 onClick={() => onClickWorkRate(dateUtil.format(item))}
                                                                 style={{
                                                                     backgroundColor: "#eee",
-                                                                    borderTopLeftRadius: "5px",
-                                                                    borderBottomLeftRadius: "5px",
+                                                                    // borderTopLeftRadius: "5px",
+                                                                    // borderBottomLeftRadius: "5px",
                                                                     padding: "3px",
                                                                     position: "absolute",
                                                                     bottom: "5px",
-                                                                    right: "41px",
+                                                                    // right: "41px",
                                                                     width: "36px",
                                                                     height: "36px",
                                                                     cursor: "pointer",
-                                                                    zIndex: 10
+                                                                    zIndex: 10,
+                                                                    ...workRateIconCss(item),
                                                                 }}
                                                             />
                                                         )
