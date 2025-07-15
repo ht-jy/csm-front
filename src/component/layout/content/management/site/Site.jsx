@@ -69,7 +69,11 @@ const Site = () => {
     const [selectedDate, setSelectedDate] = useState(null)
     const [showWeatherList, setShowWeatherList] = useState(false)
 
-    const [isToday, setIsToday] = useState(true)
+    // 날짜 선택 폴링
+    const selectedDateStr = dateUtil.format(selectedDate, "yyyy-MM-dd");
+    const nowStr = dateUtil.format(dateUtil.now(), "yyyy-MM-dd");
+    const isToday = selectedDateStr === nowStr;
+    const isFuture = selectedDateStr > nowStr;
 
     // 기상특보
     const [warningListOpen, setWarningListOpen] = useState(false);
@@ -425,31 +429,37 @@ const Site = () => {
         }
     }
     
-    // 현장상태 5초마다 갱신
+    // 날짜 제한
     useEffect(() => {
-        
+        if (isFuture) {
+            setSelectedDate(dateUtil.now());
+            setModalTitle("현장 관리");
+            setModalText("오늘 이후의 날짜는 선택할 수 없습니다.");
+            setIsOpenModal(true);
+        }
+    }, [selectedDate]);
+
+    // 현장 상태 5초 polling
+    useEffect(() => {
         getData();
         getWarningData();
         getWeatherData();
-        
-        const interval = isToday ? setInterval(() => {
-            getSiteStatsData();
-        }, 5000): null;
-        
+
+        if (!isToday) return;
+
+        const interval = setInterval(getSiteStatsData, 5000);
         return () => clearInterval(interval);
-    }, [selectedDate]);
-    
-    // 프로젝트별 근로자 수 5초마다 갱신
+    }, [selectedDate, isToday]);
+
+    // 근로자 수 5초 polling
     useEffect(() => {
-       
-        const interval = isToday ? setInterval(() => {
-            getWorkerCountData();
-        }, 5000) : null;
+        if (!isToday) return;
 
+        const interval = setInterval(getWorkerCountData, 5000);
         return () => clearInterval(interval);
-    }, [selectedDate]);
+    }, [selectedDate, isToday]);
 
-    // 날씨 5분마다 갱신
+    // 날씨 5분 polling
     // 기상청api가 30분마다 갱신이 되기에 날씨가 변경되는 시간은 차이가 있음.
     useEffect(() => {
         
@@ -491,20 +501,6 @@ const Site = () => {
             document.body.removeEventListener("click", handleClick);
         };
     }, []);
-
-    useEffect(() => {
-        if (dateUtil.format(selectedDate, "yyyy-MM-dd") === dateUtil.format(dateUtil.now(), "yyyy-MM-dd")) {
-            setIsToday(true)
-        }else if (dateUtil.format(selectedDate, "yyyy-MM-dd") > dateUtil.format(dateUtil.now(), "yyyy-MM-dd") ){
-            setSelectedDate(dateUtil.now())
-            setModalTitle("현장 관리")
-            setModalText("오늘 이후의 날짜는 선택할 수 없습니다.")
-            setIsOpenModal(true)
-        } else {
-            setIsToday(false)
-        }
-
-    }, [selectedDate])
 
     return (
         <div>
