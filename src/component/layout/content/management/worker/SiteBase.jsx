@@ -1163,7 +1163,7 @@ const SiteBase = () => {
                     </ol>
                     
                     {
-                        isEditTableOpen ?
+                        isEditTableOpen && isEdit ?
                             <div className="table-wrapper" style={{marginBottom: "5px"}}>
                                 <div className="table-container" style={{overflow: "auto", maxHeight: "calc(100vh - 350px)"}}>
                                     <EditTable
