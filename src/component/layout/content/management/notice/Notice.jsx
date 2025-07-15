@@ -173,7 +173,7 @@ const Notice = () => {
                                 isSearchInit ? <Button text={"초기화"} onClick={handleSearchInit} /> : null
                             }
                             {
-                                isRoleValid(roleGroup.NOTICE_MANAGER) &&
+                                isRoleValid(roleGroup.NOTICE_ADD_MANAGER) &&
                                 <Button text={"등록"} onClick={() => onClickRow(null)}></Button>
                             }
                         </div>

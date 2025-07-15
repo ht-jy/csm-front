@@ -1,4 +1,4 @@
-
+import { ObjChk } from "../../../../../utils/ObjChk";
 
 const SettingProjectReducer = (state, action) => {
     switch (action.type) {
@@ -8,15 +8,13 @@ const SettingProjectReducer = (state, action) => {
                     selectOptions.push({value: item?.code, label:item?.code_nm})
                 })                
         
-            return { ...state, selectOptions: selectOptions };
+            return { ...state, selectOptions: structuredClone(ObjChk.ensureArray(selectOptions)) };
             
         case "MAN_HOURS":
-            return { ...state, manHours: [...action.manHours]}
+            return { ...state, manHours: structuredClone(ObjChk.ensureArray(action.manHours))};
 
         case "SETTING":
-            return { ...state, setting: {...action.setting}}
-
-
+            return { ...state, setting: structuredClone(ObjChk.ensureArray(action.setting))};
 
         default:
             return state;
