@@ -34,11 +34,10 @@ import { createPortal } from "react-dom";
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-10
- * @modified 최종 수정일: 2025-03-14
- * @modifiedBy 최종 수정자: 정지영
- * @usedComponents
- * - DetailModal: 상세화면
- * - Modal: 요청 성공/실패 모달
+ * @modified 최종 수정일: 2025-07-14
+ * @modifiedBy 최종 수정자: 김진우
+ * @modified description
+ * 2025-07-14: 현장 저장시 select_date필드 추가. 공정률 수정시 날짜 구분을 하기 위함
  * 
  * @additionalInfo
  * - API:

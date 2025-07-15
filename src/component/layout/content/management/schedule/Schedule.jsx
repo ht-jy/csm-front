@@ -18,6 +18,7 @@ import ArrowRightIcon from "../../../../../assets/image/arrow-right.png";
 import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Schedule.css";
 import { ObjChk } from "../../../../../utils/ObjChk";
+import Slider from "rc-slider";
 import weather0 from "../../../../../assets/image/weather/0.png";
 import weather1 from "../../../../../assets/image/weather/1.png";
 import weather2 from "../../../../../assets/image/weather/2.png";
@@ -29,22 +30,25 @@ import weather7 from "../../../../../assets/image/weather/7.png";
 import weather13 from "../../../../../assets/image/weather/13.png";
 import weather14 from "../../../../../assets/image/weather/14.png";
 import weather from "../../../../../assets/image/weather/schedule.png";
+import WorkRateIcon from "../../../../../assets/image/work-rate.png";
+import "../../../../../assets/css/SiteDetail.css";
+import { Common } from '../../../../../utils/Common';
 
 /**
  * @description: 일정관리 - 휴무일, 작업내용을 달력 형태로 확인 / 휴무일, 작업내용, 프로젝트 공정률, 프로젝트 장비 수정
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-04-28
- * @modified 최종 수정일: 
- * @modifiedBy 최종 수정자: 
- * @usedComponents
- * - 
+ * @modified 최종 수정일: 2025-07-14
+ * @modifiedBy 최종 수정자: 김진우
+ * @modified description:
+ * 2025-07-14: 공정률 확인 및 수정 추가. 해당 날짜의 레코드가 없으면 수정이 불가. 이에 대한 연락시 공정률 테이블에 레코드 삽입
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /api/rest-date (공휴일 조회), /schedule/rest (휴무일 조회), /schedule/daily-job (작업내용 조회)
+ *    Http Method - GET : /api/rest-date (공휴일 조회), /schedule/rest (휴무일 조회), /schedule/daily-job (작업내용 조회), /site/work-rate (날짜별 현장 공정률 조회)
  *    Http Method - POST : /schedule/rest (휴무일 저장), /schedule/daily-job (작업내용 저장) 
- *    Http Method - PUT : /schedule/rest (휴무일 수정), /schedule/daily-job (작업내용 수정)
+ *    Http Method - PUT : /schedule/rest (휴무일 수정), /schedule/daily-job (작업내용 수정), /site/work-rate (공정률 수정)
  *    Http Method - DELETE : /schedule/rest${item.cno} (휴무일 삭제), /schedule/daily-job${item.cno} (작업내용 삭제)
  * - 주요 상태 관리: 
  */
@@ -83,6 +87,7 @@ const Schedule = () => {
     /** 추가 결과 알림 모달 **/
     const [isModal, setIsModal] = useState(false);
     const [modalText, setModalText] = useState("");
+    const [modalTitle, setModalTitle] = useState("");
     /** 툴팁 **/
     useTooltip([dailyJobs, calendarSlice]);
     // 날씨정보
@@ -91,6 +96,12 @@ const Schedule = () => {
     const weatherRef = useRef()
     const weatherRefMap = useRef({});
     const [weatherPopupPosition, setWeatherPopupPosition] = useState({ top: 0, left: 0 });
+    // 공정률
+    const [isModWorkRate, setIsModWorkRate] = useState();   // 변경 모달
+    const [isWorkRate, setIsWorkRate] = useState();         // 확인 모달
+    const [initWorkRate, setInitWorkRate] = useState({});   // 현재 공정률
+    const [workRate, setWorkRate] = useState(0);            // 변경할 공정률
+    const [workRateDate, setWorkrRateDate] = useState("");  // 변경할 날짜
 
     // 날짜 비교 
     const isSameDay = (date1, date2) => {
@@ -294,7 +305,7 @@ const Schedule = () => {
     }
 
     // 이전 날씨 조회
-    const weatherListClickHandler = async (date, idx) => {
+    const onClickWeatherList = async (date, idx) => {
         try {
             if (project !== null) {
                 const res = await Axios.GET(`/api/weather/${project.sno}?targetDate=${date}`);
@@ -416,6 +427,7 @@ const Schedule = () => {
             }else{
                 setModalText("휴무일 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
             }
+            setModalTitle("휴무일");
             setIsModal(true);
         } catch(err) {
             navigate("/error");
@@ -437,6 +449,7 @@ const Schedule = () => {
             }else{
                 setModalText("휴무일 삭제에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
             }
+            setModalTitle("휴무일");
             setIsModal(true);
         } catch(err) {
             navigate("/error");
@@ -467,6 +480,7 @@ const Schedule = () => {
             }else{
                 setModalText("작업내용 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
             }
+            setModalTitle("작업내용");
             setIsModal(true);
         } catch(err) {
             navigate("/error");
@@ -488,6 +502,7 @@ const Schedule = () => {
             }else{
                 setModalText("작업내용 삭제에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
             }
+            setModalTitle("작업내용");
             setIsModal(true);
         } catch(err) {
             navigate("/error");
@@ -536,6 +551,7 @@ const Schedule = () => {
             }else{
                 setModalText("휴무일 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
             }
+            setModalTitle("휴무일");
             setIsModal(true);
         } catch(err) {
             navigate("/error");
@@ -574,10 +590,78 @@ const Schedule = () => {
             }else{
                 setModalText("작업내용 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
             }
+            setModalTitle("작업내용");
             setIsModal(true);
         } catch(err) {
             navigate("/error");
         } finally {
+            setIsLoading(false);
+        }
+    }
+
+    /***** 공정률 *****/
+    const onClickWorkRate = async(date) => {
+        if(project == null) return;
+
+        setIsLoading(true);
+        try {
+            const res = await Axios.GET(`/site/work-rate?jno=${project.jno}&search_date=${date}`);
+            if (res?.data?.result === "Success") {
+                setInitWorkRate(res?.data?.values);
+                res?.data?.values === -1 ? setWorkRate(0) : setWorkRate(res?.data?.values);
+                setWorkrRateDate(date);
+                setIsModWorkRate(true);
+            }else{
+                setModalText("공정률 조회에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                setModalTitle("공정률");
+                setIsModal(true);
+            }
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    // 공정률 변경 이벤트
+    const onChangeWorkRageValue = (value) => {
+        const formatValue = Common.sanitizeNumberInput(value);
+        setWorkRate(formatValue);
+    }
+
+    // 공정률 수정
+    const modifyWorkRate = async() => {
+        setIsModWorkRate(false);
+        if(project === null) return;
+
+        setIsLoading(true);
+        try {
+            if(initWorkRate === -1){
+                setModalText("공정률을 수정할 수가 없습니다.\n관리자에게 문의하여 주세요.");
+                return;
+            }
+
+            const param = {
+                sno: project.sno || 0,
+                jno: project.jno || 0,
+                work_rate: workRate || 0,
+                search_date: workRateDate || "",
+                mod_user: user.userName,
+                mod_uno: user.uno,
+            };
+
+            const res = await Axios.PUT(`/site/work-rate`, param);
+            console.log(res);
+            if (res?.data?.result === "Success") {
+                setModalText("공정률 수정에 성공하였습니다.");
+            }else{
+                setModalText("공정률 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+            }
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setModalTitle("공정률");
+            setIsModal(true);
             setIsLoading(false);
         }
     }
@@ -647,15 +731,38 @@ const Schedule = () => {
                 restSaveBtnClick={onClicklRestSave}
                 jobSaveBtnClick={onClickJobSave}
             />
-
             <Modal 
                 isOpen={isModal}
-                title={"일정관리"}
+                title={modalTitle}
                 text={modalText}
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
             />
-
+            <Modal
+                isOpen={isModWorkRate}
+                title={"공정률"}
+                text={"공정률을 수정하시려면 변경 후 저장을 눌러주세요."}
+                content={
+                    <div>
+                        <div className="read-only-input" style={{padding: 0, marginBottom: "10px"}}>
+                            <input className="slider-input" type="text" value={workRate} onChange={(e) => onChangeWorkRageValue(e.target.value)} style={{height: "40px", width: "50px", textAlign: "right", paddingRight: "5px"}}/>
+                            &nbsp;%
+                            <div style={{width: "500px", marginLeft: "20px"}}>
+                                <Slider 
+                                    min={0}
+                                    max={100}
+                                    value={workRate}
+                                    onChange={onChangeWorkRageValue}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                }
+                confirm={"저장"}
+                fncConfirm={() => modifyWorkRate()}
+                cancel={"취소"}
+                fncCancel={() => setIsModWorkRate(false)}
+            />
             <div onClick={() => onClickAddDetailOpen(new Date())}>
                 <img
                 src={PlusBottomIcon}
@@ -772,17 +879,43 @@ const Schedule = () => {
                                                     }}
                                                 >
                                                     {
+                                                        item !== null && new Date(item) <= new Date(new Date().setHours(0, 0, 0, 0)) && project !== null && (
+                                                            <img
+                                                                src={WorkRateIcon}
+                                                                alt="plus"
+                                                                onClick={() => onClickWorkRate(dateUtil.format(item))}
+                                                                style={{
+                                                                    backgroundColor: "#eee",
+                                                                    borderTopLeftRadius: "5px",
+                                                                    borderBottomLeftRadius: "5px",
+                                                                    padding: "3px",
+                                                                    position: "absolute",
+                                                                    bottom: "5px",
+                                                                    right: "41px",
+                                                                    width: "36px",
+                                                                    height: "36px",
+                                                                    cursor: "pointer",
+                                                                    zIndex: 10
+                                                                }}
+                                                            />
+                                                        )
+                                                    }
+                                                    {
                                                         item !== null && new Date(item) < new Date(new Date().setHours(0, 0, 0, 0)) && project !== null && (
                                                             <img
                                                                 src={weather}
                                                                 alt="plus"
-                                                                onClick={() => weatherListClickHandler(dateUtil.format(item), `item_${week_idx}_${item_idx}`)}
+                                                                onClick={() => onClickWeatherList(dateUtil.format(item), `item_${week_idx}_${item_idx}`)}
                                                                 style={{
+                                                                    backgroundColor: "#eee",
+                                                                    borderTopRightRadius: "5px",
+                                                                    borderBottomRightRadius: "5px",
+                                                                    padding: "3px",
                                                                     position: "absolute",
                                                                     bottom: "5px",
                                                                     right: "5px",
-                                                                    width: "30px",
-                                                                    height: "30px",
+                                                                    width: "36px",
+                                                                    height: "36px",
                                                                     cursor: "pointer",
                                                                     zIndex: 10
                                                                 }}
