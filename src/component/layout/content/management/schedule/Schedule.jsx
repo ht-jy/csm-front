@@ -608,7 +608,7 @@ const Schedule = () => {
             const res = await Axios.GET(`/site/work-rate?jno=${project.jno}&search_date=${date}`);
             if (res?.data?.result === "Success") {
                 setInitWorkRate(res?.data?.values);
-                res?.data?.values === -1 ? setWorkRate(0) : setWorkRate(res?.data?.values);
+                setWorkRate(res?.data?.values?.work_rate);
                 setWorkrRateDate(date);
                 setIsModWorkRate(true);
             }else{
@@ -636,7 +636,7 @@ const Schedule = () => {
 
         setIsLoading(true);
         try {
-            if(initWorkRate === -1){
+            if(initWorkRate?.is_work_rate === 'N'){
                 setModalText("공정률을 수정할 수가 없습니다.\n관리자에게 문의하여 주세요.");
                 return;
             }
@@ -651,7 +651,7 @@ const Schedule = () => {
             };
 
             const res = await Axios.PUT(`/site/work-rate`, param);
-            console.log(res);
+            
             if (res?.data?.result === "Success") {
                 setModalText("공정률 수정에 성공하였습니다.");
             }else{
