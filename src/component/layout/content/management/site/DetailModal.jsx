@@ -17,12 +17,10 @@ import NonUsedProjectModal from "../../../../module/modal/NonUsedProjectModal";
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-24
- * @modified 최종 수정일: 2025-03-14
- * @modifiedBy 최종 수정자: 정지영
- * @usedComponents
- * - DetailSite: 현장 상세
- * - DetailProject: 프로젝트 상세
- * - AddressSearchModal : 주소 입력 모달
+ * @modified 최종 수정일: 2025-07-14
+ * @modifiedBy 최종 수정자: 김진우
+ * @modified description
+ * 2025-07-14: 공정률 모달 추가. 공정률 수정시 해당 날짜의 레코드가 공정률 테이블에 없는 경우 에러를 방지 하여 모달창 오픈. 연락시 해당 날짜의 레코드 삽입.
  * 
  * @additionalInfo
  * - props: 
