@@ -28,7 +28,7 @@ const NonUsedProjectModal = ({isOpen=false, fncExit, onClickRow}) => {
     const [count, setCount] = useState(0);
 
     const columns = useMemo(() => [
-        { isSearch: true, isOrder: true, isSlide: false, width: "50px", header: "프로젝트 번호", itemName: "jno", bodyAlign: "center", isEllipsis: false, isDate: false },
+        { isSearch: true, isOrder: true, isSlide: false, width: "50px", header: "프로젝트 번호", itemName: "jno", bodyAlign: "center", isEllipsis: false, isDate: false, type: "fill-number", fillLen: 5 },
         { isSearch: true, isOrder: true, isSlide: false, width: "70px", header: "프로젝트 코드", itemName: "job_no", bodyAlign: "center", isEllipsis: true, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "120px", header: "프로젝트 이름", itemName: "job_name", bodyAlign: "left", isEllipsis: true, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "50px", header: "착수년도", itemName: "job_year", bodyAlign: "center", isEllipsis: false, isDate: false },

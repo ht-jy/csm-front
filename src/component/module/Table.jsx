@@ -1050,6 +1050,8 @@ const Table = forwardRef(({
                                                     onChange={(value) => onChangeTableData(item.index, col, value)}
                                                 />
                                             : ObjChk.ensureArray(nonEditSelect[col.condition[0]]).find(opt => opt.value === item[col.itemName])?.label
+                                        : col.type ==="fill-number" ?
+                                            Common.fillZeroNumber(item[col.itemName], col.fillLen)
                                         : item[col.itemName]
                                         
                                     }
