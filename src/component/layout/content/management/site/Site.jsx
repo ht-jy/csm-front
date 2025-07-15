@@ -96,7 +96,7 @@ const Site = () => {
     const [weatherInfo, setWeatherInfo] = useState([]);
     const weatherRef = useRef()
 
-    // FIXME
+    // 날씨 리스트 위치
     const [popupPos, setPopupPos] = useState({top :0, left:0});
 
 
