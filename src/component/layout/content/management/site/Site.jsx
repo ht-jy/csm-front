@@ -664,7 +664,7 @@ const Site = () => {
                                 weatherInfo.map((weather, idx)=> (
                                     <tr style={{width:"400px", maxWidth:"400px"}} key={idx}>
                                         <td className="center" style={{width:"100px"}}>{dateUtil.formatTimeHHMM(weather.recog_time)}</td>
-                                        <td className="" >
+                                        <td>
                                             {convertWeather(weather.pty, weather.sky)}
                                             {weather.rn1 && ` / 강수량: ${weather.rn1}(㎜) `}
                                             <br/>
@@ -841,15 +841,16 @@ const Site = () => {
                                                             <img src={LoadingIcon} style={{width: "23px"}}/>
                                                             :
                                                             state.dailyWeather.find(weather => weather.sno === item.sno) !== undefined ?
-                                                            <>
-                                                                <>{getPtyNSkyData(state.dailyWeather.find(weather => weather.sno === item.sno).weather)}</>
-                                                                /
-                                                                <>{getRn1Data(state.dailyWeather.find(weather => weather.sno === item.sno).weather)}</>
+                                                            <div>
+                                                                {getPtyNSkyData(state.dailyWeather.find(weather => weather.sno === item.sno).weather)}
+                                                                {` / ${getRn1Data(state.dailyWeather.find(weather => weather.sno === item.sno).weather)}`}
                                                                 <br />
-                                                                <>{getT1hData(state.dailyWeather.find(weather => weather.sno === item.sno).weather)}</>
-                                                                /
-                                                                <>{getWindData(state.dailyWeather.find(weather => weather.sno === item.sno).weather)}</>
-                                                            </>
+                                                                {`
+                                                                    ${getT1hData(state.dailyWeather.find(weather => weather.sno === item.sno).weather)}
+                                                                    /
+                                                                    ${getWindData(state.dailyWeather.find(weather => weather.sno === item.sno).weather)}
+                                                                `}
+                                                            </div>
                                                             : "날씨 정보가 없습니다."
                                                         )
                                                     }

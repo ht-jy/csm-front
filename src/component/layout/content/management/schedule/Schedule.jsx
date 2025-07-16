@@ -1018,7 +1018,7 @@ const Schedule = () => {
                                                                     reason.is_hoilday ?
                                                                         <div className="hoilday-reason" key={r_idx}>{reason.reason}</div>
                                                                     :
-                                                                        <div className="rest-reason" key={r_idx}>{reason.reason}</div>
+                                                                        <div className="rest-reason" key={r_idx}>{reason.reason || "\u00a0"}</div>
                                                                 ))
                                                             }
                                                             {

@@ -140,11 +140,12 @@ const buttonDivStyle = {
     display: 'flex',
     flex: '0 0 50%',
     textAlign: 'center',
+    justifyContent: 'center',
 }
 
 const buttonStyle = {
     margin: '5px',
-    width: '100%',
+    width: '50%',
 }
 
 export default Modal;

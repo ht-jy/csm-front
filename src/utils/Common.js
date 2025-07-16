@@ -242,5 +242,12 @@ export const Common = {
     limitDigits(value, maxDigits) {
       const str = String(value).replace(/\D/g, "");
       return str.slice(0, maxDigits);
-    }
+    },
+    // 숫자 자릿수 고정, 0으로 채우기
+    fillZeroNumber(num, length) {
+      if (ObjChk.all(length) ){
+        return num
+      }
+      return String(num).padStart(length, '0');   
+    },
 } 

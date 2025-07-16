@@ -35,7 +35,7 @@ const SearchAllProjectModal = ({isOpen, fncExit, onClickRow, isAll}) => {
 
     // 테이블 설정
     const columns = [
-        { isSearch: false, isOrder: true, isSlide: true, width: "65.34px", header: "JNO", itemName: "jno", bodyAlign: "center", isEllipsis: false, isDate: false, type: "number" },
+        { isSearch: false, isOrder: true, isSlide: true, width: "65.34px", header: "JNO", itemName: "jno", bodyAlign: "center", isEllipsis: false, isDate: false, type: "fill-number", fillLen: 5},
         { isSearch: true, isOrder: true, isSlide: false, width: "168.49px", header: "JOB No.", itemName: "job_no", bodyAlign: "left", isEllipsis: false, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "157.75px", header: "End-User", itemName: "comp_name", bodyAlign: "center", isEllipsis: true, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "157.75px", header: "Client", itemName: "order_comp_name", bodyAlign: "center", isEllipsis: true, isDate: false },
