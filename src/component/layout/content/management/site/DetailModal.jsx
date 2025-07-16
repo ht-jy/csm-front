@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../context/AuthContext";
 import { Axios } from "../../../../../utils/axios/Axios";
@@ -12,15 +12,19 @@ import Button from "../../../../module/Button";
 import SearchProjectModal from "../../../../module/modal/SearchProjectModal";
 import Modal from "../../../../module/Modal";
 import NonUsedProjectModal from "../../../../module/modal/NonUsedProjectModal";
+import Loading from "../../../../module/Loading";
+import SiteContext from "../../../../context/SiteContext";
 /**
  * @description: 현장관리 전용 상세화면 모달 컴포넌트
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-24
- * @modified 최종 수정일: 2025-07-14
+ * @modified 최종 수정일: 2025-07-16
  * @modifiedBy 최종 수정자: 김진우
  * @modified description
  * 2025-07-14: 공정률 모달 추가. 공정률 수정시 해당 날짜의 레코드가 공정률 테이블에 없는 경우 에러를 방지 하여 모달창 오픈. 연락시 해당 날짜의 레코드 삽입.
+ * 2025-07-15: 작업완료 기능 DetailSite.jsx에서 이동
+ * 2025-07-16: 작업완료 취소 기능 추가
  * 
  * @additionalInfo
  * - props: 
@@ -36,6 +40,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
     const { user } = useAuth();
     const navigate = useNavigate();
     const { isRoleValid } = useUserRole();
+    const { getData, setIsDetail, setIsNonUseChecked } = useContext(SiteContext);
                                 
     const [isEdit, setIsEdit] = useState(false);
     const [formData, setFormData] = useState(null);
@@ -58,6 +63,14 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
     const [deleteItem, setDeleteItem] = useState({});
     // 공정률 모달
     const [isWorkRate, setIsWorkRate] = useState(false);
+    // 작업완료
+    const [isNonUseCheckOpen, setIsNonUseCheckOpen] = useState(false);
+    const [nonUseCheckText, setNonUseCheckText] = useState("");
+    const [nonUseCheckFunc, setNonUseCheckFunc] = useState(() => {});
+    const [isNonUseConfirm, setIsNonUseConfirm] = useState(false);
+    const [nonUseConfirmText, setNonUseConfirmText] = useState("");
+    /** 로딩 **/
+    const [isLoading, setIsLoading] = useState(false);
 
     // "X"
     const handleExit = () => {
@@ -231,6 +244,53 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
         }
     }
 
+    /***** 작업완료 *****/
+    // type: true(작업완료), false(작업완료취소)
+    const nonUseCheckOpen = (type) => {
+        const text = type ? "현장 완료 처리" : "현장 완료 취소";
+
+        setIsNonUseCheckOpen(true);
+        setNonUseCheckFunc(() => () => siteModifyNonUse(type));
+        setNonUseCheckText(`${text}를 하시겠습니까?`);
+    }
+
+    // 작업완료 처리
+    const siteModifyNonUse = async(type) => {
+        setIsNonUseCheckOpen(false);
+
+        const url = type ? "/site/non-use" : "/site/use";
+        const text = type ? "현장 완료 처리" : "현장 완료 취소";
+        
+        setIsLoading(true);
+        try {
+            const res = await Axios.PUT(url, {
+                sno: detailData.sno || 0,
+                mod_uno: user.uno,
+                mod_user: user.userName
+            });
+            
+            if (res?.data?.result === "Success") {
+                setNonUseConfirmText(`${text}에 성공하였습니다.`);
+            }else{
+                setNonUseConfirmText(`${text}에 실패하였습니다.\n잠시 후에 다시 시도하여 주세요.`);
+            }
+            setIsNonUseConfirm(true);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    // 작업완료 성공 확인 이벤트
+    const onClickNonUseConfirm = () => {
+        setIsNonUseChecked(false);
+        getData();
+        setIsDetail(false)
+        setIsNonUseConfirm(false);
+    }
+    /***** 작업완료 취소 *****/
+
     /***** useEffect *****/
 
     useEffect(() => {
@@ -254,6 +314,9 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
 
     return (
         <div>
+            <Loading 
+                isOpen={isLoading}
+            />
             <NonUsedProjectModal
                 isOpen={isPjModal}
                 fncExit={() => setIsPjModal(false)}
@@ -275,6 +338,22 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                 cancel={modalCancelText}
                 fncCancel={() => handleModalBtnClick("cancel")}
                 fncExit={() => setIsModal(false)}
+            />
+            <Modal
+                isOpen={isNonUseCheckOpen}
+                title={"현장 상세"}
+                text={nonUseCheckText}
+                confirm={"예"}
+                fncConfirm={nonUseCheckFunc}
+                cancel={"아니오"}
+                fncCancel={() => setIsNonUseCheckOpen(false)}
+            />
+            <Modal
+                isOpen={isNonUseConfirm}
+                title={"현장 상세"}
+                text={nonUseConfirmText}
+                confirm={"확인"}
+                fncConfirm={onClickNonUseConfirm}
             />
             {isOpen ? (
                 <div className="overlayStyle">
@@ -370,6 +449,13 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                                     }
                                 </>
                                 : null
+                            }
+
+                            {
+                                <div style={{marginRight: "8px"}}>
+                                    {detailData.is_use === 'Y' && !isEdit && <Button text={"작업 완료"} style={{width: "100%"}} onClick={() => nonUseCheckOpen(true)}/>}
+                                    {detailData.is_use !== 'Y' && !isEdit && <Button text={"작업 완료 취소"} style={{width: "100%"}} onClick={() => nonUseCheckOpen(false)}/>}
+                                </div>
                             }
                         </div>
                     </div>
