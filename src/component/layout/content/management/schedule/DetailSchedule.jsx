@@ -289,7 +289,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                     </div>
                                                     {
                                                         jobsByProject.length === 0 ?
-                                                            <div style={{gridColumn: "span 2", padding: '5px', display: "flex", alignItems: "center", width: "100%", height: "40px"}}>
+                                                            <div style={{gridColumn: "span 2", padding: '5px', display: "flex", alignItems: "center", width: "100%", height: "50px"}}>
                                                                 <div style={{backgroundColor: "#f9d470", width: "5px", height: "100%", borderRadius: "5px", marginRight: "5px"}}></div>
                                                                 작업 내용이 없습니다.
                                                             </div>
@@ -462,7 +462,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
 }
 
 const gridStyle = {
-    display: 'grid',
+    // display: 'grid',
     gridTemplateColumns: '1fr 1fr',  // 한 행에 두 개의 열
     gap: '5px',
     // borderTop: '2px dotted #a5a5a5',
