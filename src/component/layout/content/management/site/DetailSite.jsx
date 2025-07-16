@@ -1,12 +1,8 @@
-import { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { dateUtil } from "../../../../../utils/DateUtil";
-import { Axios } from "../../../../../utils/axios/Axios";
 import DateInput from "../../../../module/DateInput";
 import Button from "../../../../module/Button";
 import Select from 'react-select';
-import SiteContext from "../../../../context/SiteContext";
-import Slider from "rc-slider";
 import 'rc-slider/assets/index.css';
 import weather0 from "../../../../../assets/image/weather/0.png";
 import weather1 from "../../../../../assets/image/weather/1.png";
@@ -19,28 +15,25 @@ import weather7 from "../../../../../assets/image/weather/7.png";
 import weather13 from "../../../../../assets/image/weather/13.png";
 import weather14 from "../../../../../assets/image/weather/14.png";
 import Map from "../../../../module/Map";
-import Modal from "../../../../module/Modal";
 import Loading from "../../../../module/Loading";
 import { Common } from "../../../../../utils/Common";
-import { useAuth } from "../../../../context/AuthContext";
 
 /**
  * @description: 현장 상세 컴포넌트
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-03-04
- * @modified 최종 수정일: 2025-03-14
- * @modifiedBy 최종 수정자: 정지영
+ * @modified 최종 수정일: 2025-07-15
+ * @modifiedBy 최종 수정자: 김진우
+ * @modified description:
+ * 2025-07-15: 현장완료버튼을 모달의 가장 아래로 이동하여 DetailModal.jsx로 관련 코드 이동
+ * 
  * @usedComponents
  * - dateUtil: 날짜 포맷
  * - DateInput: 커스텀 캘린더
  * 
  */
 const DetailSite = ({isEdit, detailData, detailWeather, projectData, handleChangeValue, addressData, isSiteAdd}) => {
-    const navigate = useNavigate();
-    const { user } = useAuth();
-
-    const { getData, setIsDetail } = useContext(SiteContext);
     const [data, setData] = useState(null);
     const [openingDate, setOpeningDate] = useState(dateUtil.now());
     const [closingPlanDate, setClosingPlanDate] = useState(dateUtil.now());
@@ -48,10 +41,6 @@ const DetailSite = ({isEdit, detailData, detailWeather, projectData, handleChang
     const [closingActualDate, setClosingActualDate] = useState(dateUtil.now());
     const [etc, setEtc] = useState("")
     const [projectOption, setProjectOption] = useState([]);
-    /** 모달 **/
-    const [isNonUseCheckOpen, setIsNonUseCheckOpen] = useState(false);
-    const [isNonUseConfirm, setIsNonUseConfirm] = useState(false);
-    const [nonUseConfirmText, setNonUseConfirmText] = useState("");
     /** 로딩 **/
     const [isLoading, setIsLoading] = useState(false);
     /** 슬라이더 **/
@@ -209,43 +198,6 @@ const DetailSite = ({isEdit, detailData, detailWeather, projectData, handleChang
         return ` ${temp2[0]?.value} ${temp1[0]?.value}(㎧) `;
     }
 
-    // 작업완료 체크 모달
-    const onClickCompleteBtn = () => {
-        setIsNonUseCheckOpen(true);
-    }
-
-    // 작업완료 처리
-    const siteModifyNonUse = async() => {
-        setIsNonUseCheckOpen(false);
-        
-        setIsLoading(true);
-        try {
-            const res = await Axios.PUT(`/site/non-use`, {
-                sno: data.sno || 0,
-                mod_uno: user.uno,
-                mod_user: user.userName
-            });
-            
-            if (res?.data?.result === "Success") {
-                setNonUseConfirmText("현장 완료 처리에 성공하였습니다.");
-            }else{
-                setNonUseConfirmText("현장 완료 처리에 실패하였습니다.\n잠시 후에 다시 시도하여 주세요.");
-            }
-            setIsNonUseConfirm(true);
-        } catch(err) {
-            navigate("/error");
-        } finally {
-            setIsLoading(false);
-        }
-    }
-
-    // 작업완료 성공 확인 이벤트
-    const onClickNonUseConfirm = () => {
-        getData();
-        setIsDetail(false)
-        setIsNonUseConfirm(false);
-    }
-
     /***** useEffect *****/
 
     useEffect(() => {
@@ -293,30 +245,11 @@ const DetailSite = ({isEdit, detailData, detailWeather, projectData, handleChang
             <Loading 
                 isOpen={isLoading}
             />
-            <Modal
-                isOpen={isNonUseCheckOpen}
-                title={"현장 작업 완료"}
-                text={"작업 완료 처리를 하시겠습니까?\n완료 후에는 현장화면에서 조회를 할 수 없습니다."}
-                confirm={"예"}
-                fncConfirm={siteModifyNonUse}
-                cancel={"아니오"}
-                fncCancel={() => setIsNonUseCheckOpen(false)}
-            />
-            <Modal
-                isOpen={isNonUseConfirm}
-                title={"현장 작업 완료"}
-                text={nonUseConfirmText}
-                confirm={"확인"}
-                fncConfirm={onClickNonUseConfirm}
-            />
             <div className="grid-site">
             {/* 첫 번째 열 */}
             <div className="form-control text-none-border" style={{ gridColumn: "1 / span 2", gridRow: "1", height: "50px" }}>
                 <div className="grid-site-title">
                     <span style={{paddingTop: "3px"}}>현장상세</span>
-                    <div style={{marginLeft: "auto", marginRight: "2px"}}>
-                        {isEdit && <Button text={"작업 완료"} onClick={onClickCompleteBtn}/>}
-                    </div>
                 </div>
             </div>
             <div className="form-control text-none-border" style={{ gridColumn: "1", gridRow: "2" }}>

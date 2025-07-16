@@ -29,15 +29,17 @@ import LoadingIcon from "../../../../../assets/image/Loading.gif";
 import "../../../../../assets/css/Table.css";
 import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
 import { createPortal } from "react-dom";
+import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
 /**
  * @description: 현장 관리 페이지
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-10
- * @modified 최종 수정일: 2025-07-14
+ * @modified 최종 수정일: 2025-07-16
  * @modifiedBy 최종 수정자: 김진우
  * @modified description
  * 2025-07-14: 현장 저장시 select_date필드 추가. 공정률 수정시 날짜 구분을 하기 위함
+ * 2025-07-16: 작업완료/진행중 리스트 변환 버튼 추가 <FormCheckInput... />
  * 
  * @additionalInfo
  * - API:
@@ -49,6 +51,8 @@ import { createPortal } from "react-dom";
 const Site = () => {
     const [state, dispatch] = useReducer(SiteReducer, {
         list: [],
+        useList: [],
+        nonUseList: [],
         code: [],
         dailyTotalCount: {},
         dailyWeather: [],
@@ -68,18 +72,15 @@ const Site = () => {
     const [addSiteJno, setAddSiteJno] = useState("");
     const [selectedDate, setSelectedDate] = useState(null)
     const [showWeatherList, setShowWeatherList] = useState(false)
-
     // 날짜 선택 폴링
     const selectedDateStr = dateUtil.format(selectedDate, "yyyy-MM-dd");
     const nowStr = dateUtil.format(dateUtil.now(), "yyyy-MM-dd");
     const isToday = selectedDateStr === nowStr;
     const isFuture = selectedDateStr > nowStr;
-
     // 기상특보
     const [warningListOpen, setWarningListOpen] = useState(false);
     const [warningData, setWarningData] = useState([]);
     const warningRef = useRef();
-
     // modal - 현장 수정용
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
@@ -91,17 +92,22 @@ const Site = () => {
     const [modal2type, setModal2Type] = useState("");
     const [modal2Confirm, setModal2Confirm] = useState("");
     const [modal2Cancel, setModal2Cancel] = useState("");
-    
     // 날씨정보
     const [weatherInfo, setWeatherInfo] = useState([]);
     const weatherRef = useRef()
-
     // 날씨 리스트 위치
     const [popupPos, setPopupPos] = useState({top :0, left:0});
-
-
+    // 작업완료 리스트
+    const [isNonUseChecked, setIsNonUseChecked] = useState(false);
     // 툴팁
     useTooltip([state.list]);
+
+    // 현장 리스트 바꾸기 (작업완료|진행중)
+    const onClickNonUseList = () =>{
+        dispatch({type: isNonUseChecked ? "USE_LIST" : "NON_USE_LIST"});
+        setIsNonUseChecked(!isNonUseChecked);
+
+    }
 
     // 현장 상세
     const onClickRow = (idx) => {
@@ -530,7 +536,7 @@ const Site = () => {
             />
             {
                 isDetail &&
-                <SiteContext.Provider value={{getData, setIsDetail}}>
+                <SiteContext.Provider value={{getData, setIsDetail, setIsNonUseChecked}}>
                     <DetailModal
                         isOpen={isDetail}
                         setIsOpen={setIsDetail}
@@ -548,16 +554,12 @@ const Site = () => {
                 <ol className="breadcrumb mb-2 content-title-box">
                     <li className="breadcrumb-item content-title">현장 관리</li>
                     <li className="breadcrumb-item active content-title-sub">관리</li>
-                    
-                    {
-                    isRoleValid(roleGroup.SITE_MANAGER) &&   
-                        <div className="table-header-right">
-                            <Button text={"추가"} onClick={() => onClickSaveBtn()} />
-                        </div>
-                    }
+                    <div className="table-header-right">
+                        {isRoleValid(roleGroup.SITE_MANAGER) && <Button text={"추가"} onClick={() => onClickSaveBtn()} />}
+                    </div>
                 </ol>
 
-                <div className="card mb-4">
+                <div className="card mb-1">
                     <div className="card-body">
                         <div className="square-title d-flex align-items-center">
                             <div>현장 목록</div>
@@ -624,6 +626,9 @@ const Site = () => {
 
                     </div>
                 </div>
+                <div style={{ display: "flex", justifyContent: "flex-end", marginRight: "8px", marginTop: "6px" }}>
+                    <FormCheckInput checked={isNonUseChecked} onChange={onClickNonUseList} style={{cursor: "pointer"}}/><span style={{marginLeft: "5px"}}>작업완료된 현장 확인</span>
+                </div>
                 <div>
                     {
                     createPortal(
@@ -678,7 +683,9 @@ const Site = () => {
 
                         </div>,
                     document.body
-                )}</div>
+                )}
+                </div>
+            
                 <div className="table-wrapper">
                 <div className="table-container">
                     <table>

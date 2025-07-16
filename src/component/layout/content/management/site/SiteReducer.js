@@ -66,8 +66,11 @@ const SiteReducer = (state, action) => {
                     return { ...obj, daily_content_list: contents };
                 }
             });
+
+            const useSites = newSites.filter(item => item.is_use === 'Y');
+            const nonUseSite = newSites.filter(item => item.is_use !== 'Y');
             
-            return {...state, list: JSON.parse(JSON.stringify(newSites)), code: JSON.parse(JSON.stringify(action.code)), dailyTotalCount: JSON.parse(JSON.stringify(total))};
+            return {...state, list: JSON.parse(JSON.stringify(useSites)), useList: JSON.parse(JSON.stringify(useSites)), nonUseList: JSON.parse(JSON.stringify(nonUseSite)), code: JSON.parse(JSON.stringify(action.code)), dailyTotalCount: JSON.parse(JSON.stringify(total))};
         case "STATS":
             const setColor2 = (code) => {
                 const foundItem = state?.code?.find(item => item.code === code);
@@ -148,6 +151,11 @@ const SiteReducer = (state, action) => {
                 }
             });
             return {...state, dailyWeather: structuredClone(weathers)};
+
+        case "USE_LIST":
+            return {...state, list: state.useList};
+        case "NON_USE_LIST":
+            return {...state, list: state.nonUseList};
 
         default:
             return state;
