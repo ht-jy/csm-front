@@ -493,8 +493,7 @@ const Schedule = () => {
     const onClickDailyJobRemove = async(item) => {
         setIsLoading(true);
         try {
-            const res = await Axios.DELETE(`/schedule/daily-job/${item.cno}`);
-            
+            const res = await Axios.DELETE(`/schedule/daily-job/${item.idx}`);
             if (res?.data?.result === "Success") {
                 getDailyJobData();
                 setModalText("작업내용 삭제에 성공하였습니다.");

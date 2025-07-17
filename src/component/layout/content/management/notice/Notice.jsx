@@ -149,6 +149,7 @@ const Notice = () => {
                 notice={data}
                 isDetail={isDetail}
                 setIsDetail={handleOpenDetail}
+                getData={getNotices}
             ></NoticeDetail>
 
             <div>
