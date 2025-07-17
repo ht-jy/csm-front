@@ -47,7 +47,7 @@ const SearchWorkerModal = ({isOpen=false, fncExit, onClickRow}) => {
     const searchOptions = [
         { value: "ALL", label: "전체" },
         { value: "USER_ID", label: "아이디" },
-        { value: "USER_NM", label: "근로자 이름" },
+        { value: "USER_NM", label: "이름" },
         { value: "DEPARTMENT", label: "부서/조직명" },
     ];
 

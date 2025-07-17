@@ -39,7 +39,7 @@ const DailyCompare = () => {
     const columns = [
         { itemName: "row_checked", checked: "N", checkType: "all", width: "35px", bodyAlign: "center", checkedState: ["W"], checkedItemName: "compare_state" },
         { isSearch: false, isOrder: false, width: "100px", header: "상태", itemName: "compare_state", bodyAlign: "center", isEllipsis: false, type: "daliy-compare" },
-        { isSearch: false, isOrder: true, width: "80px", header: "근로자 이름", itemName: "user_nm", bodyAlign: "center", isEllipsis: true },
+        { isSearch: false, isOrder: true, width: "80px", header: "이름", itemName: "user_nm", bodyAlign: "center", isEllipsis: true },
         { isSearch: false, isOrder: true, width: "120px", header: "부서/조직명", itemName: "department", bodyAlign: "left", isEllipsis: true },
         { isSearch: false, isOrder: false, width: "100px", header: "번호", itemName: "user_id", bodyAlign: "center", isEllipsis: true, isFormat: true, format: "formatMobileNumber"},
         { isSearch: false, isOrder: false, width: "50px", header: "성별", itemName: "gender", bodyAlign: "center", isEllipsis: true },
@@ -54,7 +54,7 @@ const DailyCompare = () => {
     // 검색 옵션
     const searchOptions = [
         { value: "ALL", label: "전체" },
-        { value: "USER_NM", label: "근로자 이름" },
+        { value: "USER_NM", label: "이름" },
         { value: "DEPARTMENT", label: "부서/조직명" },
     ];
 

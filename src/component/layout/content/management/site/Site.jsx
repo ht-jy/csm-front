@@ -738,7 +738,7 @@ const Site = () => {
                                                 {/* 현장 */}
                                                 <td className="left fixed-left ellipsis-tooltip" style={{ cursor: "pointer", left: "110px" }} onClick={() => onClickRow(idx)}>{item.site_nm || ""}</td>
                                                 {/* 공정률 */}
-                                                <td className="center" style={{ fontWeight: "bold" }}>{item.work_rate}%</td>
+                                                <td className="right" style={{ fontWeight: "bold" }}>{item.work_rate}%</td>
                                                 {/* 누계 */}
                                                 <td className="right" rowSpan={item.rowSpan} style={{ fontWeight: "bold" }}>
                                                     {
@@ -787,7 +787,7 @@ const Site = () => {
                                                         item.project_list.length === 0 ?
                                                             // 현장에 프로젝트가 없는 경우. 그럴 경우는 없지만 만약을 위하여
                                                             <div>
-                                                                <div className="center" style={{ color: "#a5a5a5" }}>
+                                                                <div className="left" style={{ color: "#a5a5a5" }}>
                                                                     -
                                                                 </div>
                                                             </div>
@@ -802,7 +802,7 @@ const Site = () => {
                                                                                 ""
                                                                                 :
                                                                                 // 작업내용이 없는 경우
-                                                                                <div className="center" style={{ color: "#a5a5a5" }}>-</div>
+                                                                                <div className="left" style={{ color: "#a5a5a5" }}>-</div>
                                                                         }
                                                                     </div>
                                                                 </div>
@@ -820,7 +820,7 @@ const Site = () => {
                                                                             <div>● {item.daily_content_list[0]}</div>
                                                                         :   
                                                                             // 작업내용이 없는 경우
-                                                                            <div className="center" style={{ color: "#a5a5a5" }}>-</div>
+                                                                            <div className="left" style={{ color: "#a5a5a5" }}>-</div>
                                                                     }
                                                                 </div>
                                                     }
@@ -861,7 +861,7 @@ const Site = () => {
                                                 {/* 현장 */}
                                                 <td className="left fixed-left ellipsis-tooltip" style={{ cursor: "pointer", left: "110px" }} onClick={() => onClickRow(idx)}><li>{item.project_nm}</li></td>
                                                 {/* 공정률 */}
-                                                <td className="center" style={{ fontWeight: "bold" }}>{item.work_rate}%</td>
+                                                <td className="right" style={{ fontWeight: "bold" }}>{item.work_rate}%</td>
                                                 {/* 공사 */}
                                                 <td className="right">{Common.formatNumber(item.worker_count_work)}</td>
                                                 {/* 안전 */}
@@ -887,7 +887,7 @@ const Site = () => {
                                                             <div>● {item.daily_content_list[0]}</div>
                                                         :   
                                                             // 작업내용이 없는 경우
-                                                            <div className="center" style={{ color: "#a5a5a5" }}>-</div>
+                                                            <div className="left" style={{ color: "#a5a5a5" }}>-</div>
                                                     }
                                                 </td>
                                                 {/* 날씨 */}
