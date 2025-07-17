@@ -26,7 +26,7 @@ import NoticeModal from "./NoticeModal";
  *    Http Method - PUT : /notice (공지사항 수정)
  *    Http Method - DELETE :  /notice/${idx} (공지사항 삭제)
  */
-const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
+const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
     const [state, dispatch] = useReducer(NoticeReducer, {
         notices: [],
         count: 0,
@@ -235,8 +235,6 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
                     // Axios 요청 성공했을 경우
                     setIsMod(true);
                     setIsDetail(false);
-
-
                 } else {
                     // Axios 요청 실패했을 경우
                     setIsMod(false);
@@ -248,6 +246,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
             } catch(err) {
                 navigate("/error");
             } finally {
+                await getData();
                 setIsLoading(false);
             }
         }

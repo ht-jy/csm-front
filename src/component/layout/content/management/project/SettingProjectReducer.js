@@ -6,8 +6,7 @@ const SettingProjectReducer = (state, action) => {
             const selectOptions = [];
                 action.list.forEach((item, idx) => {
                     selectOptions.push({value: item?.code, label:item?.code_nm})
-                })                
-                console.log("reducer", structuredClone(ObjChk.ensureArray(selectOptions)))
+                })
             return { ...state, selectOptions: structuredClone(ObjChk.ensureArray(selectOptions)) };
             
         case "MAN_HOURS":
