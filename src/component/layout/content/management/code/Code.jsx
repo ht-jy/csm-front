@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useReducer, useState } from "react";
 import CodeReducer, { initialState } from "./CodeReducer";
 import Loading from "../../../../module/Loading";
+import { useAuth } from "../../../../context/AuthContext";
 
 /**
  * @description: 코드 관리
@@ -23,6 +24,8 @@ import Loading from "../../../../module/Loading";
  */
 const Code = () => {
     const navigate = useNavigate();
+    const {setIsProject} = useAuth();
+
     const [state, dispatch] = useReducer(CodeReducer, initialState);
     const [treeData, setTreeData] = useState([]);
     const [isDataChange, setIsDataChange] = useState(true);
@@ -93,6 +96,12 @@ const Code = () => {
     useEffect(() => {
         getTreeData()
     }, [state.pCode])
+
+
+    // 상단의 project 표시 여부 설정: 미표시
+    useEffect(() => {
+        setIsProject(false);
+    }, [])
 
     return (
         <div>

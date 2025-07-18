@@ -35,7 +35,7 @@ const Header = () => {
     const [isProjectOpen, setIsProjectOpen] = useState(false);
     const [isOrganizationOpen, setIsOrganizationOpen] = useState(false);
 
-    const { user, projectName, setProject, setProjectName, setJobRole } = useAuth();
+    const { user, projectName, setProject, setProjectName, setJobRole, isProject } = useAuth();
     const navigete = useNavigate();
 
     // 사이드 메뉴 열고 닫기
@@ -113,49 +113,54 @@ const Header = () => {
             {/* <button className="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" onClick={handleSidebarToggle}><i className="fas fa-bars" /></button> */}
 
             {/* Navbar Search*/}
+               
+
+             
             <div className="d-flex justify-content-between align-items-center w-100">
                 {/* 공지사항 슬라이더 */}
-                <div className="announcement-slider-container">
+             <div className="announcement-slider-container">
                     <AnnouncementSlider />
                 </div>
 
+                {  isProject &&  
+                <>
+                    <form className="input-group search-input">
+                        <label htmlFor="project-search">PROJECT NAME</label>
+                        <input className="form-control" style={{paddingRight: "40px"}} type="text" value={projectName} placeholder="project를 선택하세요" aria-label="project를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearch} readOnly/>
+                        {
+                            !ObjChk.all(projectName) && (
+                                <img 
+                                    src={CancelIcon}
+                                    alt="취소"
+                                    style={{
+                                        position: "absolute",
+                                        top: "52%",
+                                        right: "41px",
+                                        transform: "translateY(-50%)",
+                                        cursor: "pointer",
+                                        width: "20px",
+                                        margin: "0px 0.5rem"
+                                    }}
+                                    onClick={handleRefreshProject}
+                                />
+                            )
+                        }
+                        <button className="btn btn-primary" id="btnNavbarSearch" type="button"  onClick={onClickSearch}>
+                            <i className="fas fa-search" />
+                        </button>
+                    </form>                
+                    <div className="search-icon-container">
+                        <img src={SearchIcon} style={{width: "24px"}} onClick={onClickSearch}/>
+                    </div>
+                    <div className="refresh-icon-container" onClick={handleRefreshProject}>
+                        <img src={RefreshIcon} style={{width: "22px"}}/>
+                    </div>
 
-                <form className="input-group search-input">
-                    <label htmlFor="project-search">PROJECT NAME</label>
-                    <input className="form-control" style={{paddingRight: "40px"}} type="text" value={projectName} placeholder="project를 선택하세요" aria-label="project를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearch} readOnly/>
-                    {
-                        !ObjChk.all(projectName) && (
-                            <img 
-                                src={CancelIcon}
-                                alt="취소"
-                                style={{
-                                    position: "absolute",
-                                    top: "52%",
-                                    right: "41px",
-                                    transform: "translateY(-50%)",
-                                    cursor: "pointer",
-                                    width: "20px",
-                                    margin: "0px 0.5rem"
-                                }}
-                                onClick={handleRefreshProject}
-                            />
-                        )
-                    }
-                    <button className="btn btn-primary" id="btnNavbarSearch" type="button"  onClick={onClickSearch}>
-                        <i className="fas fa-search" />
-                    </button>
-                </form>
-                
-                <div className="search-icon-container">
-                    <img src={SearchIcon} style={{width: "24px"}} onClick={onClickSearch}/>
-                </div>
-                <div className="refresh-icon-container" onClick={handleRefreshProject}>
-                    <img src={RefreshIcon} style={{width: "22px"}}/>
-                </div>
-
-                <div className="organization-icon-container" onClick={onClickOrganization}>
-                    <img src={Organization} style={{width: "20px"}}/>
-                </div>            
+                    <div className="organization-icon-container" onClick={onClickOrganization}>
+                        <img src={Organization} style={{width: "20px"}}/>
+                    </div>            
+                </>
+                }
             </div>
             {/* Navbar*/}
             <ul className="navbar-nav ms-auto me-0 me-md-3 my-2 my-md-0">

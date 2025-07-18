@@ -31,7 +31,7 @@ import "../../../../../assets/css/Company.css";
  *    Http Method - GET : 
  */
 const Company = () => {
-    const { project } = useAuth();
+    const { project, setIsProject } = useAuth();
 
     const [jno, setJno] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -49,6 +49,11 @@ const Company = () => {
             setModalText("프로젝트를 선택해 주세요.")
         }
     }, [project]);
+
+    // 상단의 project 표시 여부 설정: 표시
+    useEffect(() => {
+        setIsProject(true);
+    }, [])
 
     return(
         <div>

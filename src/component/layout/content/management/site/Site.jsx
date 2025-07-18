@@ -59,9 +59,8 @@ const Site = () => {
     })
 
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, setIsProject } = useAuth();
     const { isRoleValid } = useUserRole();
-
     const [isLoading, setIsLoading] = useState(false);
     const [isDetail, setIsDetail] = useState(false);
     const [detailTitle, setDetailTitle] = useState("");
@@ -507,6 +506,11 @@ const Site = () => {
             document.body.removeEventListener("click", handleClick);
         };
     }, []);
+
+    // 상단의 project 표시 여부 설정: 미표시
+    useEffect(() => {
+        setIsProject(false);
+    }, [])
 
     return (
         <div>

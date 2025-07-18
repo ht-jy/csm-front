@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import { ObjChk } from "../../../../../utils/ObjChk";
@@ -25,7 +25,7 @@ import TextInput from "../../../../module/TextInput";
  */
 const SystemManagement = () => {
 
-    const {project, user} = useAuth()
+    const {project, user, setIsProject} = useAuth()
 
     // 모달
     const [isModal, setIsModal] = useState(false);
@@ -204,6 +204,11 @@ const SystemManagement = () => {
 
         }
     }
+
+    // 상단의 project 표시 여부 설정: 표시
+    useEffect(() => {
+        setIsProject(true);
+    }, [])
 
     return <div className="container-fluid px-4">
             <Modal

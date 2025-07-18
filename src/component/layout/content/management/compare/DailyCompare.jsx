@@ -20,7 +20,7 @@ import { TableProvider } from "../../../../context/TableContext";
 import { ObjChk } from "../../../../../utils/ObjChk";
 
 const DailyCompare = () => {
-    const { project, user } = useAuth();
+    const { project, user, setIsProject } = useAuth();
     const navigate = useNavigate();
     const tableRef = useRef();
 
@@ -410,6 +410,11 @@ const DailyCompare = () => {
             setSelectedDepart(state.departList[0]);
         }
     }, [state.departList]);
+
+    // 상단의 project 표시 여부 설정: 표시
+    useEffect(() => {
+        setIsProject(true);
+    }, [])
 
     return (
         <div>

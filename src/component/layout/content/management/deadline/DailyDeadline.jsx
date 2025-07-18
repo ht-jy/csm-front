@@ -14,7 +14,7 @@ import Button from "../../../../module/Button";
 import { companyDirName } from "../../../../../utils/CompanyDirName";
 
 const DailyDeadline = () => {
-    const { project, user } = useAuth();
+    const { project, user, setIsProject } = useAuth();
     const navigate = useNavigate();
 
     const [state, dispatch] = useReducer(DailyDeadlineReducer, {
@@ -214,6 +214,11 @@ const DailyDeadline = () => {
             setSelectedDepart(state.departList[0]);
         }
     }, [state.departList]);
+
+    // 상단의 project 표시 여부 설정: 표시
+    useEffect(() => {
+        setIsProject(true);
+    }, [])
 
     return (
         <div>
