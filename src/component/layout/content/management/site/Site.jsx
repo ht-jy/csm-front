@@ -70,7 +70,7 @@ const Site = () => {
     const [isSiteAdd, setIsSiteAdd] = useState({});
     const [isNonPjModal, setIsNonPjModal] = useState(false);
     const [addSiteJno, setAddSiteJno] = useState("");
-    const [selectedDate, setSelectedDate] = useState(null)
+    const [selectedDate, setSelectedDate] = useState(dateUtil.now())
     const [showWeatherList, setShowWeatherList] = useState(false)
     // 날짜 선택 폴링
     const selectedDateStr = dateUtil.format(selectedDate, "yyyy-MM-dd");

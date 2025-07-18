@@ -113,6 +113,11 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
         }
     }
 
+    const reload = () => {
+        // () => setIsDeleteModal(false)
+        navigator(0);
+    }
+
     // detailData가 변경될 때 상태를 업데이트 (최초 데이터 저장)
     useEffect(() => {
         if (detailData && detailData.length > 0) {
@@ -193,7 +198,7 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
                 confirm={"예"}
                 cancel={"아니오"}
                 fncConfirm={handleRemove}
-                fncCancel={() => setIsDeleteModal(false)}
+                fncCancel={reload}
             />
             {isOpen ? (
                 <div style={overlayStyle}>

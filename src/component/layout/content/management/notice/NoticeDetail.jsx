@@ -1,7 +1,7 @@
 import { useEffect, useReducer, useState } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { useAuth } from "../../../../context/AuthContext";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import Modal from "../../../../module/Modal";
 import NoticeReducer from "./NoticeReducer";
@@ -114,11 +114,11 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
                 arr[3].value.job_name = notice.job_name;
                 arr[3].value.jno = notice.jno
                 arr[4].value = notice.content;
-                arr[5].value = Number
+                arr[5].value = Number(notice.idx);
                 if (user.uno === notice.reg_uno) {
                     setIsAuthorization(true);
                 }else{
-                    setIsAuthorization(false)
+                    setIsAuthorization(false);
                 }   
             }
             setNoticeData(notice);
@@ -128,7 +128,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
 
     // [GridModal] gridMode props 변경 이벤트
     const onClickModeSet = (mode) => {
-        setGridMode(mode)
+        setGridMode(mode);
     }
 
     // [GridModal] 삭제 이벤트
@@ -137,11 +137,12 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
 
         var idx;
         if (gridMode === "DETAIL") {
-            idx = Number(item[5].value)
+            idx = Number(item[5].value);
         } else {
-            idx = Number(item[5].value)
+            idx = Number(item[5].value);
         }
         try {
+
             const res = await Axios.DELETE(`notice/${idx}`)
 
             if (res?.data?.result === "Success") {
@@ -169,7 +170,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
     const onClickGridModalExitBtn = () => {
             setDetail([]);
             setIsGridModal(false);
-            setIsDetail(false)
+            setIsDetail(false);
         }
 
     // [GridModal-Post] 저장 버튼을 눌렀을 경우
@@ -252,6 +253,14 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
         }
     }
 
+    // 요청 확인을 한 후 재로드. 트랜잭션 문제 임시방편
+    const reload = () => {
+        // () => setIsOpenModal(false)
+        // setIsOpenModal(false)
+        navigate(0);
+
+    }
+
     // [GridModal] 모드 변경 시
     useEffect(() => {
         if (gridMode === "EDIT" ) {
@@ -265,7 +274,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
             handleGetGridModal("DETAIL", notice[0]);
         } 
         else if (isDetail === true) {
-            handlePostGridModal("SAVE")
+            handlePostGridModal("SAVE");
         }
     }, [isDetail])
 
@@ -277,7 +286,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail} ) => {
                 title={isValidation ? (isMod ? "요청 성공" : "요청 실패") : "입력 오류"}
                 text={isValidation ? (isMod ? "성공하였습니다." : "실패하였습니다.") : modalText}
                 confirm={"확인"}
-                fncConfirm={() => setIsOpenModal(false)}
+                fncConfirm={reload}
             />
              <NoticeModal
                 data={noticeData}

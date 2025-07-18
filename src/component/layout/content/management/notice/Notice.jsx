@@ -112,7 +112,7 @@ const Notice = () => {
 
     // 상세페이지 상태 변경
     const handleOpenDetail = (openState) => {
-        setIsDetail(openState)
+        setIsDetail(openState);
     }
 
     const {
@@ -131,7 +131,7 @@ const Notice = () => {
     // 프로젝트 변경, 상세페이지 내용 변경 시 다시 데이터 불러오기
     useEffect(() => {
         if (isDetail === false) {
-            getNotices()
+            getNotices();
         }
     }, [isDetail, project])
 
