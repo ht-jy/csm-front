@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
-import {Calendar} from "react-calendar";
-import { dateUtil } from "../../utils/DateUtil";
-import { Axios } from "../../utils/axios/Axios.js";
-import CalendarIcon from "../../assets/image/calendar-icon.png"
-import OutsideClick from "./OutsideClick.jsx";
-import { Tooltip as ReactTooltip } from 'react-tooltip';
+import { useEffect, useState } from "react";
+import { Calendar } from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import "../../assets/css/Calendar.css";
 import "../../assets/css/DateInput.css";
 import "../../assets/css/Tooltip.css";
+import CalendarIcon from "../../assets/image/calendar-icon.png";
+import RefreshIcon from "../../assets/image/refresh-icon.png";
+import { dateUtil } from "../../utils/DateUtil";
+import { Axios } from "../../utils/axios/Axios.js";
+import OutsideClick from "./OutsideClick.jsx";
 
 /**
  * @description: 날짜 입력 컴포넌트
@@ -80,7 +81,7 @@ const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalenda
 
     // 날짜 초기화
     useEffect(() => {
-        if(time === null || time === "-") {
+        if(time === null) {
             setTime(dateUtil.format(new Date()));
         }else{
             setTime(time);
@@ -97,9 +98,13 @@ const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalenda
             <div className="date-input" style={{...dateInputStyle}}>
                 <input type="date" id="inputDate" value={time} max="9999-12-31" className="inputBox" onChange={(e) => setTime(e.target.value)} />
                 {
+                    <input type="image" value="" src={RefreshIcon} className="imgIcon" onClick={() => setTime("-")} style={{margin:"0 0.5rem"}}/>
+                }
+                {
                     isCalendarHide ? null
                     : <input type="image" value="" src={CalendarIcon} className="imgIcon" onClick={() => setShowCalendar(prev => !prev)}/>               
                 }
+
             </div>
                 {
                     isCalendarHide ? null

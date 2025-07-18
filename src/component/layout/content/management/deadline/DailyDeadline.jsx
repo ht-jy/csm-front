@@ -302,7 +302,7 @@ const DailyDeadline = () => {
                             <thead>
                                 <tr>
                                     <th style={{width: "100px"}}></th>
-                                    <th style={{width: "100px"}}>근로자 이름</th>
+                                    <th style={{width: "100px"}}>이름</th>
                                     <th style={{width: "100px"}}>회사명</th>
                                     <th style={{width: "100px"}}>홍채 인식기</th>
                                     <th style={{width: "100px"}}>TBM</th>

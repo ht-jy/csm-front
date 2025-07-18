@@ -1007,10 +1007,21 @@ const Table = forwardRef(({
                                         : col.importantName ? 
                                             item[col.importantName] === 'Y' ?
                                             <>
-                                                <img
-                                                    src={ImportantIcon}
-                                                    style={{width:"18px"}}
-                                                    />
+                                                <div
+                                                    style={{
+                                                        boxSizing: "border-box",
+                                                        display: "inline-block",
+                                                        margin: "0px 5px 0px 0px",
+                                                        padding: "3px",
+                                                        borderRadius: "3px",
+                                                        backgroundColor: "#d89e00ff",
+                                                        color: "white",
+                                                        fontSize: "12px",
+                                                        fontWeight:"normal",
+                                                    }}
+                                                    >
+                                                        상시 
+                                                    </div>
                                                 {item[col.itemName]}
                                             </>
                                             : item[col.itemName]

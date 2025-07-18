@@ -136,6 +136,15 @@ const SystemManagement = () => {
     // 공정률 기록
     const onClickSettingWorkRate = async () => {
         try {
+
+            if( !dateUtil.isDate(targetDate) ){
+                
+                setModalTitle("공정률 기록")
+                setModalText("날짜를 설정해주세요. \n")
+                setIsModal(true)
+                return
+            }
+
             const res = await Axios.GET(`/system/setting-workrate?targetDate=${targetDate}`)
 
             if(res?.data?.result === "Success"){
@@ -218,14 +227,15 @@ const SystemManagement = () => {
             
             <hr></hr>
             
-            <div style={{...list}}>
+            {/* 근로자 철야 수동으로 하기로 변경 */}
+            {/* <div style={{...list}}>
                 <div style={{...title}}>
                     근로자의 철야 처리
                 </div>
                 <Button text={"실행"} onClick={onClickModifyWorkerOverTime}></Button>
             </div>
             
-            <hr></hr>
+            <hr></hr> */}
             
             <div style={{...list}}>
                 <div style={{...title}}>

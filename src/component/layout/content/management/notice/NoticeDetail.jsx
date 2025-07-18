@@ -1,7 +1,7 @@
 import { useEffect, useReducer, useState } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { useAuth } from "../../../../context/AuthContext";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import Modal from "../../../../module/Modal";
 import NoticeReducer from "./NoticeReducer";
@@ -51,11 +51,10 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
     const [isValidation, setIsValidation] = useState(true);
 
     const gridData = [
-        { type: "text", span: "full", label: "제목", value: "", isRequired: true },
-        { type: "date", span: "double", label: "시작일", isRequired: true},
-        { type: "date", span: "double", label: "마감일", isRequired: true},
-        { type: "project", span: "double", label: "프로젝트", value: {job_name: "", jno:0}, isRequired: true, isAll: true},
-        { type: "checkbox", span: "double", label: "중요공지여부", value: "N" },
+        { type: "text", span: "double", label: "제목", value: "", isRequired: true },
+        { type: "checkbox", span: "double", label: "상시공지", value: "N" },
+        { type: "date-duration", span: "full", label: "게시기간", value: {startTime: "", endTime:""}, isRequired: true},
+        { type: "project", span: "full", label: "프로젝트", value: {job_name: "", jno:0}, isRequired: true, isAll: true},
         { type: "html", span: "full", label: "내용", vlaue: ""},
         { type: "hidden", value: "" },
     ]
@@ -81,20 +80,20 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
 
         if (mode === "EDIT" || mode === "COPY") {
             arr[0].value = notice.title;
-            arr[1].value = dateUtil.format(notice.posting_start_date);
-            arr[2].value = dateUtil.format(notice.posting_end_date);
+            arr[1].value = notice.is_important;
+            arr[2].value.startTime = dateUtil.format(notice.posting_start_date);
+            arr[2].value.endTime = dateUtil.format(notice.posting_end_date);
             arr[3].value.job_name = (mode === "COPY") ? "" : notice.job_name;
-            arr[3].value.jno = notice.jno
-            arr[4].value = notice.is_important;
-            arr[5].value = notice.content;
-            arr[6].value = Number(notice.idx);
+            arr[3].value.jno = notice.jno;
+            arr[4].value = notice.content;
+            arr[5].value = Number(notice.idx);
         }
- 
+
         // 수정을 저장하고 난 후에, value값이 초기화 되지 않는 문제 해결하기 위해 사용.
         if (mode === "SAVE") {
-            arr[1].value = "-";
-            arr[2].value = "-";
-            arr[5].value = "";
+            arr[2].value.startTime = "-";
+            arr[2].value.endTime = "-";
+            arr[4].value = "";
         }
 
         setIsGridModal(true);
@@ -109,17 +108,17 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
             const arr = [...gridData]
             if (mode === "DETAIL") { 
                 arr[0].value = notice.title;
-                arr[1].value = dateUtil.format(notice.posting_start_date);
-                arr[2].value = dateUtil.format(notice.posting_end_date);
+                arr[1].value = notice.is_important;
+                arr[2].value.startTime = dateUtil.format(notice.posting_start_date);
+                arr[2].value.endTime = dateUtil.format(notice.posting_end_date);
                 arr[3].value.job_name = notice.job_name;
                 arr[3].value.jno = notice.jno
-                arr[4].value = notice.is_important;
-                arr[5].value = notice.content;
-                arr[6].value = Number
+                arr[4].value = notice.content;
+                arr[5].value = Number(notice.idx);
                 if (user.uno === notice.reg_uno) {
                     setIsAuthorization(true);
                 }else{
-                    setIsAuthorization(false)
+                    setIsAuthorization(false);
                 }   
             }
             setNoticeData(notice);
@@ -129,7 +128,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
 
     // [GridModal] gridMode props 변경 이벤트
     const onClickModeSet = (mode) => {
-        setGridMode(mode)
+        setGridMode(mode);
     }
 
     // [GridModal] 삭제 이벤트
@@ -138,11 +137,12 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
 
         var idx;
         if (gridMode === "DETAIL") {
-            idx = Number(item[6].value)
+            idx = Number(item[5].value);
         } else {
-            idx = Number(item[6].value)
+            idx = Number(item[5].value);
         }
         try {
+
             const res = await Axios.DELETE(`notice/${idx}`)
 
             if (res?.data?.result === "Success") {
@@ -170,7 +170,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
     const onClickGridModalExitBtn = () => {
             setDetail([]);
             setIsGridModal(false);
-            setIsDetail(false)
+            setIsDetail(false);
         }
 
     // [GridModal-Post] 저장 버튼을 눌렀을 경우
@@ -191,13 +191,13 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
             setIsOpenModal(true);
         
         // 게시시작일을 선택 안했을 경우 모달
-        }else if ( dateUtil.goTime(item[1].value) === "0001-01-01T00:00:00Z" ){
+        }else if ( dateUtil.goTime(item[2].value.startTime) === "0001-01-01T00:00:00Z" ){
             setIsValidation(false);
             setModalText("게시시작일을 선택해 주세요.");
             setIsOpenModal(true);
         
         // 게시마감일을 선택 안했을 경우 모달 
-        }else if ( dateUtil.goTime(item[2].value) === "0001-01-01T00:00:00Z" ){
+        }else if ( dateUtil.goTime(item[2].value.endTime) === "0001-01-01T00:00:00Z" ){
             setIsValidation(false);
             setModalText("게시마감일을 선택해 주세요.");
             setIsOpenModal(true);
@@ -205,15 +205,15 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
         else {
             setIsLoading(true);
             setIsValidation(true);
-            
+
             const notice = {
-                jno: Number(item[3].value.jno) || 0,
+                jno: Number(item[3].value.jno) || Number(0),
                 title: item[0].value || "",
-                content: item[5].value || "",
-                is_important: item[4].value || "N",
+                content: item[4].value || "",
+                is_important: item[1].value || "N",
                 show_yn: "Y",
-                posting_start_date: dateUtil.goTime(item[1].value) || "0001-01-01T00:00:00Z",
-                posting_end_date: dateUtil.parseToGo(item[2].value) || "0001-01-01T00:00:00Z",
+                posting_start_date: dateUtil.goTime(item[2].value.startTime) || "0001-01-01T00:00:00Z",
+                posting_end_date: dateUtil.parseToGo(item[2].value.endTime) || "0001-01-01T00:00:00Z",
                 reg_uno: Number(user.uno) || 0,
                 reg_user: user.userName || "",
             }
@@ -224,7 +224,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
                 if (gridMode === "SAVE") {
                     res = await Axios.POST(`/notice`, notice);
                 } else {
-                    notice.idx = Number(item[6].value);
+                    notice.idx = Number(item[5].value);
                     notice.mod_user = user.userName || "";
                     notice.mod_uno = Number(user.uno) || 0;
 
@@ -252,6 +252,14 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
         }
     }
 
+    // 요청 확인을 한 후 재로드. 트랜잭션 문제 임시방편
+    const reload = () => {
+        // () => setIsOpenModal(false)
+        // setIsOpenModal(false)
+        navigate(0);
+
+    }
+
     // [GridModal] 모드 변경 시
     useEffect(() => {
         if (gridMode === "EDIT" ) {
@@ -265,7 +273,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
             handleGetGridModal("DETAIL", notice[0]);
         } 
         else if (isDetail === true) {
-            handlePostGridModal("SAVE")
+            handlePostGridModal("SAVE");
         }
     }, [isDetail])
 
@@ -277,7 +285,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
                 title={isValidation ? (isMod ? "요청 성공" : "요청 실패") : "입력 오류"}
                 text={isValidation ? (isMod ? "성공하였습니다." : "실패하였습니다.") : modalText}
                 confirm={"확인"}
-                fncConfirm={() => setIsOpenModal(false)}
+                fncConfirm={reload}
             />
              <NoticeModal
                 data={noticeData}

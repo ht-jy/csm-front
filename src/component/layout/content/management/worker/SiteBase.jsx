@@ -103,7 +103,7 @@ const SiteBase = () => {
         { itemName: "row_checked", checked: "N", checkType: "all", width: "35px", bodyAlign: "center" },
         { isSearch: false, isOrder: true, width: "70px", header: "순번", itemName: "rnum", bodyAlign: "center", isEllipsis: false, type: "number"},
         { isSearch: true, isOrder: true, width: "160px", header: "아이디", itemName: "user_id", bodyAlign: "center", isEllipsis: false },
-        { isSearch: true, isOrder: true, width: "150px", header: "근로자 이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false },
+        { isSearch: true, isOrder: true, width: "150px", header: "이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false },
         { isSearch: true, isOrder: true, width: "190px", header: "부서/조직명", itemName: "department", bodyAlign: "left", isEllipsis: false },
         { isSearch: false, isOrder: true, width: "150px", header: "날짜", itemName: "record_date", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'format' },
         { isSearch: false, isOrder: true, width: "150px", header: "출근시간", itemName: "in_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'formatTime24' },
@@ -134,7 +134,7 @@ const SiteBase = () => {
     const searchOptions = [
         { value: "ALL", label: "전체" },
         { value: "USER_ID", label: "아이디" },
-        { value: "USER_NM", label: "근로자 이름" },
+        { value: "USER_NM", label: "이름" },
         { value: "DEPARTMENT", label: "부서/조직명" },
     ];
 

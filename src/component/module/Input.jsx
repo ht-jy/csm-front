@@ -24,7 +24,7 @@ import SearchAllProjectModal from "./modal/SearchAllProjectModal";
  * @additionalInfo
  * - props: 
  *  editMode: true|false (수정가능 여부)
- *  type: "text"|"checkbox"|"select" | "site" | "project" (input type 추후에 추가 예정)
+ *  type: "text"|"checkbox"|"select" | "site" | "project" | "date" |  "date-duration" (input type 추후에 추가 예정)
  *  span: "double"|"full"(girdModal col 개수)
  *  label: input label
  *  value: input value
@@ -39,7 +39,8 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
     const [isValid, setIsValid] = useState(true);
     const [isChecked, setIsChecked] = useState(false);
     const [selectedOption, setSelectedOption] = useState(null); // 초기값을 null로 설정
-    const [searchStartTime, setSearchStartTime] = useState(value);
+    const [searchStartTime, setSearchStartTime] = useState(type==="date-duration" ? (value?.startTime):  value);
+    const [searchEndTime, setSearchEndTime] = useState(type==="date-duration" && value?.endTime);
     const [isSiteOpenModal, setIsSiteOpenModal] = useState(false);
     const [isProjectOpenModal, setIsProjectOpenModal] = useState(false);
     const [maskValue, setMaskValue] = useState("");
@@ -137,8 +138,14 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
     /***** useEffect *****/
     // date 체인지 이벤트
     useEffect(() => {
-        onValueChange(searchStartTime);
-    }, [searchStartTime]);
+        if (type === "date-duration"){
+            onValueChange({startTime: searchStartTime, endTime:searchEndTime});
+        }else{
+            onValueChange(searchStartTime)
+        }
+
+    }, [searchStartTime, searchEndTime]);
+
 
     // 체크박스, 주민번호 상태 업데이트
     useEffect(() => {
@@ -159,10 +166,11 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
 
     const containerStyle = {
         gridColumn: span === 'full' ? 'span 2' : 'auto',
-        padding: '10px',
-        // height: '86px'
+        padding: '0px',
+        // height: '100%',
         display: "flex",
-        alignItems: "center"
+        alignItems: "center",
+        border:"0px"
     };
 
     return (
@@ -338,7 +346,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                 ): type === "html" ? (
                     editMode ? (
                         <textarea name="" id=""
-                            style={{ width: "100%", height: "20rem", marginTop: "0.5rem", padding: "0.5rem" }}
+                            style={{ width: "100%", height: "44vh", marginTop: "0.5rem", padding: "0.5rem" }}
                             value={value}
                             onChange={inputChangeHandler}>
                         </textarea>
@@ -365,6 +373,40 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                     ) : (
                         <div className="grid-input">
                             {value}
+                        </div>
+                    )
+                ) : type === 'date-duration' ? (
+                    editMode ? (
+                        <div style={{height: "40px", display: "flex", alignItems: "center" }}>
+                            <DateInput 
+                                time={searchStartTime} 
+                                setTime={setSearchStartTime} 
+                                dateInputStyle={{margin: "0px"}}
+                                calendarPopupStyle={{
+                                    position: "fixed",
+                                    top: "50%",
+                                    left: "50%",
+                                    transform: "translate(-50%, -50%)",
+                                    zIndex: 1000,
+                                }}
+                            ></DateInput>
+                            {"\u00a0~\u00a0"} 
+                            <DateInput 
+                                time={searchEndTime} 
+                                setTime={setSearchEndTime} 
+                                dateInputStyle={{margin: "0px"}}
+                                calendarPopupStyle={{
+                                    position: "fixed",
+                                    top: "50%",
+                                    left: "50%",
+                                    transform: "translate(-50%, -50%)",
+                                    zIndex: 1000,
+                                }}
+                            ></DateInput>
+                        </div>
+                    ) : (
+                        <div className="grid-input">
+                            {value.startTime} ~ {value.endTime}
                         </div>
                     )
                 ) : type === 'radio' ? (

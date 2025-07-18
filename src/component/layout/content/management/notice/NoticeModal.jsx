@@ -54,6 +54,7 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
 
     // "복사" 버튼 클릭 시 현재 데이터 반환
     const handleCopy = () => {
+
         copyBtnClick(formData);
     }
 
@@ -64,7 +65,7 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
             const updatedData = prevFormData.map((item, idx) =>
               idx === index ? { ...item, value: newValue } : item
             );
-        
+
             // 체크박스에 의존된 Input컴포넌트 숨김/보이기 처리
             const changedItem = prevFormData[index];
             if (changedItem && changedItem.triggerHideId) {
@@ -112,6 +113,11 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
         }
     }
 
+    const reload = () => {
+        // () => setIsDeleteModal(false)
+        navigator(0);
+    }
+
     // detailData가 변경될 때 상태를 업데이트 (최초 데이터 저장)
     useEffect(() => {
         if (detailData && detailData.length > 0) {
@@ -141,6 +147,7 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
         }
     }, [detailData]);
 
+    // 모달 오픈 시 스크롤
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
@@ -151,6 +158,8 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
 
     }, [isOpen]);
 
+
+    // 모드 변경
     useEffect(() => {
         if (gridMode === "SAVE" || gridMode === "EDIT" || gridMode === "COPY") {
             setIsEdit(true);
@@ -159,6 +168,7 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
         }
     }, [gridMode]);
 
+    // 모달 오픈 시 스크롤
     useEffect(() => {
             if (isOpen) {
                 document.body.style.overflow = "hidden";
@@ -188,7 +198,7 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
                 confirm={"예"}
                 cancel={"아니오"}
                 fncConfirm={handleRemove}
-                fncCancel={() => setIsDeleteModal(false)}
+                fncCancel={reload}
             />
             {isOpen ? (
                 <div style={overlayStyle}>
@@ -262,33 +272,29 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
                                             <div className="my-2 p-3 form-control">
 
                                                 <div className="row">
-                                                    <div className="col-md-2 fw-bold">제목</div>
-                                                    <div className="col-md-10">{data.title}</div>
+                                                    <div className="col-md-1 fw-bold">제목</div>
+                                                    <div className="col-md-7">{data.title}</div>
+                                                    <div className="col-md-1 fw-bold">상시공지</div>
+                                                    <div className="col-md-2">{data.is_important}</div>
                                                 </div>
                                                 <div className="row mt-2">
-                                                <div className="col-md-2 fw-bold">지역</div>
+                                                <div className="col-md-1 fw-bold">프로젝트</div>
+                                                <div className="col-md-7">{data.job_name}</div>
+                                                <div className="col-md-1 fw-bold">지역</div>
                                                 <div className="col-md-3">{data.job_loc_name}</div>
-                                                <div className="col-md-2 fw-bold">프로젝트</div>
-                                                <div className="col-md-5">{data.job_name}</div>
                                                 </div>
                                                 <div className="row mt-2">
-                                                <div className="col-md-2 fw-bold">등록자</div>
+                                                    <div className="col-md-1 fw-bold">게시일</div>
+                                                    <div className="col-md-4">{dateUtil.format(data.posting_start_date, "yyyy-MM-dd")} ~ {dateUtil.format(data.posting_end_date, "yyyy-MM-dd")}</div>
+                                                    <div className="col-md-1 fw-bold">수정일</div>
+                                                    <div className="col-md-2">{dateUtil.format(data.mod_date, "yyyy-MM-dd")}</div>                                 
+                                                    <div className="col-md-1 fw-bold">등록자</div>
                                                     <div className="col-md-3">{data.user_info}</div>
-                                                    <div className="col-md-2 fw-bold">게시일</div>
-                                                    <div className="col-md-3">{dateUtil.format(data.posting_start_date, "yyyy-MM-dd")} ~ {dateUtil.format(data.posting_end_date, "yyyy-MM-dd")}</div>
-                                                    </div>
-                                                    <div className="row mt-2">        
-                                                    <div className="col-md-2 fw-bold">중요공지여부</div>
-                                                    <div className="col-md-3">{data.is_important}</div>
-                                                    <div className="col-md-2 fw-bold">수정일</div>
-                                                    <div className="col-md-3">{dateUtil.format(data.mod_date, "yyyy-MM-dd")}</div>                                 
                                                 </div>
                                             </div>
 
-                                            <div className="my-3 p-3 form-control" dangerouslySetInnerHTML={{ __html: 
-                                                `<div className="overflow-auto Scrollbar" style=height:50vh padding: 0.5rem>
-                                                ${data.content}
-                                            </div>` }}>
+                                            <div className="my-3 p-3 form-control overflow-auto Scrollbar" style={{padding: '0.5rem', height:"45vh"}} dangerouslySetInnerHTML={{ __html:data.content
+                                             }}>
                                             </div>
                                             
                                             </div> 
@@ -334,13 +340,13 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
 
 const gridStyle = {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',  // 한 행에 두 개의 열
-    gap: '10px',  // 요소 간의 간격 설정
+    gridTemplateColumns: '5fr 1fr',  // 한 행에 두 개의 열
+    gap: '1rem',  // 요소 간의 간격 설정
     border: '2px solid #a5a5a5',
     borderRadius: '10px',
     padding: '10px',
     width: '100%', 
-    // height: 'calc(100% - 60px)',  // 버튼과 라디오 영역을 제외한 높이
+    // height: '95%',
     overflowX: 'auto',            // 가로 스크롤
     overflowY: 'auto',            // 세로 스크롤
     marginTop: "5px",
@@ -365,7 +371,7 @@ const modalStyle = {
     borderRadius: '8px',
     maxWidth: '1200px',
     width: '95%',
-    height: 'auto',
+    height: '70vh',
     maxHeight: '90vh',
     boxShadow: '15px 15px 1px rgba(0, 0, 0, 0.3)',
     margin: '10px',

@@ -37,7 +37,7 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
     /** 추가 데이터 **/
     const [formData, setFormData] = useState([]);
     /** 추가 종류 선택 **/
-    const [addType, setAddType] = useState("REST");
+    const [addType, setAddType] = useState("JOB");
     /** 로딩 **/
     const [isLoading, setIsLoading] = useState(false);
     /** select **/
@@ -105,7 +105,7 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
     useEffect(() => {
         if(isOpen){ 
             // 추가 기본타입
-            setAddType("REST");
+            setAddType("JOB");
             // 프로젝트
             if(project !== null){
                 onChangeFormData("jno", project.jno);
@@ -214,7 +214,7 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                                         <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>종류</label>
                                         <div style={{ flex: 1 }}>
                                             <div style={{height: "40px", display: "flex", alignItems: "center", width: "100%" }}>
-                                                <RadioInput itemName={"schedule"} selectedValue={addType} values={["REST", "JOB"]} labels={["휴무일", "작업내용"]} setRadio={(value) => setAddType(value)}/>
+                                                <RadioInput itemName={"schedule"} selectedValue={addType} values={["JOB", "REST"]} labels={["작업내용", "휴무일"]} setRadio={(value) => setAddType(value)}/>
                                             </div>
                                         </div>
                                     </div>
