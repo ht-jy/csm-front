@@ -56,7 +56,7 @@ const Total = () => {
     });
 
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, setIsProject } = useAuth();
 
     // 로딩
     const [isLoading, setIsLoading] = useState(false);
@@ -257,6 +257,12 @@ const Total = () => {
 
         // getProjectData();
     }, []);
+
+    // 상단의 project 표시 여부 설정: 미표시
+    useEffect(() => {
+        setIsProject(false);
+    }, [])
+
     return (
         <div>
             <Loading isOpen={isLoading} />

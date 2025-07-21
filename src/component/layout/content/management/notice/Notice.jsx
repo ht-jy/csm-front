@@ -47,7 +47,7 @@ const Notice = () => {
     });
 
     const navigate = useNavigate();
-    const { user, project, jobRole } = useAuth();
+    const { user, project, jobRole, setIsProject } = useAuth();
     const { isRoleValid } = useUserRole();
     const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(20);
 
@@ -134,6 +134,11 @@ const Notice = () => {
             getNotices();
         }
     }, [isDetail, project])
+
+    // 상단의 project 표시 여부 설정: 표시
+    useEffect(() => {
+            setIsProject(true);
+        }, [])
 
     return (
         <div>

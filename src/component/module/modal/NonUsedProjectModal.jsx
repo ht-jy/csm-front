@@ -7,24 +7,31 @@ import useTableSearch from "../../../utils/hooks/useTableSearch";
 import Search from "../search/Search";
 import Button from "../Button";
 import Exit from "../../../assets/image/exit.png";
+import Radio from "../Radio";
 
 /**
  * @description: 현장근태에 등록되지 않은 프로젝트를 조회하기 위한 모달. 현장추가를 할때 사용되고 있음.
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-03-31
- * @modified 최종 수정일: 
- * @modifiedBy 최종 수정자: 
+ * @modified 최종 수정일: 2025-07-21
+ * @modifiedBy 최종 수정자: 정지영
+ * @modified Description
+ * 2025-07-21: 프로젝트 코드별 라디오버튼 추가 
+ * 
  * @usedComponents
  * - 
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /project/non-reg (현장근태에 등록되지 않은 프로젝트 조회)
+ *    Http Method - GET : /project/non-reg (현장근태에 등록되지 않은 프로젝트 조회), /project/non-reg/{type} (현장근태에 등록되지 않은 프로젝트 조회)
  */
 const NonUsedProjectModal = ({isOpen=false, fncExit, onClickRow}) => {
 
+    // 라디오버튼에 따라 데이터 저장
     const [data, setData] = useState([]);
+    const [selectedValue, setSelectedValue] = useState("1");
+
     const [count, setCount] = useState(0);
 
     const columns = useMemo(() => [
@@ -47,6 +54,14 @@ const NonUsedProjectModal = ({isOpen=false, fncExit, onClickRow}) => {
 
     const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder, rnumOrder, setRnumOrder, retrySearchText, setRetrySearchText } = useTableControlState(10);
 
+    // 라디오 버튼 클릭
+    const handleRadioChange = (event) => {
+        setSelectedValue(event.target.value);
+        setPageNum(1);
+        handleSearchInit();
+ 
+    }
+
     // 종료 이벤트
     const handleExitScrollUnset = (e) => {
         document.body.style.overflow = 'unset';
@@ -60,14 +75,37 @@ const NonUsedProjectModal = ({isOpen=false, fncExit, onClickRow}) => {
     }
 
     // 프로젝트 조회
-    const getData = async () => {
+    /* E: 설계, P: 구매, C: 공사, T: EPC전체(TurnKey) */
+    const getData = (value) => {
+        if(value === "1"){ // 전체
+            getAllData();
+        }else if (value === "2") { // T
+            getFilterData("T");
+        } else if (value === "3") { // C
+            getFilterData("C");
+        }
+    }
+
+    // 모든 데이터 조회
+    const getAllData = async () => {
         const res = await Axios.GET(`/project/non-reg?page_num=${pageNum}&row_size=${rowSize}&order=${order}&rnum_order=${rnumOrder}&retry_search=${retrySearchText}&jno=${searchValues.jno}&job_no=${searchValues.job_no}&job_name=${searchValues.job_name}&job_year=${searchValues.job_year}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&job_pm_nm=${searchValues.job_pm_nm}`);
-        
+
         if (res?.data?.result === "Success") {
             setData(res?.data?.values?.list);
             setCount(res?.data?.values?.count);
         }
     };
+
+    // T or E 데이터만 조회
+    const getFilterData = async (type) => {
+        const res = await Axios.GET(`/project/non-reg/${type}?page_num=${pageNum}&row_size=${rowSize}&order=${order}&rnum_order=${rnumOrder}&retry_search=${retrySearchText}&jno=${searchValues.jno}&job_no=${searchValues.job_no}&job_name=${searchValues.job_name}&job_year=${searchValues.job_year}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&job_pm_nm=${searchValues.job_pm_nm}`);
+
+        if (res?.data?.result === "Success") {
+            setData(res?.data?.values?.list);
+            setCount(res?.data?.values?.count);
+        }
+
+    }
 
     const {
         searchValues,
@@ -81,10 +119,9 @@ const NonUsedProjectModal = ({isOpen=false, fncExit, onClickRow}) => {
         handleTableSearch,
         handleSearchChange,
         handleSortChange,
-    } = useTableSearch({ columns, getDataFunction: getData, retrySearchText, setRetrySearchText, pageNum, setPageNum, rowSize, setRowSize, order, setOrder, rnumOrder, setRnumOrder });
+    } = useTableSearch({ columns, getDataFunction: getData, getDataValue: selectedValue, retrySearchText, setRetrySearchText, pageNum, setPageNum, rowSize, setRowSize, order, setOrder, rnumOrder, setRnumOrder });
 
     /***** useEffect *****/
-
     useEffect(() => {
         if(isOpen !== undefined && isOpen){
             setRetrySearchText("");
@@ -127,7 +164,10 @@ const NonUsedProjectModal = ({isOpen=false, fncExit, onClickRow}) => {
                     </div>
 
                     <div className="table-header">
-                        <div className="table-header-left" style={{gap:"10px"}}>
+                        <div className="table-header-left" style={{gap:"1rem", marginLeft:"1rem"}}>
+                            <Radio text="전체(ALL)" value="1" name="group1" defaultChecked={selectedValue === "1"} onChange={handleRadioChange}/>
+                            <Radio text="EPC(T)" value="2" name="group1" defaultChecked={selectedValue === "2"} onChange={handleRadioChange}/>
+                            <Radio text="공사(C)" value="3" name="group1" defaultChecked={selectedValue === "3"} onChange={handleRadioChange}/>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: "right", marginTop: "5px", marginBottom: "5px", height: "40px" }}>
                             {

@@ -54,7 +54,7 @@ import { Common } from '../../../../../utils/Common';
  */
 const Schedule = () => {
     const navigate = useNavigate();
-    const { project, user } = useAuth();
+    const { project, user, setIsProject } = useAuth();
 
     const [isLoading, setIsLoading] = useState(false);
     /** 선택한 연, 월 **/
@@ -724,6 +724,11 @@ const Schedule = () => {
         getRestData();
         getDailyJobData();
     }, [currentYear, currentMonth, project]);
+
+    // 상단의 project 표시 여부 설정: 표시
+    useEffect(() => {
+        setIsProject(true);
+    }, [])
 
     return(
         <div>

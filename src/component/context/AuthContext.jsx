@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }) => {
     const [projectName, setProjectName] = useState("");
     const [jobRole, setJobRole] = useState(null);
     const [userRole, setUserRole]= useState([]);
+    const [isProject, setIsProject] = useState(true);
 
     const fetchToken = async () => {
         try {
@@ -59,7 +60,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, isLoading, user, fetchToken, project, setProject, projectName, setProjectName, jobRole, setJobRole, userRole, setUserRole }}>
+        <AuthContext.Provider value={{ isAuthenticated, isLoading, user, fetchToken, project, setProject, projectName, setProjectName, jobRole, setJobRole, userRole, setUserRole, isProject, setIsProject }}>
             {children}
         </AuthContext.Provider>
     );

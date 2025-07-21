@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
-import Loading from "../../../../module/Loading";
 import { Common } from "../../../../../utils/Common";
+import { useAuth } from "../../../../context/AuthContext";
 import Button from "../../../../module/Button";
-
 /**
  * @description: 현장에 들어오는 장비 조회 및 관리를 위한 페이지. 현재 현장에서 임시로 보이도록 만든 상태 
  * 
@@ -24,7 +23,7 @@ import Button from "../../../../module/Button";
  */
 const Equip = () => {
     const [temp, setTemp] = useState([]);
-    
+    const {setIsProject} = useAuth();
     const [isLoading, setIsLoading] = useState(false);
 
     const handleInputChange = (idx, e) => {
@@ -70,12 +69,17 @@ const Equip = () => {
         getData();
     }, []);
 
+    // 상단의 project 표시 여부 설정: 표시
+    useEffect(() => {
+        setIsProject(true);
+    }, [])
+
     return(
         <div>
             {
                 temp.map((item, idx) => (
                     <div style={{display: "flex", height: "20px", margin: "10px"}}>
-                        <div key={`job${idx}`} style={{width: "400px"}}>{item.job_name}</div>
+                        <div key={`job${idx}`} style={{width: "500px"}}>{item.job_name}</div>
                         <input type="text" value={Common.formatNumber(item.cnt)} onChange={(e) => handleInputChange(idx, e)}/>
                     </div>
                 ))

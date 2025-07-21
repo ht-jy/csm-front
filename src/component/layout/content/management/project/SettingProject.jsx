@@ -39,7 +39,7 @@ import TextInput from "../../../../module/TextInput.jsx";
  * - 주요 상태 관리: SettingProjectReducer
  */
 const SettingProject = () => {
-    const {project, user} = useAuth();
+    const {project, user, setIsProject} = useAuth();
     const navigate = useNavigate();
     
     const [state, dispatch] = useReducer(SettingProjectReducer, {
@@ -533,6 +533,11 @@ const SettingProject = () => {
         }
 
     }, [project?.jno]);
+
+    // 상단의 project 표시 여부 설정: 표시
+    useEffect(() => {
+        setIsProject(true);
+    }, [])
 
     return(
         <div className="container-fluid px-4">

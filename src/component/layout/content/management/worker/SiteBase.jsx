@@ -56,7 +56,7 @@ const SiteBase = () => {
     })
 
     const navigate = useNavigate();
-    const { user, project } = useAuth();
+    const { user, project, setIsProject } = useAuth();
     const tableRef = useRef();
     const excelRefs = useRef({});
 
@@ -1035,6 +1035,11 @@ const SiteBase = () => {
             setIsEditTable(false);
         }
     }, [editList]);
+
+    // 상단의 project 표시 여부 설정: 표시
+    useEffect(() => {
+        setIsProject(true);
+    }, [])
 
     return(
         <div>

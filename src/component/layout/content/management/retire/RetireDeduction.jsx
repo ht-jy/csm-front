@@ -1,8 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
 import useExcelUploader from "../../../../../utils/hooks/useExcelUploader";
 import Button from "../../../../module/Button";
 import Modal from "../../../../module/Modal";
+import { useAuth } from "../../../../context/AuthContext";
 
 /**
  * @description: 퇴직공제 데이터 조회
@@ -19,6 +20,8 @@ import Modal from "../../../../module/Modal";
  *    Http Method - POST : /excel/export/daily-deduction (일간퇴직공제 excel export), /excel/import/deduction (퇴직공제 excel import)
  */
 const RetireDeduction = () => {
+    const {setIsProject} = useAuth();
+
     const [isOpen, setIsOpen] = useState(false);
 
     /** 엑셀 hidden input  **/
@@ -96,6 +99,11 @@ const RetireDeduction = () => {
         const res = await handleSelectAndUpload("/excel/import/deduction", e);
         
     }
+
+    // 상단의 project 표시 여부 설정: 미표시
+    useEffect(() => {
+        setIsProject(false);
+    }, [])
 
     return(
         <div>
