@@ -128,11 +128,11 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, onClickRow}) => {
 
     // 데이터 조회 분기
     const getData = (value) => {
-        if(value == "1"){
+        if(value === "1"){
             getUsedData();
-        }else if(value == "2"){
+        }else if(value === "2"){
             getStaffData();
-        }else if(value == "3"){
+        }else if(value === "3"){
             getAllData();
         }
     }
@@ -190,7 +190,7 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, onClickRow}) => {
                                 <div style={{ display: 'flex', alignItems: 'center', borderRadius: "5px", padding: "0px", marginTop: "5px" }}>
                                     <div style={{marginLeft: "auto"}}>
                                         {
-                                            isSearchInit || order != "" ? <Button text={"초기화"} onClick={handleSearchInit}/> : null
+                                            isSearchInit || order !== "" ? <Button text={"초기화"} onClick={handleSearchInit}/> : null
                                         }
                                     </div>
                                 </div>
@@ -204,7 +204,7 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, onClickRow}) => {
 
                                     <div style={{marginLeft: "auto"}}>
                                         {
-                                            isSearchInit || order != "" ? <Button text={"초기화"} onClick={handleSearchInit}/> : null
+                                            isSearchInit || order !== "" ? <Button text={"초기화"} onClick={handleSearchInit}/> : null
                                         }
                                     </div>
                                 </div>
