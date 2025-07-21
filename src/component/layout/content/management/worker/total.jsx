@@ -112,8 +112,9 @@ const Total = () => {
         }
         
         const worker = {
-            sno: item.project.sno || 0,
-            jno: item.project.jno || 0,
+            sno: item.sno || 0,
+            jno: item.jno || 0,
+            user_key: item.user_key || "",
             user_id: item.user_id || "",
             user_nm: item.user_nm || "",
             department: item.department || "",
@@ -134,6 +135,8 @@ const Total = () => {
         try {
             let res;
             if (detailMode === "SAVE") {
+                worker.sno = item.project.sno;
+                worker.jno = item.project.sno;
                 res = await Axios.POST(`/worker/total`, worker);
             } else {
                 res = await Axios.PUT(`/worker/total`, worker);
@@ -279,7 +282,7 @@ const Total = () => {
                 funcModeSet={handleModeSet}
                 editBtn={true}
                 removeBtn={false}
-                title={`근로자 관리 ${getModeString()}`}
+                title={`근로자 ${getModeString()}`}
                 exitBtnClick={handleExitBtnClick}
                 detailData={detailData}
                 selectList={state.selectList}
