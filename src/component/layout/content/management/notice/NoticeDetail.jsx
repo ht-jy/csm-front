@@ -252,14 +252,6 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
         }
     }
 
-    // 요청 확인을 한 후 재로드. 트랜잭션 문제 임시방편
-    const reload = () => {
-        // () => setIsOpenModal(false)
-        // setIsOpenModal(false)
-        navigate(0);
-
-    }
-
     // [GridModal] 모드 변경 시
     useEffect(() => {
         if (gridMode === "EDIT" ) {
@@ -285,7 +277,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
                 title={isValidation ? (isMod ? "요청 성공" : "요청 실패") : "입력 오류"}
                 text={isValidation ? (isMod ? "성공하였습니다." : "실패하였습니다.") : modalText}
                 confirm={"확인"}
-                fncConfirm={reload}
+                fncConfirm={() => setIsOpenModal(false)}
             />
              <NoticeModal
                 data={noticeData}
