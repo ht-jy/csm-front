@@ -16,10 +16,10 @@ import Modal from "../../../../module/Modal";
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-04-28
- * @modified 최종 수정일: 
- * @modifiedBy 최종 수정자: 
- * @usedComponents
- * - 
+ * @modified 최종 수정일: 2025-07-22 
+ * @modifiedBy 최종 수정자: 정지영
+ * 2025-07-22: props에 jobjno추가
+ * 
  * 
  * @additionalInfo
  * - props
@@ -28,8 +28,9 @@ import Modal from "../../../../module/Modal";
  * exitBtnClick: 모달 닫기 함수
  * restSaveBtnClick: 휴무일 저장 함수
  * jobSaveBtnClick: 작업내용 저장 함수
+ * jobjno: 프로젝트 기본 설정에 사용(기본값 0)
  */
-const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, jobSaveBtnClick }) => {
+const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, jobSaveBtnClick, jobjno = 0 }) => {
     const navigate = useNavigate();
     const { project} = useAuth();
     /** 프로젝트 **/
@@ -110,7 +111,7 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
             if(project !== null){
                 onChangeFormData("jno", project.jno);
             }else{
-                onChangeFormData("jno", 0);
+                onChangeFormData("jno", jobjno);
             }
             // 선택날짜
             if(clickDate !== null){

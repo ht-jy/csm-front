@@ -541,7 +541,7 @@ const Site = () => {
             />
             {
                 isDetail &&
-                <SiteContext.Provider value={{getData, setIsDetail, setIsNonUseChecked, isNonUseChecked}}>
+                <SiteContext.Provider value={{getData, setIsDetail, setIsNonUseChecked, isNonUseChecked, selectedDate}}>
                     <DetailModal
                         isOpen={isDetail}
                         setIsOpen={setIsDetail}

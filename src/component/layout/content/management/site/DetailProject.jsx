@@ -1,27 +1,46 @@
-import { useState, useEffect } from "react";
-import { dateUtil } from "../../../../../utils/DateUtil";
-import Organization from "../../../../../assets/image/organization_chart.png";
-import OrganizationModal from "../../../../module/modal/OrganizationModal";
-import Button from "../../../../module/Button";
 import Slider from "rc-slider";
 import 'rc-slider/assets/index.css';
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Organization from "../../../../../assets/image/organization_chart.png";
+import { Axios } from "../../../../../utils/axios/Axios";
 import { Common } from "../../../../../utils/Common";
-
+import { dateUtil } from "../../../../../utils/DateUtil";
+import { useAuth } from "../../../../context/AuthContext";
+import SiteContext from "../../../../context/SiteContext";
+import Button from "../../../../module/Button";
+import Loading from "../../../../module/Loading";
+import Modal from "../../../../module/Modal";
+import OrganizationModal from "../../../../module/modal/OrganizationModal";
+import AddDetailSchedule from "../schedule/AddDetailSchedule";
 /**
  * @description: 프로젝트 상세 컴포넌트
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-03-04
- * @modified 최종 수정일: 
- * @modifiedBy 최종 수정자: 
+ * @modified 최종 수정일: 2025-07-22
+ * @modifiedBy 최종 수정자: 정지영 
+ * 2025-07-22: 작업 내용 및 휴무일 컴포넌트 추가 <AddDetailSchedule ... />
+ * 
  * @usedComponents
  * - dateUtil: 날짜 포맷
  * 
  */
 const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickDeleteBtn, handleChangeValue}) => {
+
     const [isOrganizationOpen, setIsOrganizationOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isModal, setIsModal] = useState(false);
+    const [modalTitle, setModalTitle] = useState(false);
+    const [modalText, setModalText] = useState(false);
+
+    const { getData, selectedDate } = useContext(SiteContext);
+    const { user } = useAuth();
+    const navigate = useNavigate();
+
     /** 슬라이더 **/
     const [sliderValue, setSliderValue] = useState(0);
+    const [isAddSchedule, setIsAddSchedule] = useState(false);
 
     // 슬라이더 변경 이벤트
     const onChangeSliderValue = (value) => {
@@ -42,11 +61,6 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
         }
         return title;
     }
-
-    /***** useEffect *****/
-    useEffect(() => {
-        setSliderValue(data.work_rate);
-    }, []);
     
     // pe 리스트
     const peTextJoin = () => {
@@ -55,21 +69,153 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
             data?.project_pe_list.map(item => list.push(item.name));
             return list.join(", ");
         }
-        return "-"
+        return "-";
     }
 
     // 조직도 열기
     const onClickOrganization = () => {
-        setIsOrganizationOpen(true)
+        setIsOrganizationOpen(true);
     }
-    
+
+    /***** schedule *****/
+    // 작업 추가 모달 열기
+    const onClickAddSchedule = () => {
+        setIsAddSchedule(true);
+    }
+
+    // 시작 ~ 종료 날짜 기간 ("YYYY-MM-DD")
+    const getDatesBetween = (startDateStr, endDateStr) => {
+        const dates = [];
+        const start = new Date(startDateStr);
+        const end   = new Date(endDateStr);
+      
+        // 현재 날짜를 start 날짜 복사본으로 초기화
+        let current = new Date(start);
+      
+        // current가 end보다 작거나 같을 때까지 반복
+        while (current <= end) {
+          // YYYY-MM-DD 형식으로 맞춰서 push
+          const yyyy = current.getFullYear();
+          const mm   = String(current.getMonth() + 1).padStart(2, '0');
+          const dd   = String(current.getDate()).padStart(2, '0');
+          dates.push(`${yyyy}-${mm}-${dd}`);
+      
+          // 하루를 더한다
+          current.setDate(current.getDate() + 1);
+        }
+      
+        return dates;
+    }
+
+    // 휴무일 저장
+    const onClicklRestSave = async(item) => {
+        const rests = [];
+        const rest = {
+            jno: item.jno,
+            is_every_year: item.is_every_year,
+            rest_year: item.date.split("-")[0],
+            rest_month: item.date.split("-")[1],
+            rest_day: item.date.split("-")[2],
+            reason: item.reason,
+            reg_uno: user.uno,
+            reg_user: user.userName
+        }
+        if(item.is_period === "Y"){
+            const dates = getDatesBetween(item.date, item.period_date);
+            dates.map(date => {
+                rests.push({...rest, rest_year:date.split("-")[0], rest_month: date.split("-")[1], rest_day: date.split("-")[2]});
+            });
+        }else{
+            rests.push(rest);
+        }
+        
+        setIsLoading(true);
+        try {
+            const res = await Axios.POST(`/schedule/rest`, rests);
+            
+            if (res?.data?.result === "Success") {
+                getData();
+                setModalText("휴무일 추가에 성공하였습니다.");
+                setIsAddSchedule(false);
+            }else{
+                setModalText("휴무일 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+            }
+            setModalTitle("휴무일");
+            setIsModal(true);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    // 작업내용 저장
+    const onClickJobSave = async(item) => {
+        const jobs = [];
+        const job = {
+            jno: item.jno,
+            content: item.reason,
+            targetDate: dateUtil.parseToGo(item.date),
+            reg_uno: user.uno,
+            reg_user: user.userName
+        }
+        if(item.is_period === "Y"){
+            const dates = getDatesBetween(item.date, item.period_date);
+            dates.map(date => {
+                jobs.push({...job, targetDate:dateUtil.parseToGo(date)});
+            });
+        }else{
+            jobs.push(job);
+        }
+        
+        setIsLoading(true);
+        try {
+            const res = await Axios.POST(`/schedule/daily-job`, jobs);
+            
+            if (res?.data?.result === "Success") {
+                getData();
+                setModalText("작업내용 추가에 성공하였습니다.");
+                setIsAddSchedule(false);
+            }else{
+                setModalText("작업내용 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+            }
+            setModalTitle("작업내용");
+            setIsModal(true);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    /***** useEffect *****/
+    useEffect(() => {
+        setSliderValue(data.work_rate);
+    }, []);
+
     return(
         <div className="grid-project">
+            <Loading isLoading={isLoading}></Loading>
+            <Modal 
+                isOpen={isModal}
+                title={modalTitle}
+                text={modalText}
+                confirm={"확인"}
+                fncConfirm={() => setIsModal(false)}
+            />
             <OrganizationModal 
                 isOpen={isOrganizationOpen}
                 fncExit={() => setIsOrganizationOpen(false)}
                 type={"detail"}
                 projectNo={data?.jno}
+            />
+            <AddDetailSchedule
+                isOpen={isAddSchedule}
+                clickDate={new Date(selectedDate)}
+                exitBtnClick={() => setIsAddSchedule(false)}
+                restSaveBtnClick={onClicklRestSave}
+                jobSaveBtnClick={onClickJobSave}
+                jobjno={data?.jno}
             />
             {/* 첫 번째 열 */}
             <div className="form-control grid-project-bc" style={{ gridColumn: "1 / span 2", gridRow: "1", border: "none" }}>
@@ -78,9 +224,12 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                     {isEdit ? 
                         !isMain && <Button text={"삭제"} style={{marginLeft: "auto"}} onClick={() => onClickDeleteBtn(data.jno)}/>
                     :
-                        <div className="grid-project-organization-container" onClick={onClickOrganization}>
-                            <img src={Organization} style={{width: "20px"}}/>
-                        </div>
+                        <>
+                            <Button style ={{marginLeft : "auto"}} text={"작업추가"} onClick={() => onClickAddSchedule()}></Button>
+                            <div className="grid-project-organization-container" onClick={onClickOrganization}>
+                                <img src={Organization} style={{width: "20px"}}/>
+                            </div>
+                        </>
                     }
                 </div>
                 
