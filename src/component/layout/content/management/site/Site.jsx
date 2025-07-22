@@ -396,6 +396,7 @@ const Site = () => {
             
             if (res?.data?.result === "Success") {
                 dispatch({ type: "INIT", site: res?.data?.values?.site, code: res?.data?.values?.code });
+                setIsDetail(false)
             }
         } catch(err) {
             navigate("/error");

@@ -6,6 +6,7 @@ import Organization from "../../../../../assets/image/organization_chart.png";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { Common } from "../../../../../utils/Common";
 import { dateUtil } from "../../../../../utils/DateUtil";
+import { ObjChk } from "../../../../../utils/ObjChk";
 import { useAuth } from "../../../../context/AuthContext";
 import SiteContext from "../../../../context/SiteContext";
 import Button from "../../../../module/Button";
@@ -13,6 +14,8 @@ import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
 import OrganizationModal from "../../../../module/modal/OrganizationModal";
 import AddDetailSchedule from "../schedule/AddDetailSchedule";
+import DetailSchedule from "../schedule/DetailSchedule";
+
 /**
  * @description: 프로젝트 상세 컴포넌트
  * 
@@ -38,6 +41,12 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
     const { user } = useAuth();
     const navigate = useNavigate();
 
+    // 작업내용 상세 모달
+    const [isClickDateRest, setIsClickDateRest] = useState(false);
+    const [clickRestDates, setClickRestDates] = useState([]); /** 해당 날짜 공휴일, 휴무일 **/
+    const [clickDailyJobs, setClickDailyJobs] = useState([]); /** 해당 날짜 작업 내용 **/
+    const [isScheduleModal, setIsScheduleModal] = useState(false); /** 상세 모달 **/
+
     /** 슬라이더 **/
     const [sliderValue, setSliderValue] = useState(0);
     const [isAddSchedule, setIsAddSchedule] = useState(false);
@@ -48,7 +57,6 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
         setSliderValue(formatValue);
         handleChangeValue("work_rate", data.jno, formatValue);
     }
-
     
     // 프로젝트 제목
     const projectTitle = () => {
@@ -77,7 +85,69 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
         setIsOrganizationOpen(true);
     }
 
-    /***** schedule *****/
+     /***** Schedule 상세 모달 *****/
+        const onClickScheduleOpen = (item) => {
+            const date = ObjChk.all(selectedDate) ? new Date() : new Date(selectedDate)
+            // setIsClickDateRest(isRest(date));
+            // setClickRestDates(getIsSameDates(date));
+            setClickDailyJobs(item);
+            setIsScheduleModal(true);
+        }
+    
+        // 작업내용 수정
+        const onClickDailyJobModify = async(item) => {
+            setIsLoading(true);
+            try {
+                const job = {
+                    idx: item.idx,
+                    jno: item.jno,
+                    targetDate: dateUtil.parseToGo(item.date),
+                    content: item.content,
+                    mod_uno: user.uno,
+                    mod_user: user.userName
+                }
+            
+                const res = await Axios.PUT(`/schedule/daily-job`, job);
+                
+                if (res?.data?.result === "Success") {
+                    getData();
+                    setModalText("작업내용 수정에 성공하였습니다.");
+                    setIsScheduleModal(false);
+                    
+                }else{
+                    setModalText("작업내용 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                }
+                setModalTitle("작업내용");
+                setIsModal(true);
+            } catch(err) {
+                navigate("/error");
+            } finally {
+                setIsLoading(false);
+            }
+        }
+    
+        // 작업내용 삭제
+        const onClickDailyJobRemove = async(item) => {
+            setIsLoading(true);
+            try {
+                const res = await Axios.DELETE(`/schedule/daily-job/${item.idx}`);
+                if (res?.data?.result === "Success") {
+                    getData();
+                    setModalText("작업내용 삭제에 성공하였습니다.");
+                    setIsScheduleModal(false);
+                }else{
+                    setModalText("작업내용 삭제에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                }
+                setModalTitle("작업내용");
+                setIsModal(true);
+            } catch(err) {
+                navigate("/error");
+            } finally {
+                setIsLoading(false);
+            }
+        }
+    
+    /***** Schedule 추가 *****/
     // 작업 추가 모달 열기
     const onClickAddSchedule = () => {
         setIsAddSchedule(true);
@@ -105,48 +175,6 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
         }
       
         return dates;
-    }
-
-    // 휴무일 저장
-    const onClicklRestSave = async(item) => {
-        const rests = [];
-        const rest = {
-            jno: item.jno,
-            is_every_year: item.is_every_year,
-            rest_year: item.date.split("-")[0],
-            rest_month: item.date.split("-")[1],
-            rest_day: item.date.split("-")[2],
-            reason: item.reason,
-            reg_uno: user.uno,
-            reg_user: user.userName
-        }
-        if(item.is_period === "Y"){
-            const dates = getDatesBetween(item.date, item.period_date);
-            dates.map(date => {
-                rests.push({...rest, rest_year:date.split("-")[0], rest_month: date.split("-")[1], rest_day: date.split("-")[2]});
-            });
-        }else{
-            rests.push(rest);
-        }
-        
-        setIsLoading(true);
-        try {
-            const res = await Axios.POST(`/schedule/rest`, rests);
-            
-            if (res?.data?.result === "Success") {
-                getData();
-                setModalText("휴무일 추가에 성공하였습니다.");
-                setIsAddSchedule(false);
-            }else{
-                setModalText("휴무일 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
-            }
-            setModalTitle("휴무일");
-            setIsModal(true);
-        } catch(err) {
-            navigate("/error");
-        } finally {
-            setIsLoading(false);
-        }
     }
 
     // 작업내용 저장
@@ -188,9 +216,18 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
         }
     }
 
+    const initDataTrans = () => {
+        if (!Array.isArray(data?.daily_content_list)) return;
+
+        data.daily_content_list.forEach(item => { 
+            item.date = new Date(item.targetDate);
+        })
+
+    }
     /***** useEffect *****/
     useEffect(() => {
         setSliderValue(data.work_rate);
+        initDataTrans();
     }, []);
 
     return(
@@ -213,9 +250,23 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                 isOpen={isAddSchedule}
                 clickDate={new Date(selectedDate)}
                 exitBtnClick={() => setIsAddSchedule(false)}
-                restSaveBtnClick={onClicklRestSave}
+                restSaveBtnClick={() => {}}
                 jobSaveBtnClick={onClickJobSave}
                 jobjno={data?.jno}
+                nonRest={true}
+            />
+            <DetailSchedule
+                isOpen={isScheduleModal}
+                isRest={isClickDateRest}
+                restDates={clickRestDates}
+                dailyJobs={clickDailyJobs}
+                clickDate={new Date(selectedDate)}
+                exitBtnClick={() => setIsScheduleModal(false)}
+                restModifyBtnClick={() => {}}
+                restRemoveBtnClick={() => {}}
+                dailyJobModifyBtnClick={onClickDailyJobModify}
+                dailyJobRemoveBtnClick={onClickDailyJobRemove}
+                nonRest={true}
             />
             {/* 첫 번째 열 */}
             <div className="form-control grid-project-bc" style={{ gridColumn: "1 / span 2", gridRow: "1", border: "none" }}>
@@ -329,7 +380,28 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                     </div>
                 </div>
             </div>
+            <div className="form-control grid-project-bc" style={{ gridColumn: "1 / span 2", gridRow: "10", border: "none" }}>
+                <div className="d-flex">
+                    <label className="detail-text-label" style={{width: "130px"}}>
+                        작업내용
+                    </label>
+                    <div className="read-only-input" onClick={() => onClickScheduleOpen(data.daily_content_list)}>
+                        <div className="">
 
+                        {data.daily_content_list.length > 0 ?
+                            // 작업내용이 여러개인 경우
+                            data.daily_content_list.map( (content, idx) => (
+                                <div key={idx}>● {content.content}</div>
+                            ))
+                            :   
+                            // 작업내용이 없는 경우
+                            <div className="left" style={{ color: "#a5a5a5" }}>-</div>
+                        }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             {/* 두번째 열 */}
             <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "2", gridRow: "2" }}>
                 <div className="text-overflow">
