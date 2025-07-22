@@ -14,7 +14,7 @@ import { dateUtil } from "./DateUtil";
 export const useLogParam = () => {
     const { user } = useAuth();
 
-    const createLogParam = ({ type = "", menu = "", before = {}, after = {}, item = {}, items = [] }) => {
+    const createLogParam = ({ type = "", menu = "", before = {}, after = {}, item = {}, items }) => {
         return {
             time: dateUtil.format(Date.now(), 'yyyy-MM-dd HH:mm:ss'),
             type,

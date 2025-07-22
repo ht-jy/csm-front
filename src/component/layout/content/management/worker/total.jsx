@@ -15,6 +15,7 @@ import useTableSearch from "../../../../../utils/hooks/useTableSearch";
 import Search from "../../../../module/search/Search";
 import GridModal from "../../../../module/GridModal";
 import TotalDetailModal from "./TotalDetailModal";
+import { useLogParam } from "../../../../../utils/Log";
 import useGridModalControlState from "../../../../../utils/hooks/useGridModalControlState";
 import useGridModalSearch from "../../../../../utils/hooks/useGridModalSearch";
 import "../../../../../assets/css/Calendar.css";
@@ -57,6 +58,7 @@ const Total = () => {
 
     const navigate = useNavigate();
     const { user, setIsProject } = useAuth();
+    const {createLogParam} = useLogParam();
 
     // 로딩
     const [isLoading, setIsLoading] = useState(false);
@@ -64,6 +66,10 @@ const Total = () => {
     const [isModal, setIsModal] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
     const [modalText, setModalText] = useState("");
+    // 모달(예/아니오)
+    const [isModal2, setIsModal2] = useState(false);
+    const [modal2Title, setModal2Title] = useState("");
+    const [modal2Text, setModal2Text] = useState("");
     // 상세모달
     const {isDetailModal, setIsDetailModal, detailData, detailMode, setDetailMode, isMod, setIsMod, handleDetailModalOn, handleModeSet, getModeString, handleExitBtnClick} = useDetailModal();
 
@@ -158,6 +164,53 @@ const Total = () => {
         } catch(err) {
             navigate("/error");
         } finally {
+            setIsLoading(false);
+        }
+    }
+
+    // 근로자 삭제 모달 알림
+    const onClickModalDelete = () => {
+        setModal2Title("근로자 삭제");
+        setModal2Text("근로자를 삭제하시겠습니까?");
+        setIsModal2("true");
+    }
+
+    // 근로자 삭제(상태만 변경)
+    const deleteWorker = async() => {
+        setIsModal2(false);
+
+        try {
+            setIsLoading(true);
+            
+            const param = createLogParam({
+                item: {
+                user_key: detailData.user_key,
+                user_id: detailData.user_id,
+                user_nm: detailData.user_nm,
+                mod_user: user.userName,
+                mod_uno: user.uno,
+            },
+                menu: "/total",
+                type: "DELETE"
+            });
+            console.log(param);
+            let res = await Axios.POST(`/worker/total/delete`, param);
+            
+            if (res?.data?.result === "Success") {
+                setModalTitle(`근로자 삭제`);
+                setModalText(`근로자 삭제에 성공하였습니다.`);
+                setIsMod(true);
+                getData();
+            } else {
+                setModalTitle(`근로자 삭제`);
+                setModalText(`근로자 삭제에 실패하였습니다. \n잠시 후에  다시 시도하여 주시기 바랍니다.`);
+                setIsMod(false);
+            }
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsDetailModal(false);
+            setIsModal(true);
             setIsLoading(false);
         }
     }
@@ -276,17 +329,27 @@ const Total = () => {
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
             />
+            <Modal
+                isOpen={isModal2}
+                title={modal2Title}
+                text={modal2Text}
+                confirm={"예"}
+                cancel={"아니오"}
+                fncConfirm={deleteWorker}
+                fncCancel={() => setIsModal2(false)}
+            />
             <TotalDetailModal
                 isOpen={isDetailModal}
                 gridMode={detailMode}
                 funcModeSet={handleModeSet}
                 editBtn={true}
-                removeBtn={false}
+                removeBtn={true}
                 title={`근로자 ${getModeString()}`}
                 exitBtnClick={handleExitBtnClick}
                 detailData={detailData}
                 selectList={state.selectList}
                 saveBtnClick={onClicklModalSave}
+                removeBtnClick={onClickModalDelete}
             />
             <div>
                 <div className="container-fluid px-4">
