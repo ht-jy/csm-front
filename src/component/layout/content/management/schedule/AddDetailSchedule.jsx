@@ -16,10 +16,10 @@ import Modal from "../../../../module/Modal";
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-04-28
- * @modified 최종 수정일: 
- * @modifiedBy 최종 수정자: 
- * @usedComponents
- * - 
+ * @modified 최종 수정일: 2025-07-22 
+ * @modifiedBy 최종 수정자: 정지영
+ * 2025-07-22: props에 jobjno추가 및 휴무일 추가 여부 확인
+ * 
  * 
  * @additionalInfo
  * - props
@@ -28,8 +28,10 @@ import Modal from "../../../../module/Modal";
  * exitBtnClick: 모달 닫기 함수
  * restSaveBtnClick: 휴무일 저장 함수
  * jobSaveBtnClick: 작업내용 저장 함수
+ * jobjno: 프로젝트 기본 설정에 사용(기본값 0)
+ * nonRest: 휴무일 표시 여부(기본값 false)
  */
-const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, jobSaveBtnClick }) => {
+const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, jobSaveBtnClick, jobjno = 0, nonRest = false }) => {
     const navigate = useNavigate();
     const { project} = useAuth();
     /** 프로젝트 **/
@@ -101,7 +103,6 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
     }
 
     /***** useEffect *****/
-
     useEffect(() => {
         if(isOpen){ 
             // 추가 기본타입
@@ -110,7 +111,7 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
             if(project !== null){
                 onChangeFormData("jno", project.jno);
             }else{
-                onChangeFormData("jno", 0);
+                onChangeFormData("jno", jobjno);
             }
             // 선택날짜
             if(clickDate !== null){
@@ -214,7 +215,12 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                                         <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>종류</label>
                                         <div style={{ flex: 1 }}>
                                             <div style={{height: "40px", display: "flex", alignItems: "center", width: "100%" }}>
+                                                {
+                                                nonRest ?
+                                                <RadioInput itemName={"schedule"} selectedValue={addType} values={["JOB"]} labels={["작업내용"]} setRadio={(value) => setAddType(value)}/>
+                                                :
                                                 <RadioInput itemName={"schedule"} selectedValue={addType} values={["JOB", "REST"]} labels={["작업내용", "휴무일"]} setRadio={(value) => setAddType(value)}/>
+                                            }
                                             </div>
                                         </div>
                                     </div>

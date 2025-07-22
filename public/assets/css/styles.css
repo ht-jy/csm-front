@@ -3776,6 +3776,7 @@ form.d-flex {
   padding: var(--bs-nav-link-padding-y) var(--bs-nav-link-padding-x);
   font-size: var(--bs-nav-link-font-size);
   font-weight: var(--bs-nav-link-font-weight);
+  margin: 0rem 1rem;
   color: var(--bs-nav-link-color);
   text-decoration: none;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
@@ -3792,6 +3793,12 @@ form.d-flex {
   color: var(--bs-nav-link-disabled-color);
   pointer-events: none;
   cursor: default;
+}
+
+.nav-current {
+  background-color: #444;
+  border-radius: 15px;
+
 }
 
 .nav-tabs {

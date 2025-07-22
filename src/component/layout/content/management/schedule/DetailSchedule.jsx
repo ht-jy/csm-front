@@ -34,7 +34,7 @@ import { ObjChk } from "../../../../../utils/ObjChk";
  * dailyJobModifyBtnClick: 작업내용 수정 함수
  * dailyJobRemoveBtnClick: 작업내용 삭제 함수
  */
-const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBtnClick, restModifyBtnClick, restRemoveBtnClick, dailyJobModifyBtnClick, dailyJobRemoveBtnClick}) => {
+const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBtnClick, restModifyBtnClick, restRemoveBtnClick, dailyJobModifyBtnClick, dailyJobRemoveBtnClick, nonRest = false}) => {
     const navigate = useNavigate();
 
     const [isLoading, setIsLoading] = useState(false);
@@ -254,7 +254,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                     {
                                         edit === "N" ?
                                             <>
-                                                    <div>
+                                                {!nonRest &&  <div>
                                                     {
                                                         restDates.length === 0 ?
                                                             <div style={{gridColumn: "span 2", padding: '5px', display: "flex", alignItems: "center", width: "100%"}}>
@@ -286,7 +286,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                                 </div>
                                                         ))
                                                     }
-                                                    </div>
+                                                    </div> }
                                                     {
                                                         jobsByProject.length === 0 ?
                                                             <div style={{gridColumn: "span 2", padding: '5px', display: "flex", alignItems: "center", width: "100%", height: "50px"}}>
@@ -421,7 +421,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
 
                                                     {/* 작업내용 날짜 */}
                                                     <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "50px"}}>
-                                                        <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>{editData.is_period === "Y" ? "시작일" : "휴무일"}</label>
+                                                        <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>{editData.is_period === "Y" ? "시작일" : "작업일"}</label>
                                                         <div style={{width: "200px"}}>
                                                             <div style={{height: "40px", display: "flex", alignItems: "center" }}>
                                                                 <DateInput 

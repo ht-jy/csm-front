@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useReducer } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Axios } from "../../utils/axios/Axios";
 import SideNavReducer from "./SideNavReducer";
@@ -29,6 +29,8 @@ const SideNav = () => {
         childMenu: [],
     });
 
+    const location = useLocation();
+
     const { user, jobRole} = useAuth();
 
     // 권한별 메뉴 조회
@@ -41,6 +43,7 @@ const SideNav = () => {
             dispatch({type: "INIT_MENU", list: res?.data?.values});
         }
     };
+
 
     useEffect(() => {
         getMenuData()
@@ -58,9 +61,9 @@ const SideNav = () => {
                             {
                                 state.parentMenu.map((item, idx) => (
                                     item.has_child === "N" ?
-                                        <Link key={`parent-${idx}`} className="nav-link" to={item.menu_id} style={item.is_temp === "N" ? {color: "white"} : {}}>
+                                        <Link key={`parent-${idx}`} className={item.menu_id === location.pathname ? "nav-link nav-current" : "nav-link"} to={item.menu_id} style={{color: item.is_temp === "N" ?  "white" : null}}>
                                             <div className="sb-nav-link-icon"><img src={item.svg_name} width='20px' /></div>
-                                            {item.menu_nm}
+                                            {item.menu_nm} 
                                         </Link>
                                     :
                                         <React.Fragment key={`parent-${idx}`}>
@@ -74,7 +77,7 @@ const SideNav = () => {
                                                     {
                                                         state.childMenu.map((child, cidx) => (
                                                             item.menu_id === child.parent_id ?
-                                                                <Link key={`child-${idx}-${cidx}`} className="nav-link" to={child.menu_id} style={item.is_temp === "N" ? {color: "white"} : {}}>
+                                                                <Link key={`child-${idx}-${cidx}`} className={child.menu_id === location.pathname ? "nav-link nav-current" : "nav-link"} to={child.menu_id} style={{marginLeft: "0rem", color: item.is_temp === "N" ? "white": null}}>
                                                                     {child.menu_nm}
                                                                 </Link>
                                                             : null

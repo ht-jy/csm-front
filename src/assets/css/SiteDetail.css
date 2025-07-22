@@ -105,7 +105,7 @@
     width: 35px;
     height: 35px;
     cursor: pointer;
-    margin-left: auto;
+    margin-left: 1rem;
 }
 
 .text-overflow {
