@@ -7,6 +7,7 @@ import { Axios } from "../../../utils/axios/Axios";
 import { useAuth } from "../../context/AuthContext";  // AuthContext 가져오기
 import Modal from "../../module/Modal";
 import DigitFormattedInput from './../../module/DigitFormattedInput';
+import Loading from "../../module/Loading";
 
 function Login() {
     const navigate = useNavigate();
@@ -16,6 +17,7 @@ function Login() {
     const [isSave, setIsSave] = useState(false);
     const [userId, setUserId] = useState("");
     const [pwd, setPwd] = useState("");
+    const [isLoginLoading, setIsLoginLoading] = useState(false);
     const [modalText, setModalText] = useState("");
     //협력업체로그인
     const [isCompany, setIsCompany] = useState(false);
@@ -44,6 +46,8 @@ function Login() {
         };
         
         try {
+            setIsLoginLoading(true);
+
             const res = await Axios.POST("/login", user);
             
             if (res?.data?.result === "Success") {
@@ -56,6 +60,8 @@ function Login() {
         } catch (error) {
             setIsOpen(true);
             setModalText("로그인 실패. 다시 시도해주세요.")
+        } finally {
+            setIsLoginLoading(false);
         }
     };
 
@@ -68,6 +74,7 @@ function Login() {
 
     return (
         <div>
+            <Loading isOpen={isLoginLoading}/>
             <Modal
                 isOpen={isOpen}
                 title={"로그인"}
