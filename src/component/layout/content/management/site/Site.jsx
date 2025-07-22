@@ -442,6 +442,7 @@ const Site = () => {
             setModalText("오늘 이후의 날짜는 선택할 수 없습니다.");
             setIsOpenModal(true);
         }
+        setIsNonUseChecked(false);
     }, [selectedDate]);
 
     // 현장 상태 5초 polling
@@ -540,7 +541,7 @@ const Site = () => {
             />
             {
                 isDetail &&
-                <SiteContext.Provider value={{getData, setIsDetail, setIsNonUseChecked}}>
+                <SiteContext.Provider value={{getData, setIsDetail, setIsNonUseChecked, isNonUseChecked}}>
                     <DetailModal
                         isOpen={isDetail}
                         setIsOpen={setIsDetail}
@@ -568,7 +569,7 @@ const Site = () => {
                         <div className="square-title d-flex align-items-center">
                             <div>현장 목록</div>
                             <DateInput 
-                                time={dateUtil.format(selectedDate)} 
+                                time={dateUtil.format(selectedDate === "-" ? dateUtil.now() : selectedDate)} 
                                 setTime={(value) => setSelectedDate(value)} 
                                 dateInputStyle={{margin: "0px", marginLeft:"10px"}}
                             ></DateInput>

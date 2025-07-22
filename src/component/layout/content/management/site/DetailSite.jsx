@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import DateInput from "../../../../module/DateInput";
 import Button from "../../../../module/Button";
@@ -17,6 +17,7 @@ import weather14 from "../../../../../assets/image/weather/14.png";
 import Map from "../../../../module/Map";
 import Loading from "../../../../module/Loading";
 import { Common } from "../../../../../utils/Common";
+import SiteContext from "../../../../context/SiteContext";
 
 /**
  * @description: 현장 상세 컴포넌트
@@ -34,6 +35,9 @@ import { Common } from "../../../../../utils/Common";
  * 
  */
 const DetailSite = ({isEdit, detailData, detailWeather, projectData, handleChangeValue, addressData, isSiteAdd}) => {
+
+    const { isNonUseChecked } = useContext(SiteContext);
+
     const [data, setData] = useState(null);
     const [openingDate, setOpeningDate] = useState(dateUtil.now());
     const [closingPlanDate, setClosingPlanDate] = useState(dateUtil.now());
@@ -270,7 +274,7 @@ const DetailSite = ({isEdit, detailData, detailWeather, projectData, handleChang
                         시작일
                     </label>
                     <div className="form-input" style={{ flex: 1 }}>
-                        {isEdit ? (
+                        {isEdit && !isNonUseChecked ? (
                             <DateInput time={openingDate} setTime={setOpeningDate}></DateInput>
                         ) : (
                             <div className="read-only-input">
@@ -286,7 +290,7 @@ const DetailSite = ({isEdit, detailData, detailWeather, projectData, handleChang
                         종료일(계획)
                     </label>
                     <div className="form-input" style={{ flex: 1 }}>
-                        {isEdit ? (
+                        {isEdit && !isNonUseChecked ? (
                             <DateInput time={closingPlanDate} setTime={setClosingPlanDate}></DateInput>
                         ) : (
                             <div className="read-only-input">
@@ -302,7 +306,7 @@ const DetailSite = ({isEdit, detailData, detailWeather, projectData, handleChang
                         종료일(예정)
                     </label>
                     <div className="form-input" style={{ flex: 1 }}>
-                        {isEdit ? (
+                        {isEdit && !isNonUseChecked ? (
                             <DateInput time={closingForecastDate} setTime={setClosingForecastDate}></DateInput>
                         ) : (
                             <div className="read-only-input">
@@ -336,13 +340,13 @@ const DetailSite = ({isEdit, detailData, detailWeather, projectData, handleChang
                     <div className="form-input" style={{ flex: 1 }}>
                         <div style={{display: "flex", alignItems: "center", marginLeft: "5px"}}>
                             {/* {
-                                isEdit ?
+                                isEdit && !isNonUseChecked ?
                                     <input type="text" value={sliderValue} onChange={(e) => onChangeSliderValue(e.target.value)} style={{height: "40px", width: "50px", textAlign: "right", paddingRight: "5px"}}/>
                                 :
                                     sliderValue
                             }
                             &nbsp;%
-                            <div style={{width: "300px", marginLeft: isEdit ? "20px" : "62px",}}>
+                            <div style={{width: "300px", marginLeft: isEdit && !isNonUseChecked ? "20px" : "62px",}}>
                                 <Slider 
                                     min={0}
                                     max={100}
@@ -365,7 +369,7 @@ const DetailSite = ({isEdit, detailData, detailWeather, projectData, handleChang
                         {/* <div className="read-only-input">
                             {data.default_project_name}
                         </div> */}
-                        {isEdit ? (
+                        {isEdit && !isNonUseChecked ? (
                             <div style={{display: "flex", marginLeft: "5px"}}>
                                 <Select
                                     onChange={(item) => handleChangeValue("default_jno", item.value)}
@@ -405,7 +409,7 @@ const DetailSite = ({isEdit, detailData, detailWeather, projectData, handleChang
                             :
                                 `${data?.site_pos?.road_address ? data?.site_pos?.road_address : ""}`
                             }
-                            {isEdit ? (
+                            {isEdit && !isNonUseChecked ? (
                                 <Button
                                 text={"변경"}
                                 onClick={() => {
@@ -449,7 +453,7 @@ const DetailSite = ({isEdit, detailData, detailWeather, projectData, handleChang
                 <div style={{ width: "100%" }}>
                     <label className="text-label">비고</label>
                     <div className="form-textbox">
-                        {isEdit ? (
+                        {isEdit && !isNonUseChecked ? (
                             <textarea
                             rows={4}
                             value={(data !== null ? etc.replace(/\\n/g, "\n") : "")}
