@@ -402,6 +402,7 @@ const Site = () => {
             navigate("/error");
         } finally {
             setIsLoading(false);
+            setIsNonUseChecked(false);
         }
     }
 
