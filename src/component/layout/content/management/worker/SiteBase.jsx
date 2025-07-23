@@ -28,6 +28,7 @@ import { resultType } from "../../../../../utils/Enum";
 import { useLogParam } from "../../../../../utils/Log";
 import useExcelUploader from "../../../../../utils/hooks/useExcelUploader";
 import DigitFormattedInput from "../../../../module/DigitFormattedInput";
+import SiteBaseHistory from "./SiteBaseHistory";
 
 /**
  * @description: 현장 근로자 관리
@@ -97,6 +98,15 @@ const SiteBase = () => {
     const [isWorkerExcel, setIsWorkerExcel] = useState(false);
     const [workerExcelText, setWorkerExcelText] = useState("");
     const [fncWorkerExcelFile, setFncWorkerExcelFile] = useState(() => () => {});
+    // 현장근로자 변경 이력
+    const [isHistory, setIsHistory] = useState(false);
+    // 변경 사유
+    const [isReason, setIsReason] = useState(false);
+    const [reasonTitle, setReasonTitle] = useState("");
+    const [reasonText, setReasonText] = useState("");
+    const [reasonConfirm, setReasonConfirm] = useState(() => {});
+    const [reason, setReason] = useState("");
+    const [reasonType, setReasonType] = useState("");
 
     // 테이블 컬럼 정보
     const columns = [
@@ -124,10 +134,11 @@ const SiteBase = () => {
         {itemName: "record_date", editType: "", dependencyModal: "workerByUserId", defaultValue: ""},
         {itemName: "in_recog_time", editType: "time24", defaultValue: "2006-01-02T08:00:00+09:00"},
         {itemName: "out_recog_time", editType: "time24", defaultValue: "2006-01-02T17:00:00+09:00"},
-        {itemName: "work_hour", editType: "number", format: "1.1", defaultValue: "1.0"},
+        {itemName: "work_hour", editType: "number", format: "1.3", defaultValue: "1.0"},
         {itemName: "work_state", editType: "radio", radioValues: state.workStateCodes.map(item => item.code), radioLabels: state.workStateCodes.map(item => item.code_nm), defaultValue: "02"},
         {itemName: "is_overtime", editType: "check", defaultValue:"N"},
         {itemName: "is_deadline", editType: "check", defaultValue: "N"},
+        {itemName: "user_key", editType: "", dependencyModal: "workerByUserId", defaultValue: ""},
     ];
 
     // 검색 옵션
@@ -200,6 +211,7 @@ const SiteBase = () => {
                 const deadline = {
                     sno: item.sno,
                     jno: item.jno,
+                    user_key: item.user_key,
                     user_id: item.user_id,
                     record_date: dateUtil.goTime(record_date),
                     message: `[DEADLINE FINISH]`,
@@ -208,7 +220,6 @@ const SiteBase = () => {
                 }
                 deadlines.push(deadline);
             });
-            
 
             setIsLoading(true);
             try {
@@ -271,6 +282,7 @@ const SiteBase = () => {
                 const worker = {
                     sno: item.sno,
                     jno: item.jno,
+                    user_key: item.user_key,
                     user_id: item.user_id,
                     work_hour: workHour,
                     record_date: dateUtil.goTime(record_date),
@@ -363,6 +375,7 @@ const SiteBase = () => {
                     jno: item.jno,
                     after_jno: selectedProject.jno,
                     user_id: item.user_id,
+                    user_key: item.user_key,
                     record_date: dateUtil.goTime(record_date),
                     work_state: item.work_state,
                     message: message,
@@ -437,6 +450,7 @@ const SiteBase = () => {
                 const deadline = {
                     sno: item.sno,
                     jno: item.jno,
+                    user_key: item.user_key,
                     user_id: item.user_id,
                     record_date: dateUtil.goTime(record_date),
                     message: `[DELETE DATA]in_recog_time: ${item.in_recog_time}|out_recog_time: ${item.out_recog_time}|work_hour: ${item.work_hour}`,
@@ -569,6 +583,7 @@ const SiteBase = () => {
                 const deadline = {
                     sno: item.sno,
                     jno: item.jno,
+                    user_key: item.user_key,
                     user_id: item.user_id,
                     record_date: dateUtil.goTime(record_date),
                     message: `[DEADLINE CANCEL]`,
@@ -617,8 +632,18 @@ const SiteBase = () => {
         }
     }
 
+    // 추가/수정 사유
+    const onClickSaveReason = () => {
+        setReasonTitle("근로자 추가/수정");
+        setReasonText("근로자 추가/수정 사유를 입력하여 주세요.");
+        setReason("");
+        setReasonType("02");
+        setReasonConfirm(() => () => onClickSave());
+        setIsReason(true);
+    }
     // 추가/수정 근로자 저장
     const onClickSave = async() => {
+        setIsReason(false);
         setModalText("근로자 추가/수정")
         // 유효성 검사   
         for(const item of editList){
@@ -664,7 +689,9 @@ const SiteBase = () => {
             const out_recog_time = item.out_recog_time === "0001-01-01T00:00:00Z" ? item.out_recog_time : dateUtil.goTime(record_date + "T" + item.out_recog_time?.split("T")[1]);
             
             let message = [];
+            let reasonTypeTemp = reasonType;
             if(item.rnum === "ADD_ROW"){
+                reasonTypeTemp = "01";
                 message = `[ADD DATA]in_recog_time: ${item.in_recog_time}|out_recog_time: ${item.out_recog_time}|work_hour: ${item.work_hour}`;
             }else{
                 const find = state.list.find(data => data.sno === item.sno && data.user_id === item.user_id);
@@ -695,12 +722,16 @@ const SiteBase = () => {
                 }
                 message.join(" | ")
                 message = find.is_deadline !== item.is_deadline ? "[UPDATE DATA | DEADLINE FINISH]" + message : "[UPDATE DATA]" + message;
+                reasonTypeTemp = find.is_deadline !== item.is_deadline ? "07" : "02";
             }
 
             const param = {
                 sno: project.sno,
                 jno: project.jno,
+                user_key: item.user_key,
                 user_id: item.user_id,
+                user_nm: item.user_nm,
+                reg_no: item.reg_no,
                 record_date: dateUtil.goTime(record_date),
                 in_recog_time: in_recog_time,
                 out_recog_time: out_recog_time,
@@ -708,6 +739,8 @@ const SiteBase = () => {
                 is_overtime: item.is_overtime,
                 work_state: item.work_state,
                 work_hour: item.work_hour,
+                reason: reason,
+                reason_type: reasonTypeTemp,
                 message: message,
                 mod_user: user.userName,
                 mod_uno: user.uno,
@@ -715,8 +748,8 @@ const SiteBase = () => {
             params.push(param);
         });
         
-        setIsLoading(true);
         try {
+            setIsLoading(true);
             const res = await Axios.POST("/worker/site-base", params);
             
             if (res?.data?.result === "Success") {
@@ -1088,7 +1121,7 @@ const SiteBase = () => {
                     <DigitFormattedInput
                         initNum={workHour}
                         setNum={(num) => setWorkHour(num)}
-                        format="1.1"
+                        format="1.3"
                         step={0.1}
                         style={{width: "100%"}}
                     />
@@ -1129,6 +1162,37 @@ const SiteBase = () => {
                 isUsedProject={true}
                 onClickRow={handleProjectRowClick}
             />
+            <SiteBaseHistory
+                isOpen={isHistory}
+                fncExit={() => setIsHistory(false)}
+            />
+            <Modal
+                isOpen={isReason}
+                title={reasonTitle}
+                text={reasonText}
+                content={
+                    <div className="form-control text-none-border" style={{padding: 0, marginBottom: "5px"}}>
+                        <div style={{ width: "100%" }}>
+                            <div className="form-textbox">
+                                <textarea
+                                    rows={4}
+                                    value={(reason !== null ? reason.replace(/\\n/g, "\n") : "")}
+                                    name={"etc"}
+                                    onChange={(e) => {
+                                        // 실제 개행문자 '\n'을 '\\n'으로 치환하여 상태에 저장
+                                        setReason(e.target.value);
+                                    }}
+                                    placeholder="0 / 4000"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                }
+                confirm={"확인"}
+                fncConfirm={reasonConfirm}
+                cancel={"취소"}
+                fncCancel={() => setIsReason(false)}
+            />
             <div>
                 <div className="container-fluid px-4">
                     <ol className="breadcrumb mb-2 content-title-box">
@@ -1144,7 +1208,7 @@ const SiteBase = () => {
                             }
                             {
                                 isEditTable ?
-                                    <Button text={"저장"} onClick={onClickSave} />
+                                    <Button text={"저장"} onClick={onClickSaveReason} />
                                 : null
                             }
                             {
@@ -1168,7 +1232,7 @@ const SiteBase = () => {
                     </ol>
                     
                     {
-                        isEditTableOpen && isEdit ?
+                        isEditTableOpen && isEdit && editList.length !== 0 ?
                             <div className="table-wrapper" style={{marginBottom: "5px"}}>
                                 <div className="table-container" style={{overflow: "auto", maxHeight: "calc(100vh - 350px)"}}>
                                     <EditTable
@@ -1193,7 +1257,8 @@ const SiteBase = () => {
                                             <Button text={"공수입력"} onClick={onClickWorkHourBtn} />
                                             <Button text={"프로젝트 변경"} onClick={onClickModProjectBtn} />
                                             <Button text={"근로자 삭제"} onClick={onClickDeleteWorkerBtn} />
-                                            <Button text={"마감 취소"} onClick={onClickDeadlineCancelBtn} />                                            
+                                            <Button text={"마감 취소"} onClick={onClickDeadlineCancelBtn} />
+                                            <Button text={"변경 이력"} onClick={() => setIsHistory(true)} />
                                         </>
                                     : null
                                 }

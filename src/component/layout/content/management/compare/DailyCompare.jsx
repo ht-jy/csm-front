@@ -95,10 +95,11 @@ const DailyCompare = () => {
             setIsModal(true);
             return;
         }
-
+        
         const params = [];
         checkedList.forEach(item => {
             const param = {
+                user_key: item.user_key,
                 sno: project.sno || 0,
                 jno: item.jno || 0,
                 user_id: item.user_id || "",

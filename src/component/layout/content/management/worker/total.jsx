@@ -193,7 +193,7 @@ const Total = () => {
                 menu: "/total",
                 type: "DELETE"
             });
-            console.log(param);
+            
             let res = await Axios.POST(`/worker/total/delete`, param);
             
             if (res?.data?.result === "Success") {

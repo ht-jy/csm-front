@@ -1,46 +1,38 @@
-import { useState, useEffect, useMemo, useContext } from "react";
-import { Axios } from "../../../utils/axios/Axios";
-import { useAuth } from "../../context/AuthContext";
-import { dateUtil } from "../../../utils/DateUtil";
-import Table from "../Table";
-import Exit from "../../../assets/image/exit.png";
-import PaginationWithCustomButtons from "../PaginationWithCustomButtons";
-import useTableControlState from "../../../utils/hooks/useTableControlState";
-import useTableSearch from "../../../utils/hooks/useTableSearch";
-import Search from "../search/Search";
-import Button from "../Button";
-import DateInput from "../DateInput";
-import SiteBaseContext from "../../context/SiteBaseContext";
-import { useTableContext } from "../../context/TableContext";
-import "../../../assets/css/SearchWorkerModal.css";
+import { useEffect, useMemo, useState } from "react";
+import Button from "../../../../module/Button";
+import DateInput from "../../../../module/DateInput";
+import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons";
+import Search from "../../../../module/search/Search";
+import Table from "../../../../module/Table";
+import Exit from "../../../../../assets/image/exit.png";
+import useTableSearch from "../../../../../utils/hooks/useTableSearch";
+import useTableControlState from "../../../../../utils/hooks/useTableControlState";
+import { Axios } from "../../../../../utils/axios/Axios";
 
 /**
- * @description: 근로자 아이디, 이름, 부서 조회 모달
- * 
+ * @description: 현장 근로자 변경 이력 모달창
  * @author 작성자: 김진우
- * @created 작성일: 2025-03-24
+ * @created 작성일: 2025-07-23
  * @modified 최종 수정일: 
  * @modifiedBy 최종 수정자: 
- * @usedComponents
- * - 
- * 
+ * @modified Description: 
+ *
  * @additionalInfo
  * - API: 
- *    Http Method - GET : worker/total/absent (미출근 근로자 조회)
+ *    Http Method - GET : 
+ *    Http Method - POST : 
+ *    Http Method - PUT : 
+ *    Http Method - DELETE : 
  */
-const SearchWorkerModal = ({isOpen=false, fncExit, onClickRow}) => {
-    const { searchTime } = useTableContext();
-    const { project } = useAuth();
-    const [userId, setUserId] = useState("");
+
+const SiteBaseHistory = ({isOpen, fncExit}) => {
+
     const [data, setData] = useState([]);
     const [count, setCount] = useState(0);
-    const [searchStartTime, setSearchStartTime] = useState(searchTime);
 
+    // 테이블 필드
     const columns = useMemo(() => [
         { isSearch: false, isOrder: false, isSlide: false, width: "100px", header: "아이디", itemName: "user_id", bodyAlign: "center", isEllipsis: false, isDate: false },
-        { isSearch: false, isOrder: false, isSlide: false, width: "100px", header: "이름", itemName: "user_nm", bodyAlign: "center", isEllipsis: false, isDate: false },
-        { isSearch: false, isOrder: false, isSlide: false, width: "100px", header: "부서/조직명", itemName: "department", bodyAlign: "center", isEllipsis: false, isDate: false },
-        { isSearch: false, isOrder: false, isSlide: false, width: "100px", header: "등록가능 날짜", itemName: "record_date", bodyAlign: "center", isEllipsis: false, isDate: false },
     ], []);
 
     // 검색 옵션
@@ -59,30 +51,10 @@ const SearchWorkerModal = ({isOpen=false, fncExit, onClickRow}) => {
         fncExit();
     }
 
-    // 테이블 리스트 클릭
-    const handleRowClick = (item) => {
-        onClickRow({
-            user_key: item.user_key,
-            user_id: item.user_id,
-            user_nm: item.user_nm,
-            department: item.department,
-            record_date: item.record_date
-        });
-        fncExit();
-    }
-
-    // 페이지네이션 버튼 클릭
-    const handlePageClick = (num) => {
-        setPageNum(num);
-    };
-
-    // 아이디 검색
     const getData = async () => {
-        const res = await Axios.GET(`worker/total/absent?page_num=${pageNum}&row_size=${rowSize}&search_start_time=${searchStartTime}&sno=${project.sno}&jno=${project.jno}&retry_search=${retrySearchText}`);
+        const res = await Axios.GET(`worker/total/absent`);
         
         if (res?.data?.result === "Success") {
-            setData(res?.data?.values?.list);
-            setCount(res?.data?.values?.count);
         }
     };
 
@@ -90,23 +62,10 @@ const SearchWorkerModal = ({isOpen=false, fncExit, onClickRow}) => {
         isSearchInit,
         handleRetrySearch,
         handleSearchInit,
+        handlePageClick,
     } = useTableSearch({ columns, getDataFunction: getData, retrySearchText, setRetrySearchText, pageNum, setPageNum, rowSize, setRowSize });
-    
 
     /***** useEffect *****/
-
-    // 상단 프로젝트 변경
-    useEffect(() => {
-        getData();
-    }, [searchStartTime]);
-
-    useEffect(() => {
-        if(isOpen !== undefined && isOpen){
-            setRetrySearchText("");
-            getData();
-        }
-    }, [isOpen]);
-
     // 모달 오픈시 메인 화면 스크롤 정지 및 모달종료
     useEffect(() => {
         if (isOpen !== null && isOpen) {
@@ -134,7 +93,7 @@ const SearchWorkerModal = ({isOpen=false, fncExit, onClickRow}) => {
             <div style={overlayStyle}>
                 <div style={modalStyle}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: "#ddd", borderRadius: "5px", height: "40px" }}>
-                        <h2 style={{fontSize: "15px", color: "black", paddingLeft: "10px"}}>근로자 아이디 검색</h2>
+                        <h2 style={{fontSize: "15px", color: "black", paddingLeft: "10px"}}>현장 근로자 변경 이력</h2>
 
                         <div onClick={handleExitScrollUnset} style={{ cursor: "pointer" }}>
                             <img src={Exit} style={{ width: "30px", paddingBottom: '0px', marginRight: "5px" }} alt="Exit" />
@@ -143,9 +102,9 @@ const SearchWorkerModal = ({isOpen=false, fncExit, onClickRow}) => {
 
                     <div className="table-header">
                         <div className="table-header-left" style={{gap:"10px"}}>
-                            <div>
+                            {/* <div>
                                 조회날짜 <DateInput time={searchStartTime} setTime={setSearchStartTime}></DateInput>
-                            </div>
+                            </div> */}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: "right", marginTop: "5px", marginBottom: "5px", height: "40px" }}>
                             {
@@ -174,15 +133,14 @@ const SearchWorkerModal = ({isOpen=false, fncExit, onClickRow}) => {
                         <Table
                             columns={columns} 
                             data={data}
-                            noDataText={"검색한 아이디가 없습니다."}
-                            onClickRow={handleRowClick}
-                            styles={{width: "1290px"}}
+                            noDataText={"검색된 이력이 없습니다."}
+                            styles={{width: "100%"}}
                         />
 
                         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
                             {
                                 count !== 0 ? 
-                                    <PaginationWithCustomButtons 
+                                    <PaginationWithCustomButtons
                                         dataCount={count}
                                         fncClickPageNum={handlePageClick}
                                     />
@@ -214,12 +172,12 @@ const modalStyle = {
     backgroundColor: '#fff',
     padding: '5px',
     borderRadius: '8px',
-    maxWidth: '1300px',
+    // maxWidth: '1300px',
     width: '95%',
-    maxHeight: '650px',
+    maxHeight: '900px',
     height: '90%',
     boxShadow: '15px 15px 1px rgba(0, 0, 0, 0.3)',
     margin: '10px',
 };
 
-export default SearchWorkerModal;
+export default SiteBaseHistory;
