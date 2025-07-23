@@ -47,9 +47,17 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
     /** 알림 모달 **/
     const [isModal, setIsModal] = useState(false);
     const [modalText, setModalText] = useState("");
+    const [isConfirmSave, setIsConfirmSave] = useState(false);
+
+
+    // 확인 모달 띄우기
+    const onClickSave = () => {
+        setIsConfirmSave(true);
+    }
 
     // 휴무일, 작업내용 저장
-    const handleSave = (e) => {
+    const handleSave = () => {
+        setIsConfirmSave(false);
         document.body.style.overflow = 'unset';
         if(addType === "REST"){
             restSaveBtnClick(formData);
@@ -154,6 +162,15 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
             />
+            <Modal
+                isOpen={isConfirmSave}
+                title={"일정 저장"}
+                text={"저장하시겠습니까?"}
+                confirm={"예"}
+                fncConfirm={handleSave}
+                cancel={"아니오"}
+                fncCancel={() => setIsConfirmSave(false)}
+            />
             {
                 isOpen ? (
                     <div style={overlayStyle}>
@@ -162,7 +179,7 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                             <div style={{ height: "50px", display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: "0px", marginRight: "5px", marginLeft: "5px" }}>
                                 {/* 왼쪽 - 제목 */}
                                 <div style={{display: "flex", alignItems: "flex-end"}}>
-                                    <h2 style={h2Style}>일정관리 추가</h2>
+                                    <h2 style={h2Style}>일정 추가</h2>
                                     {/* <div style={{marginLeft: "20px"}}>
                                         <RadioInput itemName={"schedule"} selectedValue={addType} values={["REST", "JOB"]} labels={["휴무일", "작업내용"]} setRadio={(value) => setAddType(value)}/>
                                     </div> */}
@@ -171,7 +188,7 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                                 {/* 오른쪽 - 버튼 & 닫기 아이콘 */}
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
                                     <div>
-                                        <button className="btn btn-primary" onClick={handleSave} name="confirm" style={{marginRight:"10px"}}>
+                                        <button className="btn btn-primary" onClick={onClickSave} name="confirm" style={{marginRight:"10px"}}>
                                             저장
                                         </button>
                                     </div>
@@ -231,7 +248,7 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                                             addType === "REST" ?
                                                 <>
                                                     <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>휴무 기간 설정</label>
-                                                    <div style={{width: "50px"}}>
+                                                    <div style={{width: "100px"}}>
                                                         <div style={{height: "40px", display: "flex", alignItems: "center" }}>
                                                             <FormCheckInput checked={formData.is_period === "Y" ? true : false} onChange={(e) => onChangeFormData("is_period", e.target.checked ? "Y" : "N")} />
                                                         </div>
@@ -262,7 +279,7 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                                         <div style={{width: "170px"}}>
                                             <div style={{height: "40px", display: "flex", alignItems: "center" }}>
                                                 <DateInput 
-                                                    time={dateUtil.format(formData.date)} 
+                                                    time={dateUtil.format(formData.date || dateUtil.now())} 
                                                     setTime={(value) => onChangeFormData("date", value)} 
                                                     dateInputStyle={{margin: "0px"}}
                                                     calendarPopupStyle={{
@@ -279,11 +296,11 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                                         {
                                             formData.is_period === "Y" ?
                                                 <>
-                                                    <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>종료일</label>
+                                                    <label style={{ marginLeft:"20px", marginRight: "5px", fontWeight: "bold", width: "80px" }}>종료일</label>
                                                     <div>
                                                         <div style={{height: "40px", display: "flex", alignItems: "center" }}>
                                                             <DateInput 
-                                                                time={dateUtil.format(formData.period_date)} 
+                                                                time={dateUtil.format(formData.period_date || dateUtil.now())} 
                                                                 setTime={(value) => onChangeFormData("period_date", value)} 
                                                                 dateInputStyle={{margin: "0px"}}
                                                                 calendarPopupStyle={{

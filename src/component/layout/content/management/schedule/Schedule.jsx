@@ -425,7 +425,11 @@ const Schedule = () => {
                 setModalText("휴무일 수정에 성공하였습니다.");
                 setIsDetailModal(false);
             }else{
-                setModalText("휴무일 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                if (res?.data?.message.includes("중복")) {
+                    setModalText("지정한 날짜에 이미 휴무일이 존재합니다.")
+                }else{
+                    setModalText("휴무일 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                }
             }
             setModalTitle("휴무일");
             setIsModal(true);
@@ -478,8 +482,13 @@ const Schedule = () => {
                 setModalText("작업내용 수정에 성공하였습니다.");
                 setIsDetailModal(false);
             }else{
-                setModalText("작업내용 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                if (res?.data?.message.includes("중복")) {
+                    setModalText("지정한 날짜에 이미 작업 내용이 존재합니다.")
+                }else{
+                    setModalText("작업내용 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                }
             }
+
             setModalTitle("작업내용");
             setIsModal(true);
         } catch(err) {
@@ -517,6 +526,7 @@ const Schedule = () => {
         setIsAddDetailModal(true);
     }
 
+
     // 휴무일 저장
     const onClicklRestSave = async(item) => {
         const rests = [];
@@ -548,7 +558,11 @@ const Schedule = () => {
                 setModalText("휴무일 추가에 성공하였습니다.");
                 setIsAddDetailModal(false);
             }else{
-                setModalText("휴무일 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                if (res?.data?.message.includes("중복")) {
+                    setModalText("지정한 날짜에 이미 휴무일이 존재합니다.")
+                }else{
+                    setModalText("휴무일 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                }
             }
             setModalTitle("휴무일");
             setIsModal(true);
@@ -587,7 +601,11 @@ const Schedule = () => {
                 setModalText("작업내용 추가에 성공하였습니다.");
                 setIsAddDetailModal(false);
             }else{
-                setModalText("작업내용 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                if (res?.data?.message.includes("중복")) {
+                    setModalText("지정한 날짜에 이미 작업 내용이 존재합니다.")
+                }else{
+                    setModalText("작업내용 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                }
             }
             setModalTitle("작업내용");
             setIsModal(true);
