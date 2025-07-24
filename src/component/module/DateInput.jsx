@@ -27,8 +27,13 @@ import OutsideClick from "./OutsideClick.jsx";
  * - props
  *  time: 처음 표시될 시간
  *  setTime: 달력에서 날짜 선택 시 시간을 변경할 함수
+ *  dateInputStyle: 날짜가 담기는 div의 스타일
+ *  caenderPopupStyle: 달력 스타일 지정
+ *  isCalendarHide: 달력 표시 여부
+ *  minDate: 날짜 제한(기본값: null (제한없음), 입략 형태: Date()))
+ * 
  */
-const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalendarHide}) => {
+const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalendarHide, minDate = null}) => {
 
     const [showCalendar, setShowCalendar] = useState(false);
 
@@ -116,6 +121,7 @@ const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalenda
                                     onChange={handleDateChange} 
                                     value={dateUtilFormat(time)} 
                                     locale="ko" 
+                                    minDate={minDate}
                                     calendarType="gregory" 
                                     onActiveStartDateChange={onActiveStartDateChange}
                                     formatDay={(locale, date) => date.toLocaleString('en', { day: 'numeric' })}

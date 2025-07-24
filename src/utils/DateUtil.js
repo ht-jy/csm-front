@@ -268,5 +268,14 @@ export const dateUtil = {
         const minutes = String(date.getMinutes()).padStart(2, '0');
         
         return `${hours}:${minutes}`;
-    }
+    },
+    // date형태에서 일수를 빼서 반환
+    diffDay(date, days) {
+
+        if (!(date instanceof Date) || typeof days !== 'number' ) return;
+
+        date.setDate(date.getDate() - days);
+
+        return date;
+    },
 }
