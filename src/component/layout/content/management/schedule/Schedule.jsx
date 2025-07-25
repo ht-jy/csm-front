@@ -42,11 +42,12 @@ import DetailSchedule from "./DetailSchedule";
  * @modifiedBy 최종 수정자: 정지영
  * @modified description:
  * 2025-07-14: 공정률 확인 및 수정 추가. 해당 날짜의 레코드가 없으면 수정이 불가. 이에 대한 연락시 공정률 테이블에 레코드 삽입
- * 2025-07-25: 공정률 월별로 조회하도록 변경
+ * 2025-07-25: 공정률 월별로 조회하도록 변경, 공정률 수정 및 작업내용 추가 마감기한에 따라 제한
+ * 
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /api/rest-date (공휴일 조회), /schedule/rest (휴무일 조회), /schedule/daily-job (작업내용 조회), /site/work-rate (날짜별 현장 공정률 조회), /site/work-rate/{jno}/{date} (공정률 월별 조회)
+ *    Http Method - GET : /api/rest-date (공휴일 조회), /schedule/rest (휴무일 조회), /schedule/daily-job (작업내용 조회), /site/work-rate (날짜별 현장 공정률 조회), /site/work-rate/{jno}/{date} (공정률 월별 조회), /project-setting/{jno} (프로젝트 설정정보)
  *    Http Method - POST : /schedule/rest (휴무일 저장), /schedule/daily-job (작업내용 저장) 
  *    Http Method - PUT : /schedule/rest (휴무일 수정), /schedule/daily-job (작업내용 수정), /site/work-rate (공정률 수정)
  *    Http Method - DELETE : /schedule/rest${item.cno} (휴무일 삭제), /schedule/daily-job${item.cno} (작업내용 삭제)
@@ -100,7 +101,8 @@ const Schedule = () => {
     const [isModWorkRate, setIsModWorkRate] = useState();   // 변경 모달
     const [workRate, setWorkRate] = useState(0);            // 변경할 공정률 데이터
     const [workRates, setWorkRates] = useState([]);
-
+    // 취소 기간
+    const [cancelDay, setCancelDay] = useState(null);
 
     // 날짜 비교 
     const isSameDay = (date1, date2) => {
@@ -128,6 +130,36 @@ const Schedule = () => {
     const onClickMonthBtn = (value) => {
         setCurrentMonth(currentMonth + value);
         setMonthOption(selectMonth.find(item => item.value === (currentMonth + value)));
+    }
+
+    // 취소기한 조회
+    const getProjectSetting = async () => {
+        if(project === null) return;
+        
+        const res = await Axios.GET(`/project-setting/${project.jno}`)
+        if (res?.data?.result === "Success"){
+            setCancelDay(res?.data?.values?.project[0]?.cancel_day || null);
+        }else{
+            setCancelDay(null);
+        }
+
+    }
+
+    // 취소기한 별 날짜 여부 체크: jno
+    const checkAllowDate = (date) => {
+
+        // 오늘날짜에서 마감취소기간을 뺀 최소 허용 기간 구하기
+        const allowDate = dateUtil.diffDay(new Date(dateUtil.now()), cancelDay);
+        
+        const compDate = new Date(date);
+
+        // 만약 선택한 날짜가 최소허용기간 보다 적으면 false 반환
+        if (!ObjChk.all(cancelDay) && !ObjChk.all(compDate) && allowDate > compDate) {
+            return false;
+        }else{
+            return true;
+        }
+
     }
 
     // 공정률 확인
@@ -345,8 +377,8 @@ const Schedule = () => {
 
     // 강수량과 하늘 수치로 정보 반환
     const convertWeather = (rainy, cloudy) => {
-        let weatherIcon = weather0
-        let weatherText = "맑음" 
+        let weatherIcon = weather0;
+        let weatherText = "맑음" ;
 
         switch (rainy) {
             case "0":
@@ -433,7 +465,7 @@ const Schedule = () => {
                 setIsDetailModal(false);
             }else{
                 if (res?.data?.message.includes("중복")) {
-                    setModalText("지정한 날짜에 이미 휴무일이 존재합니다.")
+                    setModalText("지정한 날짜에 이미 휴무일이 존재합니다.");
                 }else{
                     setModalText("휴무일 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
                 }
@@ -490,7 +522,7 @@ const Schedule = () => {
                 setIsDetailModal(false);
             }else{
                 if (res?.data?.message.includes("중복")) {
-                    setModalText("지정한 날짜에 이미 작업 내용이 존재합니다.")
+                    setModalText("지정한 날짜에 이미 작업 내용이 존재합니다.");
                 }else{
                     setModalText("작업내용 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
                 }
@@ -566,7 +598,7 @@ const Schedule = () => {
                 setIsAddDetailModal(false);
             }else{
                 if (res?.data?.message.includes("중복")) {
-                    setModalText("지정한 날짜에 이미 휴무일이 존재합니다.")
+                    setModalText("지정한 날짜에 이미 휴무일이 존재합니다.");
                 }else{
                     setModalText("휴무일 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
                 }
@@ -609,7 +641,7 @@ const Schedule = () => {
                 setIsAddDetailModal(false);
             }else{
                 if (res?.data?.message.includes("중복")) {
-                    setModalText("지정한 날짜에 이미 작업 내용이 존재합니다.")
+                    setModalText("지정한 날짜에 이미 작업 내용이 존재합니다.");
                 }else{
                     setModalText("작업내용 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
                 }
@@ -626,7 +658,7 @@ const Schedule = () => {
     /***** 공정률 *****/
     const onClickWorkRate = (date) => {
         if(project == null) return;
-        const workRate = getDailyWorkRate(date)
+        const workRate = getDailyWorkRate(date);
         setWorkRate(workRate);
         setIsModWorkRate(true);
     }
@@ -714,7 +746,7 @@ const Schedule = () => {
                 borderTopRightRadius: "5px",
                 borderBottomLeftRadius: "5px",
                 borderBottomRightRadius: "5px",
-                right: "5px",
+                right: "10px",
             }
         }else{
             return {
@@ -771,6 +803,11 @@ const Schedule = () => {
     useEffect(() => {
         setIsProject(true);
     }, [])
+
+    // 프로젝트 변경 시 마감취소기한 조회
+    useEffect(() => {
+        getProjectSetting();
+    }, [project])
 
     return(
         <div>
@@ -853,9 +890,9 @@ const Schedule = () => {
                     </div>
                 </ol>
 
-                <div style={{display: "flex", margin: "5px", gap: "5px", justifyContent: "center"}}>
+                <div style={{display: "flex", margin: "5px", gap: "5px", justifyContent: "center", alignItems:"center"}}>
                     <div>
-                        <Button text={<img src={ArrowLeftIcon} style={{width: "15px", height: "15px", filter: "brightness(0) invert(1)"}}/>} style={{margin: 0, width: "35px", height: "38px", display: "flex", justifyContent: "center", alignItems: "center"}} onClick={() => onClickMonthBtn(-1)}/>
+                        <Button text={<img src={ArrowLeftIcon} style={{width: "15px", height: "15px", filter: "brightness(0) invert(1)"}}/>} style={{margin: 0, width: "35px", height: "36px", display: "flex", justifyContent: "center", alignItems: "center"}} onClick={() => onClickMonthBtn(-1)}/>
                     </div>
                     <div style={{width: "130px"}}>
                         <Select
@@ -906,7 +943,7 @@ const Schedule = () => {
                         />
                     </div>
                     <div>
-                    <Button text={<img src={ArrowRightIcon} style={{width: "15px", height: "15px", filter: "brightness(0) invert(1)"}}/>} style={{margin: 0, width: "35px", height: "38px", display: "flex", justifyContent: "center", alignItems: "center"}} onClick={() => onClickMonthBtn(1)}/>
+                    <Button text={<img src={ArrowRightIcon} style={{width: "15px", height: "15px", filter: "brightness(0) invert(1)"}}/>} style={{margin: 0, width: "35px", height: "36px", display: "flex", justifyContent: "center", alignItems: "center"}} onClick={() => onClickMonthBtn(1)}/>
                     </div>
                 </div>
 
@@ -939,11 +976,12 @@ const Schedule = () => {
                                                         verticalAlign: "top", 
                                                         textAlign: "left", 
                                                         padding: "10px", 
+                                                        paddingBottom:"30px",
                                                         backgroundColor: isSameDay(new Date(), item) ? "#f9fdd7" : "",
                                                     }}
                                                 >   
                                                     {
-                                                        item !== null && new Date(item) <= new Date(new Date().setHours(0, 0, 0, 0)) && project !== null && (
+                                                        item !== null && new Date(item) <= new Date(new Date().setHours(0, 0, 0, 0)) && project !== null && checkAllowDate(item) &&(
                                                             <img
                                                                 src={WorkRateIcon}
                                                                 alt="plus"
@@ -955,7 +993,7 @@ const Schedule = () => {
                                                                     padding: "3px",
                                                                     position: "absolute",
                                                                     bottom: "5px",
-                                                                    right: "41px",
+                                                                    // right: "41px", // workRateIconCss에서 적용됨
                                                                     width: "32px",
                                                                     height: "32px",
                                                                     cursor: "pointer",
@@ -978,7 +1016,7 @@ const Schedule = () => {
                                                                     padding: "3px",
                                                                     position: "absolute",
                                                                     bottom: "5px",
-                                                                    right: "5px",
+                                                                    right: "10px",
                                                                     width: "32px",
                                                                     height: "32px",
                                                                     cursor: "pointer",
@@ -1043,7 +1081,7 @@ const Schedule = () => {
                                                             : ""
                                                         }
                                                         {
-                                                            item !== null ?
+                                                            item !== null && checkAllowDate(item) ?
                                                                 <img src={PlusIcon} style={{width: "12px", marginLeft: "auto"}}/>
                                                             : ""
                                                         }
@@ -1081,6 +1119,7 @@ const Schedule = () => {
                                                     <div
                                                         style={{
                                                             padding: "0.5rem 0rem",
+                                                            width:"100%",
                                                             height: "100%",
                                                             cursor: "pointer",
                                                             alignItems:"center",
@@ -1098,7 +1137,7 @@ const Schedule = () => {
                                                                 borderRadius : "5px", 
                                                                 width: "90%",
                                                                 height:"32px",
-                                                                padding:"0.125rem 0.125rem",
+                                                                padding:"0.125rem 0.5rem",
                                                                 alignItems:"center",
                                                         }}>
                                                                   {`공정률: ${getDailyWorkRate(item).work_rate || 0}%`}

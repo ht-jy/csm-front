@@ -85,6 +85,24 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
         setIsOrganizationOpen(true);
     }
 
+    /***** 공정률 및 작업내용 *****/
+    // 취소기한 별 날짜 여부 체크: jno
+    const checkAllowDate = (cancelDay) => {
+
+        // 오늘날짜에서 마감취소기간을 뺀 최소 허용 기간 구하기
+        const allowDate = dateUtil.diffDay(new Date(dateUtil.now()), cancelDay);
+        
+        const compDate = new Date(selectedDate);
+
+        // 만약 선택한 날짜가 최소허용기간 보다 적으면 false 반환
+        if (!ObjChk.all(cancelDay) && !ObjChk.all(compDate) && allowDate > compDate) {
+            return false;
+        }else{
+            return true;
+        }
+
+    }
+
      /***** Schedule 상세 모달 *****/
         const onClickScheduleOpen = (item) => {
             const date = ObjChk.all(selectedDate) ? new Date() : new Date(selectedDate)
@@ -362,7 +380,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                     </label>
                     <div className="read-only-input">
                         {
-                            isEdit ?
+                            isEdit && checkAllowDate(data.cancel_day) ?
                                 <input className="slider-input" type="text" value={sliderValue} onChange={(e) => onChangeSliderValue(e.target.value)} style={{height: "40px", width: "50px", textAlign: "right", paddingRight: "5px"}}/>
                             :
                                 sliderValue
