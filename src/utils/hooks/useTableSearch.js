@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 /**
  * @description: 테이블 조회, 검색, 정렬 등의 이벤트 중에서 반복되는 코드를 모아 놓은 커스텀 훅
@@ -22,7 +22,7 @@ import { useState, useEffect } from "react";
  *   order: 정렬 문자열 값
  *   setOrder: 정렬 문자열 값 stter
  */
-const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySearchText, setRetrySearchText, pageNum, setPageNum, rowSize, setRowSize, order, setOrder, rnumOrder, setRnumOrder, setEditList }) => {
+const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySearchText, setRetrySearchText, pageNum, setPageNum, rowSize, setRowSize, order, setOrder, rnumOrder, setRnumOrder, setEditList, isOpen = true }) => {
     // 기본 검색값 초기화: isSearch가 true인 컬럼에 대해 빈 문자열 할당
     const defaultSearchValues = columns.reduce((acc, col) => {
         if (col.isSearch) acc[col.itemName] = "";
@@ -165,18 +165,7 @@ const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySear
 
     // 페이지 숫자, 리스트 수, 정렬 또는 호출 상태값 변경시 데이터 호출
     useEffect(() => {
-        if (getDataFunction) {
-            if (typeof getDataValue !== "undefined") {
-                getDataFunction(getDataValue);
-            } else {
-                getDataFunction();
-            }
-        }
-    }, [getDataValue, retrySearchText, pageNum, rowSize, order, rnumOrder]);
-
-    // 초기화 버튼 클릭
-    useEffect(() => {
-        if (isSearchReset) {
+        if (isOpen) {
             if (getDataFunction) {
                 if (typeof getDataValue !== "undefined") {
                     getDataFunction(getDataValue);
@@ -184,6 +173,21 @@ const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySear
                     getDataFunction();
                 }
             }
+        }
+    }, [getDataValue, retrySearchText, pageNum, rowSize, order, rnumOrder]);
+
+    // 초기화 버튼 클릭
+    const calledRef = useRef(false);
+    useEffect(() => {
+        if (isSearchReset && !calledRef.current) {
+            if (getDataFunction) {
+                if (typeof getDataValue !== "undefined") {
+                    getDataFunction(getDataValue);
+                } else {
+                    getDataFunction();
+                }
+            }
+            calledRef.current = true;
             setIsSearchReset(false);
         }        
     }, [isSearchReset]);

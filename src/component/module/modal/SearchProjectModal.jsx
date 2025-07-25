@@ -8,6 +8,7 @@ import Button from "../Button";
 import { useAuth } from "../../context/AuthContext";
 import useTableControlState from "../../../utils/hooks/useTableControlState";
 import useTableSearch from "../../../utils/hooks/useTableSearch";
+import Loading from "../Loading";
 
 /**
  * @description: 화면 상단의 검색창을 클릭시 나오는 프로젝트 선택 모달. 프로젝트 선택시 AuthContext에 값을 담아서 다른 화면에서 사용 목적
@@ -15,26 +16,29 @@ import useTableSearch from "../../../utils/hooks/useTableSearch";
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-25
- * @modified 최종 수정일: 2025-07-09
+ * @modified 최종 수정일: 2025-07-05
  * @modifiedBy 최종 수정자: 김진우
  * @modified Description
  * 2025-07-01: 프로젝트 선택시 사용자의 프로젝트권한 조회
  * 2025-07-09: 프로젝트 선택시 사용자 권한 조회 기능 추가
+ * 2025-07-25: 모달 오픈시 api요청 n번 안되도록 수정, 상위컴포넌트 오픈시 api요청 안되도록 수정(현재 컴포넌트 오픈시에 호출), 데이터 조회중 대기 로딩 추가
  * 
  * - props
  *   isUsedProject true 인 경우는 상단의 선택처럼 3가지의 프로젝트 경우의 수가 아닌 공사관리시스템에 등록된 프로젝트만 나오게 됨
+ *   includeJno 값이 있을시 해당 jno가 속한 현장의 프로젝트만 조회
  *   onClickRow 가 있을시에는 상단 검색창에 클릭과는 다르게 현장근태에 등록되어 있는 프로젝트만 적용이 됨. 선택한 아이템을 반환받을 함수
  * 
  * @additionalInfo
  * - API: 
  *    Http Method - GET : /project (공사관리 프로젝트 조회), /project/enterprise (전사 프로젝트 조회), /project/my-org/{uno} (본인이 속한 조직도 프로젝트 조회), /user/role?jno=${jno}&uno=${uno} (프로젝트 사용자 권한 조회)
  */
-const SearchProjectModal = ({isOpen, fncExit, isUsedProject, onClickRow}) => {
+const SearchProjectModal = ({isOpen, fncExit, isUsedProject, includeJno, onClickRow}) => {
     const { user, setProject, setProjectName, setJobRole, setUserRole } = useAuth();
     const [selectedValue, setSelectedValue] = useState("1");
     const [data, setData] = useState([]);
     const [count, setCount] = useState(0);
-
+    const [isLoading, setIsLoading] = useState(false);
+    
     // 테이블 설정
     const columns = [
         { isSearch: false, isOrder: true, isSlide: true, width: "65.34px", header: "JNO", itemName: "jno", bodyAlign: "center", isEllipsis: false, isDate: false, type: "fill-number", fillLen: 5},
@@ -98,32 +102,36 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, onClickRow}) => {
 
     // 공사관리 프로젝트 조회
     const getUsedData = async () => {
-        const res = await Axios.GET(`/project?page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}`);
+        setIsLoading(true);
+        const res = await Axios.GET(`/project?page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}&include_jno=${includeJno}`);
         
         if (res?.data?.result === "Success") {
             setData(res?.data?.values?.list);
             setCount(res?.data?.values?.count);
         }
+        setIsLoading(false);
     };
 
     // 조직도 프로젝트 조회
     const getStaffData = async () => {
+        setIsLoading(true);
         const res = await Axios.GET(`/project/my-org/${user.uno}?page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}`);
         if (res?.data?.result === "Success") {
             setData(res?.data?.values?.list);
             setCount(res?.data?.values?.count);
         }
-        
+        setIsLoading(false);
     };
 
     // 전체 프로젝트 조회
     const getAllData = async () => {
-
+        setIsLoading(true);
         const res = await Axios.GET(`/project/enterprise?page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}`);
         if(res?.data?.result === "Success"){
             setData(res?.data?.values?.list);
             setCount(res?.data?.values?.count);            
         }
+        setIsLoading(false);
     };
 
     // 데이터 조회 분기
@@ -148,11 +156,13 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, onClickRow}) => {
         handleSearchInit,
         handleSortChange,
         handlePageClick,
-    } = useTableSearch({columns, getDataFunction: getData, getDataValue: selectedValue, pageNum, setPageNum, rowSize, order, setOrder});
+    } = useTableSearch({columns, getDataFunction: getData, getDataValue: selectedValue, pageNum, setPageNum, rowSize, order, setOrder, isOpen});
 
     // 모달 오픈시 메인 화면 스크롤 정지
     useEffect(() => {
         if (isOpen) {
+            getData("1");
+            setSelectedValue("1");
             document.body.style.overflow = "hidden";
 
             // 엔터 키 이벤트 핸들러
@@ -173,6 +183,9 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, onClickRow}) => {
 
     return(
         <div>
+            <Loading
+                isOpen={isLoading}
+            />
             {
                 isOpen ?
                 <div style={overlayStyle}>
@@ -197,9 +210,9 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, onClickRow}) => {
                                 
                             :   <div style={{ display: 'flex', alignItems: 'center', borderRadius: "5px", border: "Solid #aaa 1px", padding: "10px", marginTop: "5px", height: "60px" }}>
                                     <div style={{ display: 'flex', gap: "30px", fontSize: "15px"}}>
-                                        <Radio text="공사관리시스템 Used" value="1" name="group1" defaultChecked={selectedValue === "1"} onChange={handleRadioChange}/>
-                                        <Radio text="조직도(STAFF)" value="2" name="group1" defaultChecked={selectedValue === "2"} onChange={handleRadioChange}/>
-                                        <Radio text="전체(ALL)" value="3" name="group1" defaultChecked={selectedValue === "3"} onChange={handleRadioChange}/>
+                                        <Radio text="공사관리시스템 Used" value="1" name="group1" checked={selectedValue === "1"} onChange={handleRadioChange}/>
+                                        <Radio text="조직도(STAFF)" value="2" name="group1" checked={selectedValue === "2"} onChange={handleRadioChange}/>
+                                        <Radio text="전체(ALL)" value="3" name="group1" checked={selectedValue === "3"} onChange={handleRadioChange}/>
                                     </div>
 
                                     <div style={{marginLeft: "auto"}}>

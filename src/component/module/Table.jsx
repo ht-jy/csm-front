@@ -35,8 +35,11 @@ import DigitFormattedInput from "./DigitFormattedInput";
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-17
- * @modified 최종 수정일: 
- * @modifiedBy 최종 수정자: 
+ * @modified 최종 수정일: 2025-07-25
+ * @modifiedBy 최종 수정자: 김진우
+ * @modified Description
+ * 2025-07-25: columns 객체에 rowSpan이 있는 경우 해당 필드가 합쳐지고 마우스 hover시 rowSpan이 적용되는 리스트까지 같이 되도록 추가
+ * 
  * @additionalInfo
  * - props
  *  columns: 테이블 th/td 설정 리스트
@@ -75,13 +78,14 @@ import DigitFormattedInput from "./DigitFormattedInput";
  *  onSortChange: 정렬시 부모 컴포넌트 실행 함수
  *  onClickRow: 행클릭 시 부모 컴포넌트 실행 함수 // 인자: ("DETAIL", 해당 행의 rowIndexName의 정보)
  *  isHeaderFixed: 헤더 부분 스크롤시 고정 여부 true|false
+ *  groupKeyArr: columns에 rowSpan이 있는 경우 같은 강조 효과를 주기 위한 키 배열
  *  styles: 테이블 스타일 추가 적용
  *  isEdit: 수정폼 변환 true|false
  *  editInfo: 수정폼 정보 리스트
  *  onChangeEditList:  수정한 데이터 리스트 반환 함수
  */
 const Table = forwardRef(({ 
-    columns, data=[], noDataText, searchValues={}, onSearch, onSearchChange, activeSearch=[], setActiveSearch, resetTrigger, onSortChange, onClickRow, isHeaderFixed, styles,
+    columns, data=[], noDataText, searchValues={}, onSearch, onSearchChange, activeSearch=[], setActiveSearch, resetTrigger, onSortChange, onClickRow, isHeaderFixed, groupKeyArr, styles,
     isEdit, editInfo, onChangeEditList
 }, ref) => {
     const [localSearchValues, setLocalSearchValues] = useState(searchValues); // 로컬 상태 유지
@@ -94,6 +98,7 @@ const Table = forwardRef(({
     const [addRowIdx, setAddRowIdx] = useState([]);
     const [editAddList, setEditAddList] = useState([]);
     const [checkedItemList, setCheckedItemList] = useState([]);
+    const [hoveredGroupKey, setHoveredGroupKey] = useState(null);
 
     // 툴팁
     useTooltip([data]);
@@ -436,6 +441,17 @@ const Table = forwardRef(({
             return {maxWidth: column.width}
         }
     }
+
+    // 테이블 백그라운드
+    const tdBackgroudColor = (item) => {
+        return item.backgroundColor ? {backgroundColor: item.backgroundColor} : {backgroundColor: ""}
+    }
+
+    // rowSpan이 있는 경우 같은 강조 효과를 주기 위한 그룹키 생성
+    const getRowGroupKey = (item, groupKey) => {
+        if (!Array.isArray(groupKey) || groupKey.length === 0) return "";
+        return groupKey.map(f => item[f]).join("_");
+    };
 
     // 수정모드 변경. 최상단에 추가 버튼만 있는 row 생성
     const editTableMode = (addFieldName) => {
@@ -842,20 +858,19 @@ const Table = forwardRef(({
                 ) : (
                     tableData.map((item, idx) => (
                         <tr 
-                            className={ObjChk.all(onClickRow) ? "" : "table-tr"}
                             key={idx}
-                            onClick={
-                                ObjChk.all(onClickRow) ?
-                                    null 
-                                : 
-                                    () => onClickRow(item, "DETAIL")
-                            }
+                            className={ObjChk.all(onClickRow) ? "" : groupKeyArr !== undefined && getRowGroupKey(item, groupKeyArr) === hoveredGroupKey ? "table-tr highlight" : "table-tr"}
+                            onMouseEnter={ObjChk.all(onClickRow) ? undefined : () => setHoveredGroupKey(getRowGroupKey(item, groupKeyArr))}
+                            onMouseLeave={ObjChk.all(onClickRow) ? undefined : () => setHoveredGroupKey(null)}
+                            onClick={ObjChk.all(onClickRow) ? undefined : () => onClickRow(item, "DETAIL")}
                         >
                             {columns.map((col, col_idx) => (
+                                !col.rowSpan || idx % col.rowSpan === 0 ?
                                 <td
-                                    key={`cell-${idx}-${col.itemName}`}
+                                    key={`cell-${idx}-${col_idx}-${col.itemName}`}
                                     className={`${col.bodyAlign} ${col.isEllipsis ? "ellipsis-tooltip" : ""} ${item[col.boldItemName] === 'Y' || item[col.boldItemName] === true ? "fw-bold" : ""} ${isEditModeAddData(item) ? "td-backgroud-sort" : ""}`}
-                                    style={editInfo ? tdEditStyle(col, editInfo[col_idx]) : {maxWidth: col.width}}
+                                    style={editInfo ? {...tdEditStyle(col, editInfo[col_idx]), ...tdBackgroudColor(item)} : {maxWidth: col.width, ...tdBackgroudColor(item)}}
+                                    rowSpan= {col.rowSpan}
                                 >
                                     {
                                         /***** Edit *****/
@@ -1066,7 +1081,7 @@ const Table = forwardRef(({
                                         : item[col.itemName]
                                         
                                     }
-                                </td>
+                                </td> :null
                             ))}
                         </tr>
                     ))

@@ -6,12 +6,13 @@ import { useEffect } from "react";
  * @description: alert, confirm 을 위한 커스텀 modal창 모듈
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-??
- * @modified 최종 수정일: 2025-07-10
+ * @modified 최종 수정일: 2025-07-15
  * @modifiedBy 최종 수정자: 김진우
  * @modified Description: 
  * 2025-07-10: content를 추가하여 jsx구문을 넣어서 모달로 띄울 수 있도록 함
+ * 2025-07-25: text 부분에 정렬 기능 추가
  */
-const Modal = ({isOpen, title, text, content, confirm, fncConfirm, cancel, fncCancel}) => {
+const Modal = ({isOpen, title, text, content, confirm, fncConfirm, cancel, fncCancel, align = "center"}) => {
 
     const scrollUnset = (e) => {
         document.body.style.overflow = 'unset';
@@ -67,7 +68,7 @@ const Modal = ({isOpen, title, text, content, confirm, fncConfirm, cancel, fncCa
                         
                         <div style={pStyle}>
                             {text?.split("\n").map((line, index) => (
-                                <div key={index}>
+                                <div key={index} style={{display: 'flex', justifyContent: align}}>
                                     {line}
                                     <br />
                                 </div>
