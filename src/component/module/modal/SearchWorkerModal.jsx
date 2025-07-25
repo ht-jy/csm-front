@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useContext } from "react";
 import { Axios } from "../../../utils/axios/Axios";
 import { useAuth } from "../../context/AuthContext";
 import { dateUtil } from "../../../utils/DateUtil";
+import { useSiteBase } from "../../context/SiteBaseContext";
 import Table from "../Table";
 import Exit from "../../../assets/image/exit.png";
 import PaginationWithCustomButtons from "../PaginationWithCustomButtons";
@@ -13,16 +14,17 @@ import DateInput from "../DateInput";
 import SiteBaseContext from "../../context/SiteBaseContext";
 import { useTableContext } from "../../context/TableContext";
 import "../../../assets/css/SearchWorkerModal.css";
+import Modal from "../Modal";
 
 /**
  * @description: 근로자 아이디, 이름, 부서 조회 모달
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-03-24
- * @modified 최종 수정일: 
- * @modifiedBy 최종 수정자: 
- * @usedComponents
- * - 
+ * @modified 최종 수정일: 2025-07-25
+ * @modifiedBy 최종 수정자: 김진우
+ * @modified Description
+ * 2025-07-25: 검색 데이터 초기화/모달 오픈시 api요청 n번 안되도록 수정, 상위컴포넌트 오픈시 api요청 안되도록 수정(현재 컴포넌트 오픈시에 호출), 데이터 조회중 대기 로딩 추가
  * 
  * @additionalInfo
  * - API: 
@@ -35,6 +37,9 @@ const SearchWorkerModal = ({isOpen=false, fncExit, onClickRow}) => {
     const [data, setData] = useState([]);
     const [count, setCount] = useState(0);
     const [searchStartTime, setSearchStartTime] = useState(searchTime);
+    const [isModal, setIsModal] = useState(false);
+
+    const {editList} = useSiteBase();
 
     const columns = useMemo(() => [
         { isSearch: false, isOrder: false, isSlide: false, width: "100px", header: "아이디", itemName: "user_id", bodyAlign: "center", isEllipsis: false, isDate: false },
@@ -61,6 +66,10 @@ const SearchWorkerModal = ({isOpen=false, fncExit, onClickRow}) => {
 
     // 테이블 리스트 클릭
     const handleRowClick = (item) => {
+        if(editList.find(obj => obj.user_key === item.user_key)){
+            setIsModal(true);
+            return;
+        }
         onClickRow({
             user_key: item.user_key,
             user_id: item.user_id,
@@ -79,7 +88,6 @@ const SearchWorkerModal = ({isOpen=false, fncExit, onClickRow}) => {
     // 아이디 검색
     const getData = async () => {
         const res = await Axios.GET(`worker/total/absent?page_num=${pageNum}&row_size=${rowSize}&search_start_time=${searchStartTime}&sno=${project.sno}&jno=${project.jno}&retry_search=${retrySearchText}`);
-        
         if (res?.data?.result === "Success") {
             setData(res?.data?.values?.list);
             setCount(res?.data?.values?.count);
@@ -90,7 +98,7 @@ const SearchWorkerModal = ({isOpen=false, fncExit, onClickRow}) => {
         isSearchInit,
         handleRetrySearch,
         handleSearchInit,
-    } = useTableSearch({ columns, getDataFunction: getData, retrySearchText, setRetrySearchText, pageNum, setPageNum, rowSize, setRowSize });
+    } = useTableSearch({ columns, getDataFunction: getData, retrySearchText, setRetrySearchText, pageNum, setPageNum, rowSize, setRowSize, isOpen });
     
 
     /***** useEffect *****/
@@ -102,8 +110,8 @@ const SearchWorkerModal = ({isOpen=false, fncExit, onClickRow}) => {
 
     useEffect(() => {
         if(isOpen !== undefined && isOpen){
-            setRetrySearchText("");
-            getData();
+            handleSearchInit();
+            // getData();
         }
     }, [isOpen]);
 
@@ -130,70 +138,81 @@ const SearchWorkerModal = ({isOpen=false, fncExit, onClickRow}) => {
     }, [isOpen]);
     
     return (
-        isOpen !== null && isOpen ?
-            <div style={overlayStyle}>
-                <div style={modalStyle}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: "#ddd", borderRadius: "5px", height: "40px" }}>
-                        <h2 style={{fontSize: "15px", color: "black", paddingLeft: "10px"}}>근로자 아이디 검색</h2>
+        <>
+        <Modal
+            isOpen={isModal}
+            title={"근로자 추가 선택"}
+            text={"이미 추가한 근로자 입니다.\n다른 근로자를 선택하여 주세요."}
+            confirm={"확인"}
+            fncConfirm={() => setIsModal(false)}
+        />
+        {
+            isOpen !== null && isOpen ?
+                <div style={overlayStyle}>
+                    <div style={modalStyle}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: "#ddd", borderRadius: "5px", height: "40px" }}>
+                            <h2 style={{fontSize: "15px", color: "black", paddingLeft: "10px"}}>근로자 아이디 검색</h2>
 
-                        <div onClick={handleExitScrollUnset} style={{ cursor: "pointer" }}>
-                            <img src={Exit} style={{ width: "30px", paddingBottom: '0px', marginRight: "5px" }} alt="Exit" />
-                        </div>
-                    </div>
-
-                    <div className="table-header">
-                        <div className="table-header-left" style={{gap:"10px"}}>
-                            <div>
-                                조회날짜 <DateInput time={searchStartTime} setTime={setSearchStartTime}></DateInput>
+                            <div onClick={handleExitScrollUnset} style={{ cursor: "pointer" }}>
+                                <img src={Exit} style={{ width: "30px", paddingBottom: '0px', marginRight: "5px" }} alt="Exit" />
                             </div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: "right", marginTop: "5px", marginBottom: "5px", height: "40px" }}>
-                            {
-                                isSearchInit ? <Button text={"초기화"} onClick={handleSearchInit}  style={{marginRight: "2px"}}/> : null
-                            }
-                            <Search 
-                                searchOptions={searchOptions}
-                                width={"230px"}
-                                fncSearchKeywords={handleRetrySearch}
-                                retrySearchText={retrySearchText}
-                                potalId={"search-portal"}
-                            /> 
+
+                        <div className="table-header">
+                            <div className="table-header-left" style={{gap:"10px"}}>
+                                <div>
+                                    조회날짜 <DateInput time={searchStartTime} setTime={setSearchStartTime}></DateInput>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: "right", marginTop: "5px", marginBottom: "5px", height: "40px" }}>
+                                {
+                                    isSearchInit ? <Button text={"초기화"} onClick={handleSearchInit}  style={{marginRight: "2px"}}/> : null
+                                }
+                                <Search 
+                                    searchOptions={searchOptions}
+                                    width={"230px"}
+                                    fncSearchKeywords={handleRetrySearch}
+                                    retrySearchText={retrySearchText}
+                                    potalId={"search-portal"}
+                                /> 
+                            </div>
                         </div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: "right", paddingRight: 0 }}>
-                        <div id="search-portal"></div>
-                    </div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: "right", paddingRight: 0 }}>
+                            <div id="search-portal"></div>
+                        </div>
 
-                    <div style={{ 
-                        width: '100%', 
-                        height: 'calc(100% - 120px)',  // 버튼과 라디오 영역을 제외한 높이
-                        overflowX: 'auto',            // 가로 스크롤
-                        overflowY: 'auto',            // 세로 스크롤
-                        marginTop: "0px",
-                    }}>
-                        <Table
-                            columns={columns} 
-                            data={data}
-                            noDataText={"검색한 아이디가 없습니다."}
-                            onClickRow={handleRowClick}
-                            styles={{width: "1290px"}}
-                        />
+                        <div style={{ 
+                            width: '100%', 
+                            height: 'calc(100% - 120px)',  // 버튼과 라디오 영역을 제외한 높이
+                            overflowX: 'auto',            // 가로 스크롤
+                            overflowY: 'auto',            // 세로 스크롤
+                            marginTop: "0px",
+                        }}>
+                            <Table
+                                columns={columns} 
+                                data={data}
+                                noDataText={"검색한 아이디가 없습니다."}
+                                onClickRow={handleRowClick}
+                                styles={{width: "1290px"}}
+                            />
 
-                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
-                            {
-                                count !== 0 ? 
-                                    <PaginationWithCustomButtons 
-                                        dataCount={count}
-                                        fncClickPageNum={handlePageClick}
-                                    />
-                                : null
-                            }
-                            
+                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
+                                {
+                                    count !== 0 ? 
+                                        <PaginationWithCustomButtons 
+                                            dataCount={count}
+                                            fncClickPageNum={handlePageClick}
+                                        />
+                                    : null
+                                }
+                                
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        : null
+            : null
+        }
+        </>
     );
 }
 
@@ -207,7 +226,7 @@ const overlayStyle = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: '9999'
+    zIndex: '999'
 };
   
 const modalStyle = {

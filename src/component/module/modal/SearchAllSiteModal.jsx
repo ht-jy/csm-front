@@ -6,20 +6,17 @@ import PaginationWithCustomButtons from "../PaginationWithCustomButtons";
 import Button from "../Button";
 import useTableControlState from "../../../utils/hooks/useTableControlState";
 import useTableSearch from "../../../utils/hooks/useTableSearch";
+import Loading from "../Loading";
 
 /**
  * @description: 전체 현장을 선택할 수 있는 모달
  * 
  * @author 작성자: 정지영
  * @created 작성일: 2025-04-23
- * @modified 최종 수정일: 
- * @modifiedBy 최종 수정자: 
- * @usedComponents
- * - Table 테이블
- * - ReactPaginate 페이지네이션
- * - Button 버튼
- * - useTableControlState 테이블 state 커스텀 훅
- * - useTableSearch 테이블 이벤트 커스텀 훅
+ * @modified 최종 수정일: 2025-07-25
+ * @modifiedBy 최종 수정자: 김진우
+ * @modified Description
+ * 2025-07-25: 검색 데이터 초기화/모달 오픈시 api요청 n번 안되도록 수정, 상위컴포넌트 오픈시 api요청 안되도록 수정(현재 컴포넌트 오픈시에 호출), 데이터 조회중 대기 로딩 추가
  * 
  * @additionalInfo
  * - API: 
@@ -28,6 +25,7 @@ import useTableSearch from "../../../utils/hooks/useTableSearch";
 const SearchAllSiteModal = ({isOpen, fncExit, onClickRow, nonSite}) => {
     const [data, setData] = useState([]);
     const [count, setCount] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
 
     // 테이블 설정
     const columns = [
@@ -54,11 +52,16 @@ const SearchAllSiteModal = ({isOpen, fncExit, onClickRow, nonSite}) => {
 
     // 전체 현장 조회
     const getData = async () => {
-
-        const res = await Axios.GET(`/site/nm?non_site=${nonSite ? 1 : 0}&page_num=${pageNum}&row_size=${rowSize}&order=${order}&sno=${searchValues.sno}&site_nm=${searchValues.site_nm}&loc_name=${searchValues.loc_name}&etc=${searchValues.etc}`);
-        if(res?.data?.result === "Success"){
-            setData(res?.data?.values?.list);
-            setCount(res?.data?.values?.count);            
+        try{
+            setIsLoading(true);
+            const res = await Axios.GET(`/site/nm?non_site=${nonSite ? 1 : 0}&page_num=${pageNum}&row_size=${rowSize}&order=${order}&sno=${searchValues.sno}&site_nm=${searchValues.site_nm}&loc_name=${searchValues.loc_name}&etc=${searchValues.etc}`);
+            
+            if(res?.data?.result === "Success"){
+                setData(res?.data?.values?.list);
+                setCount(res?.data?.values?.count);            
+            }
+        }finally{
+            setIsLoading(false);
         }
     };
 
@@ -73,14 +76,14 @@ const SearchAllSiteModal = ({isOpen, fncExit, onClickRow, nonSite}) => {
         handleSearchInit,
         handleSortChange,
         handlePageClick,
-    } = useTableSearch({columns, getDataFunction: getData, pageNum, setPageNum, rowSize, order, setOrder});
+    } = useTableSearch({columns, getDataFunction: getData, pageNum, setPageNum, rowSize, order, setOrder, isOpen});
 
     // 모달 오픈시 메인 화면 스크롤 정지
     useEffect(() => {
         if (isOpen) {
-
+            handleSearchInit();
             // 데이터 조회
-            getData()
+            // getData()
 
             document.body.style.overflow = "hidden";
 
@@ -102,6 +105,9 @@ const SearchAllSiteModal = ({isOpen, fncExit, onClickRow, nonSite}) => {
 
     return(
         <div>
+            <Loading
+                isOpen={isLoading}
+            />
             {
                 isOpen ?
                 <div style={overlayStyle}>

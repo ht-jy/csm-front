@@ -8,20 +8,17 @@ import { useAuth } from "../../context/AuthContext";
 import useTableControlState from "../../../utils/hooks/useTableControlState";
 import useTableSearch from "../../../utils/hooks/useTableSearch";
 import Search from "../search/Search";
+import Loading from "../Loading";
 
 /**
  * @description: 전체 프로젝트를 선택할 수 있는 모달
  * 
  * @author 작성자: 정지영
  * @created 작성일: 2025-04-23
- * @modified 최종 수정일: 
- * @modifiedBy 최종 수정자: 
- * @usedComponents
- * - Table 테이블
- * - ReactPaginate 페이지네이션
- * - Button 버튼
- * - useTableControlState 테이블 state 커스텀 훅
- * - useTableSearch 테이블 이벤트 커스텀 훅
+ * @modified 최종 수정일: 2025-07-25
+ * @modifiedBy 최종 수정자: 김진우
+ * @modified Description
+ * 2025-07-25: 검색 데이터 초기화/모달 오픈시 api요청 n번 안되도록 수정, 상위컴포넌트 오픈시 api요청 안되도록 수정(현재 컴포넌트 오픈시에 호출), 데이터 조회중 대기 로딩 추가
  * 
  * @additionalInfo
  * - API: 
@@ -32,6 +29,7 @@ const SearchAllProjectModal = ({isOpen, fncExit, onClickRow, isAll}) => {
     const { setProject, setProjectName } = useAuth();
     const [data, setData] = useState([]);
     const [count, setCount] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
 
     // 테이블 설정
     const columns = [
@@ -78,11 +76,16 @@ const SearchAllProjectModal = ({isOpen, fncExit, onClickRow, isAll}) => {
 
     // 전체 프로젝트 조회
     const getData = async () => {
-
-        const res = await Axios.GET(`/project/enterprise?all=${isAll ? 1 : 0}&page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}&retry_search=${retrySearchText}`);
-        if(res?.data?.result === "Success"){
-            setData(res?.data?.values?.list);
-            setCount(res?.data?.values?.count);            
+        try{
+            setIsLoading(true);
+            const res = await Axios.GET(`/project/enterprise?all=${isAll ? 1 : 0}&page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}&retry_search=${retrySearchText}`);
+            
+            if(res?.data?.result === "Success"){
+                setData(res?.data?.values?.list);
+                setCount(res?.data?.values?.count);            
+            }
+        }finally{
+            setIsLoading(false);    
         }
     };
 
@@ -98,11 +101,12 @@ const SearchAllProjectModal = ({isOpen, fncExit, onClickRow, isAll}) => {
         handleSearchInit,
         handleSortChange,
         handlePageClick,
-    } = useTableSearch({columns, getDataFunction: getData, pageNum, setPageNum, rowSize, order, setOrder, retrySearchText, setRetrySearchText});
+    } = useTableSearch({columns, getDataFunction: getData, pageNum, setPageNum, rowSize, order, setOrder, retrySearchText, setRetrySearchText, isOpen});
 
     // 모달 오픈시 메인 화면 스크롤 정지
     useEffect(() => {
         if (isOpen) {
+            handleSearchInit();
             document.body.style.overflow = "hidden";
 
             // 엔터 키 이벤트 핸들러
@@ -123,6 +127,9 @@ const SearchAllProjectModal = ({isOpen, fncExit, onClickRow, isAll}) => {
 
     return(
         <div>
+            <Loading
+                isOpen={isLoading}
+            />
             {
                 isOpen ?
                 <div style={overlayStyle}>

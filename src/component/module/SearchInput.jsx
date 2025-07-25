@@ -55,7 +55,7 @@ const SearchInput = ({selectedModal, inputText, inputItemName, setSearchText}) =
                 <input type="text" value={inputValue} disabled={true} style={{border: "1px solid #ccc", width: "150px", height: "28px", borderBottomLeftRadius: "5px", borderTopLeftRadius: "5px", textAlign: "center"}}/>
                 <div 
                     onClick={() => setIsOpen(true)} 
-                    style={{display: "flex", justifyContent: "center", alignItems: "center", borderTopRightRadius: "5px", borderBottomRightRadius: "5px", height: "28px", padding: 0, fontSize: "13px", paddingLeft: "5px", paddingRight: "5px", backgroundColor: "#0d6efd"}}
+                    style={{display: "flex", justifyContent: "center", alignItems: "center", borderTopRightRadius: "5px", borderBottomRightRadius: "5px", height: "28px", padding: 0, fontSize: "13px", paddingLeft: "5px", paddingRight: "5px", backgroundColor: "#0d6efd", cursor: "pointer"}}
                 >
                     <img
                         src={SearchIcon}

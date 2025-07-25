@@ -5,16 +5,17 @@ import { Axios } from "../../../utils/axios/Axios";
 import { useAuth } from "../../context/AuthContext";
 import "../../../assets/css/Table.css"
 import Modal from "../Modal";
+import Loading from './../Loading';
 
 /**
  * @description: 
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-04-07
- * @modified 최종 수정일: 
- * @modifiedBy 최종 수정자: 
- * @usedComponents
- * - 
+ * @modified 최종 수정일: 2025-07-25
+ * @modifiedBy 최종 수정자: 김진우
+ * @modified Description
+ * 2025-07-25: 모달 오픈시 api요청 n번 안되도록 수정, 상위컴포넌트 오픈시 api요청 안되도록 수정(현재 컴포넌트 오픈시에 호출), 데이터 조회중 대기 로딩 추가
  * 
  * @additionalInfo
  * - API: 
@@ -27,10 +28,13 @@ const OrganizationModal = ({isOpen, fncExit, type, projectNo}) => {
     const [ client, setClient ] = useState([]);
     const [ hitech, setHitech ] = useState([]);
     const [ modalOpen, setModalOpen ] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
 
     const handleExitScrollUnset = (e) => {
         document.body.style.overflow = 'unset';
+        setClient([]);
+        setHitech([]);
         fncExit();
     }
 
@@ -40,22 +44,27 @@ const OrganizationModal = ({isOpen, fncExit, type, projectNo}) => {
         if(type === "detail"){
             jno = projectNo || null;
         }else{
-            jno = project?.jno || null
+            jno = project?.jno || null;
         }
 
         if(jno === null){
-            setModalOpen(true)
-            setClient([])
-            setHitech([])
+            setModalOpen(true);
+            setClient([]);
+            setHitech([]);
             return
         }else{
-            setModalOpen(false)
+            setModalOpen(false);
         }
 
-        const res = await Axios.GET(`/organization/${jno}`)
-        if(res?.data?.result === "Success"){
-            setClient(res?.data?.values?.client)
-            setHitech(res?.data?.values?.hitech)            
+        try{
+            setIsLoading(true);
+            const res = await Axios.GET(`/organization/${jno}`);
+            if(res?.data?.result === "Success"){
+                setClient(res?.data?.values?.client);
+                setHitech(res?.data?.values?.hitech);       
+            }
+        }finally{
+            setIsLoading(false);
         }
 
     }
@@ -84,11 +93,16 @@ const OrganizationModal = ({isOpen, fncExit, type, projectNo}) => {
     // 조직도 열림 상태와 프로젝트가 변경된 경우
     useEffect (() => {
         // 데이터 불러오기
-        getOrganization()
+        if(isOpen){
+            getOrganization();
+        }
 
     }, [project, isOpen])
 
     return <>
+            <Loading
+                isOpen={isLoading}
+            />
             {
                 isOpen ?
                 <div style={overlayStyle}>

@@ -35,10 +35,11 @@ import SiteBaseHistory from "./SiteBaseHistory";
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-18
- * @modified 최종 수정일: 2025-07-10
+ * @modified 최종 수정일: 2025-07-25
  * @modifiedBy 최종 수정자: 김진우
  * @modified description
  * 2025-07-10: 일괄공수입력 기능 추가
+ * 2025-07-25: 현장근로자 데이터 변경시 사유 입력 및 히스토리, 사유 조회 추가
  * 
  * @additionalInfo
  * - API: 
@@ -106,7 +107,6 @@ const SiteBase = () => {
     const [reasonText, setReasonText] = useState("");
     const [reasonConfirm, setReasonConfirm] = useState(() => {});
     const [reason, setReason] = useState("");
-    const [reasonType, setReasonType] = useState("");
 
     // 테이블 컬럼 정보
     const columns = [
@@ -184,21 +184,39 @@ const SiteBase = () => {
             if(forwradRes.length === 0){
                 setIsDeadlineSelect(true);
             }else{
+                if(forwradRes.filter(item => item.is_deadline === 'Y').length !== 0){
+                    setModalTitle("근로자 마감");
+                    setModalText("마감 처리가 된 근로자가 있습니다.\n확인 후 다시 시도하여 주세요.");
+                    setIsModal(true);
+                    return;
+                }
                 setIsDeadlineModal(true);
             }
         }
     }
 
-    // 일괄마감처리
+    // 마감사유
+    const workerDeadlineReason = (type) => {
+        setIsDeadlineSelect(false);
+        setIsDeadlineModal(false);
+        setReasonTitle("근로자 마감");
+        setReasonText("근로자 마감 사유를 입력하여 주세요.");
+        setReason("");
+        setReasonConfirm(() => () => workerDeadline(type));
+        setIsReason(true);
+    }
+
+    // 마감처리
     const workerDeadline = async(type) => {
+        setIsReason(false);
         if(tableRef.current){
             setModalTitle("근로자 마감");
             let forwradRes
             if(type === "ALL"){
-                forwradRes = state.list;
+                forwradRes = state.list.filter(item => item.is_deadline === 'N');
                 setIsDeadlineSelect(false);
             }else if(type === "OUT"){
-                forwradRes = state.list.filter(item => item.work_state == "02");
+                forwradRes = state.list.filter(item => item.work_state == "02").filter(item => item.is_deadline === 'N');
                 setIsDeadlineSelect(false);
             }else{
                 forwradRes = tableRef.current.getCheckedItemList();
@@ -208,15 +226,25 @@ const SiteBase = () => {
             const deadlines = [];
             forwradRes.map(item => {
                 const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
+                const in_recog_time = item.in_recog_time === "0001-01-01T00:00:00Z" ? item.in_recog_time : dateUtil.goTime(record_date + "T" + item.in_recog_time?.split("T")[1]);
+                const out_recog_time = item.out_recog_time === "0001-01-01T00:00:00Z" ? item.out_recog_time : dateUtil.goTime(record_date + "T" + item.out_recog_time?.split("T")[1]);
                 const deadline = {
                     sno: item.sno,
                     jno: item.jno,
                     user_key: item.user_key,
                     user_id: item.user_id,
                     record_date: dateUtil.goTime(record_date),
+                    in_recog_time: in_recog_time,
+                    out_recog_time: out_recog_time,
+                    work_hour: item.work_hour,
+                    work_state: item.work_state,
+                    is_overtime: item.is_overtime,
+                    is_deadline: 'Y',
                     message: `[DEADLINE FINISH]`,
                     mod_uno: user.uno,
                     mod_user: user.userName,
+                    reason: reason,
+                    reason_type: "03",
                 }
                 deadlines.push(deadline);
             });
@@ -267,28 +295,47 @@ const SiteBase = () => {
         setIsWorkHour(true);
     }
 
+    const workHourSaveReason = () => {
+        setReasonTitle("일괄 공수 입력");
+        setReasonText("일괄 공수 입력 사유를 입력하여 주세요.");
+        setReason("");
+        setReasonConfirm(() => () => workHourSave());
+        setIsReason(true);
+        setIsWorkHour(false);
+    }
+
     // 일괄공수처리
-    const handleWorkHour = async() => {
+    const workHourSave = async() => {
         if(tableRef.current){
+            setIsReason(false);
             setModalTitle("일괄 공수 입력");
+
             let forwradRes
             forwradRes = tableRef.current.getCheckedItemList();
-            setIsWorkHour(false);
-
+            
             const workers = [];
             forwradRes.map(item => {
                 const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
+                const in_recog_time = item.in_recog_time === "0001-01-01T00:00:00Z" ? item.in_recog_time : dateUtil.goTime(record_date + "T" + item.in_recog_time?.split("T")[1]);
+                const out_recog_time = item.out_recog_time === "0001-01-01T00:00:00Z" ? item.out_recog_time : dateUtil.goTime(record_date + "T" + item.out_recog_time?.split("T")[1]);
                 const before = state.list.find(obj => obj.sno === item.sno && obj.jno === item.jno && obj.user_id === item.user_id);
                 const worker = {
                     sno: item.sno,
                     jno: item.jno,
                     user_key: item.user_key,
                     user_id: item.user_id,
-                    work_hour: workHour,
                     record_date: dateUtil.goTime(record_date),
+                    in_recog_time: in_recog_time,
+                    out_recog_time: out_recog_time,
+                    work_hour: workHour,
+                    work_state: item.work_state,
+                    is_overtime: item.is_overtime,
+                    is_deadline: item.is_deadline,
                     message: `[WORK HOUR MOD]before: ${before.work_hour}, after: ${workHour}`,
                     mod_uno: user.uno,
                     mod_user: user.userName,
+                    reason: reason,
+                    reason_type: "04",
                 }
                 workers.push(worker);
             });
@@ -345,19 +392,22 @@ const SiteBase = () => {
     }
 
     // 프로젝트 모달의 row 클릭 이벤트
-    const handleProjectRowClick = (item) => {
+    const handleProjectRowClickReason = (item) => {
         setSelectedProject(item);
-        setModalText2(`${item.job_name} 으로 변경하시겠습니까?`);
-        setIsModal2(true);
+        setReasonTitle("프로젝트 변경");
+        setReasonText("프로젝트 변경 사유를 입력하여 주세요.");
+        setReason("");
+        setReasonConfirm(() => () => handleProjectModConfirm());
+        setIsReason(true);
     }
 
     // 프로젝트 변경 선택용 모달 "예" 클릭
     const handleProjectModConfirm = async() => {
-        setIsModal2(false);
-        if(tableRef.current){
-            setModalTitle("근로자 프로젝트 변경");
-            const forwradRes = tableRef.current.getCheckedItemList();
+        setIsReason(false);
+        setModalTitle("근로자 프로젝트 변경");
 
+        if(tableRef.current){
+            const forwradRes = tableRef.current.getCheckedItemList();
             const checkJno = forwradRes.filter(item => item.jno === selectedProject.jno);
             if(checkJno.length !== 0){
                 setModalText("선택한 프로젝트와 근로자의 프로젝트가 동일합니다.");
@@ -368,6 +418,8 @@ const SiteBase = () => {
             const workers = [];
             forwradRes.map(item => {
                 const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
+                const in_recog_time = item.in_recog_time === "0001-01-01T00:00:00Z" ? item.in_recog_time : dateUtil.goTime(record_date + "T" + item.in_recog_time?.split("T")[1]);
+                const out_recog_time = item.out_recog_time === "0001-01-01T00:00:00Z" ? item.out_recog_time : dateUtil.goTime(record_date + "T" + item.out_recog_time?.split("T")[1]);
                 const message = `[PROJECT MOVE]jno[before:${item.jno}, after:${selectedProject.jno}]`;
 
                 const worker = {
@@ -377,10 +429,17 @@ const SiteBase = () => {
                     user_id: item.user_id,
                     user_key: item.user_key,
                     record_date: dateUtil.goTime(record_date),
+                    in_recog_time: in_recog_time,
+                    out_recog_time: out_recog_time,
+                    work_hour: workHour,
                     work_state: item.work_state,
+                    is_overtime: item.is_overtime,
+                    is_deadline: item.is_deadline,
                     message: message,
                     mod_uno: user.uno,
                     mod_user: user.userName,
+                    reason: reason,
+                    reason_type: "05",
                 }
                 workers.push(worker);
             });
@@ -438,24 +497,43 @@ const SiteBase = () => {
         setIsDelWorker(true);
     }
 
+    const deleteWorkersReason = () => {
+        setIsDelWorker(false);
+        setReasonTitle("현장 근로자 삭제");
+        setReasonText("현장 근로자 삭제 사유를 입력하여 주세요.");
+        setReason("");
+        setReasonConfirm(() => () => deleteWorkers());
+        setIsReason(true);
+    }
+
     // 현장 근로자 삭제 처리
     const deleteWorkers = async() => {
-        setIsModal(false);
+        setIsReason(false);
         if(tableRef.current){
             const selectWorkers = tableRef.current.getCheckedItemList();
             
             const workers = [];
             selectWorkers.map(item => {
                 const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
+                const in_recog_time = item.in_recog_time === "0001-01-01T00:00:00Z" ? item.in_recog_time : dateUtil.goTime(record_date + "T" + item.in_recog_time?.split("T")[1]);
+                const out_recog_time = item.out_recog_time === "0001-01-01T00:00:00Z" ? item.out_recog_time : dateUtil.goTime(record_date + "T" + item.out_recog_time?.split("T")[1]);
                 const deadline = {
                     sno: item.sno,
                     jno: item.jno,
                     user_key: item.user_key,
                     user_id: item.user_id,
                     record_date: dateUtil.goTime(record_date),
+                    in_recog_time: in_recog_time,
+                    out_recog_time: out_recog_time,
+                    work_hour: item.work_hour,
+                    work_state: item.work_state,
+                    is_overtime: item.is_overtime,
+                    is_deadline: item.is_deadline,
                     message: `[DELETE DATA]in_recog_time: ${item.in_recog_time}|out_recog_time: ${item.out_recog_time}|work_hour: ${item.work_hour}`,
                     mod_uno: user.uno,
                     mod_user: user.userName,
+                    reason: reason,
+                    reason_type: "06",
                 }
                 workers.push(deadline);
             });
@@ -474,7 +552,6 @@ const SiteBase = () => {
                 navigate("/error");
             } finally {
                 setIsLoading(false);
-                setIsDelWorker(false);
                 setIsModal(true);
             }
         }
@@ -571,24 +648,44 @@ const SiteBase = () => {
         setIsDeadlineCancel(true);
     }
 
+    const deadlineCancelReason = () => {
+        setIsDeadlineCancel(false);
+        setIsModal(false);
+        setReasonTitle("마감 취소");
+        setReasonText("마감 취소 사유를 입력하여 주세요.");
+        setReason("");
+        setReasonConfirm(() => () => deadlineCancel());
+        setIsReason(true);
+    }
+
     // 마감 취소
     const deadlineCancel = async() => {
-        setIsModal(false);
+        setIsReason(false);
         if(tableRef.current){
             const selectWorkers = tableRef.current.getCheckedItemList();
             
             const workers = [];
             selectWorkers.map(item => {
                 const record_date = dateUtil.isYYYYMMDD(item.record_date) ? item.record_date : dateUtil.format(item.record_date);
+                const in_recog_time = item.in_recog_time === "0001-01-01T00:00:00Z" ? item.in_recog_time : dateUtil.goTime(record_date + "T" + item.in_recog_time?.split("T")[1]);
+                const out_recog_time = item.out_recog_time === "0001-01-01T00:00:00Z" ? item.out_recog_time : dateUtil.goTime(record_date + "T" + item.out_recog_time?.split("T")[1]);
                 const deadline = {
                     sno: item.sno,
                     jno: item.jno,
                     user_key: item.user_key,
                     user_id: item.user_id,
                     record_date: dateUtil.goTime(record_date),
+                    in_recog_time: in_recog_time,
+                    out_recog_time: out_recog_time,
+                    work_hour: item.work_hour,
+                    work_state: item.work_state,
+                    is_overtime: item.is_overtime,
+                    is_deadline: 'N',
                     message: `[DEADLINE CANCEL]`,
                     mod_uno: user.uno,
                     mod_user: user.userName,
+                    reason: reason,
+                    reason_type: "07",
                 }
                 workers.push(deadline);
             });
@@ -607,7 +704,6 @@ const SiteBase = () => {
                 navigate("/error");
             } finally {
                 setIsLoading(false);
-                setIsDeadlineCancel(false);
                 setIsModal(true);
             }
         }
@@ -637,7 +733,6 @@ const SiteBase = () => {
         setReasonTitle("근로자 추가/수정");
         setReasonText("근로자 추가/수정 사유를 입력하여 주세요.");
         setReason("");
-        setReasonType("02");
         setReasonConfirm(() => () => onClickSave());
         setIsReason(true);
     }
@@ -688,10 +783,10 @@ const SiteBase = () => {
             const in_recog_time = item.in_recog_time === "0001-01-01T00:00:00Z" ? item.in_recog_time : dateUtil.goTime(record_date + "T" + item.in_recog_time?.split("T")[1]);
             const out_recog_time = item.out_recog_time === "0001-01-01T00:00:00Z" ? item.out_recog_time : dateUtil.goTime(record_date + "T" + item.out_recog_time?.split("T")[1]);
             
+            let reasonType = "";
             let message = [];
-            let reasonTypeTemp = reasonType;
             if(item.rnum === "ADD_ROW"){
-                reasonTypeTemp = "01";
+                reasonType = "01";
                 message = `[ADD DATA]in_recog_time: ${item.in_recog_time}|out_recog_time: ${item.out_recog_time}|work_hour: ${item.work_hour}`;
             }else{
                 const find = state.list.find(data => data.sno === item.sno && data.user_id === item.user_id);
@@ -722,7 +817,7 @@ const SiteBase = () => {
                 }
                 message.join(" | ")
                 message = find.is_deadline !== item.is_deadline ? "[UPDATE DATA | DEADLINE FINISH]" + message : "[UPDATE DATA]" + message;
-                reasonTypeTemp = find.is_deadline !== item.is_deadline ? "07" : "02";
+                reasonType = find.is_deadline !== item.is_deadline ? "08" : "02";
             }
 
             const param = {
@@ -740,7 +835,7 @@ const SiteBase = () => {
                 work_state: item.work_state,
                 work_hour: item.work_hour,
                 reason: reason,
-                reason_type: reasonTypeTemp,
+                reason_type: reasonType,
                 message: message,
                 mod_user: user.userName,
                 mod_uno: user.uno,
@@ -1089,9 +1184,9 @@ const SiteBase = () => {
                 title={"일괄마감"}
                 text={"마감유형을 선택하세요."}
                 first={"전체 마감"}
-                fncFirst={() => workerDeadline("ALL")}
+                fncFirst={() => workerDeadlineReason("ALL")}
                 second={"퇴근자 마감"}
-                fncSecond={() => workerDeadline("OUT")}
+                fncSecond={() => workerDeadlineReason("OUT")}
                 cancel={"취소"}
                 fncCancel={() => setIsDeadlineSelect(false)}
             />
@@ -1100,7 +1195,7 @@ const SiteBase = () => {
                 title={"일괄마감"}
                 text={"마감처리를 하시겠습니까?"}
                 confirm={"예"}
-                fncConfirm={workerDeadline}
+                fncConfirm={workerDeadlineReason}
                 cancel={"아니요"}
                 fncCancel={() => setIsDeadlineModal(false)}
             />
@@ -1127,7 +1222,7 @@ const SiteBase = () => {
                     />
                 }
                 confirm={"확인"}
-                fncConfirm={() => handleWorkHour()}
+                fncConfirm={() => workHourSaveReason()}
                 cancel={"취소"}
                 fncCancel={() => setIsWorkHour(false)}
             />
@@ -1136,7 +1231,7 @@ const SiteBase = () => {
                 title={"현장 근로자 삭제"}
                 text={"선택한 근로자를 삭제 하시겠습니까?\n삭제한 기록은 복구하실 수 없습니다."}
                 confirm={"예"}
-                fncConfirm={deleteWorkers}
+                fncConfirm={deleteWorkersReason}
                 cancel={"아니요"}
                 fncCancel={() => setIsDelWorker(false)}
             />
@@ -1145,7 +1240,7 @@ const SiteBase = () => {
                 title={"마감 취소"}
                 text={"선택한 근로자를 마감취소 하시겠습니까?"}
                 confirm={"예"}
-                fncConfirm={deadlineCancel}
+                fncConfirm={deadlineCancelReason}
                 cancel={"아니요"}
                 fncCancel={() => setIsDeadlineCancel(false)}
             />
@@ -1160,11 +1255,14 @@ const SiteBase = () => {
                 isOpen={isProjectModal}
                 fncExit={() => setIsProjectModal(false)}
                 isUsedProject={true}
-                onClickRow={handleProjectRowClick}
+                includeJno={project?.jno}
+                onClickRow={handleProjectRowClickReason}
             />
             <SiteBaseHistory
                 isOpen={isHistory}
                 fncExit={() => setIsHistory(false)}
+                startDate={searchStartTime}
+                endDate={searchEndTime}
             />
             <Modal
                 isOpen={isReason}
@@ -1286,24 +1384,26 @@ const SiteBase = () => {
                     
                     <div className="table-wrapper">
                         <div className="table-container" style={{overflow: "auto", maxHeight: "calc(100vh - 350px)"}}>
-                            <TableProvider searchTime={searchStartTime} funcIsEditModeAddData={isEditModeAddData}>
-                                <Table 
-                                    ref={tableRef}
-                                    columns={columns} 
-                                    data={state.list} 
-                                    searchValues={searchValues}
-                                    onSearch={handleTableSearch} 
-                                    onSearchChange={handleSearchChange} 
-                                    activeSearch={activeSearch} 
-                                    setActiveSearch={setActiveSearch} 
-                                    resetTrigger={isSearchReset}
-                                    onSortChange={handleSortChange}
-                                    isHeaderFixed={true}
-                                    isEdit={isEdit}
-                                    editInfo={editInfo}
-                                    onChangeEditList={handleEditList}
-                                />
-                            </TableProvider>
+                            <SiteBaseContext.Provider value={{editList}}>
+                                <TableProvider searchTime={searchStartTime} funcIsEditModeAddData={isEditModeAddData}>
+                                    <Table 
+                                        ref={tableRef}
+                                        columns={columns} 
+                                        data={state.list} 
+                                        searchValues={searchValues}
+                                        onSearch={handleTableSearch} 
+                                        onSearchChange={handleSearchChange} 
+                                        activeSearch={activeSearch} 
+                                        setActiveSearch={setActiveSearch} 
+                                        resetTrigger={isSearchReset}
+                                        onSortChange={handleSortChange}
+                                        isHeaderFixed={true}
+                                        isEdit={isEdit}
+                                        editInfo={editInfo}
+                                        onChangeEditList={handleEditList}
+                                    />
+                                </TableProvider>
+                            </SiteBaseContext.Provider>
                         </div>
                     </div>
                     <div>

@@ -14,14 +14,10 @@ import Search from "../search/Search";
  * 
  * @author 작성자: 정지영
  * @created 작성일: 2025-05-07
- * @modified 최종 수정일: 
- * @modifiedBy 최종 수정자: 
- * @usedComponents
- * - Table 테이블
- * - ReactPaginate 페이지네이션
- * - Button 버튼
- * - useTableControlState 테이블 state 커스텀 훅
- * - useTableSearch 테이블 이벤트 커스텀 훅
+ * @modified 최종 수정일: 2025-07-25
+ * @modifiedBy 최종 수정자: 김진우
+ * @modified Description
+ * 2025-07-25: 검색 데이터 초기화/모달 오픈시 api요청 n번 안되도록 수정, 상위컴포넌트 오픈시 api요청 안되도록 수정(현재 컴포넌트 오픈시에 호출), 데이터 조회중 대기 로딩 추가
  * 
  * @additionalInfo
  * - API: 
@@ -80,6 +76,7 @@ const SearchUsedProjectModal = ({isOpen, fncExit, onClickRow}) => {
     const getData = async () => {
 
         const res = await Axios.GET(`/project?page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}&retry_search=${retrySearchText}`);
+        
         if(res?.data?.result === "Success"){
             setData(res?.data?.values?.list);
             setCount(res?.data?.values?.count);            
@@ -98,11 +95,12 @@ const SearchUsedProjectModal = ({isOpen, fncExit, onClickRow}) => {
         handleSearchInit,
         handleSortChange,
         handlePageClick,
-    } = useTableSearch({columns, getDataFunction: getData, pageNum, retrySearchText, setRetrySearchText, setPageNum, rowSize, order, setOrder});
+    } = useTableSearch({columns, getDataFunction: getData, pageNum, retrySearchText, setRetrySearchText, setPageNum, rowSize, order, setOrder, isOpen});
 
     // 모달 오픈시 메인 화면 스크롤 정지
     useEffect(() => {
         if (isOpen) {
+            handleSearchInit();
             document.body.style.overflow = "hidden";
 
             // 엔터 키 이벤트 핸들러
