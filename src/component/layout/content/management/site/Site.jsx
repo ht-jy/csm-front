@@ -1,35 +1,35 @@
-import React, { useState, useEffect, useReducer, useRef } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
+import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { Axios } from "../../../../../utils/axios/Axios"
-import { dateUtil } from "../../../../../utils/DateUtil";
-import { useAuth } from "../../../../context/AuthContext";
-import { Common } from "../../../../../utils/Common";
-import { ObjChk } from "../../../../../utils/ObjChk";
-import useTooltip from "../../../../../utils/hooks/useTooltip";
-import SiteContext from "../../../../context/SiteContext";
-import SiteReducer from "./SiteReducer";
-import DetailModal from "./DetailModal";
-import Loading from "../../../../module/Loading";
-import Modal from "../../../../module/Modal";
-import Button from "../../../../module/Button";
-import NonUsedProjectModal from "../../../../module/modal/NonUsedProjectModal";
-import DateInput from "../../../../module/DateInput";
+import "../../../../../assets/css/Table.css";
+import LoadingIcon from "../../../../../assets/image/Loading.gif";
+import warningWeather from "../../../../../assets/image/warningWeather.png";
 import weather0 from "../../../../../assets/image/weather/0.png";
 import weather1 from "../../../../../assets/image/weather/1.png";
+import weather13 from "../../../../../assets/image/weather/13.png";
+import weather14 from "../../../../../assets/image/weather/14.png";
 import weather2 from "../../../../../assets/image/weather/2.png";
 import weather3 from "../../../../../assets/image/weather/3.png";
 import weather4 from "../../../../../assets/image/weather/4.png";
 import weather5 from "../../../../../assets/image/weather/5.png";
 import weather6 from "../../../../../assets/image/weather/6.png";
 import weather7 from "../../../../../assets/image/weather/7.png";
-import weather13 from "../../../../../assets/image/weather/13.png";
-import weather14 from "../../../../../assets/image/weather/14.png";
-import warningWeather from "../../../../../assets/image/warningWeather.png";
-import LoadingIcon from "../../../../../assets/image/Loading.gif";
-import "../../../../../assets/css/Table.css";
+import { Axios } from "../../../../../utils/axios/Axios";
+import { Common } from "../../../../../utils/Common";
+import { dateUtil } from "../../../../../utils/DateUtil";
+import useTooltip from "../../../../../utils/hooks/useTooltip";
 import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
-import { createPortal } from "react-dom";
-import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
+import { ObjChk } from "../../../../../utils/ObjChk";
+import { useAuth } from "../../../../context/AuthContext";
+import SiteContext from "../../../../context/SiteContext";
+import Button from "../../../../module/Button";
+import DateInput from "../../../../module/DateInput";
+import Loading from "../../../../module/Loading";
+import Modal from "../../../../module/Modal";
+import NonUsedProjectModal from "../../../../module/modal/NonUsedProjectModal";
+import DetailModal from "./DetailModal";
+import SiteReducer from "./SiteReducer";
 /**
  * @description: 현장 관리 페이지
  * 
@@ -402,6 +402,7 @@ const Site = () => {
             navigate("/error");
         } finally {
             setIsLoading(false);
+            setIsNonUseChecked(false);
         }
     }
 
@@ -573,6 +574,7 @@ const Site = () => {
                                 time={dateUtil.format(selectedDate === "-" ? dateUtil.now() : selectedDate)} 
                                 setTime={(value) => setSelectedDate(value)} 
                                 dateInputStyle={{margin: "0px", marginLeft:"10px"}}
+                                calendarPopupStyle={{ fontWeight: "normal"}}
                             ></DateInput>
                         </div>
                         <div className="square-container">

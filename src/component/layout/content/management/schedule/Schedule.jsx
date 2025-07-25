@@ -1,52 +1,53 @@
+import Slider from "rc-slider";
+import { useEffect, useRef, useState } from "react";
 import ReactDOM from 'react-dom';
-import { useState, useEffect, useRef } from "react";
-import { Axios } from "../../../../../utils/axios/Axios";
-import { Navigate, useNavigate } from "react-router-dom";
-import { dateUtil } from "../../../../../utils/DateUtil";
-import { useAuth } from "../../../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import Select from 'react-select';
-import Button from "../../../../module/Button";
-import Loading from "../../../../module/Loading";
-import AddDetailSchedule from "./AddDetailSchedule";
-import Modal from "../../../../module/Modal";
-import DetailSchedule from "./DetailSchedule";
-import useTooltip from "../../../../../utils/hooks/useTooltip";
-import PlusBottomIcon from "../../../../../assets/image/plus-sign.png";
-import PlusIcon from "../../../../../assets/image/plus2.png";
+import "../../../../../assets/css/Schedule.css";
+import "../../../../../assets/css/SiteDetail.css";
+import "../../../../../assets/css/Table.css";
 import ArrowLeftIcon from "../../../../../assets/image/arrow-left.png";
 import ArrowRightIcon from "../../../../../assets/image/arrow-right.png";
-import "../../../../../assets/css/Table.css";
-import "../../../../../assets/css/Schedule.css";
-import { ObjChk } from "../../../../../utils/ObjChk";
-import Slider from "rc-slider";
+import PlusBottomIcon from "../../../../../assets/image/plus-sign.png";
+import PlusIcon from "../../../../../assets/image/plus2.png";
 import weather0 from "../../../../../assets/image/weather/0.png";
 import weather1 from "../../../../../assets/image/weather/1.png";
+import weather13 from "../../../../../assets/image/weather/13.png";
+import weather14 from "../../../../../assets/image/weather/14.png";
 import weather2 from "../../../../../assets/image/weather/2.png";
 import weather3 from "../../../../../assets/image/weather/3.png";
 import weather4 from "../../../../../assets/image/weather/4.png";
 import weather5 from "../../../../../assets/image/weather/5.png";
 import weather6 from "../../../../../assets/image/weather/6.png";
 import weather7 from "../../../../../assets/image/weather/7.png";
-import weather13 from "../../../../../assets/image/weather/13.png";
-import weather14 from "../../../../../assets/image/weather/14.png";
 import weather from "../../../../../assets/image/weather/schedule.png";
 import WorkRateIcon from "../../../../../assets/image/work-rate.png";
-import "../../../../../assets/css/SiteDetail.css";
+import { Axios } from "../../../../../utils/axios/Axios";
 import { Common } from '../../../../../utils/Common';
-
+import { dateUtil } from "../../../../../utils/DateUtil";
+import useTooltip from "../../../../../utils/hooks/useTooltip";
+import { ObjChk } from "../../../../../utils/ObjChk";
+import { useAuth } from "../../../../context/AuthContext";
+import Button from "../../../../module/Button";
+import Loading from "../../../../module/Loading";
+import Modal from "../../../../module/Modal";
+import AddDetailSchedule from "./AddDetailSchedule";
+import DetailSchedule from "./DetailSchedule";
 /**
  * @description: 일정관리 - 휴무일, 작업내용을 달력 형태로 확인 / 휴무일, 작업내용, 프로젝트 공정률, 프로젝트 장비 수정
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-04-28
- * @modified 최종 수정일: 2025-07-14
- * @modifiedBy 최종 수정자: 김진우
+ * @modified 최종 수정일: 2025-07-25
+ * @modifiedBy 최종 수정자: 정지영
  * @modified description:
  * 2025-07-14: 공정률 확인 및 수정 추가. 해당 날짜의 레코드가 없으면 수정이 불가. 이에 대한 연락시 공정률 테이블에 레코드 삽입
+ * 2025-07-25: 공정률 월별로 조회하도록 변경, 공정률 수정 및 작업내용 추가 마감기한에 따라 제한
+ * 
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /api/rest-date (공휴일 조회), /schedule/rest (휴무일 조회), /schedule/daily-job (작업내용 조회), /site/work-rate (날짜별 현장 공정률 조회)
+ *    Http Method - GET : /api/rest-date (공휴일 조회), /schedule/rest (휴무일 조회), /schedule/daily-job (작업내용 조회), /site/work-rate (날짜별 현장 공정률 조회), /site/work-rate/{jno}/{date} (공정률 월별 조회), /project-setting/{jno} (프로젝트 설정정보)
  *    Http Method - POST : /schedule/rest (휴무일 저장), /schedule/daily-job (작업내용 저장) 
  *    Http Method - PUT : /schedule/rest (휴무일 수정), /schedule/daily-job (작업내용 수정), /site/work-rate (공정률 수정)
  *    Http Method - DELETE : /schedule/rest${item.cno} (휴무일 삭제), /schedule/daily-job${item.cno} (작업내용 삭제)
@@ -98,10 +99,10 @@ const Schedule = () => {
     const [weatherPopupPosition, setWeatherPopupPosition] = useState({ top: 0, left: 0 });
     // 공정률
     const [isModWorkRate, setIsModWorkRate] = useState();   // 변경 모달
-    const [isWorkRate, setIsWorkRate] = useState();         // 확인 모달
-    const [initWorkRate, setInitWorkRate] = useState({});   // 현재 공정률
-    const [workRate, setWorkRate] = useState(0);            // 변경할 공정률
-    const [workRateDate, setWorkrRateDate] = useState("");  // 변경할 날짜
+    const [workRate, setWorkRate] = useState(0);            // 변경할 공정률 데이터
+    const [workRates, setWorkRates] = useState([]);
+    // 취소 기간
+    const [cancelDay, setCancelDay] = useState(null);
 
     // 날짜 비교 
     const isSameDay = (date1, date2) => {
@@ -131,6 +132,44 @@ const Schedule = () => {
         setMonthOption(selectMonth.find(item => item.value === (currentMonth + value)));
     }
 
+    // 취소기한 조회
+    const getProjectSetting = async () => {
+        if(project === null) return;
+        
+        const res = await Axios.GET(`/project-setting/${project.jno}`)
+        if (res?.data?.result === "Success"){
+            setCancelDay(res?.data?.values?.project[0]?.cancel_day || null);
+        }else{
+            setCancelDay(null);
+        }
+
+    }
+
+    // 취소기한 별 날짜 여부 체크: jno
+    const checkAllowDate = (date) => {
+
+        // 오늘날짜에서 마감취소기간을 뺀 최소 허용 기간 구하기
+        const allowDate = dateUtil.diffDay(new Date(dateUtil.now()), cancelDay);
+        
+        const compDate = new Date(date);
+
+        // 만약 선택한 날짜가 최소허용기간 보다 적으면 false 반환
+        if (!ObjChk.all(cancelDay) && !ObjChk.all(compDate) && allowDate > compDate) {
+            return false;
+        }else{
+            return true;
+        }
+
+    }
+
+    // 공정률 확인
+    const getDailyWorkRate = (date) => {
+        const dateStr = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` 
+        const result = workRates.filter( (workRate) => dateUtil.format(workRate.record_date) === dateStr);
+
+        return {...result[0]};
+
+    }
     // 작업내용 리스트
     const getIsSameDailyJobs = (date) => {
         const jobs = [];
@@ -338,8 +377,8 @@ const Schedule = () => {
 
     // 강수량과 하늘 수치로 정보 반환
     const convertWeather = (rainy, cloudy) => {
-        let weatherIcon = weather0
-        let weatherText = "맑음" 
+        let weatherIcon = weather0;
+        let weatherText = "맑음" ;
 
         switch (rainy) {
             case "0":
@@ -425,7 +464,11 @@ const Schedule = () => {
                 setModalText("휴무일 수정에 성공하였습니다.");
                 setIsDetailModal(false);
             }else{
-                setModalText("휴무일 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                if (res?.data?.message.includes("중복")) {
+                    setModalText("지정한 날짜에 이미 휴무일이 존재합니다.");
+                }else{
+                    setModalText("휴무일 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                }
             }
             setModalTitle("휴무일");
             setIsModal(true);
@@ -478,8 +521,13 @@ const Schedule = () => {
                 setModalText("작업내용 수정에 성공하였습니다.");
                 setIsDetailModal(false);
             }else{
-                setModalText("작업내용 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                if (res?.data?.message.includes("중복")) {
+                    setModalText("지정한 날짜에 이미 작업 내용이 존재합니다.");
+                }else{
+                    setModalText("작업내용 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                }
             }
+
             setModalTitle("작업내용");
             setIsModal(true);
         } catch(err) {
@@ -517,6 +565,7 @@ const Schedule = () => {
         setIsAddDetailModal(true);
     }
 
+
     // 휴무일 저장
     const onClicklRestSave = async(item) => {
         const rests = [];
@@ -548,7 +597,11 @@ const Schedule = () => {
                 setModalText("휴무일 추가에 성공하였습니다.");
                 setIsAddDetailModal(false);
             }else{
-                setModalText("휴무일 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                if (res?.data?.message.includes("중복")) {
+                    setModalText("지정한 날짜에 이미 휴무일이 존재합니다.");
+                }else{
+                    setModalText("휴무일 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                }
             }
             setModalTitle("휴무일");
             setIsModal(true);
@@ -587,7 +640,11 @@ const Schedule = () => {
                 setModalText("작업내용 추가에 성공하였습니다.");
                 setIsAddDetailModal(false);
             }else{
-                setModalText("작업내용 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                if (res?.data?.message.includes("중복")) {
+                    setModalText("지정한 날짜에 이미 작업 내용이 존재합니다.");
+                }else{
+                    setModalText("작업내용 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                }
             }
             setModalTitle("작업내용");
             setIsModal(true);
@@ -599,17 +656,24 @@ const Schedule = () => {
     }
 
     /***** 공정률 *****/
-    const onClickWorkRate = async(date) => {
+    const onClickWorkRate = (date) => {
+        if(project == null) return;
+        const workRate = getDailyWorkRate(date);
+        setWorkRate(workRate);
+        setIsModWorkRate(true);
+    }
+    
+    // 공정률 조회
+    const getWorkRates = async() => {
         if(project == null) return;
 
         setIsLoading(true);
         try {
-            const res = await Axios.GET(`/site/work-rate?jno=${project.jno}&search_date=${date}`);
+            // 공정률 조회 URL: /site/work-rate/jno/YYYY-MM
+            const res = await Axios.GET(`/site/work-rate/${project.jno}/${currentYear}-${currentMonth}`);
+
             if (res?.data?.result === "Success") {
-                setInitWorkRate(res?.data?.values);
-                setWorkRate(res?.data?.values?.work_rate);
-                setWorkrRateDate(date);
-                setIsModWorkRate(true);
+                setWorkRates(res?.data?.values);
             }else{
                 setModalText("공정률 조회에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
                 setModalTitle("공정률");
@@ -625,7 +689,8 @@ const Schedule = () => {
     // 공정률 변경 이벤트
     const onChangeWorkRageValue = (value) => {
         const formatValue = Common.sanitizeNumberInput(value);
-        setWorkRate(formatValue);
+        setWorkRate(prev => 
+            { return {...prev, work_rate:formatValue}});
     }
 
     // 공정률 수정
@@ -635,23 +700,31 @@ const Schedule = () => {
 
         setIsLoading(true);
         try {
-            if(initWorkRate?.is_work_rate === 'N'){
-                setModalText("공정률을 수정할 수가 없습니다.\n관리자에게 문의하여 주세요.");
-                return;
-            }
 
             const param = {
                 sno: project.sno || 0,
                 jno: project.jno || 0,
-                work_rate: workRate || 0,
-                search_date: workRateDate || "",
+                work_rate: workRate.work_rate || 0,
+                search_date: dateUtil.format(workRate.record_date) || "",
                 mod_user: user.userName,
                 mod_uno: user.uno,
             };
 
-            const res = await Axios.PUT(`/site/work-rate`, param);
-            
+            var res;
+            if(workRate?.is_work_rate === 'N'){
+                // 공정률 레코드가 없는 경우 바로 추가할 때 필요한 코드
+                // if ( !ObjChk.all(project.sno) && !ObjChk.all(project.jno)){
+                    // res = await Axios.POST(`/site/work-rate`, param);
+                // }else{
+                    setModalText("공정률을 수정할 수가 없습니다.\n관리자에게 문의하여 주세요.");
+                    return;
+                // }
+            }else {
+                res = await Axios.PUT(`/site/work-rate`, param);
+            }
+
             if (res?.data?.result === "Success") {
+                getWorkRates();
                 setModalText("공정률 수정에 성공하였습니다.");
             }else{
                 setModalText("공정률 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
@@ -673,7 +746,7 @@ const Schedule = () => {
                 borderTopRightRadius: "5px",
                 borderBottomLeftRadius: "5px",
                 borderBottomRightRadius: "5px",
-                right: "5px",
+                right: "10px",
             }
         }else{
             return {
@@ -723,12 +796,18 @@ const Schedule = () => {
         buildCalendarMatrix(currentYear, currentMonth);
         getRestData();
         getDailyJobData();
+        getWorkRates();
     }, [currentYear, currentMonth, project]);
 
     // 상단의 project 표시 여부 설정: 표시
     useEffect(() => {
         setIsProject(true);
     }, [])
+
+    // 프로젝트 변경 시 마감취소기한 조회
+    useEffect(() => {
+        getProjectSetting();
+    }, [project])
 
     return(
         <div>
@@ -768,13 +847,13 @@ const Schedule = () => {
                 content={
                     <div>
                         <div className="read-only-input" style={{padding: 0, marginBottom: "10px"}}>
-                            <input className="slider-input" type="text" value={workRate} onChange={(e) => onChangeWorkRageValue(e.target.value)} style={{height: "40px", width: "50px", textAlign: "right", paddingRight: "5px"}}/>
+                            <input className="slider-input" type="text" value={workRate?.work_rate} onChange={(e) => onChangeWorkRageValue(e.target.value)} style={{height: "40px", width: "50px", textAlign: "right", paddingRight: "5px"}}/>
                             &nbsp;%
                             <div style={{width: "500px", marginLeft: "20px"}}>
                                 <Slider 
                                     min={0}
                                     max={100}
-                                    value={workRate}
+                                    value={workRate?.work_rate}
                                     onChange={onChangeWorkRageValue}
                                 />
                             </div>
@@ -811,9 +890,9 @@ const Schedule = () => {
                     </div>
                 </ol>
 
-                <div style={{display: "flex", margin: "5px", gap: "5px", justifyContent: "center"}}>
+                <div style={{display: "flex", margin: "5px", gap: "5px", justifyContent: "center", alignItems:"center"}}>
                     <div>
-                        <Button text={<img src={ArrowLeftIcon} style={{width: "15px", height: "15px", filter: "brightness(0) invert(1)"}}/>} style={{margin: 0, width: "35px", height: "38px", display: "flex", justifyContent: "center", alignItems: "center"}} onClick={() => onClickMonthBtn(-1)}/>
+                        <Button text={<img src={ArrowLeftIcon} style={{width: "15px", height: "15px", filter: "brightness(0) invert(1)"}}/>} style={{margin: 0, width: "35px", height: "36px", display: "flex", justifyContent: "center", alignItems: "center"}} onClick={() => onClickMonthBtn(-1)}/>
                     </div>
                     <div style={{width: "130px"}}>
                         <Select
@@ -864,7 +943,7 @@ const Schedule = () => {
                         />
                     </div>
                     <div>
-                    <Button text={<img src={ArrowRightIcon} style={{width: "15px", height: "15px", filter: "brightness(0) invert(1)"}}/>} style={{margin: 0, width: "35px", height: "38px", display: "flex", justifyContent: "center", alignItems: "center"}} onClick={() => onClickMonthBtn(1)}/>
+                    <Button text={<img src={ArrowRightIcon} style={{width: "15px", height: "15px", filter: "brightness(0) invert(1)"}}/>} style={{margin: 0, width: "35px", height: "36px", display: "flex", justifyContent: "center", alignItems: "center"}} onClick={() => onClickMonthBtn(1)}/>
                     </div>
                 </div>
 
@@ -897,16 +976,16 @@ const Schedule = () => {
                                                         verticalAlign: "top", 
                                                         textAlign: "left", 
                                                         padding: "10px", 
+                                                        paddingBottom:"30px",
                                                         backgroundColor: isSameDay(new Date(), item) ? "#f9fdd7" : "",
-                                                        overflow: "hidden"
                                                     }}
-                                                >
+                                                >   
                                                     {
-                                                        item !== null && new Date(item) <= new Date(new Date().setHours(0, 0, 0, 0)) && project !== null && (
+                                                        item !== null && new Date(item) <= new Date(new Date().setHours(0, 0, 0, 0)) && project !== null && checkAllowDate(item) &&(
                                                             <img
                                                                 src={WorkRateIcon}
                                                                 alt="plus"
-                                                                onClick={() => onClickWorkRate(dateUtil.format(item))}
+                                                                onClick={() => onClickWorkRate(item)}
                                                                 style={{
                                                                     backgroundColor: "#eee",
                                                                     // borderTopLeftRadius: "5px",
@@ -914,9 +993,9 @@ const Schedule = () => {
                                                                     padding: "3px",
                                                                     position: "absolute",
                                                                     bottom: "5px",
-                                                                    // right: "41px",
-                                                                    width: "36px",
-                                                                    height: "36px",
+                                                                    // right: "41px", // workRateIconCss에서 적용됨
+                                                                    width: "32px",
+                                                                    height: "32px",
                                                                     cursor: "pointer",
                                                                     zIndex: 10,
                                                                     ...workRateIconCss(item),
@@ -937,9 +1016,9 @@ const Schedule = () => {
                                                                     padding: "3px",
                                                                     position: "absolute",
                                                                     bottom: "5px",
-                                                                    right: "5px",
-                                                                    width: "36px",
-                                                                    height: "36px",
+                                                                    right: "10px",
+                                                                    width: "32px",
+                                                                    height: "32px",
                                                                     cursor: "pointer",
                                                                     zIndex: 10
                                                                 }}
@@ -1002,7 +1081,7 @@ const Schedule = () => {
                                                             : ""
                                                         }
                                                         {
-                                                            item !== null ?
+                                                            item !== null && checkAllowDate(item) ?
                                                                 <img src={PlusIcon} style={{width: "12px", marginLeft: "auto"}}/>
                                                             : ""
                                                         }
@@ -1011,7 +1090,7 @@ const Schedule = () => {
                                                         className="schedule-content" 
                                                         onClick={item !== null ? () => onClickDetailOpen(item) : null}
                                                         style={{
-                                                            height: "100%",
+                                                            height: "90%",
                                                             cursor: item != null ? "pointer" : ""
                                                         }}
                                                     >
@@ -1036,6 +1115,34 @@ const Schedule = () => {
                                                                 )) 
                                                             }
                                                         </div>
+                                                    </div>
+                                                    <div
+                                                        style={{
+                                                            padding: "0.5rem 0rem",
+                                                            width:"100%",
+                                                            height: "100%",
+                                                            cursor: "pointer",
+                                                            alignItems:"center",
+                                                        }}
+                                                    >
+                                                    { item !== null && project !== null && new Date() > item &&
+
+                                                        <div
+                                                            style={{
+                                                                display:"flex",
+                                                                fontWeight:"bold",
+                                                                position: "absolute",
+                                                                bottom: "5px",
+                                                                backgroundColor: "#eee",
+                                                                borderRadius : "5px", 
+                                                                width: "90%",
+                                                                height:"32px",
+                                                                padding:"0.125rem 0.5rem",
+                                                                alignItems:"center",
+                                                        }}>
+                                                                  {`공정률: ${getDailyWorkRate(item).work_rate || 0}%`}
+                                                        </div>
+                                                    }
                                                     </div>
                                                 </td>
                                             ))
