@@ -151,7 +151,7 @@ function AnnouncementSlider() {
                                                 onClick={(e) => handleRowClick(item, e)}
                                                 style={{...listStyle, cursor: "pointer" }}                                                
                                                 >
-                                                    <span style={{fontWeight:"bold"}}>{item.job_name === "HTE GENERAL WORK" ?  `전체 ` : `PROJ`}&ensp;&ensp;</span>
+                                                    <span style={{fontWeight:"bold"}}>{item.job_name === "전체" ?  `전체 ` : `PROJ`}&ensp;&ensp;</span>
                                                     <span style={{...noticeRow}} id="notice-row">{item.title}</span>
                                             </div>
                                         })

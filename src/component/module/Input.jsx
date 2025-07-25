@@ -346,7 +346,8 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                 ): type === "html" ? (
                     editMode ? (
                         <textarea name="" id=""
-                            style={{ width: "100%", height: "44vh", marginTop: "0.5rem", padding: "0.5rem" }}
+                            className="text-area"
+                            style={{ width: "100%", height: "44vh", marginTop: "0.5rem"}}
                             value={value}
                             onChange={inputChangeHandler}>
                         </textarea>
@@ -362,10 +363,6 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                                 setTime={setSearchStartTime} 
                                 dateInputStyle={{margin: "0px"}}
                                 calendarPopupStyle={{
-                                    position: "fixed",
-                                    top: "50%",
-                                    left: "50%",
-                                    transform: "translate(-50%, -50%)",
                                     zIndex: 1000,
                                 }}
                             ></DateInput>
@@ -383,10 +380,6 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                                 setTime={setSearchStartTime} 
                                 dateInputStyle={{margin: "0px"}}
                                 calendarPopupStyle={{
-                                    position: "fixed",
-                                    top: "50%",
-                                    left: "50%",
-                                    transform: "translate(-50%, -50%)",
                                     zIndex: 1000,
                                 }}
                             ></DateInput>
@@ -396,10 +389,6 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                                 setTime={setSearchEndTime} 
                                 dateInputStyle={{margin: "0px"}}
                                 calendarPopupStyle={{
-                                    position: "fixed",
-                                    top: "50%",
-                                    left: "50%",
-                                    transform: "translate(-50%, -50%)",
                                     zIndex: 1000,
                                 }}
                             ></DateInput>

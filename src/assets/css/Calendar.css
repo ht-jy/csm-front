@@ -5,10 +5,15 @@
     background: white;
     border: none;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
     font-family: Arial, sans-serif;
 }
 
+/* 상단부분 스타일 */
+.react-calendar__navigation {
+  margin-bottom: 0.5rem;   /* ← 기본적으로 10px 정도 있음 */
+  padding-bottom: 0px;
+}
 /* 요일 헤더 스타일 */
 .react-calendar__month-view__weekdays {
     display: flex;
@@ -39,12 +44,12 @@
 
 /* 현재 월의 일요일 빨간색 */
 .react-calendar__month-view__days__day--weekend:nth-child(7n + 1) abbr {
-    color: red !important;
+    color: rgb(252, 64, 64);
 }
 
 /* 현재 월의 토요일 파란색 */
 .react-calendar__month-view__days__day--weekend:nth-child(7n) abbr{
-    color: blue !important;
+    color: rgb(64, 64, 250);
 }
 
 /* 이전/다음 달 날짜 불투명도 30%로 조정 */
@@ -62,17 +67,23 @@
 /* 날짜 기본 스타일 */
 .react-calendar__tile {
     position: relative;
-    padding: 10px;
+    padding: 0.5rem;
     text-align: center;
     font-size: 14px;
-    width: 40px;
-    height: 40px;
+    height: 2.125rem; 
 }
 
 /* 선택된 날짜 스타일 */
 .react-calendar__tile--active {
     background: #007bff;
     color: white;
+    font-weight: bold;
+}
+
+/* 선택된 날짜 스타일: 토/일 */
+.react-calendar__tile--active abbr{
+    background: #007bff;
+    color: white !important;
     font-weight: bold;
 }
 
@@ -98,7 +109,7 @@
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 10px;
-    width: 450px;
+    width: 350px;
 }
 
 /* 선택한 날짜 스타일 */
@@ -130,6 +141,5 @@
 
 /* 휴무일 지정 색상 */
 .red-date {
-    color: red !important;
-    border-radius: 50%;
+    color: rgb(252, 64, 64) !important;
 }
