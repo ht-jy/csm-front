@@ -15,6 +15,7 @@ import Modal from "../../../../module/Modal";
 import OrganizationModal from "../../../../module/modal/OrganizationModal";
 import AddDetailSchedule from "../schedule/AddDetailSchedule";
 import DetailSchedule from "../schedule/DetailSchedule";
+import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
 
 /**
  * @description: 프로젝트 상세 컴포넌트
@@ -40,6 +41,12 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
     const { getData, selectedDate } = useContext(SiteContext);
     const { user } = useAuth();
     const navigate = useNavigate();
+
+    // 작업 내용 추가 및 수정 권한
+    // 권한 체크
+    const { isRoleValid } = useUserRole();
+    // 전체 프로젝트 수정 권한
+    const scheduleRole = isRoleValid(roleGroup.SCHEDULE_MANAGER);
 
     // 작업내용 상세 모달
     const [isClickDateRest, setIsClickDateRest] = useState(false);
@@ -293,12 +300,16 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                     {isEdit ? 
                         !isMain && <Button text={"삭제"} style={{marginLeft: "auto"}} onClick={() => onClickDeleteBtn(data.jno)}/>
                     :
-                        <>
+                    <>
+                        {scheduleRole ?
                             <Button style ={{marginLeft : "auto"}} text={"작업추가"} onClick={() => onClickAddSchedule()}></Button>
-                            <div className="grid-project-organization-container" onClick={onClickOrganization}>
-                                <img src={Organization} style={{width: "20px"}}/>
-                            </div>
-                        </>
+                        : 
+                            null 
+                        }
+                        <div className="grid-project-organization-container" onClick={onClickOrganization} style={scheduleRole ? null : { marginLeft:"auto"}}>
+                            <img src={Organization} style={{width: "20px"}}/>
+                        </div>
+                    </>
                     }
                 </div>
                 

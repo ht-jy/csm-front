@@ -11,6 +11,7 @@ import DateInput from "../../../../module/DateInput";
 import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
 import RadioInput from "../../../../module/RadioInput";
+import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
 
 /**
  * @description: 일정관리 추가 화면
@@ -35,6 +36,11 @@ import RadioInput from "../../../../module/RadioInput";
 const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, jobSaveBtnClick, jobjno = 0, nonRest = false }) => {
     const navigate = useNavigate();
     const { project} = useAuth();
+    // 권한 체크
+    const { isRoleValid } = useUserRole();
+    // 전체 프로젝트 수정 권한
+    const scheduleRole = isRoleValid(roleGroup.SCHEDULE_MANAGER);
+
     /** 프로젝트 **/
     const [simpleProjects, setSimpleProjects] = useState([]);
     /** 추가 데이터 **/
@@ -78,7 +84,8 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
         const projectOption = projectOptions.find(option => option.value === jno);
     
         // 오늘날짜에서 마감취소기간을 뺀 최소 허용 기간 구하기
-        const allowDate = dateUtil.diffDay(new Date(dateUtil.now()), projectOption?.cancelDay);
+        const now = new Date();
+        const allowDate = dateUtil.diffDay(new Date(now.getFullYear(), now.getMonth(), now.getDate()), projectOption?.cancelDay);
         setMinDate(allowDate);
         
         const compDate = (date === undefined) ? clickDate : new Date(date);
@@ -133,7 +140,7 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                 // 프로젝트 정보
                 setSimpleProjects(res?.data?.values?.list);
                 // 셀렉트 옵션
-                const options = [{value:0, label: "전체 적용", cancelDay:null}];
+                const options = scheduleRole ? [{value:0, label: "전체 적용", cancelDay:null}] : [];
                 res?.data?.values?.list.map(item => {
                     options.push({value: item.jno, label: item.project_nm, cancelDay: item.cancel_day});
                 });
@@ -153,10 +160,12 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
             // 추가 기본타입
             setAddType("JOB");
             // 프로젝트
-            if(project !== null){
+            if ( nonRest ) {
+                onChangeFormData("jno", jobjno);
+            }else if(project !== null){
                 onChangeFormData("jno", project.jno);
             }else{
-                onChangeFormData("jno", jobjno);
+                onChangeFormData("jno", 0);
             }
             // 선택날짜
             if(clickDate !== null){
@@ -259,7 +268,8 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                                                         onChange={(e) => onChangeFormData("jno", e.value)}
                                                         options={projectOptions || []} 
                                                         value={formData.jno !== undefined ? projectOptions.find(item => item.value === formData.jno) : {}} 
-                                                        placeholder={"선택하세요"}
+                                                        placeholder={"선택하세요."}
+                                                        noOptionsMessage={() => '선택 가능한 프로젝트가 없습니다'}
                                                         menuPortalTarget={document.body}
                                                         styles={{
                                                             menuPortal: (base) => ({
