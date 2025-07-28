@@ -9,10 +9,10 @@ const DailyCompareReducer = (state, action) => {
             const newcompareList = compareList.map((item, idx) => {
                 return {
                     ...item, 
-                    worker_in_time: dateUtil.formatDateTime(item.worker_in_time),
-                    worker_out_time: dateUtil.formatDateTime(item.worker_out_time),
-                    deduction_in_time:dateUtil.formatDateTime(item.deduction_in_time),
-                    deduction_out_time: dateUtil.formatDateTime(item.deduction_out_time),
+                    worker_in_time: dateUtil.formatTimeHHMM(item.worker_in_time),
+                    worker_out_time: dateUtil.formatTimeHHMM(item.worker_out_time),
+                    deduction_in_time:dateUtil.formatTimeHHMM(item.deduction_in_time),
+                    deduction_out_time: dateUtil.formatTimeHHMM(item.deduction_out_time),
                     index: idx,
                 };
             });

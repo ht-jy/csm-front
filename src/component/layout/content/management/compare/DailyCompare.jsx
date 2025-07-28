@@ -38,17 +38,18 @@ const DailyCompare = () => {
     // 테이블 컬럼 정보
     const columns = [
         { itemName: "row_checked", checked: "N", checkType: "all", width: "35px", bodyAlign: "center", checkedState: ["W"], checkedItemName: "compare_state" },
-        { isSearch: false, isOrder: false, width: "100px", header: "상태", itemName: "compare_state", bodyAlign: "center", isEllipsis: false, type: "daliy-compare" },
+        { isSearch: false, isOrder: false, width: "100px", header: "상태", itemName: "compare_state", bodyAlign: "center", isEllipsis: false, type: "daliy-compare"},
         { isSearch: false, isOrder: true, width: "80px", header: "이름", itemName: "user_nm", bodyAlign: "center", isEllipsis: true },
         { isSearch: false, isOrder: true, width: "120px", header: "부서/조직명", itemName: "department", bodyAlign: "left", isEllipsis: true },
         { isSearch: false, isOrder: false, width: "100px", header: "번호", itemName: "user_id", bodyAlign: "center", isEllipsis: true, isFormat: true, format: "formatMobileNumber"},
         { isSearch: false, isOrder: false, width: "50px", header: "성별", itemName: "gender", bodyAlign: "center", isEllipsis: true },
         { isSearch: false, isOrder: false, width: "200px", header: "프로젝트", itemName: "jno", bodyAlign: "left", isEllipsis: true, type: "non-edit-select", condition: ["PROJECT", "compare_state", ["W"]] },
         { isSearch: false, isOrder: false, width: "50px", header: "TBM", itemName: "is_tbm", bodyAlign: "center", isEllipsis: false, isChecked: true },
-        { isSearch: false, isOrder: false, width: "250px", header: "홍채인식기", itemName: "worker_in_time", bodyAlign: "center", isEllipsis: true, colSpan: 2 },
-        { isSearch: false, isOrder: false, width: "250px", header: "", itemName: "worker_out_time", bodyAlign: "center", isEllipsis: true, colSpan: 0 },        
-        { isSearch: false, isOrder: false, width: "250px", header: "퇴직공제", itemName: "deduction_in_time", bodyAlign: "center", isEllipsis: true, colSpan: 2 },
-        { isSearch: false, isOrder: false, width: "250px", header: "퇴직공제", itemName: "deduction_out_time", bodyAlign: "center", isEllipsis: true, colSpan: 0 },
+        { isSearch: false, isOrder: false, width: "120px", header: "인식기명", itemName: "device_nm", bodyAlign: "center", isEllipsis: false},
+        { isSearch: false, isOrder: false, width: "150px", header: "홍채인식기", itemName: "worker_in_time", bodyAlign: "center", isEllipsis: true, colSpan: 2},
+        { isSearch: false, isOrder: false, width: "150px", header: "", itemName: "worker_out_time", bodyAlign: "center", isEllipsis: true, colSpan: 0 },        
+        { isSearch: false, isOrder: false, width: "150px", header: "퇴직공제", itemName: "deduction_in_time", bodyAlign: "center", isEllipsis: true, colSpan: 2 },
+        { isSearch: false, isOrder: false, width: "150px", header: "퇴직공제", itemName: "deduction_out_time", bodyAlign: "center", isEllipsis: true, colSpan: 0 },
     ];
 
     // 검색 옵션
@@ -89,33 +90,61 @@ const DailyCompare = () => {
     // 선택한 근로자 반영
     const registeredWorkers = async() => {
         setIsModal2(false);
-
-        if(ObjChk.ensureArray(checkedList).length === 0){
-            setModalText("선택된 근로자가 없습니다.");
-            setIsModal(true);
-            return;
-        }
         
-        const params = [];
-        checkedList.forEach(item => {
-            const param = {
-                user_key: item.user_key,
-                sno: project.sno || 0,
-                jno: item.jno || 0,
-                user_id: item.user_id || "",
-                user_nm: item.user_nm || "",
-                department: item.department || "",
-                before_state: item.compare_state,
-                record_date: item.record_date,
-                after_state: "S",
-                reg_user: user.userName,
-                reg_uno: user.uno,
-            }
-            params.push(param);
-        });
+        const jnos = []
+        state.tableProjectOptions.forEach(option => {
+            jnos.push(option["value"]);
+        })
 
-        setIsLoading(true);
         try{
+            if(ObjChk.ensureArray(checkedList).length === 0){
+                setModalText("선택된 근로자가 없습니다.");
+                setIsModal(true);
+                return;
+            }
+
+            const params = [];
+            const errs = [];
+            checkedList.forEach(item => {
+                const param = {
+                    user_key: item.user_key,
+                    sno: project.sno || 0,
+                    jno: item.jno || 0,
+                    user_id: item.user_id || "",
+                    user_nm: item.user_nm || "",
+                    department: item.department || "",
+                    before_state: item.compare_state,
+                    record_date: item.record_date,
+                    after_state: "S",
+                    reg_user: user.userName,
+                    reg_uno: user.uno,
+                }
+
+                // 현장에 포함된 프로젝트인지 확인
+                const check = jnos.find(jno => jno === item.jno);
+                if (check) {
+                    params.push(param);
+                }else{
+                    errs.push(param);
+                }
+            });
+            
+            
+            // 프로젝트 미설정 근로자 존재 시 
+            if (errs.length !== 0){
+
+                let workers = "\n";
+                errs.map((err) => {
+                    workers += `${err.user_nm}\n`;
+                })
+
+                setModalText(`프로젝트 미설정 근로자 ${workers}\n설정 후 다시 시도해주세요.`);
+                setIsModal(true);
+                return;
+            }
+
+            setIsLoading(true);
+        
             const res = await Axios.PUT("/compare", params);
             
             if(res?.data?.result === resultType.SUCCESS){

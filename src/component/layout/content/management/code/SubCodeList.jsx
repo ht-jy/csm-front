@@ -483,6 +483,7 @@ const headerStyle = {
 const textInputStyle = {
     width: "100%",
     textAlign: "left",
+    height: "2rem",
 }
 
 const colorInputStyle = {
