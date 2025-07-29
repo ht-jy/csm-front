@@ -10,6 +10,8 @@ import { ObjChk } from "../../../../../utils/ObjChk";
 import DateInput from "../../../../module/DateInput";
 import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
+import { useAuth } from "../../../../context/AuthContext";
+import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
 
 /**
  * @description: 일정관리 상세, 수정화면
@@ -36,6 +38,13 @@ import Modal from "../../../../module/Modal";
  */
 const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBtnClick, restModifyBtnClick, restRemoveBtnClick, dailyJobModifyBtnClick, dailyJobRemoveBtnClick, nonRest = false}) => {
     const navigate = useNavigate();
+
+    const { project } = useAuth();
+    // 권한 체크
+    const { isRoleValid } = useUserRole();
+    // 전체 프로젝트 수정 권한
+    const scheduleRole = isRoleValid(roleGroup.SCHEDULE_MANAGER);
+
 
     const [isLoading, setIsLoading] = useState(false);
     const [isEdit, setIsEdit] = useState(true);
@@ -89,8 +98,8 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
     // 취소기한 별 수정 가능 여부 체크: cancelDay-마감취소기한, inputDate-비교날짜
     const checkAllowDate = (cancelDay, inputDate) => {
         // 오늘날짜에서 마감취소기간을 뺀 최소 허용 기간 구하기
-
-        const allowDate = dateUtil.diffDay(new Date(dateUtil.now()), cancelDay );
+        const now = new Date();
+        const allowDate = dateUtil.diffDay(new Date(now.getFullYear(), now.getMonth(), now.getDate()), cancelDay);
         setMinDate(allowDate);
         
         // 만약 비교 날짜가 최소허용기간 보다 적으면 수정 불가
@@ -103,7 +112,8 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
 
     // 작업내용 클릭
     const onClickDailyJob = (item) => {
-
+        if (!scheduleRole) return;
+        
         const project = projectOptions.find(option => option.value === item.jno);
 
         checkAllowDate(project?.cancelDay, item.date);
@@ -232,7 +242,6 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
         getProjectData();
     }, []);
 
-
     return (
         <div>
             <Loading isOpen={isLoading} />
@@ -269,6 +278,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                         edit !== "N"  && 
                                         (
                                              isEdit ?
+                                                (nonRest || (project === null && scheduleRole && editData.jno === 0) || editData.jno === project?.jno) ?
                                                 <div>
                                                     <button className="btn btn-primary" onClick={onClickSave} name="confirm" style={{marginRight:"10px"}}>
                                                         수정
@@ -276,6 +286,10 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                     <button className="btn btn-primary" onClick={onClickRemove} name="confirm" style={{marginRight:"10px"}}>
                                                         삭제
                                                     </button>
+                                                </div>
+                                                :
+                                                <div style={{margin: "0rem 1rem"}}>
+                                                    해당 프로젝트는 선택한 프로젝트와 일치하지 않아 수정이 불가합니다.
                                                 </div>
                                                 :
                                                 <div style={{margin: "0rem 1rem"}}>
@@ -366,7 +380,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                     }
                                             </>
                                         :   edit === "R" ?
-                                            ( isEdit ? 
+                                            ( isEdit && (nonRest || (project === null && scheduleRole && editData.jno === 0) || editData.jno === project?.jno) ? 
                                                 <div>
                                                     {/* 프로젝트 */}
                                                     <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "50px"} }>
@@ -483,7 +497,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                 </div>
                                             )
                                         :   edit === "J" ? 
-                                            ( isEdit ?
+                                            ( isEdit && (nonRest || (project === null && scheduleRole && editData.jno === 0) || editData.jno === project?.jno ) ?
                                                 <div>
                                                     {/* 프로젝트 */}
                                                     <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "50px"} }>

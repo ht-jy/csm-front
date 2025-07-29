@@ -62,6 +62,16 @@ const SelectInput = ({ options, defaultValue, onChange }) => {
                     ...base,
                     zIndex: 9999,
                 }),
+                control: (provided, state) => ({
+                    ...provided,
+                    minHeight: "2.125rem",       // 최소 높이 조정
+                    height: "2.125rem",          // 전체 높이 강제 설정
+                }),
+                option: (provided, state) => ({
+                    ...provided,
+                    padding: "0.25rem 1rem",           // 내부 간격
+                    fontSize: "0.9rem",
+                })
                 }}
             />
         </div>

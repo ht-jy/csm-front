@@ -143,14 +143,15 @@ const Schedule = () => {
             setCancelDay(null);
         }
 
+
     }
 
     // 취소기한 별 날짜 여부 체크: jno
     const checkAllowDate = (date) => {
 
         // 오늘날짜에서 마감취소기간을 뺀 최소 허용 기간 구하기
-        const allowDate = dateUtil.diffDay(new Date(dateUtil.now()), cancelDay);
-        
+        const now = new Date();
+        const allowDate = dateUtil.diffDay(new Date(now.getFullYear(), now.getMonth(), now.getDate()), cancelDay);
         const compDate = new Date(date);
 
         // 만약 선택한 날짜가 최소허용기간 보다 적으면 false 반환
@@ -565,7 +566,6 @@ const Schedule = () => {
         setIsAddDetailModal(true);
     }
 
-
     // 휴무일 저장
     const onClicklRestSave = async(item) => {
         const rests = [];
@@ -758,7 +758,6 @@ const Schedule = () => {
     }
 
     /***** useEffect *****/
-
     // 셀렉트 연, 월 생성
     useEffect(() => {
         const yearOptions = [];
@@ -806,7 +805,11 @@ const Schedule = () => {
 
     // 프로젝트 변경 시 마감취소기한 조회
     useEffect(() => {
-        getProjectSetting();
+        if ( project === null ){
+            setCancelDay(null);
+        }else {
+            getProjectSetting();
+        }
     }, [project])
 
     return(
@@ -976,7 +979,7 @@ const Schedule = () => {
                                                         verticalAlign: "top", 
                                                         textAlign: "left", 
                                                         padding: "10px", 
-                                                        paddingBottom:"30px",
+                                                        paddingBottom: project ? "30px": null,
                                                         backgroundColor: isSameDay(new Date(), item) ? "#f9fdd7" : "",
                                                     }}
                                                 >   
