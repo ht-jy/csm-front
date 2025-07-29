@@ -289,7 +289,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                 </div>
                                                 :
                                                 <div style={{margin: "0rem 1rem"}}>
-                                                    해당 프로젝트는 선택한 프로젝트와 일치하지 않아 수정이 불가합니다.
+                                                    상단의 프로젝트와 일치하는 일정만 수정이 가능합니다.
                                                 </div>
                                                 :
                                                 <div style={{margin: "0rem 1rem"}}>

@@ -12,7 +12,7 @@ import { useEffect } from "react";
  * 2025-07-10: content를 추가하여 jsx구문을 넣어서 모달로 띄울 수 있도록 함
  * 2025-07-25: text 부분에 정렬 기능 추가
  */
-const Modal = ({isOpen, title, text, content, confirm, fncConfirm, cancel, fncCancel, align = "center"}) => {
+const Modal = ({isOpen, title, text, content, confirm, fncConfirm, cancel, fncCancel, align = "center", width = "500px"}) => {
 
     const scrollUnset = (e) => {
         document.body.style.overflow = 'unset';
@@ -58,7 +58,7 @@ const Modal = ({isOpen, title, text, content, confirm, fncConfirm, cancel, fncCa
             {
                 isOpen ?
                 <div style={overlayStyle}>
-                    <div style={modalStyle}>
+                    <div style={{...modalStyle, maxWidth: width}}>
                         {
                             ObjChk.all(title) ?
                             <></>

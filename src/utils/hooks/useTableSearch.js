@@ -174,7 +174,7 @@ const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySear
                 }
             }
         }
-    }, [getDataValue, retrySearchText, pageNum, rowSize, order, rnumOrder]);
+    }, [getDataValue, retrySearchText, pageNum, rowSize, order, rnumOrder, isOpen]);
 
     // 초기화 버튼 클릭
     const calledRef = useRef(false);

@@ -121,10 +121,11 @@ const useExcelUploader = () => {
             
             if (res?.data?.result === resultType.SUCCESS) {
                 e.target.value = "";
-                setSelectFile(null); 
+                setSelectFile(null);
                 return {
                     result: resultType.SUCCESS,
-                    alert: "업로드에 성공하였습니다."
+                    alert: "업로드에 성공하였습니다.",
+                    values: res?.data?.values || [],
                 }
             }else {
                 e.target.value = "";

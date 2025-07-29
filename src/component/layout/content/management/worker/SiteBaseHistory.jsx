@@ -33,7 +33,6 @@ const SiteBaseHistory = ({isOpen, fncExit, startDate, endDate}) => {
     const navigate = useNavigate();
     const { project } = useAuth();
     const [data, setData] = useState([]);
-    const [workStateCodes, setWorkStateCodes] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     // 사유 모달
     const [isReason, setIsReason] = useState(false);
@@ -51,7 +50,7 @@ const SiteBaseHistory = ({isOpen, fncExit, startDate, endDate}) => {
         { isSearch: false, isOrder: false, width: "190px", header: "프로젝트명", itemName: "job_name", bodyAlign: "left", isEllipsis: false },
         { isSearch: false, isOrder: false, width: "150px", header: "출근시간", itemName: "in_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'formatTime24' },
         { isSearch: false, isOrder: false, width: "150px", header: "퇴근시간", itemName: "out_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'formatTime24' },
-        { isSearch: false, isOrder: true, width: "150px", header: "상태", itemName: "work_state", bodyAlign: "center", isEllipsis: false },
+        { isSearch: false, isOrder: false, width: "150px", header: "상태", itemName: "work_state", bodyAlign: "center", isEllipsis: false },
         { isSearch: false, isOrder: false, width: "80px", header: "공수", itemName: "work_hour", bodyAlign: "center", isEllipsis: false },
         { isSearch: false, isOrder: false, width: "80px", header: "철야", itemName: "is_overtime", bodyAlign: "center", isEllipsis: false, isChecked: true},
         { isSearch: false, isOrder: false, width: "80px", header: "마감여부", itemName: "is_deadline", bodyAlign: "center", isEllipsis: false, isChecked: true },
@@ -67,6 +66,7 @@ const SiteBaseHistory = ({isOpen, fncExit, startDate, endDate}) => {
 
     const { pageNum, setPageNum, rowSize, setRowSize, retrySearchText, setRetrySearchText } = useTableControlState(10);
 
+    // 변경유형매칭
     const reasonType = {
         "추가": "01",
         "수정": "02|08",
@@ -75,7 +75,10 @@ const SiteBaseHistory = ({isOpen, fncExit, startDate, endDate}) => {
         "프로젝트변경": "05",
         "삭제": "06",
         "마감취소": "07",
-        "취소": "07"
+        "취소": "07",
+        "엑셀업로드": "09",
+        "엑셀": "09",
+        "업로드": "09",
     };
 
     // 검색값 유형에 맞게 변환

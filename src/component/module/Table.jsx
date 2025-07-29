@@ -1057,6 +1057,11 @@ const Table = forwardRef(({
                                                     <img src={CompareSIcom} style={{width: "20px"}}/>
                                                     <span style={{paddingLeft: "5px"}}>반영</span>
                                                 </div>
+                                            : item[col.itemName] === "X" ?
+                                                <div style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+                                                    <img src={CompareSIcom} style={{width: "20px"}}/>
+                                                    <span style={{paddingLeft: "5px"}}>추가</span>
+                                                </div>
                                             : item[col.itemName] === "W" ?
                                                 <div style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
                                                     <img src={CompareWIcom} style={{width: "20px"}}/>
