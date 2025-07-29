@@ -107,6 +107,9 @@ const SiteBase = () => {
     const [reasonText, setReasonText] = useState("");
     const [reasonConfirm, setReasonConfirm] = useState(() => {});
     const [reason, setReason] = useState("");
+    // 엑셀업로드 성공 리스트
+    const [isSuccessWorker, setIsSUccessWorker] = useState(false);
+    const [successWorkers, setSuccessWorkers] = useState([]);
 
     // 테이블 컬럼 정보
     const columns = [
@@ -122,6 +125,14 @@ const SiteBase = () => {
         { isSearch: false, isOrder: true, width: "150px", header: "상태", itemName: "work_state", bodyAlign: "center", isEllipsis: false, isRadio: true, radioValues: state.workStateCodes.map(item => item.code), radioLabels: state.workStateCodes.map(item => item.code_nm), code: state.workStateCodes },
         { isSearch: false, isOrder: true, width: "80px", header: "철야", itemName: "is_overtime", bodyAlign: "center", isEllipsis: false, isChecked: true},
         { isSearch: false, isOrder: true, width: "80px", header: "마감여부", itemName: "is_deadline", bodyAlign: "center", isEllipsis: false, isChecked: true },
+    ];
+
+    // 업로드 성공 테이블 정보
+    const workerSColumns = [
+        { isSearch: false, isOrder: false, width: "50px", header: "이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false },
+        { isSearch: false, isOrder: false, width: "50px", header: "생년월일", itemName: "reg_no", bodyAlign: "left", isEllipsis: false },
+        { isSearch: false, isOrder: false, width: "50px", header: "핸드폰번호", itemName: "phone", bodyAlign: "left", isEllipsis: false },
+        { isSearch: false, isOrder: false, width: "50px", header: "근로날짜", itemName: "record_date", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'format' },
     ];
 
     // 테이블 수정 정보
@@ -972,13 +983,25 @@ const SiteBase = () => {
 
     // 현장 근로자 엑셀 업로드
     const dailyWorkerExcelImport = () => {
-        setWorkerExcelText("상단에 선택되어 있는 프로젝트가 기준이 되고 등록되어 있지 않은 근로자는 업로드가 되지 않습니다.\n\n※양식 다운로드를 통해 작성된 엑셀 파일이 아닌 경우 업로드에 실패할 수도 있습니다.");
-        setFncWorkerExcelFile(() => () => inputFileOpen());
+        setWorkerExcelText("상단에 선택된 프로젝트로 적용이 됩니다.\n전체근로자에 등록된 정보(이름, 생년월일, 핸드폰번호)와 다를시 추가되지 않습니다.\n\n※양식 다운로드를 통해 작성된 엑셀 파일이 아닌 경우 업로드에 실패할 수도 있습니다.");
+        setFncWorkerExcelFile(() => () => dailyWorkerExcelImportReason());
+        // setFncWorkerExcelFile(() => () => inputFileOpen());
         setIsWorkerExcel(true);
     }
 
-    const inputFileOpen = () => {
+    // 업로드 사유
+    const dailyWorkerExcelImportReason = () => {
+        setReasonTitle("현장 근로자 엑셀 업로드");
+        setReasonText("현장 근로자 엑셀 업로드 사유를 입력하여 주세요.");
+        setReason("");
+        setReasonConfirm(() => () => inputFileOpen());
+        setIsReason(true);
         setIsWorkerExcel(false);
+    }
+
+    // 파일 선택 오픈
+    const inputFileOpen = () => {
+        setIsReason(false);
         if(excelRefs.current){
             excelRefs.current.click();
         }
@@ -996,17 +1019,16 @@ const SiteBase = () => {
                 jno: project.jno,
                 reg_user: user.userName,
                 reg_uno: user.uno,
+                reason: reason,
+                reason_type: "09",
             });
             
             if(res?.result === resultType.SUCCESS){
                 setModalText("업로드에 성공하였습니다.");
-                await getData();
-                setIsModal(true);
+                setSuccessWorkers(res?.values||[]);
+                setIsSUccessWorker(true);
             }else if(res?.result === resultType.EXCEL_FORMAT_ERROR){
                 setModalText(res?.alert);
-                setIsModal(true);
-            }else if(res?.message.includes("failed to parse Excel file")){
-                setModalText("엑셀 양식이 잘못되었습니다.\n확인 후 다시 업로드하여 주시기 바랍니다.");
                 setIsModal(true);
             }else {
                 setModalText("업로드에 실패하였습니다.\n잠시후에 다시 시도하거나 관리자에게 문의하여 주세요.");
@@ -1018,6 +1040,12 @@ const SiteBase = () => {
         } finally {
             setIsLoading(false);
         }
+    }
+
+    // 현장근로자 엑셀 업로드 테이블 모달 확인
+    const onClickSWorkerSModalConfirm = () => {
+        setIsSUccessWorker(false);
+        getData();        
     }
 
     // 근태정보 다운로드
@@ -1246,10 +1274,11 @@ const SiteBase = () => {
             />
             <Modal
                 isOpen={isWorkerExcel}
-                title={"현장 근로자 등록"}
+                title={"현장 근로자 엑셀 업로드"}
                 text={workerExcelText}
                 confirm={"확인"}
                 fncConfirm={() => fncWorkerExcelFile()}
+                align="left"
             />
             <SearchProjectModal
                 isOpen={isProjectModal}
@@ -1290,6 +1319,26 @@ const SiteBase = () => {
                 fncConfirm={reasonConfirm}
                 cancel={"취소"}
                 fncCancel={() => setIsReason(false)}
+            />
+            <Modal
+                isOpen={isSuccessWorker}
+                title={"현장 근로자 엑셀 업로드"}
+                content={
+                    <div className="table-wrapper" style={{marginBottom: "10px"}}>
+                        <div className="table-container" id="table-container" style={{overflow: "auto", maxHeight: "calc(100vh - 350px)"}}>
+                            <Table
+                                columns={workerSColumns} 
+                                data={successWorkers}
+                                noDataText={"추가에 성공한 근로자가 없습니다."}
+                                styles={{minWidth: "400px"}}
+                                isHeaderFixed={true}
+                            />
+                        </div>
+                    </div>
+                }
+                confirm={"확인"}
+                fncConfirm={onClickSWorkerSModalConfirm}
+                width="1000px"
             />
             <div>
                 <div className="container-fluid px-4">

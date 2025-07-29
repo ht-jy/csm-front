@@ -357,7 +357,7 @@ const Schedule = () => {
                     if (tdElement) {
                         const rect = tdElement.getBoundingClientRect();
                         setWeatherPopupPosition({
-                            top: rect.top + window.scrollY + 0,
+                            top: rect.top + window.scrollY - 100,
                             left: rect.left + window.scrollX + rect.width - 308
                         });
                     }
