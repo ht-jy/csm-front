@@ -134,11 +134,15 @@ const DailyCompare = () => {
             if (errs.length !== 0){
 
                 let workers = "\n";
-                errs.map((err) => {
-                    workers += `${err.user_nm}\n`;
+                errs.map((err, idx) => {
+                    if (idx < 5){
+                        workers += `${err.user_nm}\n`;
+                    }else if (idx === 5){
+                        workers += `...\n`;
+                    }
                 })
 
-                setModalText(`프로젝트 미설정 근로자 ${workers}\n설정 후 다시 시도해주세요.`);
+                setModalText(`프로젝트 미설정 근로자 ${workers}\n프로젝트 설정 후 다시 시도해주세요.\n`);
                 setIsModal(true);
                 return;
             }
