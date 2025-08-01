@@ -14,6 +14,7 @@ import Modal from "../../../../module/Modal";
 import NonUsedProjectModal from "../../../../module/modal/NonUsedProjectModal";
 import Loading from "../../../../module/Loading";
 import SiteContext from "../../../../context/SiteContext";
+import { dateUtil } from "../../../../../utils/DateUtil";
 /**
  * @description: 현장관리 전용 상세화면 모달 컴포넌트
  * 
@@ -40,7 +41,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
     const { user } = useAuth();
     const navigate = useNavigate();
     const { isRoleValid } = useUserRole();
-    const { getData, setIsDetail, setIsNonUseChecked } = useContext(SiteContext);
+    const { getData, setIsDetail, setIsNonUseChecked, selectedDate } = useContext(SiteContext);
                                 
     const [isEdit, setIsEdit] = useState(false);
     const [formData, setFormData] = useState(null);
@@ -391,7 +392,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                                         isRoleValid(roleGroup.SITE_MANAGER) && 
                                         <div>
                                             {
-                                                isEditBtn && !isSiteAdd ? 
+                                                isEditBtn && !isSiteAdd && selectedDate === dateUtil.format(Date.now()) ? 
                                                     <button className="btn btn-primary" onClick={handleEditMode} name="confirm" style={{marginRight:"10px"}}>
                                                         수정
                                                     </button>

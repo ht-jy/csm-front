@@ -301,12 +301,12 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                         !isMain && <Button text={"삭제"} style={{marginLeft: "auto"}} onClick={() => onClickDeleteBtn(data.jno)}/>
                     :
                     <>
-                        {scheduleRole ?
+                        {scheduleRole && selectedDate === dateUtil.format(Date.now()) ?
                             <Button style ={{marginLeft : "auto"}} text={"작업추가"} onClick={() => onClickAddSchedule()}></Button>
                         : 
                             null 
                         }
-                        <div className="grid-project-organization-container" onClick={onClickOrganization} style={scheduleRole ? null : { marginLeft:"auto"}}>
+                        <div className="grid-project-organization-container" onClick={onClickOrganization} style={scheduleRole ? selectedDate === dateUtil.format(Date.now()) ? null : { marginLeft:"auto"} : { marginLeft:"auto"}}>
                             <img src={Organization} style={{width: "20px"}}/>
                         </div>
                     </>
