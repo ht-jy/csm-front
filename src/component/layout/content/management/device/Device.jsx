@@ -18,6 +18,7 @@ import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Paginate.css";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import { useLogParam } from "../../../../../utils/Log";
+import { ObjChk } from "../../../../../utils/ObjChk";
 
 /**
  * @description: 
@@ -116,9 +117,9 @@ const Device = () => {
         setIsLoading(true);
         try {
             const res = await Axios.GET("device/check-registered")
-
+            
             if(res.data?.result === "Success"){
-                setDevices([...res.data.values.list]);
+                setDevices(res.data.values.list||[]);
             }
         } catch(err) {
             navigate("/error");
