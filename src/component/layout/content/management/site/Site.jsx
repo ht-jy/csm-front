@@ -1,8 +1,23 @@
 import { useEffect, useReducer, useRef, useState } from "react";
-import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import "../../../../../assets/css/Table.css";
+import { Axios } from "../../../../../utils/axios/Axios";
+import { Common } from "../../../../../utils/Common";
+import { dateUtil } from "../../../../../utils/DateUtil";
+import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
+import { ObjChk } from "../../../../../utils/ObjChk";
+import { useAuth } from "../../../../context/AuthContext";
+import { useCachedFetch } from "../../../../../utils/hooks/useCachedFetch";
+import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
+import useTooltip from "../../../../../utils/hooks/useTooltip";
+import SiteContext from "../../../../context/SiteContext";
+import Button from "../../../../module/Button";
+import DateInput from "../../../../module/DateInput";
+import Loading from "../../../../module/Loading";
+import Modal from "../../../../module/Modal";
+import NonUsedProjectModal from "../../../../module/modal/NonUsedProjectModal";
+import DetailModal from "./DetailModal";
+import SiteReducer from "./SiteReducer";
 import LoadingIcon from "../../../../../assets/image/Loading.gif";
 import warningWeather from "../../../../../assets/image/warningWeather.png";
 import weather0 from "../../../../../assets/image/weather/0.png";
@@ -15,31 +30,18 @@ import weather4 from "../../../../../assets/image/weather/4.png";
 import weather5 from "../../../../../assets/image/weather/5.png";
 import weather6 from "../../../../../assets/image/weather/6.png";
 import weather7 from "../../../../../assets/image/weather/7.png";
-import { Axios } from "../../../../../utils/axios/Axios";
-import { Common } from "../../../../../utils/Common";
-import { dateUtil } from "../../../../../utils/DateUtil";
-import useTooltip from "../../../../../utils/hooks/useTooltip";
-import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
-import { ObjChk } from "../../../../../utils/ObjChk";
-import { useAuth } from "../../../../context/AuthContext";
-import SiteContext from "../../../../context/SiteContext";
-import Button from "../../../../module/Button";
-import DateInput from "../../../../module/DateInput";
-import Loading from "../../../../module/Loading";
-import Modal from "../../../../module/Modal";
-import NonUsedProjectModal from "../../../../module/modal/NonUsedProjectModal";
-import DetailModal from "./DetailModal";
-import SiteReducer from "./SiteReducer";
+import "../../../../../assets/css/Table.css";
 /**
  * @description: 현장 관리 페이지
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-10
- * @modified 최종 수정일: 2025-07-16
+ * @modified 최종 수정일: 2025-07-31
  * @modifiedBy 최종 수정자: 김진우
  * @modified description
  * 2025-07-14: 현장 저장시 select_date필드 추가. 공정률 수정시 날짜 구분을 하기 위함
  * 2025-07-16: 작업완료/진행중 리스트 변환 버튼 추가 <FormCheckInput... />
+ * 2025-07-31: 현장리스트를 조회하는 시간이 너무 오래걸려서 swr패턴을 이용한 useCachedFetch 커스텀 훅을 이용하여 두번째 이후 요청 부터는 이전 조회 값을 먼저 보여주어 딜레이가 줄어든 것처럼 보이도록 개선
  * 
  * @additionalInfo
  * - API:
@@ -192,7 +194,7 @@ const Site = () => {
             setModalTitle2("현장 생성");
             if (res?.data?.result === "Success") {
                 setModalText2("선택한 프로젝트로 현장이 생성되었습니다.");
-                getData();
+                refetch();
             } else {
                 setModalText2("선택한 프로젝트로 현장을 생성하는데 실패하였습니다.");
             }
@@ -227,7 +229,7 @@ const Site = () => {
             if (res?.data?.result === "Success") {
                 setModalText("현장 수정에 성공하였습니다.")
                 setIsDetail(false);
-                getData();
+                refetch();
             } else {
                 setModalText("현장 수정에 실패하였습니다.")
                 
@@ -365,7 +367,7 @@ const Site = () => {
     const getSiteStatsData = async () => {
         try {
             const res = await Axios.GET(`/site/stats?targetDate=${dateUtil.format(selectedDate, "yyyy-MM-dd")}`);
-
+            
             if (res?.data?.result === "Success") {
                 dispatch({ type: "STATS", list: res?.data?.values?.list });
             }
@@ -389,28 +391,41 @@ const Site = () => {
 
 
     // 현장 정보 조회
-    const getData = async () => {
-        setIsLoading(true);
-        try {
-            const res = await Axios.GET(`/site?targetDate=${dateUtil.format(selectedDate, "yyyy-MM-dd")}&pCode=SITE_STATUS`);
-            
-            if (res?.data?.result === "Success") {
-                dispatch({ type: "INIT", site: res?.data?.values?.site, code: res?.data?.values?.code });
-                setIsDetail(false)
+    const {cacheData, isStale, isFetchedLoading, refetch} = useCachedFetch(
+        `/site?targetDate=${dateUtil.format(selectedDate, "yyyy-MM-dd")}&pCode=SITE_STATUS`,
+        {
+            storageKey: `siteData_${dateUtil.format(selectedDate, "yyyy-MM-dd")}`,
+            useSession: true,
+            delaySecondsAfterCache: 2,
+            onCacheLoad: (cache) => {
+                if (cache?.data?.result === "Success") dispatch({ type: "INIT", site: cache?.data?.values?.site, code: cache?.data?.values?.code });
+            },
+            onBeforeRequest: ({ isCache, isRefetch }) => {
+                if(!isCache) setIsLoading(true);
+            },
+            onSuccess: (res) => {
+                if (res?.data?.result === "Success") {
+                    dispatch({ type: "INIT", site: res?.data?.values?.site, code: res?.data?.values?.code });
+                    setIsDetail(false);
+                }
+            },
+            onError: (err) => {
+                navigate("/error");
+            },
+            onFinally: ({ isCache, isRefetch }) => {
+                if(!isCache){
+                    setIsLoading(false);
+                    setIsNonUseChecked(false);
+                }
             }
-        } catch(err) {
-            navigate("/error");
-        } finally {
-            setIsLoading(false);
-            setIsNonUseChecked(false);
         }
-    }
+    );
 
     // 기상특보 현황 조회
     const getWarningData = async () => {
         try {
             const res = await Axios.GET(`/api/weather/wrn`)
-
+            
             if (res?.data?.result === "Success") {
                 setWarningData(res.data.values.list)
             } else if (res?.data?.result === "Failure") {
@@ -425,7 +440,7 @@ const Site = () => {
     const getWeatherData = async () => {
         try {
             const res = await Axios.GET(`/api/weather/srt`)
-
+            
             if (res?.data?.result === "Success") {
                 dispatch({ type: "WEATHER", list: res?.data?.values?.list });
             } else if (res?.data?.result === "Failure") {
@@ -449,11 +464,14 @@ const Site = () => {
 
     // 현장 상태 5초 polling
     useEffect(() => {
-        getData();
+        // getData();
         getWarningData();
         getWeatherData();
 
-        if (!isToday) return;
+        if (!isToday) {
+            getSiteStatsData();
+            return;
+        }
 
         const interval = setInterval(getSiteStatsData, 5000);
         return () => clearInterval(interval);
@@ -543,7 +561,7 @@ const Site = () => {
             />
             {
                 isDetail &&
-                <SiteContext.Provider value={{getData, setIsDetail, setIsNonUseChecked, isNonUseChecked, selectedDate}}>
+                <SiteContext.Provider value={{refetch, setIsDetail, setIsNonUseChecked, isNonUseChecked, selectedDate}}>
                     <DetailModal
                         isOpen={isDetail}
                         setIsOpen={setIsDetail}
@@ -562,7 +580,7 @@ const Site = () => {
                     <li className="breadcrumb-item content-title">현장 관리</li>
                     <li className="breadcrumb-item active content-title-sub">관리</li>
                     <div className="table-header-right">
-                        {isRoleValid(roleGroup.SITE_MANAGER) && <Button text={"추가"} onClick={() => onClickSaveBtn()} />}
+                        {isRoleValid(roleGroup.SITE_MANAGER) && selectedDate === dateUtil.format(Date.now()) && <Button text={"추가"} onClick={() => onClickSaveBtn()} />}
                     </div>
                 </ol>
 

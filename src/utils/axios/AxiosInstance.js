@@ -33,6 +33,7 @@ const AxiosInstance = (params, options) => {
                 
                 // 로그아웃 처리
                 Storage.setSession("login", false);
+                sessionStorage.clear();
                 window.location.reload();
                 
             }

@@ -47,6 +47,7 @@ const Header = () => {
     const onClickLogout = async() => {
         const res = await Axios.POST("/logout");
         if (res?.data?.result === "Success") {
+            sessionStorage.clear();
             navigete(0);
         }
     }
