@@ -5,13 +5,14 @@ import Select from "react-select";
 import Exit from "../../../../../assets/image/exit.png";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { dateUtil } from "../../../../../utils/DateUtil";
+import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
 import { ObjChk } from "../../../../../utils/ObjChk";
 import { useAuth } from "../../../../context/AuthContext";
+import ColorInput from "../../../../module/ColorInput";
 import DateInput from "../../../../module/DateInput";
 import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
 import RadioInput from "../../../../module/RadioInput";
-import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
 
 /**
  * @description: 일정관리 추가 화면
@@ -371,11 +372,26 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                                             }
                                         </div>
 
+                                        {/* 표시 색상 */}
+                                        <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "50px"}}>
+                                            <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>표시색상</label>
+                                            <div style={{width: "200px"}}>
+                                                <div style={{height: "40px", display: "flex", alignItems: "center" }}>
+                                                    <ColorInput
+                                                        initColor={formData.content_color || "#000000"}
+                                                        setColor={(color) => {formData.content_color = color}}
+                                                        style={{width:"1.75rem", height:"1.5rem"}}
+                                                    >
+                                                    </ColorInput>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         {/* 사유 */}
                                         <div style={{gridColumn: "span 2", padding: '10px', display: "flex", width: "100%"}}>
                                             <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>{addType === "REST" ? "휴무사유" : "작업내용"}</label>
                                             <div>
-                                                <textarea className="text-area" type="text" value={formData.reason === undefined ? "" : formData.reason} onChange={(e) => onChangeFormData("reason", e.target.value)} style={{width: "635px", height:"calc(50vh - 285px)", textAlign: "left", paddingLeft: "10px", textWrap:"wrap"}}/>
+                                                <textarea className="text-area" type="text" value={formData.reason === undefined ? "" : formData.reason} onChange={(e) => onChangeFormData("reason", e.target.value)} style={{width: "635px", height:"calc(50vh - 345px)", textAlign: "left", paddingLeft: "10px", textWrap:"wrap"}}/>
                                             </div>
                                         </div>
                                     </div>
@@ -496,7 +512,7 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                                         {/* 사유 */}
                                         <div style={{gridColumn: "span 2", padding: '10px', display: "flex", width: "100%"}}>
                                             <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>{addType === "REST" ? "휴무사유" : "작업내용"}</label>
-                                            <div>
+                                            <div  sytle={{color: addType=== "작업내용" ? formData.content_color || "#000000" : null}}>
                                                 {formData.reason === undefined || formData.reason === "" ? "-" : formData.reason}
                                             </div>
                                         </div>

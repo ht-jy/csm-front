@@ -55,7 +55,7 @@ const SiteReducer = (state, action) => {
                             total.equip_count += item.equip_count;
             
                             if (Array.isArray(item.daily_content_list)) {
-                                const contents = Array.isArray(item.daily_content_list) ? item.daily_content_list.map(item2 => item2.content) : [];
+                                const contents = Array.isArray(item.daily_content_list) ? item.daily_content_list : [];
                                 dailyContents.push(...contents);
                             }
                         });
