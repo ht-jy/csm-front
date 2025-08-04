@@ -317,27 +317,29 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                                 일정이 없습니다.
                                                             </div>
                                                         : restDates.map((item, idx) => (
-                                                            item.is_hoilday ? 
+                                                            item.is_holiday ? 
                                                                 <div style={{gridColumn: "span 2", padding: '5px', display: "flex", alignItems: "stretch", width: "100%", cursor: "pointer"}} key={idx}>
-                                                                    <div style={{backgroundColor: "#f75d5d", width: "5px", height: "100%", borderRadius: "5px"}}></div>
+                                                                    <div style={{backgroundColor: "#f75d5d", width: "5px",  borderRadius: "5px"}}></div>
                                                                     <div style={{textAlign:"left", marginLeft: "10px", width: "100%"}}>
                                                                         <div style={{fontSize: "20px", color: "black"}}>{item.reason}</div>
                                                                         <div style={{border: "1px solid #ccc", width: "100%"}}></div>
                                                                         <div style={{fontSize: "13px"}}>공휴일</div>
                                                                     </div>
                                                                 </div>
-                                                            : 
-                                                                <div 
-                                                                    className="detail-rest-item"
-                                                                    style={{gridColumn: "span 2", padding: '5px', display: "flex", alignItems: "stretch", width: "100%", cursor: "pointer"}} key={idx}
-                                                                    onClick={() => onClickRestDay(item)}
+                                                            :   
+                                                                <div  
+                                                                    style={{gridColumn: "span 2", padding: '5px', display: "flex", alignItems: "stretch", width: "100%", cursor: "pointer"}} key={idx}                                                                    
                                                                 >
-                                                                    <div style={{backgroundColor: "#f75d5d", width: "5px", borderRadius: "5px"}}></div>
-                                                                    <div style={{textAlign:"left", marginLeft: "10px", width: "100%"}}>
-                                                                        <div style={{fontSize: "20px", color: "black", height:"30px"}}>{item.reason}</div>
-                                                                        <div style={{border: "1px solid #ccc", width: "100%"}}></div>
-                                                                        <div style={{fontSize: "13px"}}>{`휴무일 : ${getProject(item.jno).label}`}</div>
-                                                                    </div>
+                                                                <div style={{backgroundColor: "#f89999", width: "5px", borderRadius: "5px"}}></div>
+                                                                <div style={{textAlign:"left", marginLeft: "10px", width: "100%", height:"" }}>
+                                                                    {item.jno.map((rest) => (
+                                                                        <div className="detail-rest-item" onClick={() => onClickRestDay(rest)} style={{fontSize: "20px", color: "black", height:"30px"}}>{rest.reason}</div>
+                                                                    ))}
+                                                                    
+                                                                    <div style={{border: "1px solid #ccc", width: "100%"}}></div>
+                                                                    
+                                                                    <div style={{fontSize: "13px"}}>{`휴무일 : ${getProject(item.jno[0].jno).label}`}</div>
+                                                                </div>
                                                                 </div>
                                                         ))
                                                     }

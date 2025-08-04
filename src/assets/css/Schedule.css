@@ -14,7 +14,7 @@
     font-weight: bold;
 }
 
-.hoilday-reason {
+.holiday-reason {
     color: black;
     background-color: #f89999;
     /* background-color: #f9d470; */
@@ -28,7 +28,7 @@
     background-color: #fad5d5;
     /* background-color: #acaafe; */
     border-radius: 5px;
-    margin: 1px;
+    margin: 2px;
     padding-left: 3px;
 }
 

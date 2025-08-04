@@ -69,7 +69,7 @@ const Schedule = () => {
     const [selectMonth, setSelectMonth] = useState([]);
     const [monthOption, setMonthOption] = useState({});
     /** 공휴일 **/
-    const [hoildays, setHoildays] = useState([]);
+    const [holidays, setHolidays] = useState([]);
     /** 휴무일 **/
     const [restDays, setRestDays] = useState([]);
     /** 작업내용 **/
@@ -128,8 +128,17 @@ const Schedule = () => {
 
     // 월 이동 버튼
     const onClickMonthBtn = (value) => {
-        setCurrentMonth(currentMonth + value);
-        setMonthOption(selectMonth.find(item => item.value === (currentMonth + value)));
+        const changeMonth = currentMonth + value;
+        if (changeMonth > 12) { // 12월 이상인경우 다음 해 1월로 변경
+            setCurrentYear(prev => prev + 1);
+            setYearOption(selectYear.find(item => item.value === currentYear + 1));
+        }else if (changeMonth < 1) { // 1월 이하인 경우 이전 해 12월로 변경
+            setCurrentYear(prev => prev - 1);
+            setYearOption(selectYear.find(item => item.value === currentYear - 1));
+        }
+
+        setCurrentMonth( (changeMonth + 11) % 12 + 1);
+        setMonthOption(selectMonth.find(item => item.value === ((changeMonth + 11) % 12 + 1)));
     }
 
     // 취소기한 조회
@@ -185,22 +194,34 @@ const Schedule = () => {
     // 공휴일, 휴무일 리스트
     const getIsSameDates = (date) => {
         const rests = [];
-        hoildays.filter(item => {
+        const filterRest = {}; // jno기준 휴무일
+        holidays.filter(item => {
             if(item.date.getFullYear() === date.getFullYear() && item.date.getMonth() === date.getMonth() && item.date.getDate() === date.getDate()){
-                rests.push({...item, is_hoilday: true});
+                rests.push({...item, is_holiday: true});
             }
         });
-        restDays.filter(day => {
+        restDays.filter(day => {                
+            const key = day.jno;
+            if( !filterRest[key] && !day.is_holiday){
+                filterRest[key] = [];
+            }
             if (day.is_every_year === 'Y') {
                 if(date.getMonth() + 1 === day.rest_month && date.getDate() === day.rest_day){
-                    rests.push({...day, is_hoilday: false});
+                    filterRest[key].push({...day, is_holiday: false});
                 }
             } else if (day.is_every_year === 'N') {
                 if(date.getFullYear() === day.rest_year && date.getMonth() + 1 === day.rest_month && date.getDate() === day.rest_day){
-                    rests.push({...day, is_hoilday: false});
+                    filterRest[key].push({...day, is_holiday: false});
                 }
             }
         })
+
+        Object.keys(filterRest).forEach(key => {
+            if (filterRest[key].length != 0){    
+                rests.push({jno: filterRest[key], is_holiday:false});
+            }
+        })
+
         return rests;
     }
 
@@ -222,9 +243,17 @@ const Schedule = () => {
     const restReason = (date) => {
         const reasons = [];
         const rests = getIsSameDates(date);
-        rests.map(item => {
-            reasons.push({reason: item.reason, is_hoilday: item.is_hoilday});
+        
+        rests.forEach((item) => {
+            if(item.is_holiday) {
+                reasons.push({reason: item.reason, is_holiday: item.is_holiday});
+            }
+            else{
+                reasons.push({reason: item.jno, is_holiday:item.is_holiday})
+            }
         });
+
+
         return reasons;
     }
 
@@ -298,7 +327,7 @@ const Schedule = () => {
                 rests = rests.map(item => {
                     return {...item, date: dateUtil.formatNumericDate(item.rest_date)};
                 });
-                setHoildays([...rests]);
+                setHolidays([...rests]);
             }
 
             // 휴무일
@@ -328,8 +357,8 @@ const Schedule = () => {
         }
 
         try {
-            let res = await Axios.GET(`/schedule/daily-job?jno=${jno}&target_date=${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2, '0')}`);
-            
+            let res = await Axios.GET(`/schedule/daily-job?jno=${jno}&target_date=${currentYear}-${String(currentMonth).padStart(2, '0')}`);
+
             if (res?.data?.result === "Success") {
                 const jobs = [];
                 res?.data?.values?.list.map(item => {
@@ -379,7 +408,7 @@ const Schedule = () => {
     // 강수량과 하늘 수치로 정보 반환
     const convertWeather = (rainy, cloudy) => {
         let weatherIcon = weather0;
-        let weatherText = "맑음" ;
+        let weatherText = "맑음";
 
         switch (rainy) {
             case "0":
@@ -422,7 +451,7 @@ const Schedule = () => {
                 weatherText = "비/눈";
                 break;
             case "7":
-                weatherIcon = weather7
+                weatherIcon = weather7;
                 weatherText = "눈";
                 break;
         }
@@ -466,9 +495,9 @@ const Schedule = () => {
                 setIsDetailModal(false);
             }else{
                 if (res?.data?.message.includes("중복")) {
-                    setModalText("지정한 날짜에 이미 휴무일이 존재합니다.");
+                    setModalText("휴무일 수정에 실패하였습니다.\n지정한 날짜에 이미 휴무일이 존재합니다.\n");
                 }else{
-                    setModalText("휴무일 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                    setModalText("휴무일 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.\n");
                 }
             }
             setModalTitle("휴무일");
@@ -491,7 +520,7 @@ const Schedule = () => {
                 setModalText("휴무일 삭제에 성공하였습니다.");
                 setIsDetailModal(false);
             }else{
-                setModalText("휴무일 삭제에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                setModalText("휴무일 삭제에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.\n");
             }
             setModalTitle("휴무일");
             setIsModal(true);
@@ -523,9 +552,9 @@ const Schedule = () => {
                 setIsDetailModal(false);
             }else{
                 if (res?.data?.message.includes("중복")) {
-                    setModalText("지정한 날짜에 이미 작업 내용이 존재합니다.");
+                    setModalText("작업내용 수정에 실패하였습니다.\n지정한 날짜에 이미 작업 내용이 존재합니다.\n");
                 }else{
-                    setModalText("작업내용 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                    setModalText("작업내용 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.\n");
                 }
             }
 
@@ -548,7 +577,7 @@ const Schedule = () => {
                 setModalText("작업내용 삭제에 성공하였습니다.");
                 setIsDetailModal(false);
             }else{
-                setModalText("작업내용 삭제에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                setModalText("작업내용 삭제에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.\n");
             }
             setModalTitle("작업내용");
             setIsModal(true);
@@ -598,9 +627,9 @@ const Schedule = () => {
                 setIsAddDetailModal(false);
             }else{
                 if (res?.data?.message.includes("중복")) {
-                    setModalText("지정한 날짜에 이미 휴무일이 존재합니다.");
+                    setModalText("휴무일 추가에 실패하였습니다.\n지정한 날짜에 이미 같은 사유의 휴무일이 존재합니다.\n");
                 }else{
-                    setModalText("휴무일 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                    setModalText("휴무일 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.\n");
                 }
             }
             setModalTitle("휴무일");
@@ -641,9 +670,9 @@ const Schedule = () => {
                 setIsAddDetailModal(false);
             }else{
                 if (res?.data?.message.includes("중복")) {
-                    setModalText("지정한 날짜에 이미 작업 내용이 존재합니다.");
+                    setModalText("작업내용 추가에 실패하였습니다.\n지정한 날짜에 같은 내용의 작업이 존재합니다.\n");
                 }else{
-                    setModalText("작업내용 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                    setModalText("작업내용 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.\n");
                 }
             }
             setModalTitle("작업내용");
@@ -675,7 +704,7 @@ const Schedule = () => {
             if (res?.data?.result === "Success") {
                 setWorkRates(res?.data?.values);
             }else{
-                setModalText("공정률 조회에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                setModalText("공정률 조회에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.\n");
                 setModalTitle("공정률");
                 setIsModal(true);
             }
@@ -716,7 +745,7 @@ const Schedule = () => {
                 // if ( !ObjChk.all(project.sno) && !ObjChk.all(project.jno)){
                     // res = await Axios.POST(`/site/work-rate`, param);
                 // }else{
-                    setModalText("공정률을 수정할 수가 없습니다.\n관리자에게 문의하여 주세요.");
+                    setModalText("공정률을 수정할 수가 없습니다.\n관리자에게 문의하여 주세요.\n");
                     return;
                 // }
             }else {
@@ -727,7 +756,7 @@ const Schedule = () => {
                 getWorkRates();
                 setModalText("공정률 수정에 성공하였습니다.");
             }else{
-                setModalText("공정률 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
+                setModalText("공정률 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.\n");
             }
         } catch(err) {
             navigate("/error");
@@ -990,12 +1019,13 @@ const Schedule = () => {
                                                                 alt="plus"
                                                                 onClick={() => onClickWorkRate(item)}
                                                                 style={{
-                                                                    backgroundColor: "#eee",
+                                                                    // backgroundColor: "#eee",
                                                                     // borderTopLeftRadius: "5px",
                                                                     // borderBottomLeftRadius: "5px",
                                                                     padding: "3px",
                                                                     position: "absolute",
                                                                     bottom: "5px",
+                                                                    borderRadius:"5px",
                                                                     // right: "41px", // workRateIconCss에서 적용됨
                                                                     width: "32px",
                                                                     height: "32px",
@@ -1013,9 +1043,10 @@ const Schedule = () => {
                                                                 alt="plus"
                                                                 onClick={() => onClickWeatherList(dateUtil.format(item), `item_${week_idx}_${item_idx}`)}
                                                                 style={{
-                                                                    backgroundColor: "#eee",
-                                                                    borderTopRightRadius: "5px",
-                                                                    borderBottomRightRadius: "5px",
+                                                                    // backgroundColor: "#eee",
+                                                                    // borderTopRightRadius: "5px",
+                                                                    // borderBottomRightRadius: "5px",
+                                                                    // borderRadius:"5px",
                                                                     padding: "3px",
                                                                     position: "absolute",
                                                                     bottom: "5px",
@@ -1101,10 +1132,17 @@ const Schedule = () => {
                                                             {
                                                                 // 휴무일
                                                                 item !== null && isRest(item) && restReason(item).map((reason, r_idx) => (
-                                                                    reason.is_hoilday ?
-                                                                        <div className="hoilday-reason" key={r_idx}>{reason.reason}</div>
+                                                                    reason.is_holiday ?
+                                                                        <div className="holiday-reason" key={r_idx}>
+                                                                            {reason.reason}
+                                                                        </div>
                                                                     :
-                                                                        <div className="rest-reason" key={r_idx}>{reason.reason || "\u00a0"}</div>
+                                                                        <div className="rest-reason" key={r_idx}>
+                                                                        { reason.reason.map(( (rest, rest_idx) => (
+                                                                                <div key={rest_idx}>{rest.reason || "\u00a0"}</div>
+                                                                            )))
+                                                                        }
+                                                                        </div>
                                                                 ))
                                                             }
                                                             {
@@ -1136,7 +1174,6 @@ const Schedule = () => {
                                                                 fontWeight:"bold",
                                                                 position: "absolute",
                                                                 bottom: "5px",
-                                                                backgroundColor: "#eee",
                                                                 borderRadius : "5px", 
                                                                 width: "90%",
                                                                 height:"32px",
