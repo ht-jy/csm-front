@@ -536,6 +536,7 @@ const Schedule = () => {
         const job = {
             idx: item.idx,
             jno: item.jno,
+            content_color: item.content_color,
             targetDate: dateUtil.parseToGo(item.date),
             content: item.content,
             mod_uno: user.uno,
@@ -647,6 +648,7 @@ const Schedule = () => {
         const job = {
             jno: item.jno,
             content: item.reason,
+            content_color: item.content_color,
             targetDate: dateUtil.parseToGo(item.date),
             reg_uno: user.uno,
             reg_user: user.userName
@@ -1148,7 +1150,7 @@ const Schedule = () => {
                                                             {
                                                                 // 작업내용
                                                                 item !== null && getIsSameDailyJobs(item).map((job, j_idx) => (
-                                                                    <div key={j_idx} style={{marginLeft: "5px"}}
+                                                                    <div key={j_idx} style={{marginLeft: "5px", color:job.content_color || "black"}}
                                                                         className="ellipsis-tooltip"
                                                                     >
                                                                         {`● ${job.content}`}

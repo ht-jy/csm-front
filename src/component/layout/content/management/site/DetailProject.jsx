@@ -6,6 +6,7 @@ import Organization from "../../../../../assets/image/organization_chart.png";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { Common } from "../../../../../utils/Common";
 import { dateUtil } from "../../../../../utils/DateUtil";
+import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
 import { ObjChk } from "../../../../../utils/ObjChk";
 import { useAuth } from "../../../../context/AuthContext";
 import SiteContext from "../../../../context/SiteContext";
@@ -15,7 +16,6 @@ import Modal from "../../../../module/Modal";
 import OrganizationModal from "../../../../module/modal/OrganizationModal";
 import AddDetailSchedule from "../schedule/AddDetailSchedule";
 import DetailSchedule from "../schedule/DetailSchedule";
-import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
 
 /**
  * @description: 프로젝트 상세 컴포넌트
@@ -126,6 +126,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                 const job = {
                     idx: item.idx,
                     jno: item.jno,
+                    content_color: item.content_color,
                     targetDate: dateUtil.parseToGo(item.date),
                     content: item.content,
                     mod_uno: user.uno,
@@ -208,6 +209,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
         const job = {
             jno: item.jno,
             content: item.reason,
+            content_color:item.content_color,
             targetDate: dateUtil.parseToGo(item.date),
             reg_uno: user.uno,
             reg_user: user.userName
@@ -420,7 +422,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                         {data.daily_content_list.length > 0 ?
                             // 작업내용이 여러개인 경우
                             data.daily_content_list.map( (content, idx) => (
-                                <div key={idx}>● {content.content}</div>
+                                <div  key={idx} style={{color:content.content_color || '#000000'}}>● {content.content}</div>
                             ))
                             :   
                             // 작업내용이 없는 경우
