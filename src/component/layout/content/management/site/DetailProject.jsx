@@ -38,7 +38,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
     const [modalTitle, setModalTitle] = useState(false);
     const [modalText, setModalText] = useState(false);
 
-    const { getData, selectedDate } = useContext(SiteContext);
+    const { refetch, selectedDate } = useContext(SiteContext);
     const { user } = useAuth();
     const navigate = useNavigate();
 
@@ -136,7 +136,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                 const res = await Axios.PUT(`/schedule/daily-job`, job);
                 
                 if (res?.data?.result === "Success") {
-                    getData();
+                    refetch(true, false);
                     setModalText("작업내용 수정에 성공하였습니다.");
                     setIsScheduleModal(false);
                     
@@ -158,7 +158,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
             try {
                 const res = await Axios.DELETE(`/schedule/daily-job/${item.idx}`);
                 if (res?.data?.result === "Success") {
-                    getData();
+                    refetch(true, false);
                     setModalText("작업내용 삭제에 성공하였습니다.");
                     setIsScheduleModal(false);
                 }else{
@@ -228,7 +228,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
             const res = await Axios.POST(`/schedule/daily-job`, jobs);
             
             if (res?.data?.result === "Success") {
-                getData();
+                refetch(true, false);
                 setModalText("작업내용 추가에 성공하였습니다.");
                 setIsAddSchedule(false);
             }else{

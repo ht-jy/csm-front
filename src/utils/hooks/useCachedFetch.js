@@ -132,7 +132,11 @@ export function useCachedFetch(url, options = {}) {
     }, [url, storageKey, storage, useCache]);
 
     // 외부에서 호출 가능한 수동 요청 함수
-    const refetch = useCallback((saveCache = true) => {
+    const refetch = useCallback((saveCache = true, isDelay = true) => {
+        if(!isDelay) {
+            fetchData(true, saveCache, true);
+            return;
+        }
         const delayMs = refetchDelaySeconds > 0 ? refetchDelaySeconds * 1000 : 0;
         setTimeout(() => {
             if (enabled) fetchData(true, saveCache, true);
