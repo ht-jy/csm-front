@@ -24,11 +24,11 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(null);             // user.role: IRIS_USER_ROLE_MAP 테이블에 저장된 기본 권한(jno가 0인 모든 프로젝트 기준)
     const [project, setProject] = useState(null);
     const [projectName, setProjectName] = useState("");
-    const [jobRole, setJobRole] = useState(null);
-    const [userRole, setUserRole]= useState([]);
+    const [jobRole, setJobRole] = useState(null);       // 조직도에 지정되어 있는 권한
+    const [userRole, setUserRole]= useState([]);        // IRIS_USER_ROLE_MAP 테이블에 저장된 프로젝트 별 권한
     const [isProject, setIsProject] = useState(true);
 
     const fetchToken = async () => {

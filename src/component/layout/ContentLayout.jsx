@@ -1,8 +1,9 @@
 import { Outlet } from "react-router-dom";
 import Header from "./Header";
 import SideNav from "./SideNav";
+import Forbidden from "../error/Forbidden";
 
-function ContentLayout() {
+function ContentLayout({isMenuValid}) {
     return (
         <>
             <Header />
@@ -10,7 +11,10 @@ function ContentLayout() {
                 <SideNav />
                 <div id="layoutSidenav_content">
                     <div className="outlet-wrapper">
-                        <Outlet />
+                        {/* <Outlet /> */}
+                        {
+                            isMenuValid === false ? <Forbidden /> : <Outlet />
+                        }
                     </div>
                 </div>
             </div> 

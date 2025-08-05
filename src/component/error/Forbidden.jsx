@@ -1,9 +1,9 @@
 import "../../assets/css/Error.css";
-import ErrIcon from "../../assets/image/error.png";
+import ErrIcon from "../../assets/image/forbidden.png";
 
-const ErrorPage = () => {
+const Forbidden = () => {
     return(
-        <div className="container">
+        <div className="container" style={{marginTop: "40px"}}>
             <section className="error-page section">
                 <div className="container">
                     <div className="row">
@@ -13,7 +13,7 @@ const ErrorPage = () => {
                                     <img style={{paddingBottom: "20px"}}
                                         src={ErrIcon}
                                     />
-                                    <span>죄송합니다.<br/>요청하신 서비스를 잠시 사용할 수 없습니다.<br/>잠시후에 다시 시도하여 주세요.</span>
+                                    <span>이 페이지에 접근할 권한이 없습니다.<br/>관리자에게 요청하여 주세요.</span>
                                 </h1>
                             </div>
                         </div>
@@ -24,4 +24,4 @@ const ErrorPage = () => {
     );
 }
 
-export default ErrorPage;
+export default Forbidden;
