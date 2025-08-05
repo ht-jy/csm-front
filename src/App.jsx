@@ -22,6 +22,7 @@ import SystemManagement from "./component/layout/content/management/system/Syste
 import ErrorBoundary from "./component/error/ErrorBoundary";
 import ErrorPage from "./component/error/ErrorPage";
 import NotFound from "./component/error/NotFound";
+import Forbidden from "./component/error/Forbidden";
 import "./assets/css/Tooltip.css";
 
 // 라우팅 모듈
@@ -54,6 +55,7 @@ function App() {
                             <Route path="/daily-compare" element={<DailyCompare />} />
                             <Route path="/project" element={<Project />} />
                             <Route path="/system-management" element={<SystemManagement />} />
+                            <Route path="/fobidden" element={<Forbidden />} />
                         </Route>
                         {/* 잘못된 경로 */}
                         <Route path="*" element={<NotFound />} />
