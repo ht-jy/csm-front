@@ -41,7 +41,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
     const { user } = useAuth();
     const navigate = useNavigate();
     const { isRoleValid } = useUserRole();
-    const { getData, setIsDetail, setIsNonUseChecked, selectedDate } = useContext(SiteContext);
+    const { refetch, setIsDetail, setIsNonUseChecked, selectedDate } = useContext(SiteContext);
                                 
     const [isEdit, setIsEdit] = useState(false);
     const [formData, setFormData] = useState(null);
@@ -286,7 +286,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
     // 작업완료 성공 확인 이벤트
     const onClickNonUseConfirm = () => {
         setIsNonUseChecked(false);
-        getData();
+        refetch(true, false);
         setIsDetail(false)
         setIsNonUseConfirm(false);
     }

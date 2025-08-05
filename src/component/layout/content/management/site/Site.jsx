@@ -194,7 +194,7 @@ const Site = () => {
             setModalTitle2("현장 생성");
             if (res?.data?.result === "Success") {
                 setModalText2("선택한 프로젝트로 현장이 생성되었습니다.");
-                refetch();
+                refetch(true, false);
             } else {
                 setModalText2("선택한 프로젝트로 현장을 생성하는데 실패하였습니다.");
             }
@@ -229,7 +229,7 @@ const Site = () => {
             if (res?.data?.result === "Success") {
                 setModalText("현장 수정에 성공하였습니다.")
                 setIsDetail(false);
-                refetch();
+                refetch(true, false);
             } else {
                 setModalText("현장 수정에 실패하였습니다.")
                 
@@ -402,6 +402,7 @@ const Site = () => {
             },
             onBeforeRequest: ({ isCache, isRefetch }) => {
                 if(!isCache) setIsLoading(true);
+                if(isCache && isRefetch) setIsLoading(true);
             },
             onSuccess: (res) => {
                 if (res?.data?.result === "Success") {
@@ -414,6 +415,10 @@ const Site = () => {
             },
             onFinally: ({ isCache, isRefetch }) => {
                 if(!isCache){
+                    setIsLoading(false);
+                    setIsNonUseChecked(false);
+                }
+                if(isCache && isRefetch) {
                     setIsLoading(false);
                     setIsNonUseChecked(false);
                 }
