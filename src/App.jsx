@@ -23,6 +23,7 @@ import ErrorBoundary from "./component/error/ErrorBoundary";
 import ErrorPage from "./component/error/ErrorPage";
 import NotFound from "./component/error/NotFound";
 import Forbidden from "./component/error/Forbidden";
+import AdminLogin from "./component/layout/login/AdminLogin";
 import "./assets/css/Tooltip.css";
 
 // 라우팅 모듈
@@ -35,6 +36,7 @@ function App() {
                 <ErrorBoundary>
                     <Routes>
                         <Route path="/login" element={<Login />} />
+                        <Route path="/a/d/m/i/n/l/o/g/i/n" element={<AdminLogin />} />
                         <Route path="/error" element={<ErrorPage />} />
                         <Route exact path="/" element={<PrivateRoute />} >
                             {/* 기본경로 */}

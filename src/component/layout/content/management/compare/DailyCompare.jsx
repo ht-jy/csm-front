@@ -18,6 +18,7 @@ import useTableControlState from "../../../../../utils/hooks/useTableControlStat
 import Search from "../../../../module/search/Search";
 import { TableProvider } from "../../../../context/TableContext";
 import { ObjChk } from "../../../../../utils/ObjChk";
+import { Common } from "../../../../../utils/Common";
 
 const DailyCompare = () => {
     const { project, user, setIsProject } = useAuth();
@@ -595,6 +596,12 @@ const DailyCompare = () => {
                                 // onChangeEditList={handleEditList}
                             />
                         </TableProvider>
+                    </div>
+                </div>
+
+                <div className="pagination-wrapper">
+                    <div className="pagination-info">
+                        Rows: {Common.formatNumber(state.compareList.length)}
                     </div>
                 </div>
             </div>
