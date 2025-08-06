@@ -15,6 +15,8 @@ import SettingProjectReducer from "./SettingProjectReducer.js";
 import Button from "../../../../module/Button.jsx";
 import "../../../../../assets/css/SettingProject.css";
 import TextInput from "../../../../module/TextInput.jsx";
+import { useUserRole } from "../../../../../utils/hooks/useUserRole.js";
+import { ProjectSettingRoles } from './../../../../../utils/rolesObject/projectSettingRoles';
 
 /**
  * @description: 프로젝트 기본 설정 페이지
@@ -49,6 +51,7 @@ const SettingProject = () => {
     });
 
     const [isLoading, setIsLoading] = useState(false)
+    const { isRoleValid } = useUserRole();
 
     // 모드
     const [isManHourEdit, setIsManHourEdit] = useState(false); // 공수 수정
@@ -577,7 +580,7 @@ const SettingProject = () => {
                                 <Button text={"취소"} style={{ ...titleButtonStyle }} onClick={() => {initSetting("editManHour")}}></Button>
                             </>
                             : 
-                                <Button text={"수정"} style={{ ...titleButtonStyle }} onClick={() => editMode(setIsManHourEdit)}></Button>
+                                isRoleValid(ProjectSettingRoles.WORK_HOUR) && <Button text={"수정"} style={{ ...titleButtonStyle }} onClick={() => editMode(setIsManHourEdit)}></Button>
                         }
                         {/* {
 
@@ -722,7 +725,7 @@ const SettingProject = () => {
                                     <Button style={{...titleButtonStyle}} text={"취소"} onClick={() => initSetting("inOutTime")}></Button>
                                 </div>
                             : 
-                                <Button text={"수정"} style={{ ...titleButtonStyle }} onClick={() => editMode(setIsInOutTimeEdit)}></Button>
+                                isRoleValid(ProjectSettingRoles.PERIOD_HOUR) && <Button text={"수정"} style={{ ...titleButtonStyle }} onClick={() => editMode(setIsInOutTimeEdit)} />
                         }
                     </ol>
                     {
@@ -786,7 +789,7 @@ const SettingProject = () => {
                                 </div>
 
                             : 
-                                <Button text={"수정"} style={{ ...titleButtonStyle }} onClick={() => editMode(setIsCancelCodeEdit)}></Button>
+                                isRoleValid(ProjectSettingRoles.DEADLINE_CANCEL) && <Button text={"수정"} style={{ ...titleButtonStyle }} onClick={() => editMode(setIsCancelCodeEdit)}></Button>
                         }
                     </ol>
                     { cancelCodeExpand ? 

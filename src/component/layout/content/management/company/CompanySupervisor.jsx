@@ -3,12 +3,13 @@ import { Axios } from "../../../../../utils/axios/Axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../context/AuthContext";
 import { useLogParam } from "../../../../../utils/Log";
-import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
+import { useUserRole } from "../../../../../utils/hooks/useUserRole";
 import CheckInput from "../../../../module/CheckInput";
 import CheckIcon from "../../../../../assets/image/check-icon.png";
 import "../../../../../assets/css/Table.css";
 import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
+import { CompanyRoles } from './../../../../../utils/rolesObject/companyRoles';
 
 /**
  * @description: 관리감독자 테이블
@@ -47,7 +48,7 @@ const CompanySupervisor = ({jno, styles}) => {
     // 재랜더링 용도 state
     const [render, setRender] = useState(1);
     // 임시 현장관리자 등록/해제 권한 여부
-    const siteManagerRole = isRoleValid(roleGroup.GRANT_TEMP_SITE_MANAGER);
+    const siteManagerRole = isRoleValid(CompanyRoles.GRANT_TEMP_SITE_MANAGER);
 
     // 임시 현장관리자 등록/해제 확인 모달
     const onClickTempManagerBtn = (value, item) => {
