@@ -5,8 +5,10 @@ import Select from "react-select";
 import Exit from "../../../../../assets/image/exit.png";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { dateUtil } from "../../../../../utils/DateUtil";
-import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
+import { useUserRole } from "../../../../../utils/hooks/useUserRole";
 import { ObjChk } from "../../../../../utils/ObjChk";
+import { projectRoles } from "../../../../../utils/rolesObject/projectRoles";
+import { scheduleRoles } from "../../../../../utils/rolesObject/scheduleRoles";
 import { useAuth } from "../../../../context/AuthContext";
 import ColorInput from "../../../../module/ColorInput";
 import DateInput from "../../../../module/DateInput";
@@ -40,8 +42,8 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
     // 권한 체크
     const { isRoleValid } = useUserRole();
     // 전체 프로젝트 수정 권한
-    const scheduleRole = isRoleValid(roleGroup.SCHEDULE_MANAGER);
-
+    const scheduleRole = isRoleValid(scheduleRoles.SCHEDULE_MANAGER);
+    
     /** 프로젝트 **/
     const [simpleProjects, setSimpleProjects] = useState([]);
     /** 추가 데이터 **/
@@ -136,7 +138,7 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
     const getProjectData = async () => {
         setIsLoading(true);
         try {
-            const res = await Axios.GET(`/project/job_name`);
+            const res = await Axios.GET(`/project/job_name?isRole=${isRoleValid(projectRoles.PROJECT_NM)}`);
             if (res?.data?.result === "Success") {
                 // 프로젝트 정보
                 setSimpleProjects(res?.data?.values?.list);
