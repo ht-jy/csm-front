@@ -42,7 +42,7 @@ import "../../../../../assets/css/Table.css";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /worker/total (전체근로자 조회), /site/nm (현장데이터 조회), /project/job_name (프로젝트명 조회), /code (코드조회)
+ *    Http Method - GET : /worker/total (전체근로자 조회), /site/nm (현장데이터 조회), /code (코드조회)
  *    Http Method - POST : /worker/total (근로자 추가)
  *    Http Method - PUT : /worker/total (근로자 수정)
  */
