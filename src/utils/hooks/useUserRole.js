@@ -61,7 +61,8 @@ export const useUserRole = () => {
                 : []
             )
         ];
-        return roleList.some(role => !ObjChk.all(role) && roles.includes(role));
+        const roleCodes = roles.map(r => r.code);
+        return roleList.some(role => !ObjChk.all(role) && roleCodes.includes(role));
     };
 
     return { isRoleValid };
