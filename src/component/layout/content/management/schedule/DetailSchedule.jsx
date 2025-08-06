@@ -365,10 +365,19 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                                                 {
                                                                                     jobs.map((item, i_idx) => (
                                                                                         <div 
-                                                                                            className="detail-daily-job"
-                                                                                            style={{fontSize: "17px", display: "flex", alignItems: "center", cursor: "pointer", paddingBottom: "2px", color: item.content_color || "#000000"}}
+                                                                                            className={isRoleValid(scheduleRoles.DETAIL_ROW_CLICK) ? "detail-daily-job" : ""}
+                                                                                            style={{
+                                                                                                fontSize: "17px", 
+                                                                                                display: "flex", 
+                                                                                                alignItems: "center", 
+                                                                                                cursor: isRoleValid(scheduleRoles.DETAIL_ROW_CLICK) ? "pointer" : "", 
+                                                                                                paddingBottom: "2px", 
+                                                                                                color: item.content_color || "#000000"
+                                                                                            }}
                                                                                             key={`${j_idx}_${i_idx}`}
-                                                                                            onClick={() => onClickDailyJob(item)}
+                                                                                            onClick={
+                                                                                                isRoleValid(scheduleRoles.DETAIL_ROW_CLICK) ? () => onClickDailyJob(item) : () => {}
+                                                                                            }
                                                                                         >
                                                                                             <div style={{marginRight: "5px", paddingBottom: "3px"}}>●</div>
                                                                                             <div>{item.content}</div>
