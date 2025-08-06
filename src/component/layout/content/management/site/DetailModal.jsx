@@ -1,20 +1,20 @@
-import { useState, useEffect, useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../../context/AuthContext";
-import { Axios } from "../../../../../utils/axios/Axios";
-import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
-import Exit from "../../../../../assets/image/exit.png";
 import "../../../../../assets/css/SiteDetail.css";
-import DetailSite from "./DetailSite";
-import DetailProject from "./DetailProject";
-import AddressSearchModal from "../../../../module/modal/AddressSearchModal";
-import Button from "../../../../module/Button";
-import SearchProjectModal from "../../../../module/modal/SearchProjectModal";
-import Modal from "../../../../module/Modal";
-import NonUsedProjectModal from "../../../../module/modal/NonUsedProjectModal";
-import Loading from "../../../../module/Loading";
-import SiteContext from "../../../../context/SiteContext";
+import Exit from "../../../../../assets/image/exit.png";
+import { Axios } from "../../../../../utils/axios/Axios";
 import { dateUtil } from "../../../../../utils/DateUtil";
+import { useUserRole } from "../../../../../utils/hooks/useUserRole";
+import { siteRoles } from "../../../../../utils/rolesObject/siteRoles";
+import { useAuth } from "../../../../context/AuthContext";
+import SiteContext from "../../../../context/SiteContext";
+import Button from "../../../../module/Button";
+import Loading from "../../../../module/Loading";
+import Modal from "../../../../module/Modal";
+import AddressSearchModal from "../../../../module/modal/AddressSearchModal";
+import NonUsedProjectModal from "../../../../module/modal/NonUsedProjectModal";
+import DetailProject from "./DetailProject";
+import DetailSite from "./DetailSite";
 /**
  * @description: 현장관리 전용 상세화면 모달 컴포넌트
  * 
@@ -389,7 +389,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                                             }
                                         </div>
                                     :
-                                        isRoleValid(roleGroup.SITE_MANAGER) && 
+                                        isRoleValid(siteRoles.SITE_MANAGER) && 
                                         <div>
                                             {
                                                 isEditBtn && !isSiteAdd && selectedDate === dateUtil.format(Date.now()) ? 
@@ -429,7 +429,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                                 <>
                                     <div className="grid-division"></div>
                                     {
-                                        isEdit && 
+                                        isEdit && isRoleValid(siteRoles.SITE_MANAGER) && 
                                         <div style={{width: "100%", display: "flex", justifyContent: "center"}}>
                                             <Button text={"프로젝트 추가"} style={{width: "99%", marginBottom: "10px"}} onClick={onClickProjectAddBtn}/>
                                         </div>
@@ -453,6 +453,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                             }
 
                             {
+                                isRoleValid(siteRoles.SITE_MANAGER) &&
                                 <div style={{marginRight: "8px"}}>
                                     {detailData.is_use === 'Y' && !isEdit && <Button text={"작업 완료"} style={{width: "100%"}} onClick={() => nonUseCheckOpen(true)}/>}
                                     {detailData.is_use !== 'Y' && !isEdit && <Button text={"작업 완료 취소"} style={{width: "100%"}} onClick={() => nonUseCheckOpen(false)}/>}

@@ -394,7 +394,7 @@ const Site = () => {
 
     // 현장 정보 조회
     const {cacheData, isStale, isFetchedLoading, refetch} = useCachedFetch(
-        `/site?targetDate=${dateUtil.format(selectedDate, "yyyy-MM-dd")}&pCode=SITE_STATUS&isRole=${isRoleValid(siteRoles.SITE_MANAGER)}`,
+        `/site?targetDate=${dateUtil.format(selectedDate, "yyyy-MM-dd")}&pCode=SITE_STATUS&isRole=${isRoleValid(siteRoles.SITE_LIST)}`,
 
         {
             storageKey: `siteData_${dateUtil.format(selectedDate, "yyyy-MM-dd")}`,
