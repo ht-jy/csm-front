@@ -41,11 +41,6 @@ export const roleGroup = Object.freeze({
     NOTICE_ALL_MOD_MANAGER: [ // 다른 사람이 작성한 공지사항 수정, 삭제 권한
         userRole.SYSTEM_ADMIN.code,
         userRole.SUPER_ADMIN.code,
-    ],
-    SCHEDULE_MANAGER : [ // 일정관리 전체 일정 수정 권한
-        userRole.SYSTEM_ADMIN.code,
-        userRole.SUPER_ADMIN.code,
-        userRole.ADMIN.code,
     ]
 
 });

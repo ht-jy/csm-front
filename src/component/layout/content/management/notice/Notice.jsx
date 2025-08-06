@@ -1,20 +1,21 @@
 import { useEffect, useReducer, useState } from "react";
-import { Axios } from "../../../../../utils/axios/Axios";
-import { useAuth } from "../../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Select from 'react-select';
+import "../../../../../assets/css/Paginate.css";
+import "../../../../../assets/css/Table.css";
+import { Axios } from "../../../../../utils/axios/Axios";
 import useTableControlState from "../../../../../utils/hooks/useTableControlState";
-import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons";
 import useTableSearch from "../../../../../utils/hooks/useTableSearch";
+import { useUserRole } from "../../../../../utils/hooks/useUserRole";
+import { noticeRoles } from "../../../../../utils/rolesObject/noticeRoles";
+import { useAuth } from "../../../../context/AuthContext";
 import Button from "../../../../module/Button";
 import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
+import PaginationWithCustomButtons from "../../../../module/PaginationWithCustomButtons";
 import Table from "../../../../module/Table";
 import NoticeDetail from "./NoticeDetail";
 import NoticeReducer from "./NoticeReducer";
-import "../../../../../assets/css/Paginate.css";
-import "../../../../../assets/css/Table.css";
-import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
 
 /**
  * @description: 공지사항 CRUD
@@ -34,7 +35,7 @@ import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /notice (공지사항 조회)
+ *    Http Method - GET : /notice/{uno} (공지사항 조회)
  * - 주요 상태 관리: useReducer, useState
 */
 
@@ -95,7 +96,7 @@ const Notice = () => {
     const getNotices = async () => {
         setIsLoading(true);
         try {
-            const res = await Axios.GET(`/notice/${user.uno}?role=${jobRole}|${user.role}&page_num=${pageNum}&row_size=${rowSize}&order=${order}&jno=${project?.jno}&job_loc_name=${searchValues.job_loc_name}&job_name=${searchValues.job_name}&title=${searchValues.title}&user_info=${searchValues.user_info}`);
+            const res = await Axios.GET(`/notice/${user.uno}?isRole=${isRoleValid(noticeRoles.NOTICE_MANAGER)}&page_num=${pageNum}&row_size=${rowSize}&order=${order}&jno=${project?.jno}&job_loc_name=${searchValues.job_loc_name}&job_name=${searchValues.job_name}&title=${searchValues.title}&user_info=${searchValues.user_info}`);
             if (res?.data?.result === "Success") {
                 dispatch({ type: "INIT", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
                 dispatch({ type: "HEADER", notices: res?.data?.values?.notices, count: res?.data?.values?.count })
@@ -179,7 +180,7 @@ const Notice = () => {
                                 isSearchInit ? <Button text={"초기화"} onClick={handleSearchInit} /> : null
                             }
                             {
-                                isRoleValid(roleGroup.NOTICE_ADD_MANAGER) &&
+                                isRoleValid(noticeRoles.NOTICE_ADD_MANAGER) &&
                                 <Button text={"등록"} onClick={() => onClickRow(null)}></Button>
                             }
                         </div>

@@ -6,8 +6,10 @@ import BackIcon from "../../../../../assets/image/back-arrow.png";
 import Exit from "../../../../../assets/image/exit.png";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { dateUtil } from "../../../../../utils/DateUtil";
-import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
+import { useUserRole } from "../../../../../utils/hooks/useUserRole";
 import { ObjChk } from "../../../../../utils/ObjChk";
+import { projectRoles } from "../../../../../utils/rolesObject/projectRoles";
+import { scheduleRoles } from "../../../../../utils/rolesObject/scheduleRoles";
 import { useAuth } from "../../../../context/AuthContext";
 import ColorInput from "../../../../module/ColorInput";
 import DateInput from "../../../../module/DateInput";
@@ -44,7 +46,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
     // 권한 체크
     const { isRoleValid } = useUserRole();
     // 전체 프로젝트 수정 권한
-    const scheduleRole = isRoleValid(roleGroup.SCHEDULE_MANAGER);
+    const scheduleRole = isRoleValid(scheduleRoles.SCHEDULE_MANAGER);
 
 
     const [isLoading, setIsLoading] = useState(false);
@@ -191,7 +193,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
     const getProjectData = async () => {
         setIsLoading(true);
         try {
-            const res = await Axios.GET(`/project/job_name`);
+            const res = await Axios.GET(`/project/job_name?isRole=${isRoleValid(projectRoles.PROJECT_NM)}`);
             if (res?.data?.result === "Success") {
                 const options = [{value:0, label: "전체 적용", cancelDay: null}];
                 res?.data?.values?.list.map(item => {
