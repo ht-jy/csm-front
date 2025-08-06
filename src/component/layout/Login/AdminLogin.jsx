@@ -38,6 +38,7 @@ function AdminLogin() {
         const user = {
             user_id: userId,
             user_pwd: pwd,
+            admin: true,
         };
         
         try {
