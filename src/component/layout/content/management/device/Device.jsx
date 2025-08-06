@@ -19,6 +19,8 @@ import "../../../../../assets/css/Paginate.css";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import { useLogParam } from "../../../../../utils/Log";
 import { ObjChk } from "../../../../../utils/ObjChk";
+import { useUserRole } from "../../../../../utils/hooks/useUserRole";
+import { DeviceRoles } from "../../../../../utils/rolesObject/deviceRoles";
 
 /**
  * @description: 
@@ -55,6 +57,7 @@ const Device = () => {
     const navigate = useNavigate();
     const { user, setIsProject } = useAuth();
     const { createLogParam } = useLogParam();
+    const { isRoleValid } = useUserRole();
 
     const [isLoading, setIsLoading] = useState(false);
     const [isGridModal, setIsGridModal] = useState(false);
@@ -387,8 +390,8 @@ const Device = () => {
                 isOpen={isGridModal}
                 gridMode={gridMode}
                 funcModeSet={onClickModeSet}
-                editBtn={true}
-                removeBtn={true}
+                editBtn={isRoleValid(DeviceRoles.MOD_BTN)}
+                removeBtn={isRoleValid(DeviceRoles.DEL_BTN)}
                 title={`근태인식기 관리 ${getModeString()}`}
                 exitBtnClick={onClickGridModalExitBtn}
                 detailData={detail}
@@ -402,7 +405,7 @@ const Device = () => {
                         <li className="breadcrumb-item content-title">근태인식기 관리</li>
                         <li className="breadcrumb-item active content-title-sub">관리</li>
                         <div className="table-header-right">
-                            <Button text={"추가"} onClick={() => handleGridModal("SAVE")} />
+                            {isRoleValid(DeviceRoles.ADD_BTN) && <Button text={"추가"} onClick={() => handleGridModal("SAVE")} />}
                         </div>
                     </ol>
 

@@ -33,6 +33,8 @@ import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
 import AddDetailSchedule from "./AddDetailSchedule";
 import DetailSchedule from "./DetailSchedule";
+import { useUserRole } from "../../../../../utils/hooks/useUserRole";
+import { scheduleRoles } from "../../../../../utils/rolesObject/scheduleRoles";
 /**
  * @description: 일정관리 - 휴무일, 작업내용을 달력 형태로 확인 / 휴무일, 작업내용, 프로젝트 공정률, 프로젝트 장비 수정
  * 
@@ -56,6 +58,7 @@ import DetailSchedule from "./DetailSchedule";
 const Schedule = () => {
     const navigate = useNavigate();
     const { project, user, setIsProject } = useAuth();
+    const { isRoleValid } = useUserRole();
 
     const [isLoading, setIsLoading] = useState(false);
     /** 선택한 연, 월 **/
@@ -899,21 +902,25 @@ const Schedule = () => {
                 cancel={"취소"}
                 fncCancel={() => setIsModWorkRate(false)}
             />
-            <div onClick={() => onClickAddDetailOpen(new Date())}>
-                <img
-                src={PlusBottomIcon}
-                alt="Custom Icon"
-                style={{
-                    position: 'fixed',
-                    bottom: '50px',
-                    right: '60px',
-                    width: '50px',
-                    height: '50px',
-                    cursor: "pointer",
-                    zIndex: 1000
-                }}
-                />
-            </div>
+            {/* 하단 추가 아이콘 */}
+            {
+                isRoleValid(scheduleRoles.CALENDER_ADD_BTN) &&
+                <div onClick={() => onClickAddDetailOpen(new Date())}>
+                    <img
+                    src={PlusBottomIcon}
+                    alt="Custom Icon"
+                    style={{
+                        position: 'fixed',
+                        bottom: '50px',
+                        right: '60px',
+                        width: '50px',
+                        height: '50px',
+                        cursor: "pointer",
+                        zIndex: 1000
+                    }}
+                    />
+                </div>
+            }
 
             <div className="container-fluid px-4">
                 <ol className="breadcrumb mb-2 content-title-box">
@@ -1014,8 +1021,9 @@ const Schedule = () => {
                                                         backgroundColor: isSameDay(new Date(), item) ? "#f9fdd7" : "",
                                                     }}
                                                 >   
+                                                    {/* 공정률 아이콘 */}
                                                     {
-                                                        item !== null && new Date(item) <= new Date(new Date().setHours(0, 0, 0, 0)) && project !== null && checkAllowDate(item) &&(
+                                                        item !== null && new Date(item) <= new Date(new Date().setHours(0, 0, 0, 0)) && project !== null && checkAllowDate(item) && isRoleValid(scheduleRoles.RATE_ICON) && (
                                                             <img
                                                                 src={WorkRateIcon}
                                                                 alt="plus"
@@ -1038,6 +1046,7 @@ const Schedule = () => {
                                                             />
                                                         )
                                                     }
+                                                    {/* 날짜 아이콘 */}
                                                     {
                                                         item !== null && new Date(item) < new Date(new Date().setHours(0, 0, 0, 0)) && project !== null && (
                                                             <img
@@ -1104,11 +1113,11 @@ const Schedule = () => {
                                                     }
                                                     {/* 날짜 */}
                                                     <div 
-                                                        className="schedule-day"
+                                                        className={isRoleValid(scheduleRoles.CALENDER_ADD_BTN) ? "schedule-day schedule-day-hover" : "schedule-day"}
                                                         onClick={item !== null ? () => onClickAddDetailOpen(item) : null}
                                                         style={{
                                                             color: item === null ? "black" : isRest(item) ? "red" : item.getDay() === 0 ? "red" : item.getDay() === 6 ? "blue" : "black",
-                                                            cursor: item != null ? "pointer" : ""
+                                                            cursor: item != null && isRoleValid(scheduleRoles.CALENDER_ADD_BTN) ? "pointer" : ""
                                                         }}
                                                     >
                                                         {
@@ -1117,7 +1126,7 @@ const Schedule = () => {
                                                             : ""
                                                         }
                                                         {
-                                                            item !== null && checkAllowDate(item) ?
+                                                            item !== null && checkAllowDate(item) && isRoleValid(scheduleRoles.CALENDER_ADD_BTN)?
                                                                 <img src={PlusIcon} style={{width: "12px", marginLeft: "auto"}}/>
                                                             : ""
                                                         }
@@ -1169,7 +1178,6 @@ const Schedule = () => {
                                                         }}
                                                     >
                                                     { item !== null && project !== null && new Date() > item &&
-
                                                         <div
                                                             style={{
                                                                 display:"flex",

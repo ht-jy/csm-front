@@ -7,6 +7,8 @@ import Modal from "../../../../module/Modal";
 import NoticeReducer from "./NoticeReducer";
 import Loading from "../../../../module/Loading";
 import NoticeModal from "./NoticeModal";
+import { useUserRole } from "../../../../../utils/hooks/useUserRole";
+import { noticeRoles } from "../../../../../utils/rolesObject/noticeRoles";
 
 
 /**
@@ -35,6 +37,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
 
     const navigate = useNavigate();
     const { user } = useAuth(); 
+    const {isRoleValid} = useUserRole();
 
     // [GridModal]
     const [detail, setDetail] = useState([]);
@@ -284,8 +287,8 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
                 isOpen={isGridModal}
                 gridMode={gridMode}
                 funcModeSet={onClickModeSet}
-                editBtn={isAuthorization}
-                removeBtn={isAuthorization}
+                editBtn={isRoleValid(noticeRoles.NOTICE_ADD_MANAGER) || isAuthorization}
+                removeBtn={isRoleValid(noticeRoles.NOTICE_ADD_MANAGER) || isAuthorization}
                 title={`공지사항 ${getModeString()}`}
                 exitBtnClick={onClickGridModalExitBtn}
                 detailData={detail}
@@ -293,7 +296,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
                 saveBtnClick={onClickModalSave}
                 removeBtnClick={onClickGridModalDeleteBtn}
                 isCancle={true}
-                isCopy={true}
+                isCopy={isRoleValid(noticeRoles.NOTICE_ADD_MANAGER) && true}
                 copyBtnClick={(data) => {handlePostGridModal("COPY", noticeData)}}
             />
         </div>

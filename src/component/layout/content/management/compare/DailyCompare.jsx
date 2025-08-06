@@ -19,11 +19,15 @@ import Search from "../../../../module/search/Search";
 import { TableProvider } from "../../../../context/TableContext";
 import { ObjChk } from "../../../../../utils/ObjChk";
 import { Common } from "../../../../../utils/Common";
+import { useUserRole } from "../../../../../utils/hooks/useUserRole";
+import { DailyCompareRoles } from "../../../../../utils/rolesObject/dailyCompareRoles";
 
 const DailyCompare = () => {
     const { project, user, setIsProject } = useAuth();
     const navigate = useNavigate();
     const tableRef = useRef();
+
+    const { isRoleValid } = useUserRole();
 
     const [state, dispatch] = useReducer(DailyCompareReducer, {
         compareList: [],
@@ -83,6 +87,11 @@ const DailyCompare = () => {
 
     // 반영 버튼
     const onClickRegister = () => {
+        if(!isRoleValid(DailyCompareRoles.REGISTER) ){
+            setModalText("담당자만 근로자를 반영할 수 있습니다.");
+            setIsModal(true);
+            return;
+        }
         setModalText2("선택한 근로자를 반영하시겠습니까?");
         setFncConfirm(() => () => registeredWorkers());
         setIsModal2(true);
@@ -216,6 +225,13 @@ const DailyCompare = () => {
         const fileModalText = {
             "TBM": "엑셀에 작성된 회사명과 날짜가 아닌 선택한 회사명과 근무날짜로 저장이 됩니다.\n\n기존에 올린 파일이 있다면 삭제되며, 새롭게 올린 파일에 서명된 근로자만 비교 리스트에 적용이 됩니다.\n\n※오른쪽 상단에서 다운 받은 TBM 파일과 양식이 다르다면 정상적으로 적용이 안 될 수도 있습니다.",
             "DEDUCTION": "상단에 선택한 프로젝트가 속한 현장만 저장이 됩니다.\n현재 화면에서 선택한 근로날짜에 해당하는 데이터만 저장이 됩니다.\n\n전체근로자의 근로자 정보(현장, 이름, 업체명, 핸드폰번호, 생년월일)와 동일하여야 합니다. \n\n기존에 올린 파일이 있다면 삭제되며, 새롭게 올린 파일에 작성된 근로자만 비교 리스트에 적용이 됩니다.\n\n※공사관리시스템에 입력된 현장명, 소속업체와 동일하게 작성되지 않으면 동일 근로자로 등록이 안 될 수도 있습니다.\n\n※퇴직공제 사이트에서 받은 파일이 아니거나 오른쪽 상단에서 다운 받은 퇴직공제 양식과 다르다면 정상적으로 적용이 안 될 수도 있습니다."
+        }
+
+        if(!isRoleValid(DailyCompareRoles.TBM_UPLOAD)){
+            setFileModalText("담당자만 파일을 업로드 할 수 있습니다.");
+            setFileFncConfirm(() => () => setIsFileModal(false));
+            setIsFileModal(true);
+            return;
         }
 
         setFileModalText(fileModalText[type]);
@@ -483,8 +499,8 @@ const DailyCompare = () => {
                     <li className="breadcrumb-item content-title">일일 근로자 비교</li>
                     <li className="breadcrumb-item active content-title-sub">관리</li>
                     <div className="table-header-right">
-                        <Button text={"TBM 양식"} onClick={() => excelFormDownload("tbm")}/>
-                        <Button text={"퇴직공제 양식"} onClick={() => excelFormDownload("deduction")}/>
+                        {isRoleValid(DailyCompareRoles.TBM_EXPORT) && <Button text={"TBM 양식"} onClick={() => excelFormDownload("tbm")}/>}
+                        {isRoleValid(DailyCompareRoles.DEDUCTION_EXPORT) && <Button text={"퇴직공제 양식"} onClick={() => excelFormDownload("deduction")}/>}
                         <Button text={isFileSection ? "파일 숨기기" : "파일 펼치기"} onClick={isFileSection ? () => setIsFileSection(false) : () => setIsFileSection(true)}/>
                     </div>
                 </ol>
@@ -508,12 +524,12 @@ const DailyCompare = () => {
                                                     }
                                                     </span>
                                                     {
-                                                        isFile(item) && (
+                                                        isFile(item) && isRoleValid(DailyCompareRoles.TBM_FILE_DOWNLOAD) && (
                                                             <button type="button" className="file-button1" onClick={() => uploadExcelDownload(item)}>다운로드</button>
                                                         )
                                                     }
                                                     {
-                                                        isFile(item) && (
+                                                        isFile(item) && isRoleValid(DailyCompareRoles.TBM_FILE_DOWNLOAD) && (
                                                             <button type="button" className="file-button2" onClick={() => fileLabelClick(item)}>변경</button>
                                                         )
                                                     }
