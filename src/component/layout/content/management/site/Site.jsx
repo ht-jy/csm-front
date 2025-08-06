@@ -1,23 +1,8 @@
 import { useEffect, useReducer, useRef, useState } from "react";
+import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { Axios } from "../../../../../utils/axios/Axios";
-import { Common } from "../../../../../utils/Common";
-import { dateUtil } from "../../../../../utils/DateUtil";
-import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
-import { ObjChk } from "../../../../../utils/ObjChk";
-import { useAuth } from "../../../../context/AuthContext";
-import { useCachedFetch } from "../../../../../utils/hooks/useCachedFetch";
-import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
-import useTooltip from "../../../../../utils/hooks/useTooltip";
-import SiteContext from "../../../../context/SiteContext";
-import Button from "../../../../module/Button";
-import DateInput from "../../../../module/DateInput";
-import Loading from "../../../../module/Loading";
-import Modal from "../../../../module/Modal";
-import NonUsedProjectModal from "../../../../module/modal/NonUsedProjectModal";
-import DetailModal from "./DetailModal";
-import SiteReducer from "./SiteReducer";
+import "../../../../../assets/css/Table.css";
 import LoadingIcon from "../../../../../assets/image/Loading.gif";
 import warningWeather from "../../../../../assets/image/warningWeather.png";
 import weather0 from "../../../../../assets/image/weather/0.png";
@@ -30,7 +15,24 @@ import weather4 from "../../../../../assets/image/weather/4.png";
 import weather5 from "../../../../../assets/image/weather/5.png";
 import weather6 from "../../../../../assets/image/weather/6.png";
 import weather7 from "../../../../../assets/image/weather/7.png";
-import "../../../../../assets/css/Table.css";
+import { Axios } from "../../../../../utils/axios/Axios";
+import { Common } from "../../../../../utils/Common";
+import { dateUtil } from "../../../../../utils/DateUtil";
+import { useCachedFetch } from "../../../../../utils/hooks/useCachedFetch";
+import useTooltip from "../../../../../utils/hooks/useTooltip";
+import { useUserRole } from "../../../../../utils/hooks/useUserRole";
+import { ObjChk } from "../../../../../utils/ObjChk";
+import { siteRoles } from "../../../../../utils/rolesObject/siteRoles";
+import { useAuth } from "../../../../context/AuthContext";
+import SiteContext from "../../../../context/SiteContext";
+import Button from "../../../../module/Button";
+import DateInput from "../../../../module/DateInput";
+import Loading from "../../../../module/Loading";
+import Modal from "../../../../module/Modal";
+import NonUsedProjectModal from "../../../../module/modal/NonUsedProjectModal";
+import DetailModal from "./DetailModal";
+import SiteReducer from "./SiteReducer";
+
 /**
  * @description: 현장 관리 페이지
  * 
@@ -392,7 +394,8 @@ const Site = () => {
 
     // 현장 정보 조회
     const {cacheData, isStale, isFetchedLoading, refetch} = useCachedFetch(
-        `/site?targetDate=${dateUtil.format(selectedDate, "yyyy-MM-dd")}&pCode=SITE_STATUS`,
+        `/site?targetDate=${dateUtil.format(selectedDate, "yyyy-MM-dd")}&pCode=SITE_STATUS&isRole=${isRoleValid(siteRoles.SITE_MANAGER)}`,
+
         {
             storageKey: `siteData_${dateUtil.format(selectedDate, "yyyy-MM-dd")}`,
             useSession: true,
@@ -585,7 +588,7 @@ const Site = () => {
                     <li className="breadcrumb-item content-title">현장 관리</li>
                     <li className="breadcrumb-item active content-title-sub">관리</li>
                     <div className="table-header-right">
-                        {isRoleValid(roleGroup.SITE_MANAGER) && selectedDate === dateUtil.format(Date.now()) && <Button text={"추가"} onClick={() => onClickSaveBtn()} />}
+                        {isRoleValid(siteRoles.SITE_MANAGER) && selectedDate === dateUtil.format(Date.now()) && <Button text={"추가"} onClick={() => onClickSaveBtn()} />}
                     </div>
                 </ol>
 
