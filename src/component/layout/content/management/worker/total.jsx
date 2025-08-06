@@ -21,6 +21,8 @@ import useGridModalSearch from "../../../../../utils/hooks/useGridModalSearch";
 import "../../../../../assets/css/Calendar.css";
 import "../../../../../assets/css/Paginate.css";
 import "../../../../../assets/css/Table.css";
+import { workerRoles } from "../../../../../utils/rolesObject/workerRoles";
+import { useUserRole } from "../../../../../utils/hooks/useUserRole";
 
 /**
  * @description: 전체 근로자 관리
@@ -59,6 +61,7 @@ const Total = () => {
     const navigate = useNavigate();
     const { user, setIsProject } = useAuth();
     const {createLogParam} = useLogParam();
+    const { isRoleValid } = useUserRole();
 
     // 로딩
     const [isLoading, setIsLoading] = useState(false);
@@ -358,7 +361,10 @@ const Total = () => {
                         <li className="breadcrumb-item content-title">전체 근로자</li>
                         <li className="breadcrumb-item active content-title-sub">근로자 관리</li>
                         <div className="table-header-right">
+                        {
+                            isRoleValid(workerRoles.TOTAL_WORKER_ADD) && 
                             <Button text={"추가"} onClick={onClickSaveBtn} />
+                        }
                         </div>
                     </ol>
                     

@@ -10,7 +10,7 @@ export const siteRoles = Object.freeze({
         userRole.ADMIN,
         userRole.EXECUTIVE
     ],
-    SITE_MANAGER: [ // 현장 추가 버튼
+    SITE_MANAGER: [ // 현장 추가/수정, 작업 추가/완료/취소 버튼
         userRole.SYSTEM_ADMIN,
         userRole.SUPER_ADMIN,
         userRole.ADMIN,
