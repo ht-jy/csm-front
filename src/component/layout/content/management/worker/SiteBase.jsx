@@ -37,11 +37,15 @@ import { workerRoles } from "../../../../../utils/rolesObject/workerRoles";
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-18
- * @modified 최종 수정일: 2025-07-25
+ * @modified 최종 수정일: 2025-08-07
  * @modifiedBy 최종 수정자: 김진우
  * @modified description
  * 2025-07-10: 일괄공수입력 기능 추가
  * 2025-07-25: 현장근로자 데이터 변경시 사유 입력 및 히스토리, 사유 조회 추가
+ * 2025-08-07: 협력업체가 로그인시 같은 업체의 근로자만 나오도록 필터링
+ *              - 로그인할때 가져오는 협력업체명은 api에서 가져오는 것이기 때문에 홍채인식기에 등록된 것이랑 다를 수가 있어 안나올 수도 있음
+ *              - 한쪽은 영어 다른쪽은 한글로 되어 있는 경우가 있어 영어스펠링을 한글발음으로 변환하여 비교
+ *              - 근로자가 홍채인식기에 등록을 할 때 업체명만 쓰는게 아니라 "관리자|근로자" 구분해서 입력시 무조건!! 업체명이 먼저 나오고 한칸 띄고 써야함. ex) KMT 근로자 | KMT 관리자
  * 
  * @additionalInfo
  * - API: 
@@ -60,7 +64,7 @@ const SiteBase = () => {
     })
 
     const navigate = useNavigate();
-    const { user, project, setIsProject } = useAuth();
+    const { user, project, setIsProject, loginCompany } = useAuth();
     const tableRef = useRef();
     const excelRefs = useRef({});
     const { isRoleValid } = useUserRole();
@@ -918,7 +922,7 @@ const SiteBase = () => {
                     setModalTitle("현장 근로자 조회");
                     setModalText("조회된 현장 근로자 데이터가 없습니다.");
                 }
-                dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count });
+                dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count, loginCompany: loginCompany });
             }
         } catch(err) {
             navigate("/error");

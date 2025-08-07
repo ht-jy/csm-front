@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Axios } from "../../utils/axios/Axios";
+import { userRole as userRoles } from "../../utils/Enum";
 
 /**
  * @description: 로그인 사용자 정보 저장 및 상단 프로젝트 저장
@@ -30,6 +31,7 @@ export const AuthProvider = ({ children }) => {
     const [jobRole, setJobRole] = useState(null);       // 조직도에 지정되어 있는 권한
     const [userRole, setUserRole]= useState([]);        // IRIS_USER_ROLE_MAP 테이블에 저장된 프로젝트 별 권한
     const [isProject, setIsProject] = useState(true);
+    const [loginCompany, setLoginCompany] = useState({}); // 협력업체
 
     const fetchToken = async () => {
         try {
@@ -43,6 +45,12 @@ export const AuthProvider = ({ children }) => {
                     userName: res?.data?.values?.claims?.user_name,
                     role: res?.data?.values?.claims?.role, // USER_ROLE_MAP 테이블에서 JNO가 0으로 되어 있는 기본 권한 or go서버에 하드코딩 되어 있는 권한만 가져옴
                 });
+                if(res?.data?.values?.claims?.role === userRoles.CO_MANAGER.code || res?.data?.values?.claims?.role === userRoles.CO_USER.code){
+                    const match = res?.data?.values?.claims?.user_name?.match(/\(([^)]+)\)/); // () 안에 있는 협력업체명 추출 
+                    setLoginCompany({name: match ? match[1] : "", is: true});
+                }else{
+                    setLoginCompany({name: "", is: false});
+                }
             } else {
                 setIsAuthenticated(false);
                 setUser(null);
@@ -60,7 +68,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, isLoading, user, fetchToken, project, setProject, projectName, setProjectName, jobRole, setJobRole, userRole, setUserRole, isProject, setIsProject }}>
+        <AuthContext.Provider value={{ isAuthenticated, isLoading, user, fetchToken, project, setProject, projectName, setProjectName, jobRole, setJobRole, userRole, setUserRole, isProject, setIsProject, loginCompany }}>
             {children}
         </AuthContext.Provider>
     );

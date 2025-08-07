@@ -1,9 +1,22 @@
+import { Common } from "../../../../../utils/Common";
+import { ObjChk } from "../../../../../utils/ObjChk";
+
 const SiteBaseReducer = (state, action) => {
     switch (action.type) {
         case "EMPTY":
             return {...state, list: []}
         case "INIT":
-            const list = Array.isArray(action.list) ? action.list.map((item, idx) => ({...item, index: idx, unableEdit: item.is_deadline === 'Y'})) : [];
+            let initList = ObjChk.ensureArray(action.list);
+            // 협력업체가 현장근로자 조회를 하는 경우 같은 현장근로자만 조회하도록 필터링
+            if(action.loginCompany.is){
+                // api업체명과 홍채인식기업체명이 영어/한글로 다르게 쓰일 수 있기에 한글로 변환
+                const copyList = initList.map(item => {
+                    return {...item, department: Common.spellToHangul(item.department.split(" ")[0] || "")};
+                });
+                const department = Common.spellToHangul(action.loginCompany.name || "");
+                initList = copyList.filter(item => department.includes(item.department));
+            }
+            const list = Array.isArray(initList) ? initList.map((item, idx) => ({...item, index: idx, unableEdit: item.is_deadline === 'Y'})) : [];
             
             return {...state, list: JSON.parse(JSON.stringify(list)), initialList: JSON.parse(JSON.stringify(list)), count: action.count};
         case "SITE_NM":
