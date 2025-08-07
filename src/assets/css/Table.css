@@ -28,7 +28,7 @@ body {
   th {
     text-align: center;
     font-weight: normal;
-    height:40px;
+    height:36px;
     padding: .1em .3em;
     vertical-align: middle;
   }
@@ -77,12 +77,12 @@ td {
 }
 
 td {
-  height: 31px;
+  height: 28px;
 }
 
 @media (min-width: 1200px) {
   td {
-    height: 36px;
+    height: 32px;
   }
 }
 
