@@ -4644,7 +4644,7 @@ form.d-flex {
   list-style: none;
   background-color: var(--bs-breadcrumb-bg);
   border-radius: var(--bs-breadcrumb-border-radius);
-  padding-top: 15px;
+  padding-top: 0.5rem;
 }
 
 .breadcrumb-item + .breadcrumb-item {

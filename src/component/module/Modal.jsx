@@ -1,6 +1,5 @@
-import React from "react";
-import { ObjChk } from "../../utils/ObjChk";
 import { useEffect } from "react";
+import { ObjChk } from "../../utils/ObjChk";
 
 /**
  * @description: alert, confirm 을 위한 커스텀 modal창 모듈
@@ -139,14 +138,14 @@ const pStyle = {
 
 const buttonDivStyle = {
     display: 'flex',
-    flex: '0 0 50%',
     textAlign: 'center',
     justifyContent: 'center',
 }
 
 const buttonStyle = {
     margin: '5px',
-    width: '50%',
+    width: '20%',
+    padding:"0.25rem"
 }
 
 export default Modal;

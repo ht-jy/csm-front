@@ -17,6 +17,8 @@ function AdminLogin() {
     const [pwd, setPwd] = useState("");
     const [isLoginLoading, setIsLoginLoading] = useState(false);
     const [modalText, setModalText] = useState("");
+    //협력업체로그인
+    const [isCompany, setIsCompany] = useState(false);
 
     const handleUser = (e) => {
         e.preventDefault();
@@ -39,6 +41,7 @@ function AdminLogin() {
             user_id: userId,
             user_pwd: pwd,
             admin: true,
+            is_company: isCompany,
         };
         
         try {
@@ -84,6 +87,11 @@ function AdminLogin() {
                                 </div>
                                 <div className="login-input">
                                     <input onChange={handlePwd} type="password" name="password" placeholder="패스워드" required="" autoComplete="current-password"/>
+                                </div>
+                                <div className="checkbox-container">
+                                    <div className="save-checkbox-right">
+                                        <FormCheckInput checked={isCompany} onChange={() => setIsCompany(!isCompany)}/> 협력업체 로그인
+                                    </div>
                                 </div>
                                 <button onClick={login} className="btn btn-primary theme-button mt-3">Log in</button>
                             </form>

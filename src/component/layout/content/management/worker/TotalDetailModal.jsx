@@ -14,6 +14,8 @@ import EyeIcon from "../../../../../assets/image/eye-alert.png";
 import "../../../../../assets/css/TotalDetailModal.css";
 import "../../../../../assets/css/Input.css";
 import Modal from "../../../../module/Modal";
+import { useUserRole } from "../../../../../utils/hooks/useUserRole";
+import { workerRoles } from "../../../../../utils/rolesObject/workerRoles";
 
 /**
  * @description: 전체 근로자 상세화면 모달 컴포넌트
@@ -41,6 +43,7 @@ import Modal from "../../../../module/Modal";
  */
 const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, detailData, selectList, exitBtnClick, saveBtnClick, removeBtnClick, isCancle = true }) => {
     const navigate = useNavigate();
+    const { isRoleValid } = useUserRole();
 
     const [isEdit, setIsEdit] = useState(false);
     const [formData, setFormData] = useState({});
@@ -303,14 +306,14 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                         :
                                             <div>
                                                 {
-                                                    editBtn ? 
+                                                    isRoleValid(workerRoles.TOTAL_WORKER_MOD) && editBtn ? 
                                                         <button type="button" className="btn btn-primary" onClick={handleEditMode} name="confirm" style={{marginRight:"10px"}}>
                                                             수정
                                                         </button>
                                                     : null
                                                 }
                                                 {
-                                                    removeBtn ?
+                                                    isRoleValid(workerRoles.TOTAL_WORKER_DEL) && removeBtn ?
                                                         <button className="btn btn-primary" onClick={handleRemove} name="confirm" style={{marginRight:"10px"}}>
                                                             삭제
                                                         </button>
