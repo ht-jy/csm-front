@@ -2,23 +2,30 @@ import { userRole } from "../Enum";
 
 export const noticeRoles = Object.freeze({
     NOTICE_MANAGER: [ // 공지사항 전체 조회 권한
-        userRole.SYSTEM_ADMIN.code,
-        userRole.SUPER_ADMIN.code,
-        userRole.ADMIN.code,
+        userRole.SYSTEM_ADMIN,
+        userRole.SUPER_ADMIN,
+        userRole.ADMIN,
     ],
     NOTICE_ADD_MANAGER: [ // 공지사항 등록 권한
-        userRole.SYSTEM_ADMIN.code,
-        userRole.SUPER_ADMIN.code,
-        userRole.ADMIN.code,
-        userRole.SITE_DIRECTOR.code,
-        userRole.SITE_MANAGER.code,
-        userRole.TEMP_SITE_MANAGER.code,
-        userRole.SAFETY_MANAGER.code,
-        userRole.SUPERVISOR.code,
+        userRole.SYSTEM_ADMIN,
+        userRole.SUPER_ADMIN,
+        userRole.ADMIN,
+        userRole.SITE_MANAGER,
+        userRole.TEMP_SITE_MANAGER,
     ],
     NOTICE_ALL_MOD_MANAGER: [ // 다른 사람이 작성한 공지사항 수정, 삭제 권한
-        userRole.SYSTEM_ADMIN.code,
-        userRole.SUPER_ADMIN.code,
-    ]
+        userRole.SYSTEM_ADMIN,
+        userRole.SUPER_ADMIN,
+        userRole.ADMIN,
+        userRole.SITE_MANAGER,
+        userRole.TEMP_SITE_MANAGER,
+    ],
+    NOTICE_COPY_MANAGER: [ // 다른 사람이 작성한 공지사항 복사 권한
+        userRole.SYSTEM_ADMIN,
+        userRole.SUPER_ADMIN,
+        userRole.ADMIN,
+        userRole.SITE_MANAGER,
+        userRole.TEMP_SITE_MANAGER,
+    ],
 
 });

@@ -1,30 +1,24 @@
 import { userRole } from "../Enum";
 
-export const scheduleRoles = Object.freeze({
-
-    SCHEDULE_MANAGER : [ // 일정관리 전체 일정 수정 권한
-        userRole.SYSTEM_ADMIN,
-        userRole.SUPER_ADMIN,
-        userRole.ADMIN,
-    ],
-    // 달력 추가 버튼
-    CALENDER_ADD_BTN: [
+export const ProjectSettingRoles = Object.freeze({
+    // 공수시간 수정
+    WORK_HOUR: [
         userRole.SYSTEM_ADMIN,
         userRole.SUPER_ADMIN,
         userRole.ADMIN,
         userRole.SITE_MANAGER,
         userRole.TEMP_SITE_MANAGER,
     ],
-    // 상세 row 클릭
-    DETAIL_ROW_CLICK: [
+    // 유예시간 수정
+    PERIOD_HOUR: [
         userRole.SYSTEM_ADMIN,
         userRole.SUPER_ADMIN,
         userRole.ADMIN,
         userRole.SITE_MANAGER,
         userRole.TEMP_SITE_MANAGER,
     ],
-    // 공정률 아이콘
-    RATE_ICON: [
+    // 마감취소 수정
+    DEADLINE_CANCEL: [
         userRole.SYSTEM_ADMIN,
         userRole.SUPER_ADMIN,
         userRole.ADMIN,
