@@ -29,6 +29,8 @@ import { useLogParam } from "../../../../../utils/Log";
 import useExcelUploader from "../../../../../utils/hooks/useExcelUploader";
 import DigitFormattedInput from "../../../../module/DigitFormattedInput";
 import SiteBaseHistory from "./SiteBaseHistory";
+import { useUserRole } from "../../../../../utils/hooks/useUserRole";
+import { workerRoles } from "../../../../../utils/rolesObject/workerRoles";
 
 /**
  * @description: 현장 근로자 관리
@@ -61,6 +63,7 @@ const SiteBase = () => {
     const { user, project, setIsProject } = useAuth();
     const tableRef = useRef();
     const excelRefs = useRef({});
+    const { isRoleValid } = useUserRole();
 
     // 엑셀 커스텀 훅
     const { handleSelectAndUpload } = useExcelUploader();
@@ -1367,10 +1370,10 @@ const SiteBase = () => {
                                 // :   state.list.length > 0 ?
                                 :   project !== null ?
                                         <>
-                                            <Button text={"근태정보 다운로드"} onClick={onClickRecordData} />
-                                            <Button text={"양식 다운로드"} onClick={getDailyWorkerFormExport} />
-                                            <Button text={"엑셀 업로드"} onClick={dailyWorkerExcelImport} />
-                                            <Button text={"수정"} onClick={onClickEditBtn} />
+                                           { isRoleValid(workerRoles.SITE_WORKER_RECORD_INFO_DOWNLOAD) && <Button text={"근태정보 다운로드"} onClick={onClickRecordData} />}
+                                           { isRoleValid(workerRoles.SITE_WORKER_FORM_DOWNLOAD) && <Button text={"양식 다운로드"} onClick={getDailyWorkerFormExport} /> }
+                                           { isRoleValid(workerRoles.SITE_WORKER_EXCEL_UPLOAD) && <Button text={"엑셀 업로드"} onClick={dailyWorkerExcelImport} /> }
+                                           { isRoleValid(workerRoles.SITE_WORKER_MOD) && <Button text={"수정"} onClick={onClickEditBtn} /> }
                                             <input ref={(e) => (excelRefs.current = e)} type="file" id="fileInput" accept=".xlsx, .xls" onChange={(e) => excelUpload(e)} style={{display: "none"}}/>                              
                                         </>
                                     :   null
@@ -1400,12 +1403,12 @@ const SiteBase = () => {
                                 {
                                     !isEdit && state.list.length > 0 ?
                                         <>
-                                            <Button text={"일괄마감"} onClick={onClickDeadLineBtn} />
-                                            <Button text={"공수입력"} onClick={onClickWorkHourBtn} />
-                                            <Button text={"프로젝트 변경"} onClick={onClickModProjectBtn} />
-                                            <Button text={"근로자 삭제"} onClick={onClickDeleteWorkerBtn} />
-                                            <Button text={"마감 취소"} onClick={onClickDeadlineCancelBtn} />
-                                            <Button text={"변경 이력"} onClick={() => setIsHistory(true)} />
+                                            { isRoleValid(workerRoles.SITE_WORKER_BATCH_DEADLINE) && <Button text={"일괄마감"} onClick={onClickDeadLineBtn} /> }
+                                            { isRoleValid(workerRoles.SITE_WORKER_BATCH_WORK_HOUR) && <Button text={"공수입력"} onClick={onClickWorkHourBtn} /> }
+                                            { isRoleValid(workerRoles.SITE_WORKER_TRANS_PROJECT) && <Button text={"프로젝트 변경"} onClick={onClickModProjectBtn} /> }
+                                            { isRoleValid(workerRoles.SITE_WORKER_DEL) && <Button text={"근로자 삭제"} onClick={onClickDeleteWorkerBtn} /> }
+                                            { isRoleValid(workerRoles.SITE_WORKER_CANCEL_DEADLINE) && <Button text={"마감 취소"} onClick={onClickDeadlineCancelBtn} /> }
+                                            { isRoleValid(workerRoles.SITE_WORKER_HISTORY) && <Button text={"변경 이력"} onClick={() => setIsHistory(true)} /> }
                                         </>
                                     : null
                                 }
