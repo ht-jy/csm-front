@@ -48,8 +48,10 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
     const [isAuthorization, setIsAuthorization] = useState(false); 
 
     // [Modal]
-    const [isMod, setIsMod] = useState(true);
-    const [modalText, setModalText] = useState("")
+    const [modalText, setModalText] = useState("");
+    const [modalTitle, setModalTitle] = useState("");
+    const [saveNotice, setSaveNotice] = useState(null);
+
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [isValidation, setIsValidation] = useState(true);
 
@@ -57,7 +59,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
         { type: "text", span: "double", label: "제목", value: "", isRequired: true },
         { type: "checkbox", span: "double", label: "상시공지", value: "N" },
         { type: "date-duration", span: "full", label: "게시기간", value: {startTime: "", endTime:""}, isRequired: true},
-        { type: "project", span: "full", label: "프로젝트", value: {job_name: "", jno:0}, isRequired: true, isAll: true},
+        { type: "project", span: "full", label: "프로젝트명", value: {job_name: "", jno:0}, isRequired: true, isAll: true},
         { type: "html", span: "full", label: "내용", vlaue: ""},
         { type: "hidden", value: "" },
     ]
@@ -147,15 +149,16 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
         try {
 
             const res = await Axios.DELETE(`notice/${idx}`)
-
-            if (res?.data?.result === "Success") {
-                // 성공 모달
-                setIsMod(true);
+            // 성공 모달
+            if (res?.data?.result === "Success") {                
+                setModalTitle("공지사항");
+                setModalText("삭제에 성공하였습니다.");
                 setIsOpenModal(true);
+                
                 setIsDetail(false);
             } else {
-                // 실패 모달
-                setIsMod(false);
+                setModalTitle("공지사항");
+                setModalText("삭제에 실패하였습니다.");
                 setIsOpenModal(true);
             }
 
@@ -183,6 +186,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
         // 제목을 입력 안했을 경우 모달
         if (item[0].value === "") {
             setIsValidation(false);
+            setModalTitle("입력오류");
             setModalText("제목을 입력해 주세요.");
             setIsOpenModal(true);
         }
@@ -190,68 +194,83 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
         // 프로젝트 지정 안했을 경우 모달
         else if (item[3].value.job_name === '') {
             setIsValidation(false);
+            setModalTitle("입력오류");
             setModalText("프로젝트를 선택해 주세요.");
             setIsOpenModal(true);
         
         // 게시시작일을 선택 안했을 경우 모달
         }else if ( dateUtil.goTime(item[2].value.startTime) === "0001-01-01T00:00:00Z" ){
             setIsValidation(false);
+            setModalTitle("입력오류");
             setModalText("게시시작일을 선택해 주세요.");
             setIsOpenModal(true);
         
         // 게시마감일을 선택 안했을 경우 모달 
         }else if ( dateUtil.goTime(item[2].value.endTime) === "0001-01-01T00:00:00Z" ){
             setIsValidation(false);
+            setModalTitle("입력오류");
             setModalText("게시마감일을 선택해 주세요.");
             setIsOpenModal(true);
         }
         else {
-            setIsLoading(true);
             setIsValidation(true);
+            setModalTitle("공지사항");
+            setModalText("저장하시겠습니까?");
+            setIsOpenModal(true);
+            setSaveNotice(item);
+        }
+    }
 
-            const notice = {
-                jno: Number(item[3].value.jno) || Number(0),
-                title: item[0].value || "",
-                content: item[4].value || "",
-                is_important: item[1].value || "N",
-                show_yn: "Y",
-                posting_start_date: dateUtil.goTime(item[2].value.startTime) || "0001-01-01T00:00:00Z",
-                posting_end_date: dateUtil.parseToGo(item[2].value.endTime) || "0001-01-01T00:00:00Z",
-                reg_uno: Number(user.uno) || 0,
-                reg_user: user.userName || "",
+    const save = async () => {
+        setIsLoading(true);
+        setIsOpenModal(false);
+        setIsValidation(false);
+        const notice = {
+            jno: Number(saveNotice[3].value.jno) || Number(0),
+            title: saveNotice[0].value || "",
+            content: saveNotice[4].value || "",
+            is_important: saveNotice[1].value || "N",
+            show_yn: "Y",
+            posting_start_date: dateUtil.goTime(saveNotice[2].value.startTime) || "0001-01-01T00:00:00Z",
+            posting_end_date: dateUtil.parseToGo(saveNotice[2].value.endTime) || "0001-01-01T00:00:00Z",
+            reg_uno: Number(user.uno) || 0,
+            reg_user: user.userName || "",
+        }
+
+        let res;
+
+        try {
+            if (gridMode === "SAVE") {
+                res = await Axios.POST(`/notice`, notice);
+            } else {
+                notice.idx = Number(saveNotice[5].value);
+                notice.mod_user = user.userName || "";
+                notice.mod_uno = Number(user.uno) || 0;
+
+                res = await Axios.PUT(`/notice`, notice);
             }
 
-            let res;
+            if (res?.data?.result === "Success") {
+                // Axios 요청 성공했을 경우
+                setIsDetail(false);
+                setModalTitle("공지사항")
+                setModalText("저장에 성공하였습니다.");
+        
+            } else {
+                // Axios 요청 실패했을 경우
+                setIsDetail(false);
+                setModalTitle("공지사항")
+                setModalText("저장에 실패하였습니다.");
 
-            try {
-                if (gridMode === "SAVE") {
-                    res = await Axios.POST(`/notice`, notice);
-                } else {
-                    notice.idx = Number(item[5].value);
-                    notice.mod_user = user.userName || "";
-                    notice.mod_uno = Number(user.uno) || 0;
-
-                    res = await Axios.PUT(`/notice`, notice);
-                }
-
-                if (res?.data?.result === "Success") {
-                    // Axios 요청 성공했을 경우
-                    setIsMod(true);
-                    setIsDetail(false);
-                } else {
-                    // Axios 요청 실패했을 경우
-                    setIsMod(false);
-                    setIsDetail(false);
-                }
-                setDetail([]);
-                setIsGridModal(false);
-                setIsOpenModal(true);
-            } catch(err) {
-                navigate("/error");
-            } finally {
-                await getData();
-                setIsLoading(false);
             }
+            setDetail([]);
+            setIsGridModal(false);
+            setIsOpenModal(true);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            await getData();
+            setIsLoading(false);
         }
     }
 
@@ -277,10 +296,12 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
             <Loading isOpen={isLoading} />
             <Modal
                 isOpen={isOpenModal}
-                title={isValidation ? (isMod ? "요청 성공" : "요청 실패") : "입력 오류"}
-                text={isValidation ? (isMod ? "성공하였습니다." : "실패하였습니다.") : modalText}
-                confirm={"확인"}
-                fncConfirm={() => setIsOpenModal(false)}
+                title={modalTitle}
+                text={modalText}
+                confirm={isValidation ? "예" : null}
+                fncConfirm={save}
+                cancel={isValidation ? "아니오" : "확인"}
+                fncCancel={() => setIsOpenModal(false)}
             />
              <NoticeModal
                 data={noticeData}
@@ -297,7 +318,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
                 removeBtnClick={onClickGridModalDeleteBtn}
                 isCancle={true}
                 isCopy={isRoleValid(noticeRoles.NOTICE_ADD_MANAGER) && true}
-                copyBtnClick={(data) => {handlePostGridModal("COPY", noticeData)}}
+                copyBtnClick={() => {handlePostGridModal("COPY", noticeData)}}
             />
         </div>
         )

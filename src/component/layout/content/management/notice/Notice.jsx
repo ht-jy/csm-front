@@ -59,7 +59,6 @@ const Notice = () => {
     const [isDetail, setIsDetail] = useState(false);
 
     // [Modal]
-    const [isMod, setIsMod] = useState(true);
     const [isOpenModal, setIsOpenModal] = useState(false);
 
     const options = [
@@ -72,7 +71,7 @@ const Notice = () => {
     const columns = [
         { header: "순번", width: "25px", itemName: "row_num", bodyAlign: "center", isSearch: false, isOrder: false, isDate: false, isEllipsis: false, type: "number" },
         { header: "지역", width: "35px", itemName: "job_loc_name", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: false, isSlide: true},
-        { header: "프로젝트", width: "120px", itemName: "job_name", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true},
+        { header: "프로젝트명", width: "120px", itemName: "job_name", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true},
         { header: "제목", width: "190px", itemName: "title", bodyAlign: "left", isSearch: true, isOrder: true, isDate: false, isEllipsis: true, boldItemName: "is_important", importantName: "is_important"},
         { header: "등록자", width: "60px", itemName: "user_info", bodyAlign: "center", isSearch: true, isOrder: true, isDate: false, isEllipsis: true},
         { header: "게시시작일", width: "60px", itemName: "posting_start_date", bodyAlign: "center", isSearch: false, isOrder: true, isDate: true, isEllipsis: false, dateFormat: "format"},
@@ -101,7 +100,6 @@ const Notice = () => {
                 dispatch({ type: "INIT", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
                 dispatch({ type: "HEADER", notices: res?.data?.values?.notices, count: res?.data?.values?.count })
             } else if (res?.data?.result === "Failure") {
-                setIsMod(false);
                 setIsOpenModal(true);
             }
         } catch(err) {
@@ -146,8 +144,8 @@ const Notice = () => {
             <Loading isOpen={isLoading} />
             <Modal
                 isOpen={isOpenModal}
-                title={isMod ? "요청 성공" : "요청 실패"}
-                text={isMod ? "성공하였습니다." : "실패하였습니다."}
+                title={"공지사항"}
+                text={"공지사항 조회에 실패하였습니다."}
                 confirm={"확인"}
                 fncConfirm={() => setIsOpenModal(false)}
             />
@@ -160,8 +158,8 @@ const Notice = () => {
 
             <div>
                 <div className="container-fluid px-4">
-                    <ol className="breadcrumb mb-4 content-title-box">
-                        <li className="breadcrumb-item content-title">공지사항 관리</li>
+                    <ol className="breadcrumb mb-2 content-title-box">
+                        <li className="breadcrumb-item content-title">공지사항</li>
                         <li className="breadcrumb-item active content-title-sub">관리</li>
                     </ol>
                     <div className="table-header">

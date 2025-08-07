@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Exit from "../../../../../assets/image/exit.png";
-import Input from "../../../../module/Input"
 import { dateUtil } from "../../../../../utils/DateUtil";
+import Input from "../../../../module/Input";
 import Modal from "../../../../module/Modal";
-import { useUserRole } from "../../../../../utils/hooks/useUserRole";
 
 /**
  * @description: 상세화면 모달 컴포넌트
@@ -109,12 +108,7 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
             setIsEdit(false); // 편집 모드 해제
         }
     }
-
-    const reload = () => {
-        // () => setIsDeleteModal(false)
-        navigator(0);
-    }
-
+    
     // detailData가 변경될 때 상태를 업데이트 (최초 데이터 저장)
     useEffect(() => {
         if (detailData && detailData.length > 0) {
@@ -195,7 +189,7 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
                 confirm={"예"}
                 cancel={"아니오"}
                 fncConfirm={handleRemove}
-                fncCancel={reload}
+                fncCancel={() => setIsDeleteModal(false)}
             />
             {isOpen ? (
                 <div style={overlayStyle}>
@@ -275,7 +269,7 @@ const NoticeModal = ({ data, isOpen, gridMode, funcModeSet, editBtn, removeBtn, 
                                                     <div className="col-md-2">{data.is_important}</div>
                                                 </div>
                                                 <div className="row mt-2">
-                                                <div className="col-md-1 fw-bold">프로젝트</div>
+                                                <div className="col-md-1 fw-bold pe-0">프로젝트명</div>
                                                 <div className="col-md-7">{data.job_name}</div>
                                                 <div className="col-md-1 fw-bold">지역</div>
                                                 <div className="col-md-3">{data.job_loc_name}</div>

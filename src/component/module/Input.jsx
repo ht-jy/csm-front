@@ -347,7 +347,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                     editMode ? (
                         <textarea name="" id=""
                             className="text-area"
-                            style={{ width: "100%", height: "44vh", marginTop: "0.5rem"}}
+                            style={{ width: "100%", height: "calc(70vh - 300px)", marginTop: "0.5rem"}}
                             value={value}
                             onChange={inputChangeHandler}>
                         </textarea>
