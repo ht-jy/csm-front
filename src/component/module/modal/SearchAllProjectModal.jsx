@@ -50,9 +50,9 @@ const SearchAllProjectModal = ({isOpen, fncExit, onClickRow, isAll}) => {
     // 검색옵션
     const searchOptions = [
         { value: "ALL", label: "전체" },
-        { value: "JOB_NAME", label: "프로젝트명" },
-        { value: "JOB_NO", label: "프로젝트코드" },
-        { value: "JOB_PM_NAME", label: "PM" },
+        { value: "JNO", label: "프로젝트 번호" },
+        { value: "JOB_NO", label: "프로젝트 코드" },
+        { value: "JOB_NAME", label: "프로젝트 명" },
     ];
 
     // 종료 이벤트
