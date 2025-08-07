@@ -6,9 +6,13 @@ import upAndDown from "../../assets/image/up-and-down.png";
 import NoticeDetail from "../layout/content/management/notice/NoticeDetail";
 import NoticeReducer from "../layout/content/management/notice/NoticeReducer";
 import { previousDay } from "date-fns";
-
+import { noticeRoles } from "../../utils/rolesObject/noticeRoles";
+import { useUserRole } from "../../utils/hooks/useUserRole";
 
 function AnnouncementSlider() {
+
+    const { isRoleValid } = useUserRole(); 
+
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
     const { user, jobRole, project } = useAuth();
@@ -31,7 +35,7 @@ function AnnouncementSlider() {
 
     // 공지사항 데이터 불러오기
     const getNotices = async () => {
-        const res = await Axios.GET(`/notice/${user.uno}?role=${jobRole}|${user.role}&page_num=${1}&row_size=${50}&jno=${project?.jno}`);
+        const res = await Axios.GET(`/notice/${user.uno}?isRole=${isRoleValid(noticeRoles.NOTICE_MANAGER)}&page_num=${1}&row_size=${50}&jno=${project?.jno}`);
 
         if (res?.data?.result === "Success") {
            dispatch({ type: "HEADER", notices: res?.data?.values?.notices, count: res?.data?.values?.count })
