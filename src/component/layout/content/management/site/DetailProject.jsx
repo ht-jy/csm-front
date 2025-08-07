@@ -6,8 +6,9 @@ import Organization from "../../../../../assets/image/organization_chart.png";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { Common } from "../../../../../utils/Common";
 import { dateUtil } from "../../../../../utils/DateUtil";
-import { roleGroup, useUserRole } from "../../../../../utils/hooks/useUserRole";
+import { useUserRole } from "../../../../../utils/hooks/useUserRole";
 import { ObjChk } from "../../../../../utils/ObjChk";
+import { scheduleRoles } from "../../../../../utils/rolesObject/scheduleRoles";
 import { useAuth } from "../../../../context/AuthContext";
 import SiteContext from "../../../../context/SiteContext";
 import Button from "../../../../module/Button";
@@ -46,7 +47,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
     // 권한 체크
     const { isRoleValid } = useUserRole();
     // 전체 프로젝트 수정 권한
-    const scheduleRole = isRoleValid(roleGroup.SCHEDULE_MANAGER);
+    const scheduleRole = isRoleValid(scheduleRoles.SCHEDULE_MANAGER);
 
     // 작업내용 상세 모달
     const [isClickDateRest, setIsClickDateRest] = useState(false);
