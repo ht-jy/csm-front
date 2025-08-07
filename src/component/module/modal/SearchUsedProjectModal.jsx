@@ -48,9 +48,9 @@ const SearchUsedProjectModal = ({isOpen, fncExit, onClickRow}) => {
     // 검색옵션
     const searchOptions = [
         { value: "ALL", label: "전체" },
-        { value: "JOB_NAME", label: "프로젝트명" },
-        { value: "JOB_NO", label: "프로젝트코드" },
-        { value: "JOB_PM_NAME", label: "PM" },
+        { value: "JNO", label: "프로젝트 번호" },
+        { value: "JOB_NO", label: "프로젝트 코드" },
+        { value: "JOB_NAME", label: "프로젝트 명" },
     ];
 
     // 종료 이벤트
@@ -126,7 +126,7 @@ const SearchUsedProjectModal = ({isOpen, fncExit, onClickRow}) => {
                 <div style={overlayStyle}>
                     <div style={modalStyle}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: "#ddd", borderRadius: "5px", height: "40px" }}>
-                            <h2 style={{fontSize: "15px", color: "black", paddingLeft: "10px"}}>공사관리 프로젝트 선택</h2>
+                            <h2 style={{fontSize: "15px", color: "black", paddingLeft: "10px"}}>프로젝트 선택</h2>
 
                             <div onClick={handleExitScrollUnset} style={{ cursor: "pointer" }}>
                                 <img src={Exit} style={{ width: "30px", paddingBottom: '0px', marginRight: "5px" }} alt="Exit" />

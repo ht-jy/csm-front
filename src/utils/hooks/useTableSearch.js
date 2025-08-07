@@ -177,9 +177,10 @@ const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySear
     }, [getDataValue, retrySearchText, pageNum, rowSize, order, rnumOrder, isOpen]);
 
     // 초기화 버튼 클릭
-    const calledRef = useRef(false);
+    // const calledRef = useRef(false);
     useEffect(() => {
-        if (isSearchReset && !calledRef.current) {
+        // if (isSearchReset && !calledRef.current) {
+        if (isSearchReset) {
             if (getDataFunction) {
                 if (typeof getDataValue !== "undefined") {
                     getDataFunction(getDataValue);
@@ -187,7 +188,7 @@ const useTableSearch = ({ columns = [], getDataFunction, getDataValue, retrySear
                     getDataFunction();
                 }
             }
-            calledRef.current = true;
+            // calledRef.current = true;
             setIsSearchReset(false);
         }        
     }, [isSearchReset]);

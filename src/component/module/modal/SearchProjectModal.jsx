@@ -9,6 +9,7 @@ import { useAuth } from "../../context/AuthContext";
 import useTableControlState from "../../../utils/hooks/useTableControlState";
 import useTableSearch from "../../../utils/hooks/useTableSearch";
 import Loading from "../Loading";
+import Search from "../search/Search";
 
 /**
  * @description: 화면 상단의 검색창을 클릭시 나오는 프로젝트 선택 모달. 프로젝트 선택시 AuthContext에 값을 담아서 다른 화면에서 사용 목적
@@ -53,7 +54,15 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, includeJno, onClick
     ];
 
     // 테이블 조작 커스텀 훅
-    const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(10);
+    const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder, retrySearchText, setRetrySearchText } = useTableControlState(10);
+
+    // 검색 옵션
+    const searchOptions = [
+        { value: "ALL", label: "전체" },
+        { value: "JNO", label: "프로젝트 번호" },
+        { value: "JOB_NO", label: "프로젝트 코드" },
+        { value: "JOB_NAME", label: "프로젝트 명" },
+    ];
 
     // 라디오 버튼 클릭
     const handleRadioChange = (event) => {
@@ -103,7 +112,7 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, includeJno, onClick
     // 공사관리 프로젝트 조회
     const getUsedData = async () => {
         setIsLoading(true);
-        const res = await Axios.GET(`/project?page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}&include_jno=${includeJno}`);
+        const res = await Axios.GET(`/project?page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}&include_jno=${includeJno}&retry_search=${retrySearchText}`);
         
         if (res?.data?.result === "Success") {
             setData(res?.data?.values?.list);
@@ -115,7 +124,7 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, includeJno, onClick
     // 조직도 프로젝트 조회
     const getStaffData = async () => {
         setIsLoading(true);
-        const res = await Axios.GET(`/project/my-org/${user.uno}?page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}`);
+        const res = await Axios.GET(`/project/my-org/${user.uno}?page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}&retry_search=${retrySearchText}`);
         if (res?.data?.result === "Success") {
             setData(res?.data?.values?.list);
             setCount(res?.data?.values?.count);
@@ -126,7 +135,7 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, includeJno, onClick
     // 전체 프로젝트 조회
     const getAllData = async () => {
         setIsLoading(true);
-        const res = await Axios.GET(`/project/enterprise?page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}`);
+        const res = await Axios.GET(`/project/enterprise?page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}&retry_search=${retrySearchText}`);
         if(res?.data?.result === "Success"){
             setData(res?.data?.values?.list);
             setCount(res?.data?.values?.count);            
@@ -152,17 +161,17 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, includeJno, onClick
         isSearchReset,
         isSearchInit,
         handleTableSearch,
+        handleRetrySearch,
         handleSearchChange,
         handleSearchInit,
         handleSortChange,
         handlePageClick,
-    } = useTableSearch({columns, getDataFunction: getData, getDataValue: selectedValue, pageNum, setPageNum, rowSize, order, setOrder, isOpen});
+    } = useTableSearch({columns, getDataFunction: getData, getDataValue: selectedValue, retrySearchText, setRetrySearchText, pageNum, setPageNum, rowSize, order, setOrder, isOpen});
 
     // 모달 오픈시 메인 화면 스크롤 정지
     useEffect(() => {
         if (isOpen) {
-            getData("1");
-            setSelectedValue("1");
+            handleSearchInit();
             document.body.style.overflow = "hidden";
 
             // 엔터 키 이벤트 핸들러
@@ -197,7 +206,7 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, includeJno, onClick
                                 <img src={Exit} style={{ width: "30px", paddingBottom: '0px', marginRight: "5px" }} alt="Exit" />
                             </div>
                         </div>
-                        
+                        <div>
                         {
                             isUsedProject ?
                                 <div style={{ display: 'flex', alignItems: 'center', borderRadius: "5px", padding: "0px", marginTop: "5px" }}>
@@ -208,20 +217,31 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, includeJno, onClick
                                     </div>
                                 </div>
                                 
-                            :   <div style={{ display: 'flex', alignItems: 'center', borderRadius: "5px", border: "Solid #aaa 1px", padding: "10px", marginTop: "5px", height: "60px" }}>
+                            :   <div style={{ display: 'flex', alignItems: 'center', borderRadius: "5px", paddingLeft: "15px", marginTop: "2px", height: "45px" }}>
                                     <div style={{ display: 'flex', gap: "30px", fontSize: "15px"}}>
                                         <Radio text="공사관리시스템 Used" value="1" name="group1" checked={selectedValue === "1"} onChange={handleRadioChange}/>
                                         <Radio text="조직도(STAFF)" value="2" name="group1" checked={selectedValue === "2"} onChange={handleRadioChange}/>
                                         <Radio text="전체(ALL)" value="3" name="group1" checked={selectedValue === "3"} onChange={handleRadioChange}/>
                                     </div>
 
-                                    <div style={{marginLeft: "auto"}}>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: "right", marginLeft: "auto"}}>
                                         {
                                             isSearchInit || order !== "" ? <Button text={"초기화"} onClick={handleSearchInit}/> : null
                                         }
+                                        <Search
+                                            searchOptions={searchOptions}
+                                            width={"230px"}
+                                            fncSearchKeywords={handleRetrySearch}
+                                            retrySearchText={retrySearchText}
+                                            potalId={"search-portal"}
+                                        /> 
                                     </div>
                                 </div>
                         }
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: "right", paddingRight: 0 }}>
+                            <div id="search-portal"></div>
+                        </div>
 
                         <div style={{ 
                             width: '100%', 

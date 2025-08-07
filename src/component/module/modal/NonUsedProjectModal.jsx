@@ -35,13 +35,15 @@ const NonUsedProjectModal = ({isOpen=false, fncExit, onClickRow}) => {
     const [count, setCount] = useState(0);
 
     const columns = useMemo(() => [
-        { isSearch: true, isOrder: true, isSlide: false, width: "50px", header: "프로젝트 번호", itemName: "jno", bodyAlign: "center", isEllipsis: false, isDate: false, type: "fill-number", fillLen: 5 },
-        { isSearch: true, isOrder: true, isSlide: false, width: "70px", header: "프로젝트 코드", itemName: "job_no", bodyAlign: "center", isEllipsis: true, isDate: false },
-        { isSearch: true, isOrder: true, isSlide: false, width: "120px", header: "프로젝트 이름", itemName: "job_name", bodyAlign: "left", isEllipsis: true, isDate: false },
-        { isSearch: true, isOrder: true, isSlide: false, width: "50px", header: "착수년도", itemName: "job_year", bodyAlign: "center", isEllipsis: false, isDate: false },
+        { isSearch: true, isOrder: true, isSlide: true, width: "30px", header: "JNO", itemName: "jno", bodyAlign: "center", isEllipsis: false, isDate: false, type: "fill-number", fillLen: 5 },
+        { isSearch: true, isOrder: true, isSlide: false, width: "70px", header: "JOB No.", itemName: "job_no", bodyAlign: "center", isEllipsis: true, isDate: false },
+        { isSearch: true, isOrder: true, isSlide: false, width: "70px", header: "End-User", itemName: "comp_name", bodyAlign: "center", isEllipsis: true, isDate: false },
+        { isSearch: true, isOrder: true, isSlide: false, width: "70px", header: "Client", itemName: "order_comp_name", bodyAlign: "center", isEllipsis: true, isDate: false },
+        { isSearch: true, isOrder: true, isSlide: false, width: "150px", header: "PROJECT 명", itemName: "job_name", bodyAlign: "left", isEllipsis: true, isDate: false },
+        { isSearch: true, isOrder: true, isSlide: false, width: "50px", header: "PM", itemName: "job_pm_nm", bodyAlign: "center", isEllipsis: false, isDate: false, addItem: "duty_name" },
         { isSearch: true, isOrder: true, isSlide: false, width: "50px", header: "시작일", itemName: "job_sd", bodyAlign: "center", isEllipsis: false, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "50px", header: "종료일", itemName: "job_ed", bodyAlign: "center", isEllipsis: false, isDate: false },
-        { isSearch: true, isOrder: true, isSlide: false, width: "50px", header: "PM", itemName: "job_pm_nm", bodyAlign: "center", isEllipsis: false, isDate: false, addItem: "duty_name" },
+        { isSearch: true, isOrder: true, isSlide: true, width: "40px", header: "진행현황", itemName: "cd_nm", bodyAlign: "center", isEllipsis: true, isDate: false },
     ], []);
 
     // 검색 옵션
@@ -49,7 +51,7 @@ const NonUsedProjectModal = ({isOpen=false, fncExit, onClickRow}) => {
         { value: "ALL", label: "전체" },
         { value: "JNO", label: "프로젝트 번호" },
         { value: "JOB_NO", label: "프로젝트 코드" },
-        { value: "JOB_NAME", label: "프로젝트 이름" },
+        { value: "JOB_NAME", label: "프로젝트 명" },
     ];
 
     const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder, rnumOrder, setRnumOrder, retrySearchText, setRetrySearchText } = useTableControlState(10);
@@ -171,7 +173,7 @@ const NonUsedProjectModal = ({isOpen=false, fncExit, onClickRow}) => {
                     <div style={overlayStyle}>
                         <div style={modalStyle}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: "#ddd", borderRadius: "5px", height: "40px" }}>
-                                <h2 style={{fontSize: "15px", color: "black", paddingLeft: "10px"}}>프로젝트 검색</h2>
+                                <h2 style={{fontSize: "15px", color: "black", paddingLeft: "10px"}}>프로젝트 선택</h2>
 
                                 <div onClick={handleExitScrollUnset} style={{ cursor: "pointer" }}>
                                     <img src={Exit} style={{ width: "30px", paddingBottom: '0px', marginRight: "5px" }} alt="Exit" />
