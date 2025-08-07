@@ -10,10 +10,24 @@ export const siteRoles = Object.freeze({
         userRole.ADMIN,
         userRole.EXECUTIVE
     ],
-    SITE_MANAGER: [ // 현장 추가/수정, 작업 추가/완료/취소 버튼
+    SITE_ADD: [ // 현장 추가
         userRole.SYSTEM_ADMIN,
         userRole.SUPER_ADMIN,
         userRole.ADMIN,
     ],    
-
+    SITE_MOD: [ // 현장 수정
+        userRole.SYSTEM_ADMIN,
+        userRole.SUPER_ADMIN,
+        userRole.ADMIN,
+    ],      
+    SITE_WORK_FINISH: [ // 작업 완료
+        userRole.SYSTEM_ADMIN,
+        userRole.SUPER_ADMIN,
+        userRole.ADMIN,
+    ],    
+    SITE_WORK_CANCEL: [ // 작업 완료 취소
+        userRole.SYSTEM_ADMIN,
+        userRole.SUPER_ADMIN,
+        userRole.ADMIN,
+    ],    
 });

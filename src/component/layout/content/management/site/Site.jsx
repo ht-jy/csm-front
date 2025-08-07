@@ -588,7 +588,7 @@ const Site = () => {
                     <li className="breadcrumb-item content-title">현장 관리</li>
                     <li className="breadcrumb-item active content-title-sub">관리</li>
                     <div className="table-header-right">
-                        {isRoleValid(siteRoles.SITE_MANAGER) && selectedDate === dateUtil.format(Date.now()) && <Button text={"추가"} onClick={() => onClickSaveBtn()} />}
+                        {isRoleValid(siteRoles.SITE_ADD) && selectedDate === dateUtil.format(Date.now()) && <Button text={"추가"} onClick={() => onClickSaveBtn()} />}
                     </div>
                 </ol>
 
@@ -698,7 +698,7 @@ const Site = () => {
                                 weatherInfo.map((weather, idx)=> (
                                     <tr style={{width:"400px", maxWidth:"400px"}} key={idx}>
                                         <td className="center" style={{width:"100px"}}>{dateUtil.formatTimeHHMM(weather.recog_time)}</td>
-                                        <td>
+                                        <td style={{fontSize:"0.8rem"}}>
                                             {convertWeather(weather.pty, weather.sky)}
                                             {weather.rn1 && ` / 강수량: ${weather.rn1}(㎜) `}
                                             <br/>
@@ -726,14 +726,14 @@ const Site = () => {
                         <thead>
                             <tr>
                                 <th className="fixed-left" rowSpan={2} style={{ width: "10px", left: "0px" }}></th>
-                                <th className="fixed-left" rowSpan={2} style={{ width: "100px", left: "10px" }}>발주처</th>
-                                <th className="fixed-left" rowSpan={2} style={{ width: "250px", left: "110px" }}>현장</th>
+                                <th className="fixed-left" rowSpan={2} style={{ width: "150px", left: "10px" }}>발주처</th>
+                                <th className="fixed-left" rowSpan={2} style={{ width: "300px", left: "110px" }}>현장</th>
                                 <th colSpan={2} style={{ width: "100px" }}>진행현황</th>
                                 <th colSpan={2} style={{ width: "80px" }}>HTENC</th>
                                 <th colSpan={2} style={{ width: "80px" }}>협력사</th>
                                 <th rowSpan={2} style={{ width: "40px" }}>소계<br />(M/D)</th>
                                 <th rowSpan={2} style={{ width: "40px" }}>장비</th>
-                                <th rowSpan={2} style={{ width: "400px" }}>작업내용</th>
+                                <th rowSpan={2} style={{ width: "300px" }}>작업내용</th>
                                 <th className="fixed-right" rowSpan={2} style={{ width: "180px", right: 0 }}>날씨</th>
                             </tr>
                             <tr>
@@ -861,11 +861,11 @@ const Site = () => {
 
                                                 </td>
                                                 {/* 날씨 */}
-                                                <td className="center fixed-right" rowSpan={item.rowSpan} >
+                                                <td className="left fixed-right" rowSpan={item.rowSpan} style={{fontSize:"0.8rem"}}>
                                                     {
                                                         selectedDate !== dateUtil.now()
                                                         ? 
-                                                        <div style={{position:"relative", overflow:"visible"}}>
+                                                        <div className="center" style={{position:"relative", overflow:"visible"}}>
                                                             <button  onClick={(e) => weatherListClickHandler(e, item, idx)} style={{...btnStyle}}>상세</button>
                                                             
                                                         </div>

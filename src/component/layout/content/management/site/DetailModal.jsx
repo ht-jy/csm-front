@@ -389,7 +389,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                                             }
                                         </div>
                                     :
-                                        isRoleValid(siteRoles.SITE_MANAGER) && 
+                                        isRoleValid(siteRoles.SITE_MOD) && 
                                         <div>
                                             {
                                                 isEditBtn && !isSiteAdd && selectedDate === dateUtil.format(Date.now()) ? 
@@ -429,9 +429,9 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                                 <>
                                     <div className="grid-division"></div>
                                     {
-                                        isEdit && isRoleValid(siteRoles.SITE_MANAGER) && 
-                                        <div style={{width: "100%", display: "flex", justifyContent: "center"}}>
-                                            <Button text={"프로젝트 추가"} style={{width: "99%", marginBottom: "10px"}} onClick={onClickProjectAddBtn}/>
+                                        isEdit && 
+                                        <div style={{width: "99%", display: "flex", justifyContent: "end"}}>
+                                            <Button text={"프로젝트 추가"} style={{marginBottom: "10px"}} onClick={onClickProjectAddBtn}/>
                                         </div>
                                     }
                                     {
@@ -453,10 +453,9 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                             }
 
                             {
-                                isRoleValid(siteRoles.SITE_MANAGER) &&
-                                <div style={{marginRight: "8px"}}>
-                                    {detailData.is_use === 'Y' && !isEdit && <Button text={"작업 완료"} style={{width: "100%"}} onClick={() => nonUseCheckOpen(true)}/>}
-                                    {detailData.is_use !== 'Y' && !isEdit && <Button text={"작업 완료 취소"} style={{width: "100%"}} onClick={() => nonUseCheckOpen(false)}/>}
+                                <div style={{marginRight: "8px", textAlign:"end"}}>
+                                    {isRoleValid(siteRoles.SITE_WORK_FINISH) && detailData.is_use === 'Y' && !isEdit && <Button text={"작업 완료"} onClick={() => nonUseCheckOpen(true)}/>}
+                                    {isRoleValid(siteRoles.SITE_WORK_CANCEL) && detailData.is_use !== 'Y' && !isEdit && <Button text={"작업 완료 취소"} style={{}} onClick={() => nonUseCheckOpen(false)}/>}
                                 </div>
                             }
                         </div>
