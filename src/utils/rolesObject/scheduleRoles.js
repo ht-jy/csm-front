@@ -6,6 +6,8 @@ export const scheduleRoles = Object.freeze({
         userRole.SYSTEM_ADMIN,
         userRole.SUPER_ADMIN,
         userRole.ADMIN,
+        userRole.SITE_MANAGER,
+        userRole.TEMP_SITE_MANAGER,
     ],
     // 달력 추가 버튼
     CALENDER_ADD_BTN: [
