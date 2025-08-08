@@ -268,7 +268,7 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
         <div>
             <Modal
                 isOpen={isModal}
-                title={"전체 근로자 관리"}
+                title={"전체 근로자"}
                 text={modalText}
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}

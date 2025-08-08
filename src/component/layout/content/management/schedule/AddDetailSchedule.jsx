@@ -17,7 +17,7 @@ import Modal from "../../../../module/Modal";
 import RadioInput from "../../../../module/RadioInput";
 
 /**
- * @description: 일정관리 추가 화면
+ * @description: 일정 추가 화면
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-04-28
@@ -210,7 +210,7 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
             <Loading isOpen={isLoading} />
             <Modal
                 isOpen={isModal}
-                title={"일정관리"}
+                title={"일정"}
                 text={modalText}
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}

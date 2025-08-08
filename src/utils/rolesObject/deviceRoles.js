@@ -1,6 +1,6 @@
 import { userRole } from "../Enum";
 
-// 근태인식기 기능별 권한
+// 인식기 기능별 권한
 export const DeviceRoles = Object.freeze({
     // 인식기 추가 버튼
     ADD_BTN:[

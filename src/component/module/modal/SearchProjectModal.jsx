@@ -46,7 +46,7 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, includeJno, onClick
         { isSearch: true, isOrder: true, isSlide: false, width: "168.49px", header: "JOB No.", itemName: "job_no", bodyAlign: "left", isEllipsis: false, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "157.75px", header: "End-User", itemName: "comp_name", bodyAlign: "center", isEllipsis: true, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "157.75px", header: "Client", itemName: "order_comp_name", bodyAlign: "center", isEllipsis: true, isDate: false },
-        { isSearch: true, isOrder: true, isSlide: false, width: "366.18px", header: "PROJECT 명", itemName: "job_name", bodyAlign: "left", isEllipsis: true, isDate: false },
+        { isSearch: true, isOrder: true, isSlide: false, width: "366.18px", header: "프로젝트명", itemName: "job_name", bodyAlign: "left", isEllipsis: true, isDate: false },
         { isSearch: true, isOrder: true, isSlide: true, width: "70.65px", header: "PM", itemName: "job_pm_name", bodyAlign: "center", isEllipsis: false, isDate: false },
         { isSearch: true, isOrder: true, isSlide: true, width: "107.45px", header: "시작일", itemName: "job_sd", bodyAlign: "center", isEllipsis: false, isDate: false },
         { isSearch: true, isOrder: true, isSlide: true, width: "107.45px", header: "종료일", itemName: "job_ed", bodyAlign: "center", isEllipsis: false, isDate: false },
@@ -61,7 +61,7 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, includeJno, onClick
         { value: "ALL", label: "전체" },
         { value: "JNO", label: "프로젝트 번호" },
         { value: "JOB_NO", label: "프로젝트 코드" },
-        { value: "JOB_NAME", label: "프로젝트 명" },
+        { value: "JOB_NAME", label: "프로젝트명" },
     ];
 
     // 라디오 버튼 클릭

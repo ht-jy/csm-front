@@ -17,7 +17,7 @@ import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
 
 /**
- * @description: 일정관리 상세, 수정화면
+ * @description: 일정 상세, 수정화면
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-04-28
@@ -250,7 +250,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
             <Loading isOpen={isLoading} />
             <Modal 
                 isOpen={isModal}
-                title={"일정관리"}
+                title={"일정"}
                 text={modalText}
                 confirm={"예"}
                 fncConfirm={saveOrRemove}

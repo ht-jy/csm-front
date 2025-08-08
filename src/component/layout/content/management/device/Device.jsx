@@ -41,10 +41,10 @@ import { DeviceRoles } from "../../../../../utils/rolesObject/deviceRoles";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /site/nm (현장데이터 조회), /device (근태인식기 조회), device/check-registered(근태인식기 미등록장치 확인)
- *    Http Method - POST : /device (근태인식기 추가)
- *    Http Method - PUT : /device (근태인식기 수정)
- *    Http Method - DELETE :  /device/${dno} (근태인식기 삭제)
+ *    Http Method - GET : /site/nm (현장데이터 조회), /device (인식기 조회), device/check-registered(인식기 미등록장치 확인)
+ *    Http Method - POST : /device (인식기 추가)
+ *    Http Method - PUT : /device (인식기 수정)
+ *    Http Method - DELETE :  /device/${dno} (인식기 삭제)
  */
 const Device = () => {
     const [state, dispatch] = useReducer(DeviceReducer, {
@@ -289,7 +289,7 @@ const Device = () => {
         }
     }
     
-    // 근태인식기 리스트 조회
+    // 인식기 리스트 조회
     const getData = async () => {
         setIsLoading(true);
 
@@ -314,8 +314,8 @@ const Device = () => {
             } else if (res?.data?.result === "Failure") {
 
                 setIsModal2(true);
-                setModal2Title("근태인식기 조회");
-                setModal2Text("근태인식기를 조회하는데 실패하였습니다. 잠시 후에 다시 시도하여 주시기 바랍니다.");
+                setModal2Title("인식기 조회");
+                setModal2Text("인식기를 조회하는데 실패하였습니다. 잠시 후에 다시 시도하여 주시기 바랍니다.");
             }
         } catch(err) {
             navigate("/error");
@@ -374,8 +374,8 @@ const Device = () => {
             <Loading isOpen={isLoading} />
             <Modal
                 isOpen={isModal}
-                title={`근태인식기 ${getModeString()}`}
-                text={`근태인식기 ${getModeString()}에 ${isMod ? "성공하였습니다." : "실패하였습니다."}`}
+                title={`인식기 ${getModeString()}`}
+                text={`인식기 ${getModeString()}에 ${isMod ? "성공하였습니다." : "실패하였습니다."}`}
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
             />
@@ -392,7 +392,7 @@ const Device = () => {
                 funcModeSet={onClickModeSet}
                 editBtn={isRoleValid(DeviceRoles.MOD_BTN)}
                 removeBtn={isRoleValid(DeviceRoles.DEL_BTN)}
-                title={`근태인식기 관리 ${getModeString()}`}
+                title={`인식기 관리 ${getModeString()}`}
                 exitBtnClick={onClickGridModalExitBtn}
                 detailData={detail}
                 selectList={state.selectList}
@@ -402,7 +402,7 @@ const Device = () => {
             <div>
                 <div className="container-fluid px-4">
                     <ol className="breadcrumb mb-2 content-title-box">
-                        <li className="breadcrumb-item content-title">근태인식기 관리</li>
+                        <li className="breadcrumb-item content-title">인식기 관리</li>
                         <li className="breadcrumb-item active content-title-sub">관리</li>
                         <div className="table-header-right">
                             {isRoleValid(DeviceRoles.ADD_BTN) && <Button text={"추가"} onClick={() => handleGridModal("SAVE")} />}

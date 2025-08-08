@@ -39,7 +39,7 @@ const NonUsedProjectModal = ({isOpen=false, fncExit, onClickRow}) => {
         { isSearch: true, isOrder: true, isSlide: false, width: "70px", header: "JOB No.", itemName: "job_no", bodyAlign: "center", isEllipsis: true, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "70px", header: "End-User", itemName: "comp_name", bodyAlign: "center", isEllipsis: true, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "70px", header: "Client", itemName: "order_comp_name", bodyAlign: "center", isEllipsis: true, isDate: false },
-        { isSearch: true, isOrder: true, isSlide: false, width: "150px", header: "PROJECT 명", itemName: "job_name", bodyAlign: "left", isEllipsis: true, isDate: false },
+        { isSearch: true, isOrder: true, isSlide: false, width: "150px", header: "프로젝트명", itemName: "job_name", bodyAlign: "left", isEllipsis: true, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "50px", header: "PM", itemName: "job_pm_nm", bodyAlign: "center", isEllipsis: false, isDate: false, addItem: "duty_name" },
         { isSearch: true, isOrder: true, isSlide: false, width: "50px", header: "시작일", itemName: "job_sd", bodyAlign: "center", isEllipsis: false, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "50px", header: "종료일", itemName: "job_ed", bodyAlign: "center", isEllipsis: false, isDate: false },
@@ -51,7 +51,7 @@ const NonUsedProjectModal = ({isOpen=false, fncExit, onClickRow}) => {
         { value: "ALL", label: "전체" },
         { value: "JNO", label: "프로젝트 번호" },
         { value: "JOB_NO", label: "프로젝트 코드" },
-        { value: "JOB_NAME", label: "프로젝트 명" },
+        { value: "JOB_NAME", label: "프로젝트명" },
     ];
 
     const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder, rnumOrder, setRnumOrder, retrySearchText, setRetrySearchText } = useTableControlState(10);

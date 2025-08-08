@@ -358,8 +358,8 @@ const Total = () => {
                 <div className="container-fluid px-4">
                     
                     <ol className="breadcrumb mb-2 content-title-box">
-                        <li className="breadcrumb-item content-title">전체 근로자</li>
-                        <li className="breadcrumb-item active content-title-sub">근로자 관리</li>
+                        <li className="breadcrumb-item content-title">전체</li>
+                        <li className="breadcrumb-item active content-title-sub">근로자</li>
                         <div className="table-header-right">
                         {
                             isRoleValid(workerRoles.TOTAL_WORKER_ADD) && 

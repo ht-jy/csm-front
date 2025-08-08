@@ -61,7 +61,7 @@ import DigitFormattedInput from "./DigitFormattedInput";
  *          dateFormat: (dateUtils 기준)},
  *          type:
  *              - number: 숫자필드로 사용 3자리 단위로 ',' 구분됨
- *              - daliy-compare: 일일근로자 비교 화면의 상태에 사용되기 위한 타입
+ *              - daliy-compare: 근로자 비교 화면의 상태에 사용되기 위한 타입
  *              - non-edit-select: 테이블 수정모드가 아닌 상태에서도 select를 사용
  *          condition: [], 배열형태로 여러 포맷에서 조건에 맞게 사용
  *              - 사용중: 

@@ -395,7 +395,7 @@ const DailyCompare = () => {
         }
     }
 
-    // 일일 근로자 비교 
+    // 근로자 비교 
     const getData = async() => {
         setIsLoading(true);
         try{
@@ -472,14 +472,14 @@ const DailyCompare = () => {
             <Loading isOpen={isLoading} />
             <Modal
                 isOpen={isModal}
-                title={"일일 근로자 비교"}
+                title={"근로자 비교"}
                 text={modalText}
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
             />
             <Modal 
                 isOpen={isModal2}
-                title={"일일 근로자 비교"}
+                title={"근로자 비교"}
                 text={modalText2}
                 confirm={"예"}
                 fncConfirm={fncConfirm}
@@ -488,7 +488,7 @@ const DailyCompare = () => {
             />
             <Modal 
                 isOpen={isFileModal}
-                title={"일일 근로자 비교"}
+                title={"근로자 비교"}
                 text={fileModalText}
                 confirm={"확인"}
                 fncConfirm={fileFncConfirm}
@@ -496,8 +496,8 @@ const DailyCompare = () => {
             />
             <div className="container-fluid px-4">
                 <ol className="breadcrumb mb-4 content-title-box">
-                    <li className="breadcrumb-item content-title">일일 근로자 비교</li>
-                    <li className="breadcrumb-item active content-title-sub">관리</li>
+                    <li className="breadcrumb-item content-title">비교</li>
+                    <li className="breadcrumb-item active content-title-sub">근로자</li>
                     <div className="table-header-right">
                         {isRoleValid(DailyCompareRoles.TBM_EXPORT) && <Button text={"TBM 양식"} onClick={() => excelFormDownload("tbm")}/>}
                         {isRoleValid(DailyCompareRoles.DEDUCTION_EXPORT) && <Button text={"퇴직공제 양식"} onClick={() => excelFormDownload("deduction")}/>}
