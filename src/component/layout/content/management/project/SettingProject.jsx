@@ -45,7 +45,7 @@ const SettingProject = () => {
     const navigate = useNavigate();
     
     const [state, dispatch] = useReducer(SettingProjectReducer, {
-        selectOptions: {},
+        selectOptions: [{value:"ONE_WEEK", label:"7일"}],
         manHours: [],
         setting: {}
     });
@@ -69,7 +69,7 @@ const SettingProject = () => {
     const [isConfirmButton, setIsConfirmButton] = useState(false);
 
     // 마감취소
-    const [cancelCode, setCancelCode] = useState({value:"ONE_WEEK", label:"일주일"})
+    const [cancelCode, setCancelCode] = useState({value:"ONE_WEEK", label:"7일"})
 
     // 프로젝트 기본 정보
     const [setting, setSetting] = useState(null)
@@ -254,7 +254,6 @@ const SettingProject = () => {
         try {
             if (ObjChk.all(manhour?.mhno)) return;
             
-            // manhour.message = `[DELETE] mhno:[before:${manhour.mhno}, after: N/A]|work_hour:[before:${manhour.work_hour}, after: N/A]|man_hour:[before:${manhour.man_hour}, after: N/A]|jno:[before:${manhour.jno}, after: N/A]|etc:[before:${manhour.etc}, after: N/A]`
             manhour.reg_uno = Number(user.uno) || 0
             manhour.reg_user = user.userName || ""
             manhour.mod_uno = Number(user.uno) || 0
@@ -267,17 +266,6 @@ const SettingProject = () => {
                 )
             )
                         
-            // const res = await Axios.POST(`/project-setting/man-hours/${manhour.mhno}`, manhour)
-
-            // if (res?.data?.result === "Success"){
-            //     editMode()
-            //     getData()
-            // }else {
-            //     setModalTitle("삭제 실패")
-            //     setModalText("삭제에 실패하였습니다. \n다시 한번 시도해주세요. \n")
-            //     setIsConfirmButton(false)
-            //     setIsModal(true)
-            // }
         } catch(err) {
 
         } finally {
@@ -285,18 +273,6 @@ const SettingProject = () => {
             setDeleteMH(null)
         }
     }
-
-    // 삭제 확인 모달 띄우기
-    // const confirmDeleteManHour = (manhour) => {
-
-    //     setDeleteMH(manhour)
-
-    //     setModalTitle("삭제하시겠습니까?")
-    //     setModalText("삭제는 취소 버튼을 누를 시 초기화됩니다.\n")
-    //     setIsConfirmButton(true)
-    //     setIsModal(true)
-        
-    // }
 
     // 공수 저장 Axios 요청
     const saveManHours = async() => {
@@ -391,41 +367,7 @@ const SettingProject = () => {
 
             before_work = manhour.work_hour
             before_man = manhour.man_hour
-                        
-            /*
-            let flag = false // 변화한 값 있는지 여부 확인
-
-            const find = state.manHours.find(item => item.mhno === manhour.mhno);
-            if ( before_work === 0 && before_man === 0 && manhour.mhno) {
-                manhour.message = `[DELETE] mhno:[before:${manhour.mhno}, after: N/A]|work_hour:[before:${find.work_hour}, after: N/A]|man_hour:[before:${find.man_hour}, after: N/A]|jno:[before:${find.jno}, after: N/A]|etc:[before:${find.etc}, after: N/A]`
-
-            } else if ( manhour.mhno !== null ) {
-                // 변경된 부분 찾기
-                message = `[UPDATE] mhno:${manhour.mhno}`
-
-                if (find.work_hour !== manhour.work_hour){
-                    flag = true
-                    message += `|work_hour:[before:${find.work_hour}, after:${manhour.work_hour}]`
-                }
-                if(find.man_hour !== manhour.man_hour){
-                    flag = true
-                    message += `|man_hour:[before:${find.man_hour}, after:${manhour.man_hour}]`
-                }
-                if(find.etc !== manhour.etc){
-                    flag = true
-                    message += `|etc:[before:${find.etc}, after:${manhour.etc}]`
-                }
-
-            } else { // 데이터 새로 추가
-                flag = true
-                message = `[ADD] work_hour:[before:N/A, after:${manhour.work_hour}]|man_hour:[before:N/A, after:${manhour.man_hour}]|etc:[before:N/A, after:${manhour.etc}]`
-            }
-                
-            if (flag){
-                manhour.message = message
-            }
-            */
-                   
+                                           
             message = `[ADD] work_hour:[before:N/A, after:${manhour.work_hour}]|man_hour:[before:N/A, after:${manhour.man_hour}]|etc:[before:N/A, after:${manhour.etc}]`
             manhour.message = message
 
@@ -480,7 +422,9 @@ const SettingProject = () => {
     // select 값 추출: 코드 값 넣으면 마감취소기간 옵션 반환
     const selectInput = (value) => {
         if (value === null) return cancelCode;
+
         return state.selectOptions.find(item => item.value === value)
+        
     }
 
     // 분 계산하기(date타입, int타입)
@@ -498,14 +442,8 @@ const SettingProject = () => {
         setManHours( prev => 
             prev.map((item, idx) => 
             index === idx ? 
-                // name === "work_hour" && item.mhno === null ? // 추가할 행의 work_hour을 변경 시 man_hour 초기화 
-                //     {...item, [name]: Number(value), "man_hour": 0} 
-                // :
-                    {...item, [name]: name === "etc" ? value : Number(value)}  
+                {...item, [name]: name === "etc" ? value : Number(value)}  
             : 
-                // index < idx && (value < item[name]) ? // 변경 된 값이 아래 행의 값 보다 적은 경우 0으로 초기화
-                //     {...item, "work_hour": 0, "man_hour": 0}
-                // :
                 item
         ))
    } 
@@ -531,7 +469,7 @@ const SettingProject = () => {
             setIsModal(true)
             setModalTitle("프로젝트 설정")
             setModalText("프로젝트를 선택해 주세요.")
-        }else{
+        }else {
             getData()
         }
 
@@ -800,7 +738,7 @@ const SettingProject = () => {
                                 { isCancelCodeEdit ?
                                     <Select  
                                         value={cancelCode} 
-                                        options={state.selectOptions} 
+                                        options={state.selectOptions } 
                                         onChange={selectChangeHandler} 
                                         isSearchable={false}
                                         styles={{container: (provided) => ({
