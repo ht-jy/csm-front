@@ -36,7 +36,7 @@ import DetailSchedule from "./DetailSchedule";
 import { useUserRole } from "../../../../../utils/hooks/useUserRole";
 import { scheduleRoles } from "../../../../../utils/rolesObject/scheduleRoles";
 /**
- * @description: 일정관리 - 휴무일, 작업내용을 달력 형태로 확인 / 휴무일, 작업내용, 프로젝트 공정률, 프로젝트 장비 수정
+ * @description: 일정 - 휴무일, 작업내용을 달력 형태로 확인 / 휴무일, 작업내용, 프로젝트 공정률, 프로젝트 장비 수정
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-04-28
@@ -924,7 +924,7 @@ const Schedule = () => {
 
             <div className="container-fluid px-4">
                 <ol className="breadcrumb mb-2 content-title-box">
-                    <li className="breadcrumb-item content-title">일정관리</li>
+                    <li className="breadcrumb-item content-title">일정</li>
                     <li className="breadcrumb-item active content-title-sub">관리</li>
                     <div className="table-header-right">
                         {/* <Button text={"추가"} onClick={() => onClickSaveBtn()} /> */}

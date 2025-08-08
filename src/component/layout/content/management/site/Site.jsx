@@ -34,7 +34,7 @@ import DetailModal from "./DetailModal";
 import SiteReducer from "./SiteReducer";
 
 /**
- * @description: 현장 관리 페이지
+ * @description: 현장목록 페이지
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-02-10
@@ -140,17 +140,17 @@ const Site = () => {
         setIsSiteAdd(false);
     }
 
-    // 현장 관리 추가
+    // 현장목록 추가
     const onClickSaveBtn = () => {
         setIsNonPjModal(true);
     }
 
-    // 현장 관리 추가 창 닫기
+    // 현장목록 추가 창 닫기
     const handleAddSiteModalExitBtn = () => {
         setIsNonPjModal(false);
     }
 
-    // 현장 관리 추가 프로젝트 선택
+    // 현장목록 추가 프로젝트 선택
     const handleOnClickProjectRow = (item) => {
         setAddSiteJno(item.jno);
         setIsModal2(true);
@@ -181,7 +181,7 @@ const Site = () => {
         }
     }
 
-    // 현장 관리 추가
+    // 현장목록 추가
     const addSite = async () => {
         const param = {
             jno: addSiteJno,
@@ -463,7 +463,7 @@ const Site = () => {
     useEffect(() => {
         if (isFuture) {
             setSelectedDate(dateUtil.now());
-            setModalTitle("현장 관리");
+            setModalTitle("현장목록");
             setModalText("오늘 이후의 날짜는 선택할 수 없습니다.");
             setIsOpenModal(true);
         }
@@ -585,7 +585,7 @@ const Site = () => {
             }
             <div className="container-fluid px-4">
                 <ol className="breadcrumb mb-2 content-title-box">
-                    <li className="breadcrumb-item content-title">현장 관리</li>
+                    <li className="breadcrumb-item content-title">현장목록</li>
                     <li className="breadcrumb-item active content-title-sub">관리</li>
                     <div className="table-header-right">
                         {isRoleValid(siteRoles.SITE_ADD) && selectedDate === dateUtil.format(Date.now()) && <Button text={"추가"} onClick={() => onClickSaveBtn()} />}
@@ -749,7 +749,7 @@ const Site = () => {
                             {
                                 state.list.length === 0 ?
                                     <tr>
-                                        <td className="center" colSpan={13}>현장 관리 내용이 없습니다.</td>
+                                        <td className="center" colSpan={13}>현장목록 내용이 없습니다.</td>
                                     </tr>
                                     :
                                     state.list.map((item, idx) => (

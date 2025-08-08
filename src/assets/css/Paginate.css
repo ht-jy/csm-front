@@ -6,7 +6,7 @@
   align-items: center;
   width: 100%;
   height: 60px;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 /* 왼쪽 정렬 텍스트 */

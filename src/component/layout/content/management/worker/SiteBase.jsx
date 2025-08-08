@@ -234,7 +234,7 @@ const SiteBase = () => {
                 forwradRes = state.list.filter(item => item.is_deadline === 'N');
                 setIsDeadlineSelect(false);
             }else if(type === "OUT"){
-                forwradRes = state.list.filter(item => item.work_state == "02").filter(item => item.is_deadline === 'N');
+                forwradRes = state.list.filter(item => item.work_state === "02").filter(item => item.is_deadline === 'N');
                 setIsDeadlineSelect(false);
             }else{
                 forwradRes = tableRef.current.getCheckedItemList();
@@ -1350,8 +1350,8 @@ const SiteBase = () => {
             <div>
                 <div className="container-fluid px-4">
                     <ol className="breadcrumb mb-2 content-title-box">
-                        <li className="breadcrumb-item content-title">현장 근로자</li>
-                        <li className="breadcrumb-item active content-title-sub">근로자 관리</li>
+                        <li className="breadcrumb-item content-title">현장</li>
+                        <li className="breadcrumb-item active content-title-sub">근로자</li>
                         <div className="table-header-right">
                             {
                                 isEditTable ?

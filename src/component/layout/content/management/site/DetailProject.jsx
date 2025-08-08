@@ -448,7 +448,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
             <div className="form-control grid-project-bc text-none-border" style={{ gridColumn: "2", gridRow: "3" }}>
                 <div className="text-overflow">
                     <label className="detail-text-label">
-                        프로젝트 명
+                        프로젝트명
                     </label>
                     <div className="read-only-input">
                         {data.project_nm}
