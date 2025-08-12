@@ -443,7 +443,7 @@ const DetailSite = ({isEdit, detailData, detailWeather, projectData, handleChang
                                     /
                                     <>{getWindData(detailWeather)}</>
                                 </>                                                         
-                                : "날씨 정보가 없습니다."
+                                : "-"
                             }
                         </div>
                     </div>

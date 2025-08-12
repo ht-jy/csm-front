@@ -885,7 +885,7 @@ const Site = () => {
                                                                     ${getWindData(state.dailyWeather.find(weather => weather.sno === item.sno).weather)}
                                                                 `}
                                                             </div>
-                                                            : "날씨 정보가 없습니다."
+                                                            : "-"
                                                         )
                                                     }
                                                 </td>
