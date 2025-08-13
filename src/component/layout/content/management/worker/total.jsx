@@ -145,7 +145,7 @@ const Total = () => {
             let res;
             if (detailMode === "SAVE") {
                 worker.sno = item.project.sno;
-                worker.jno = item.project.sno;
+                worker.jno = item.project.jno;
                 res = await Axios.POST(`/worker/total`, worker);
             } else {
                 res = await Axios.PUT(`/worker/total`, worker);

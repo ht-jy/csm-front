@@ -124,10 +124,17 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
             });
             
             if (res?.data?.result === "Success") {
-                 refetch(true, false);
-                 console.log(res);
-            }else{
+                refetch(true, false);
+                setModalTitle("프로젝트");
+                setIsConfirm(false);
+                setIsModal(true);
+                setModalText(`${ type ? "프로젝트가 종료되었습니다." : "프로젝트 종료 취소 되었습니다."}`)
 
+            }else{
+                setModalTitle("프로젝트");
+                setIsConfirm(false);
+                setIsModal(true);
+                setModalText(`${ type ? "프로젝트 종료에 실패했습니다." : "프로젝트 종료 취소에 실패했습니다."}\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.`)
             }
         } catch(err) {
             navigate("/error");
@@ -478,9 +485,8 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                     <label className="detail-text-label" style={{width: "130px"}}>
                         작업내용
                     </label>
-                    <div className="read-only-input" onClick={() => onClickScheduleOpen(data.daily_content_list)}>
-                        <div className="">
-
+                    <div className="read-only-input work" onClick={() => onClickScheduleOpen(data.daily_content_list)}>
+                        <div>
                         {data.daily_content_list.length > 0 ?
                             // 작업내용이 여러개인 경우
                             data.daily_content_list.map( (content, idx) => (
