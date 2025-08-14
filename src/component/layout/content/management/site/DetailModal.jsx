@@ -246,7 +246,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
     }
 
     /***** 작업완료 *****/
-    // type: true(작업완료), false(작업완료취소)
+    // 현장 - type: true(작업완료), false(작업완료취소)
     const nonUseCheckOpen = (type) => {
         const text = type ? "현장 완료 처리" : "현장 완료 취소";
 
@@ -255,7 +255,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
         setNonUseCheckText(`${text}를 하시겠습니까?`);
     }
 
-    // 작업완료 처리
+    // 현장 작업완료 처리
     const siteModifyNonUse = async(type) => {
         setIsNonUseCheckOpen(false);
 
@@ -266,6 +266,44 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
         try {
             const res = await Axios.PUT(url, {
                 sno: detailData.sno || 0,
+                mod_uno: user.uno,
+                mod_user: user.userName
+            });
+            
+            if (res?.data?.result === "Success") {
+                setNonUseConfirmText(`${text}에 성공하였습니다.`);
+            }else{
+                setNonUseConfirmText(`${text}에 실패하였습니다.\n잠시 후에 다시 시도하여 주세요.`);
+            }
+            setIsNonUseConfirm(true);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    // 현장 프로젝트 - type: true(작업완료), false(작업완료취소)
+    const siteJobNonUseCheckOpen = (type, jno) => {
+        const text = type ? "프로젝트 완료 처리" : "프로젝트 완료 취소";
+
+        setIsNonUseCheckOpen(true);
+        setNonUseCheckFunc(() => () => siteJobModifyNonUse(type, jno));
+        setNonUseCheckText(`${text}를 하시겠습니까?`);
+    }
+
+    // 현장 프로젝트 작업완료 처리
+    const siteJobModifyNonUse = async(type, jno) => {
+        setIsNonUseCheckOpen(false);
+
+        const url = type ? "/site/non-use/job" : "/site/use/job";
+        const text = type ? "프로젝트 완료 처리" : "프로젝트 완료 취소";
+        
+        setIsLoading(true);
+        try {
+            const res = await Axios.PUT(url, {
+                sno: detailData.sno || 0,
+                jno: jno || 0,
                 mod_uno: user.uno,
                 mod_user: user.userName
             });
@@ -445,6 +483,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                                                 isEdit={isEdit}
                                                 onClickDeleteBtn={handleDeleteBtn}
                                                 handleChangeValue={handleChangeProjectValue}
+                                                handleJobNonUseCheckOpen={(isNonUse, jno) => siteJobNonUseCheckOpen(isNonUse, jno)}
                                             />
                                         ))
                                     }
@@ -454,8 +493,8 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
 
                             {
                                 <div style={{marginRight: "8px", textAlign:"end"}}>
-                                    {isRoleValid(siteRoles.SITE_WORK_FINISH) && detailData.is_use === 'Y' && !isEdit && <Button text={"작업 완료"} onClick={() => nonUseCheckOpen(true)}/>}
-                                    {isRoleValid(siteRoles.SITE_WORK_CANCEL) && detailData.is_use !== 'Y' && !isEdit && <Button text={"작업 완료 취소"} style={{}} onClick={() => nonUseCheckOpen(false)}/>}
+                                    {isRoleValid(siteRoles.SITE_WORK_FINISH) && detailData.is_use === 'Y' && !isEdit && <Button text={"현장 작업 완료"} onClick={() => nonUseCheckOpen(true)}/>}
+                                    {isRoleValid(siteRoles.SITE_WORK_CANCEL) && detailData.is_use !== 'Y' && !isEdit && <Button text={"현장 작업 완료 취소"} style={{}} onClick={() => nonUseCheckOpen(false)}/>}
                                 </div>
                             }
                         </div>

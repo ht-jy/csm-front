@@ -256,6 +256,7 @@ const GridModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, d
                                             isRequired={item.isRequired}
                                             isAll={item.isAll}
                                             item={item}
+                                            data={formData}
                                         />
                                     )
                                 ))
