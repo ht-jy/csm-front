@@ -10,6 +10,22 @@ export const workerRoles = Object.freeze({
         userRole.SITE_MANAGER,
         userRole.TEMP_SITE_MANAGER,
     ],
+    TOTAL_EXCEL_DOWNLOAD : [ // 엑셀 양식 다운로드 버튼
+        userRole.SYSTEM_ADMIN,
+        userRole.SUPER_ADMIN,
+        userRole.ADMIN,
+        userRole.SITE_MANAGER,
+        userRole.TEMP_SITE_MANAGER,
+    ],
+
+    TOTAL_EXCEL_UPLOAD_ADD : [ // 엑셀 업로드 버튼
+        userRole.SYSTEM_ADMIN,
+        userRole.SUPER_ADMIN,
+        userRole.ADMIN,
+        userRole.SITE_MANAGER,
+        userRole.TEMP_SITE_MANAGER,
+    ],
+
     TOTAL_WORKER_MOD:[ // 근로자 상세 수정 버튼
         userRole.SYSTEM_ADMIN,
         userRole.SUPER_ADMIN,

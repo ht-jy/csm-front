@@ -1,4 +1,4 @@
-import { useState, useEffect, useReducer } from "react";
+import { useState, useEffect, useReducer, useRef } from "react";
 import { Axios } from "../../../../../utils/axios/Axios";
 import { dateUtil } from "../../../../../utils/DateUtil";
 import { useAuth } from "../../../../context/AuthContext";
@@ -23,6 +23,10 @@ import "../../../../../assets/css/Paginate.css";
 import "../../../../../assets/css/Table.css";
 import { workerRoles } from "../../../../../utils/rolesObject/workerRoles";
 import { useUserRole } from "../../../../../utils/hooks/useUserRole";
+import useExcelUploader from "../../../../../utils/hooks/useExcelUploader";
+import { resultType } from "../../../../../utils/Enum";
+import SearchUsedProjectModal from "../../../../module/modal/SearchUsedProjectModal";
+import { ObjChk } from "../../../../../utils/ObjChk";
 
 /**
  * @description: 전체 근로자 관리
@@ -58,6 +62,20 @@ const Total = () => {
         selectList: [],
     });
 
+    // 엑셀
+    const { handleSelectAndUpload } = useExcelUploader();
+    const excelRefs = useRef({});
+    const [isExcelModal, setIsExcelModal ] = useState(false);
+    const [excelModalText, setExcelModalText ] = useState("");
+    const [fncExcelFile, setFncExcelFile] = useState(() => () => {});
+    // 엑셀업로드 성공 리스트
+    const [isSuccessWorker, setIsSuccessWorker] = useState(false);
+    const [successWorkers, setSuccessWorkers] = useState([]);
+
+    // 엑셀 업로드 시 프로젝트 선택 모달
+    const [isProjectOpenModal, setIsProjectOpenModal] = useState(false);
+    const [selectProject, setSelectProject] = useState(null);
+
     const navigate = useNavigate();
     const { user, setIsProject } = useAuth();
     const {createLogParam} = useLogParam();
@@ -90,6 +108,14 @@ const Total = () => {
 
     const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder, retrySearchText, setRetrySearchText, rnumOrder, setRnumOrder } = useTableControlState(100);
     
+
+    // 업로드 성공 테이블 정보
+    const workersColumns = [
+        { isSearch: false, isOrder: false, width: "50px", header: "이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false },
+        { isSearch: false, isOrder: false, width: "50px", header: "주민번호", itemName: "reg_no", bodyAlign: "left", isEllipsis: false, isFormat: true, format: "maskResidentNumber", valid: "isValidResidentNumber" },
+        { isSearch: false, isOrder: false, width: "50px", header: "아이디", itemName: "user_id", bodyAlign: "left", isEllipsis: false },
+    ];
+
 
     const searchOptions = [
         { value: "ALL", label: "전체" },
@@ -251,6 +277,88 @@ const Total = () => {
         }
     }
     
+    // 엑셀 양식 다운로드
+    const getWorkerFormExport = async() =>{
+        let res = undefined;
+        try {
+            setIsLoading(true);
+            res = await Axios.GET_BLOB(`/excel/total-worker/form/export`);
+            
+            if(res?.data?.result === "Success"){
+                
+            }else if(res?.message.includes("failed to parse Excel file")){
+                setModalText("다운로드에 실패하였습니다.\n잠시 후 다시 시도하거나 관리자에게 문의하여 주세요.");
+                setIsModal(true);
+            }
+        } catch (err) {
+            setModalText("다운로드에 실패하였습니다.\n잠시 후 다시 시도하거나 관리자에게 문의하여 주세요.");
+            setIsModal(true);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    /****** 엑셀 업로드 ******/
+    const projectInputChangeHandler = (item) => {
+        setSelectProject(item);
+    }
+
+
+    // 근로자 엑셀 업로드
+    const workerExcelImport = () => {
+        setExcelModalText(`선택한 "${selectProject?.job_name}" 프로젝트로 적용이 됩니다.\n
+            ※ 아이디, 이름, 주민번호가 똑같은 근로자가 있는 경우 반영되지 않습니다.\n
+            ※ 양식 다운로드를 통해 작성된 엑셀 양식이 아닌 경우 \n업로드에 실패할 수도 있습니다.\n`);
+        setIsExcelModal(true);
+        setFncExcelFile(() => () => inputFileOpen());
+    }
+
+
+    // 파일 선택 오픈
+    const inputFileOpen = () => {
+        setIsExcelModal(false);
+        if(excelRefs.current){
+            excelRefs.current.click();
+        }
+    }
+
+    // 엑셀업로드
+    const excelUpload = async(e) => {
+        let res = undefined;
+
+        try {
+            setIsLoading(true);
+            res = await handleSelectAndUpload("/excel/import", e, {
+                file_type: "ADD_WORKER",
+                work_date: dateUtil.format(Date.now()), 
+                sno: selectProject.sno,
+                jno: selectProject.jno,
+                reg_user: user.userName,
+                reg_uno: user.uno,
+                // reason: reason,
+                // reason_type: "09",
+            });
+
+            console.log(res);
+            if(res?.result === resultType.SUCCESS){
+                setModalText("업로드에 성공하였습니다.");
+                setSuccessWorkers(res?.values||[]);
+                setIsSuccessWorker(true);
+            }else if(res?.result === resultType.EXCEL_FORMAT_ERROR){
+                setModalText(res?.alert);
+                setIsModal(true);
+            }else {
+                setModalText("업로드에 실패하였습니다.\n잠시후에 다시 시도하거나 관리자에게 문의하여 주세요.");
+                setIsModal(true);
+            }
+        } catch (err) {
+            setModalText("업로드에 실패하였습니다.\n잠시후에 다시 시도하거나 관리자에게 문의하여 주세요.");
+            setIsModal(true);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     // 전체근로자 조회
     const getData = async () => {
         setIsLoading(true);
@@ -313,9 +421,10 @@ const Total = () => {
     /***** useEffect *****/
 
     useEffect(() => {
-
-        // getProjectData();
-    }, []);
+        if ( !ObjChk.all(selectProject)) {
+            workerExcelImport();
+        }
+    }, [selectProject]);
 
     // 상단의 project 표시 여부 설정: 미표시
     useEffect(() => {
@@ -341,6 +450,35 @@ const Total = () => {
                 fncConfirm={deleteWorker}
                 fncCancel={() => setIsModal2(false)}
             />
+            <Modal
+                isOpen={isExcelModal}
+                title={""}
+                text={excelModalText}
+                confirm={"예"}
+                cancel={"아니오"}
+                fncConfirm={fncExcelFile}
+                fncCancel={() => setIsExcelModal(false)}
+            />
+             <Modal
+                isOpen={isSuccessWorker}
+                title={"업로드 된 근로자"}
+                content={
+                    <div className="table-wrapper" style={{marginBottom: "10px"}}>
+                        <div className="table-container" id="table-container" style={{overflow: "auto", maxHeight: "calc(100vh - 350px)"}}>
+                            <Table
+                                columns={workersColumns} 
+                                data={successWorkers}
+                                noDataText={"추가에 성공한 근로자가 없습니다."}
+                                styles={{minWidth: "150px"}}
+                                isHeaderFixed={true}
+                            />
+                        </div>
+                    </div>
+                }
+                confirm={"확인"}
+                fncConfirm={() => {setIsSuccessWorker(false);}}
+                width="1000px"
+            />
             <TotalDetailModal
                 isOpen={isDetailModal}
                 gridMode={detailMode}
@@ -354,6 +492,12 @@ const Total = () => {
                 saveBtnClick={onClicklModalSave}
                 removeBtnClick={onClickModalDelete}
             />
+            <SearchUsedProjectModal
+                isOpen={isProjectOpenModal} 
+                fncExit={() => setIsProjectOpenModal(false)} 
+                onClickRow={(item) => projectInputChangeHandler(item)} 
+            ></SearchUsedProjectModal>
+            
             <div>
                 <div className="container-fluid px-4">
                     
@@ -361,10 +505,13 @@ const Total = () => {
                         <li className="breadcrumb-item content-title">전체</li>
                         <li className="breadcrumb-item active content-title-sub">근로자</li>
                         <div className="table-header-right">
+                        { isRoleValid(workerRoles.TOTAL_EXCEL_DOWNLOAD ) && <Button text={"엑셀 업로드"} onClick={() => {setIsProjectOpenModal(true)}} /> }
+                        { isRoleValid(workerRoles.TOTAL_EXCEL_UPLOAD_ADD ) && <Button text={"엑셀 양식"} onClick={getWorkerFormExport} /> }
                         {
                             isRoleValid(workerRoles.TOTAL_WORKER_ADD) && 
                             <Button text={"추가"} onClick={onClickSaveBtn} />
-                        }
+                        } 
+                        <input ref={(e) => (excelRefs.current = e)} type="file" id="fileInput" accept=".xlsx, .xls" onChange={(e) => excelUpload(e)} style={{display: "none"}}/>
                         </div>
                     </ol>
                     
