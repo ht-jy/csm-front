@@ -140,6 +140,7 @@ const SiteBase = () => {
         { isSearch: false, isOrder: false, width: "50px", header: "생년월일", itemName: "reg_no", bodyAlign: "left", isEllipsis: false },
         { isSearch: false, isOrder: false, width: "50px", header: "핸드폰번호", itemName: "phone", bodyAlign: "left", isEllipsis: false },
         { isSearch: false, isOrder: false, width: "50px", header: "근로날짜", itemName: "record_date", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'format' },
+        { isSearch: false, isOrder: false, width: "100px", header: "비고", itemName: "fail_reason", bodyAlign: "left", isEllipsis: true },
     ];
 
     // 테이블 수정 정보
@@ -666,6 +667,7 @@ const SiteBase = () => {
         setIsDeadlineCancel(true);
     }
 
+    // 마감 취소 사유
     const deadlineCancelReason = () => {
         setIsDeadlineCancel(false);
         setIsModal(false);
@@ -678,7 +680,11 @@ const SiteBase = () => {
 
     // 마감 취소
     const deadlineCancel = async() => {
-        setIsReason(false);
+        // 마감 취소 사유입력 사용 o
+        // setIsReason(false);
+        // 마감 취소 사유입력 사용 x
+        setIsDeadlineCancel(false);
+
         if(tableRef.current){
             const selectWorkers = tableRef.current.getCheckedItemList();
             
@@ -1032,13 +1038,19 @@ const SiteBase = () => {
             
             if(res?.result === resultType.SUCCESS){
                 setModalText("업로드에 성공하였습니다.");
-                setSuccessWorkers(res?.values||[]);
+                const resData = (res?.values ?? []).map(item => {
+                    if(!ObjChk.all(item.fail_reason)){
+                        return {...item, backgroundColor: "#ffaea0"};
+                    }
+                    return item;
+                });
+                setSuccessWorkers(resData);
                 setIsSUccessWorker(true);
             }else if(res?.result === resultType.EXCEL_FORMAT_ERROR){
-                setModalText(res?.alert);
+                setModalText(res?.message || "엑셀 양식이 잘 못 되었습니다.");
                 setIsModal(true);
             }else {
-                setModalText("업로드에 실패하였습니다.\n잠시후에 다시 시도하거나 관리자에게 문의하여 주세요.");
+                setModalText(res?.message || "업로드에 실패하였습니다.\n잠시후에 다시 시도하거나 관리자에게 문의하여 주세요.");
                 setIsModal(true);
             }
         } catch (err) {
@@ -1275,7 +1287,10 @@ const SiteBase = () => {
                 title={"마감 취소"}
                 text={"선택한 근로자를 마감취소 하시겠습니까?"}
                 confirm={"예"}
-                fncConfirm={deadlineCancelReason}
+                // 마감 취소 사유입력 사용 o
+                // fncConfirm={deadlineCancelReason}
+                // 마감 취소 사유입력 사용 x
+                fncConfirm={deadlineCancel}
                 cancel={"아니요"}
                 fncCancel={() => setIsDeadlineCancel(false)}
             />

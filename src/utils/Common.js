@@ -244,6 +244,33 @@ export const Common = {
     // 영문스펠링 한글로 치환. 영문만 변환하고 나머지는 그대로 반환
     spellToHangul(str = "") {
         return str.split("").map(ch => /[a-zA-Z]/.test(ch) ? alphabetToHangul[ch.toLowerCase()] || ch : ch).join("");
+    },
+    // 주민등록번호 -> 생년월일로 변환
+    regNoToBirth(input) {
+        const digits = (input ?? "").replace(/\D/g, ""); // 숫자만
+        if (digits.length < 6) return "";                // 6자리 미만이면 공백
+
+        const yy = digits.slice(0, 2);
+        const mm = digits.slice(2, 4);
+        const dd = digits.slice(4, 6);
+
+        // 7번째 자리(성별 코드) 사용
+        let century = "";
+        if (digits.length >= 7) {
+            const s = digits[6];
+            if ("1256".includes(s)) century = "19"; // 1900~1999
+            else if ("3478".includes(s)) century = "20"; // 2000~2099
+            else if ("90".includes(s)) century = "18"; // 1800~1899
+        }
+
+        // 없으면 현재 연도 기준 추정 (규칙: yy > yyNow ? 19 : 20)
+        if (!century) {
+            const yyNow = new Date().getFullYear() % 100;
+            const yyNum = Number(yy);
+            century = yyNum > yyNow ? "19" : "20";
+        }
+
+        return `${century}${yy}-${mm}-${dd}`;
     }
 } 
 

@@ -9,6 +9,7 @@ import Radio from "./Radio";
 import SearchAllSiteModal from "./modal/SearchAllSiteModal";
 import CancelIcon from "../../assets/image/cancel.png"
 import SearchAllProjectModal from "./modal/SearchAllProjectModal";
+import SearchProjectModal from "./modal/SearchProjectModal";
 
 /**
  * @description: 상세화면 모달 Input 컴포넌트
@@ -35,7 +36,7 @@ import SearchAllProjectModal from "./modal/SearchAllProjectModal";
  *  isHide: false: 보이기, true: 숨김
  *  isAll : true: "전체 or 미지정" 넣기, false: 실제 데이터만 (site의 경우 미지정, project의 경우 전체)
  */
-const Input = ({ editMode, type, span, label, value, onValueChange, selectData, checkedLabels=["", ""], radioValues=[], radioLabels=[], textFormat, isHide=false, labelWidth="100px", item, isRequired = false, isAll = false }) => {
+const Input = ({ editMode, type, span, label, value, onValueChange, selectData, checkedLabels=["", ""], radioValues=[], radioLabels=[], textFormat, isHide=false, labelWidth="100px", item, isRequired = false, isAll = false, data }) => {
     const [isValid, setIsValid] = useState(true);
     const [isChecked, setIsChecked] = useState(false);
     const [selectedOption, setSelectedOption] = useState(null); // 초기값을 null로 설정
@@ -83,7 +84,8 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
     const siteInputChangeHandler = (item) => {
         const newValue = {
             sno: item.sno,
-            site_nm: item.site_nm
+            site_nm: item.site_nm,
+            isSite: true,
         };
         setIsValid(true)
         onValueChange(newValue);
@@ -304,15 +306,26 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                             {value.site_nm}
                         </div>
                     )
-                ): type === "project" ? (
+                ): type.includes("project") ? (
                     editMode ? (
                         <>
-                            <SearchAllProjectModal
-                                isOpen={isProjectOpenModal} 
-                                fncExit={() => setIsProjectOpenModal(false)} 
-                                onClickRow={(item) => {projectInputChangeHandler(item)}} 
-                                isAll={isAll}
-                            />
+                            {
+                                type.includes("device") ?
+                                    <SearchProjectModal
+                                        isOpen={isProjectOpenModal}
+                                        fncExit={() => setIsProjectOpenModal(false)}
+                                        isUsedProject={true}
+                                        sno={data.find(item => item.type === "site") || {isSite: false}}
+                                        onClickRow={(item) => {projectInputChangeHandler(item)}}
+                                    />
+                                :
+                                    <SearchAllProjectModal
+                                        isOpen={isProjectOpenModal} 
+                                        fncExit={() => setIsProjectOpenModal(false)} 
+                                        onClickRow={(item) => {projectInputChangeHandler(item)}} 
+                                        isAll={isAll}
+                                    />
+                            }
                             <form className="input-group" style={{margin:"0px"}}>
                                 <input className="form-control" type="text" value={value.job_name || ''} placeholder="Proejct를 선택하세요" aria-label="Proejct를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearchProject} readOnly/>
                                 {
