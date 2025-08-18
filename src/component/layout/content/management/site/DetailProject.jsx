@@ -17,6 +17,8 @@ import Modal from "../../../../module/Modal";
 import OrganizationModal from "../../../../module/modal/OrganizationModal";
 import AddDetailSchedule from "../schedule/AddDetailSchedule";
 import DetailSchedule from "../schedule/DetailSchedule";
+import { siteRoles } from "../../../../../utils/rolesObject/siteRoles";
+import { projectRoles } from "../../../../../utils/rolesObject/projectRoles";
 
 /**
  * @description: 프로젝트 상세 컴포넌트
@@ -38,6 +40,8 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
     const [isModal, setIsModal] = useState(false);
     const [modalTitle, setModalTitle] = useState(false);
     const [modalText, setModalText] = useState(false);
+    const [isConfirm, setIsConfirm] = useState(false);
+    const [funConfirm, setFunConfirm] = useState(() => {});
 
     const { refetch, selectedDate } = useContext(SiteContext);
     const { user } = useAuth();
@@ -94,6 +98,53 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
         setIsOrganizationOpen(true);
     }
 
+    const onClickFinishProject = (type) => {
+        // 프로젝트 작업 완료 요청
+        
+        setFunConfirm(() => () => projectModifyNonUse(type))
+        setModalText(`${ type ? "프로젝트를 종료 하시겠습니까?" : "프로젝트 종료를 취소하시겠습니까?"}\n`);
+        setModalTitle("프로젝트");
+        setIsConfirm(true);
+        setIsModal(true);
+    }
+
+    const projectModifyNonUse = async (type) => {
+        // 프로젝트 타입 별로 axios요청
+        // true면 is_use N
+        // false면 is_use Y로 변경
+        // data의 jno, sno, is_use, is_default
+        setIsLoading(true);
+        try {
+            const res = await Axios.PUT(`/project/use`, {
+                sno: data.sno || 0,
+                jno: data.jno || 0,
+                is_used : type ? "N" : "Y",
+                mod_uno: user.uno,
+                mod_user: user.userName,
+
+            });
+            
+            if (res?.data?.result === "Success") {
+                refetch(true, false);
+                setModalTitle("프로젝트");
+                setIsConfirm(false);
+                setIsModal(true);
+                setModalText(`${ type ? "프로젝트가 종료되었습니다." : "프로젝트 종료 취소 되었습니다."}`)
+
+            }else{
+                setModalTitle("프로젝트");
+                setIsConfirm(false);
+                setIsModal(true);
+                setModalText(`${ type ? "프로젝트 종료에 실패했습니다." : "프로젝트 종료 취소에 실패했습니다."}\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.`)
+            }
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
+        }
+
+
+    }
     /***** 공정률 및 작업내용 *****/
     // 취소기한 별 날짜 여부 체크: jno
     const checkAllowDate = (cancelDay) => {
@@ -146,6 +197,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                     setModalText("작업내용 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
                 }
                 setModalTitle("작업내용");
+                setIsConfirm(false);
                 setIsModal(true);
             } catch(err) {
                 navigate("/error");
@@ -167,6 +219,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                     setModalText("작업내용 삭제에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
                 }
                 setModalTitle("작업내용");
+                setIsConfirm(false);
                 setIsModal(true);
             } catch(err) {
                 navigate("/error");
@@ -237,6 +290,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                 setModalText("작업내용 추가에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.");
             }
             setModalTitle("작업내용");
+            setIsConfirm(false);
             setIsModal(true);
         } catch(err) {
             navigate("/error");
@@ -259,6 +313,13 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
         initDataTrans();
     }, []);
 
+    useEffect(() => {
+        if ( !isModal ) {
+            setFunConfirm(() => {});
+        }
+
+    }, [isModal])
+
     return(
         <div className="grid-project">
             <Loading isLoading={isLoading}></Loading>
@@ -266,8 +327,10 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                 isOpen={isModal}
                 title={modalTitle}
                 text={modalText}
-                confirm={"확인"}
-                fncConfirm={() => setIsModal(false)}
+                confirm={isConfirm ? "예" : null}
+                fncConfirm={funConfirm}
+                cancel={isConfirm ? "아니오" : "확인"}
+                fncCancel={() => setIsModal(false)}
             />
             <OrganizationModal 
                 isOpen={isOrganizationOpen}
@@ -301,6 +364,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
             <div className="form-control grid-project-bc" style={{ gridColumn: "1 / span 2", gridRow: "1", border: "none", color: data?.is_use === "Y" ? "" : nonUseFontColor }}>
                 <div className="grid-project-title">
                     <span>{`프로젝트 상세 ${projectTitle()}`}</span>
+
                     <div style ={{marginLeft : "auto", display: "flex", justifyContent: "content"}}>
                         {isEdit ? 
                             !isMain && <Button text={"삭제"} style={{marginLeft: "auto"}} onClick={() => onClickDeleteBtn(data.jno)}/>
@@ -313,9 +377,9 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                             }
                             {scheduleRole ?
                                 data?.is_use === "Y" ?
-                                    <Button text={"프로젝트 작업 완료"} onClick={() => handleJobNonUseCheckOpen(true, data?.jno)}></Button>
+                                    <Button text={"프로젝트 종료"} onClick={() => handleJobNonUseCheckOpen(true, data?.jno)}></Button>
                                 :
-                                    <Button text={"프로젝트 작업 완료 취소"} onClick={() => handleJobNonUseCheckOpen(false, data?.jno)}></Button>
+                                    <Button text={"프로젝트 종료 취소"} onClick={() => handleJobNonUseCheckOpen(false, data?.jno)}></Button>
                             : 
                                 null 
                             }
@@ -323,6 +387,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                                 <img src={Organization} style={{width: "20px"}}/>
                             </div>
                         </>
+
                         }
                     </div>
                 </div>

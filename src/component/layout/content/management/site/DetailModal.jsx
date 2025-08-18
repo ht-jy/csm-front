@@ -248,11 +248,11 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
     /***** 작업완료 *****/
     // 현장 - type: true(작업완료), false(작업완료취소)
     const nonUseCheckOpen = (type) => {
-        const text = type ? "현장 완료 처리" : "현장 완료 취소";
+        const text = type ? "현장 종료 처리" : "현장 종료 취소";
 
         setIsNonUseCheckOpen(true);
         setNonUseCheckFunc(() => () => siteModifyNonUse(type));
-        setNonUseCheckText(`${text}를 하시겠습니까?`);
+        setNonUseCheckText(`${text}를 하시겠습니까?\n 종료 시 프로젝트도 모두 종료됩니다.`);
     }
 
     // 현장 작업완료 처리
@@ -260,7 +260,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
         setIsNonUseCheckOpen(false);
 
         const url = type ? "/site/non-use" : "/site/use";
-        const text = type ? "현장 완료 처리" : "현장 완료 취소";
+        const text = type ? "현장 종료 처리" : "현장 종료 취소";
         
         setIsLoading(true);
         try {
@@ -493,8 +493,10 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
 
                             {
                                 <div style={{marginRight: "8px", textAlign:"end"}}>
-                                    {isRoleValid(siteRoles.SITE_WORK_FINISH) && detailData.is_use === 'Y' && !isEdit && <Button text={"현장 작업 완료"} onClick={() => nonUseCheckOpen(true)}/>}
-                                    {isRoleValid(siteRoles.SITE_WORK_CANCEL) && detailData.is_use !== 'Y' && !isEdit && <Button text={"현장 작업 완료 취소"} style={{}} onClick={() => nonUseCheckOpen(false)}/>}
+
+                                    {isRoleValid(siteRoles.SITE_WORK_FINISH) && detailData.is_use === 'Y' && !isEdit && <Button text={"현장 종료"} onClick={() => nonUseCheckOpen(true)}/>}
+                                    {isRoleValid(siteRoles.SITE_WORK_CANCEL) && detailData.is_use !== 'Y' && !isEdit && <Button text={"현장 종료 취소"} style={{}} onClick={() => nonUseCheckOpen(false)}/>}
+
                                 </div>
                             }
                         </div>

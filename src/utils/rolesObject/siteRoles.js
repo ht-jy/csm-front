@@ -20,11 +20,11 @@ export const siteRoles = Object.freeze({
         userRole.SUPER_ADMIN,
         userRole.ADMIN,
     ],      
-    SITE_WORK_FINISH: [ // 작업 완료
+    SITE_WORK_FINISH: [ // 현장 작업 완료
         userRole.SYSTEM_ADMIN,
         userRole.SUPER_ADMIN,
         userRole.ADMIN,
-    ],    
+    ],
     SITE_WORK_CANCEL: [ // 작업 완료 취소
         userRole.SYSTEM_ADMIN,
         userRole.SUPER_ADMIN,
