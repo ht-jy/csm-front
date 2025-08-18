@@ -339,11 +339,12 @@ const Total = () => {
                 // reason_type: "09",
             });
 
-            console.log(res);
+
             if(res?.result === resultType.SUCCESS){
                 setModalText("업로드에 성공하였습니다.");
                 setSuccessWorkers(res?.values||[]);
                 setIsSuccessWorker(true);
+                getData();
             }else if(res?.result === resultType.EXCEL_FORMAT_ERROR){
                 setModalText(res?.alert);
                 setIsModal(true);

@@ -1375,7 +1375,7 @@ const SiteBase = () => {
                                 :   project !== null ?
                                         <>
                                            { isRoleValid(workerRoles.SITE_WORKER_RECORD_INFO_DOWNLOAD) && <Button text={"근태정보 다운로드"} onClick={onClickRecordData} />}
-                                           { isRoleValid(workerRoles.SITE_WORKER_FORM_DOWNLOAD) && <Button text={"양식 다운로드"} onClick={getDailyWorkerFormExport} /> }
+                                           { isRoleValid(workerRoles.SITE_WORKER_FORM_DOWNLOAD) && <Button text={"엑셀 양식"} onClick={getDailyWorkerFormExport} /> }
                                            { isRoleValid(workerRoles.SITE_WORKER_EXCEL_UPLOAD) && <Button text={"엑셀 업로드"} onClick={dailyWorkerExcelImport} /> }
                                            { isRoleValid(workerRoles.SITE_WORKER_MOD) && <Button text={"수정"} onClick={onClickEditBtn} /> }
                                             <input ref={(e) => (excelRefs.current = e)} type="file" id="fileInput" accept=".xlsx, .xls" onChange={(e) => excelUpload(e)} style={{display: "none"}}/>                              
