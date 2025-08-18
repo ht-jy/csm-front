@@ -92,7 +92,8 @@ const Device = () => {
         { type: "hidden", value: "" },
         { type: "text", span: "double", width: "110px", label: "장치명", value: "", isRequired: true },
         { type: "text", span: "double", width: "110px", label: "시리얼번호", value: "", isRequired: true },
-        { type: "site", span: "full", width: "110px", label: "현장이름", value: {sno: 100, site_nm:"미지정"}, isRequired: true, isAll: true },
+        { type: "site", span: "full", width: "110px", label: "현장이름", value: {sno: 100, site_nm:"미지정", isSite: false}, isRequired: true, isAll: true },
+        { type: "project-device", span: "full", width: "110px", label: "프로젝트이름", value: {}, isRequired: true, isAll: true },
         // { type: "checkbox", span: "double", width: "110px", label: "사용여부", value: "", checkedLabel: "사용중|사용안함" },
         { type: "text", span: "full", width: "110px", label: "비고", value: "" },
     ];
@@ -102,6 +103,7 @@ const Device = () => {
         { isSearch: true, isOrder: true, isSlide: false, header: "장치명", width: "60px", itemName: "device_nm", bodyAlign: "left", isDate: false, isEllipsis: false },
         { isSearch: true, isOrder: true, isSlide: false, header: "시리얼번호", width: "80px", itemName: "device_sn", bodyAlign: "left", isDate: false, isEllipsis: false },
         { isSearch: true, isOrder: true, isSlide: false, header: "현장이름", width: "150px", itemName: "site_nm", bodyAlign: "left", isDate: false, isEllipsis: true },
+        { isSearch: false, isOrder: false, isSlide: false, header: "프로젝트명", width: "150px", itemName: "job_name", bodyAlign: "left", isDate: false, isEllipsis: true },
         { isSearch: true, isOrder: true, isSlide: false, header: "비고", width: "150px", itemName: "etc", bodyAlign: "left", isDate: false, isEllipsis: true },
         // { isSearch: true, isOrder: true, isSlide: true, header: "사용여부", width: "50px", itemName: "is_use", bodyAlign: "center", isDate: false, isEllipsis: false },
         { isSearch: false, isOrder: true, isSlide: true, header: "최초 생성일시", width: "60px", itemName: "reg_date", bodyAlign: "center", isDate: true, isEllipsis: false, dateFormat: "format" },
@@ -142,10 +144,15 @@ const Device = () => {
             arr[2].value = item.device_sn;
             arr[3].value = {
                 sno: item.sno,
-                site_nm: item.site_nm
+                site_nm: item.site_nm,
+                isSite: true
             };
+            arr[4].value = {
+                jno: item.jno,
+                job_name: item.job_name,
+            }
             // arr[4].value = item.is_use === "사용중" ? "Y" : "N" ;
-            arr[4].value = item.etc;
+            arr[5].value = item.etc;
         }
         setDetail(arr);
         setIsGridModal(true);
@@ -166,8 +173,9 @@ const Device = () => {
             device_nm: item[1].value || "",
             device_sn: item[2].value || "",
             sno: item[3].value.sno || 0,
+            jno: item[4].value.jno || 0,
             // is_use: item[4].value || "",
-            etc: item[4].value || "",
+            etc: item[5].value || "",
             reg_user: user.userId || "",
             mod_user: user.userId || "",
         }
@@ -190,7 +198,13 @@ const Device = () => {
         }else if (device.sno === 0) {
             setIsModal2(true)
             setModal2Title("입력 오류")
-            setModal2Text("현장이름을 선택해주세요.")
+            setModal2Text("현장을 선택해주세요.")
+            return
+        // 프로젝트 미선택 시
+        }else if (device.jno === 0) {
+            setIsModal2(true)
+            setModal2Title("입력 오류")
+            setModal2Text("프로젝트를 선택해주세요.")
             return
         }
 

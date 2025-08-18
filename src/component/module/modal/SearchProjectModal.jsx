@@ -33,7 +33,7 @@ import Search from "../search/Search";
  * - API: 
  *    Http Method - GET : /project (공사관리 프로젝트 조회), /project/enterprise (전사 프로젝트 조회), /project/my-org/{uno} (본인이 속한 조직도 프로젝트 조회), /user/role?jno=${jno}&uno=${uno} (프로젝트 사용자 권한 조회)
  */
-const SearchProjectModal = ({isOpen, fncExit, isUsedProject, includeJno, onClickRow}) => {
+const SearchProjectModal = ({isOpen, fncExit, isUsedProject, includeJno, sno, onClickRow}) => {
     const { user, setProject, setProjectName, setJobRole, setUserRole } = useAuth();
     const [selectedValue, setSelectedValue] = useState("1");
     const [data, setData] = useState([]);
@@ -112,7 +112,7 @@ const SearchProjectModal = ({isOpen, fncExit, isUsedProject, includeJno, onClick
     // 공사관리 프로젝트 조회
     const getUsedData = async () => {
         setIsLoading(true);
-        const res = await Axios.GET(`/project?page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}&include_jno=${includeJno}&retry_search=${retrySearchText}`);
+        const res = await Axios.GET(`/project?page_num=${pageNum}&row_size=${rowSize}&order=${order}&job_no=${searchValues.job_no}&comp_name=${searchValues.comp_name}&order_comp_name=${searchValues.order_comp_name}&job_name=${searchValues.job_name}&job_pm_name=${searchValues.job_pm_name}&job_sd=${searchValues.job_sd}&job_ed=${searchValues.job_ed}&cd_nm=${searchValues.cd_nm}&include_jno=${includeJno}&sno=${sno?.value?.isSite ? sno?.value?.sno||"" : ""}&retry_search=${retrySearchText}`);
         
         if (res?.data?.result === "Success") {
             setData(res?.data?.values?.list);

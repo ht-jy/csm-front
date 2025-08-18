@@ -99,6 +99,7 @@ const Total = () => {
         { isSearch: true, isOrder: true, isSlide: false, width: "100px", header: "아이디", itemName: "user_id", bodyAlign: "center", isEllipsis: false, isDate: false, /*isFormat: true, format: "maskResidentNumber", valid: "isValidResidentNumber"*/ },
         { isSearch: true, isOrder: true, isSlide: false, width: "100px", header: "이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "150px", header: "부서/조직명", itemName: "department", bodyAlign: "left", isEllipsis: false, isDate: false },
+        { isSearch: false, isOrder: false, isSlide: false, width: "100px", header: "생년월일", itemName: "reg_no", bodyAlign: "center", isEllipsis: false, isDate: false, isFormat: true, format: "regNoToBirth" },
         { isSearch: true, isOrder: true, isSlide: false, width: "100px", header: "공종", itemName: "disc_name", bodyAlign: "left", isEllipsis: false, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "300px", header: "프로젝트명", itemName: "job_name", bodyAlign: "left", isEllipsis: true, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "100px", header: "핸드폰 번호", itemName: "phone", bodyAlign: "center", isEllipsis: false, isDate: false, isFormat: true, format: "formatMobileNumber", valid: "isValidMobileNumber" },
