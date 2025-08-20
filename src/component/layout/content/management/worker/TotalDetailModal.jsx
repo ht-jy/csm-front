@@ -132,12 +132,6 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
     // 저장, 수정
     const handleSave = (e) => {
         document.body.style.overflow = 'unset';
-
-        if(backReg === ""){
-            formData.reg_no = frontReg;
-        }else{
-            formData.reg_no = `${frontReg}-${backReg}`;
-        }
         
         if(formData.project === undefined){
             if(gridMode === "SAVE"){
@@ -149,6 +143,16 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
             setModalText("아이디를 입력하여 주세요.");
             setIsModal(true);
             return;
+        } else if (frontReg.length < 6){
+            setModalText("주민등록번호 앞자리를 입력하여 주세요.");
+            setIsModal(true);
+            return;
+        }
+
+        if(backReg === ""){
+            formData.reg_no = frontReg;
+        }else{
+            formData.reg_no = `${frontReg}-${backReg}`;
         }
         saveBtnClick(formData, gridMode);
     };

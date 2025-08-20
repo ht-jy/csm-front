@@ -115,6 +115,7 @@ const Total = () => {
         { isSearch: false, isOrder: false, width: "50px", header: "이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false },
         { isSearch: false, isOrder: false, width: "50px", header: "주민번호", itemName: "reg_no", bodyAlign: "left", isEllipsis: false, isFormat: true, format: "maskResidentNumber", valid: "isValidResidentNumber" },
         { isSearch: false, isOrder: false, width: "50px", header: "아이디", itemName: "user_id", bodyAlign: "left", isEllipsis: false },
+        { isSearch: false, isOrder: false, width: "100px", header: "실패사유", itemName: "fail_reason", bodyAlign: "left", isEllipsis: false },
     ];
 
 
@@ -308,7 +309,7 @@ const Total = () => {
     // 근로자 엑셀 업로드
     const workerExcelImport = () => {
         setExcelModalText(`선택한 "${selectProject?.job_name}" 프로젝트로 적용이 됩니다.\n
-            ※ 아이디, 이름, 주민번호가 똑같은 근로자가 있는 경우 반영되지 않습니다.\n
+            ※ 아이디, 이름, 주민등록번호가 일치하는 근로자는 덮어쓰기 됩니다.\n
             ※ 양식 다운로드를 통해 작성된 엑셀 양식이 아닌 경우 \n업로드에 실패할 수도 있습니다.\n`);
         setIsExcelModal(true);
         setFncExcelFile(() => () => inputFileOpen());
