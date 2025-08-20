@@ -1314,6 +1314,7 @@ const SiteBase = () => {
                 fncExit={() => setIsHistory(false)}
                 startDate={searchStartTime}
                 endDate={searchEndTime}
+                checkList={tableRef?.current?.getCheckedItemList() || []}
             />
             <Modal
                 isOpen={isReason}
