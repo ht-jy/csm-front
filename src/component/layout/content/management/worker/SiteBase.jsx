@@ -115,7 +115,7 @@ const SiteBase = () => {
     const [reasonConfirm, setReasonConfirm] = useState(() => {});
     const [reason, setReason] = useState("");
     // 엑셀업로드 성공 리스트
-    const [isSuccessWorker, setIsSUccessWorker] = useState(false);
+    const [isSuccessWorker, setIsSuccessWorker] = useState(false);
     const [successWorkers, setSuccessWorkers] = useState([]);
 
     // 테이블 컬럼 정보
@@ -221,12 +221,12 @@ const SiteBase = () => {
         setReasonTitle("근로자 마감");
         setReasonText("근로자 마감 사유를 입력하여 주세요.");
         setReason("");
-        setReasonConfirm(() => () => workerDeadline(type));
+        setReasonConfirm(() => (reason) => workerDeadline(type, reason));
         setIsReason(true);
     }
 
     // 마감처리
-    const workerDeadline = async(type) => {
+    const workerDeadline = async(type, reason) => {
         setIsReason(false);
         if(tableRef.current){
             setModalTitle("근로자 마감");
@@ -318,13 +318,13 @@ const SiteBase = () => {
         setReasonTitle("일괄 공수 입력");
         setReasonText("일괄 공수 입력 사유를 입력하여 주세요.");
         setReason("");
-        setReasonConfirm(() => () => workHourSave());
+        setReasonConfirm(() => (reason) => workHourSave(reason));
         setIsReason(true);
         setIsWorkHour(false);
     }
 
     // 일괄공수처리
-    const workHourSave = async() => {
+    const workHourSave = async(reason) => {
         if(tableRef.current){
             setIsReason(false);
             setModalTitle("일괄 공수 입력");
@@ -412,22 +412,29 @@ const SiteBase = () => {
 
     // 프로젝트 모달의 row 클릭 이벤트
     const handleProjectRowClickReason = (item) => {
+        console.log(item);
+
         setSelectedProject(item);
         setReasonTitle("프로젝트 변경");
         setReasonText("프로젝트 변경 사유를 입력하여 주세요.");
         setReason("");
-        setReasonConfirm(() => () => handleProjectModConfirm());
+        setReasonConfirm(() => (reason) => handleProjectModConfirm(reason));
         setIsReason(true);
     }
 
     // 프로젝트 변경 선택용 모달 "예" 클릭
-    const handleProjectModConfirm = async() => {
+    const handleProjectModConfirm = async(reason) => {
         setIsReason(false);
         setModalTitle("근로자 프로젝트 변경");
 
         if(tableRef.current){
             const forwradRes = tableRef.current.getCheckedItemList();
             const checkJno = forwradRes.filter(item => item.jno === selectedProject.jno);
+            if ( ObjChk.undefined(selectedProject.jno) || ObjChk.null(selectedProject.jno) ) {
+                setModalText("프로젝트를 다시 선택해 주세요.");
+                setIsModal(true);
+                return;
+            }
             if(checkJno.length !== 0){
                 setModalText("선택한 프로젝트와 근로자의 프로젝트가 동일합니다.");
                 setIsModal(true);
@@ -521,12 +528,12 @@ const SiteBase = () => {
         setReasonTitle("현장 근로자 삭제");
         setReasonText("현장 근로자 삭제 사유를 입력하여 주세요.");
         setReason("");
-        setReasonConfirm(() => () => deleteWorkers());
+        setReasonConfirm(() => (reason) => deleteWorkers(reason));
         setIsReason(true);
     }
 
     // 현장 근로자 삭제 처리
-    const deleteWorkers = async() => {
+    const deleteWorkers = async(reason) => {
         setIsReason(false);
         if(tableRef.current){
             const selectWorkers = tableRef.current.getCheckedItemList();
@@ -674,12 +681,12 @@ const SiteBase = () => {
         setReasonTitle("마감 취소");
         setReasonText("마감 취소 사유를 입력하여 주세요.");
         setReason("");
-        setReasonConfirm(() => () => deadlineCancel());
+        setReasonConfirm(() => (reason) => deadlineCancel(reason));
         setIsReason(true);
     }
 
     // 마감 취소
-    const deadlineCancel = async() => {
+    const deadlineCancel = async(reason) => {
         // 마감 취소 사유입력 사용 o
         // setIsReason(false);
         // 마감 취소 사유입력 사용 x
@@ -757,13 +764,15 @@ const SiteBase = () => {
         setReasonTitle("근로자 추가/수정");
         setReasonText("근로자 추가/수정 사유를 입력하여 주세요.");
         setReason("");
-        setReasonConfirm(() => () => onClickSave());
+        setReasonConfirm(() => (reason) => onClickSave(reason));
         setIsReason(true);
     }
+
     // 추가/수정 근로자 저장
-    const onClickSave = async() => {
+    const onClickSave = async(reason) => {
         setIsReason(false);
-        setModalText("근로자 추가/수정")
+        setModalText("근로자 추가/수정");
+
         // 유효성 검사   
         for(const item of editList){
             if(ObjChk.all(item.user_id)){   // 아이디
@@ -1045,7 +1054,7 @@ const SiteBase = () => {
                     return item;
                 });
                 setSuccessWorkers(resData);
-                setIsSUccessWorker(true);
+                setIsSuccessWorker(true);
             }else if(res?.result === resultType.EXCEL_FORMAT_ERROR){
                 setModalText(res?.message || "엑셀 양식이 잘 못 되었습니다.");
                 setIsModal(true);
@@ -1062,8 +1071,8 @@ const SiteBase = () => {
     }
 
     // 현장근로자 엑셀 업로드 테이블 모달 확인
-    const onClickSWorkerSModalConfirm = () => {
-        setIsSUccessWorker(false);
+    const onClickWorkerModalConfirm = () => {
+        setIsSuccessWorker(false);
         getData();        
     }
 
@@ -1214,7 +1223,7 @@ const SiteBase = () => {
     // 상단의 project 표시 여부 설정: 표시
     useEffect(() => {
         setIsProject(true);
-    }, [])
+    }, []);
 
     return(
         <div>
@@ -1258,7 +1267,7 @@ const SiteBase = () => {
             <Modal
                 isOpen={isWorkHour}
                 title={"일괄 공수 입력"}
-                text={"저장할 공수를 입력해 주세요.\n공수 입력 후 마감처리를 하지 않으면 자정 이후에 프로젝트 설정에 따라 입력한 공수가 변경될 수 있습니다."}
+                text={"저장할 공수를 입력해 주세요.\n※ 공수 입력 후 마감처리를 하지 않으면 자정 이후에 프로젝트 설정에 따라 입력한 공수가 변경될 수 있습니다."}
                 content={
                     <DigitFormattedInput
                         initNum={workHour}
@@ -1339,7 +1348,7 @@ const SiteBase = () => {
                     </div>
                 }
                 confirm={"확인"}
-                fncConfirm={reasonConfirm}
+                fncConfirm={() => {reasonConfirm(reason)}}
                 cancel={"취소"}
                 fncCancel={() => setIsReason(false)}
             />
@@ -1360,7 +1369,7 @@ const SiteBase = () => {
                     </div>
                 }
                 confirm={"확인"}
-                fncConfirm={onClickSWorkerSModalConfirm}
+                fncConfirm={onClickWorkerModalConfirm}
                 width="1000px"
             />
             <div>
