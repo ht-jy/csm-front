@@ -810,6 +810,8 @@ const Schedule = () => {
 
         setIsLoading(true);
         try {
+            equip.reg_uno = user.uno
+            equip.reg_user = user.userName
             const res = await Axios.POST(`/equip`, equip);
 
             if (res?.data?.result === "Success") {
