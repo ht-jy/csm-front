@@ -35,6 +35,9 @@ import AddDetailSchedule from "./AddDetailSchedule";
 import DetailSchedule from "./DetailSchedule";
 import { useUserRole } from "../../../../../utils/hooks/useUserRole";
 import { scheduleRoles } from "../../../../../utils/rolesObject/scheduleRoles";
+import Radio from "../../../../module/Radio";
+import NumberInput from "../../../../module/NumberInput";
+
 /**
  * @description: 일정 - 휴무일, 작업내용을 달력 형태로 확인 / 휴무일, 작업내용, 프로젝트 공정률, 프로젝트 장비 수정
  * 
@@ -100,10 +103,13 @@ const Schedule = () => {
     const weatherRef = useRef()
     const weatherRefMap = useRef({});
     const [weatherPopupPosition, setWeatherPopupPosition] = useState({ top: 0, left: 0 });
-    // 공정률
-    const [isModWorkRate, setIsModWorkRate] = useState();   // 변경 모달
+    // 설정 모달
+    const [isSettingModal, setIsSettingModal] = useState();   // 변경 모달
+    const [selectedSettingValue, setSelectedSettingValue] = useState("equip");   // 공정률 또는 장비수정 라디오버튼
     const [workRate, setWorkRate] = useState(0);            // 변경할 공정률 데이터
     const [workRates, setWorkRates] = useState([]);
+    const [equip, setEquip] = useState(null);
+    const [equips, setEquips] = useState([]);
     // 취소 기간
     const [cancelDay, setCancelDay] = useState(null);
 
@@ -689,14 +695,68 @@ const Schedule = () => {
         }
     }
 
-    /***** 공정률 *****/
-    const onClickWorkRate = (date) => {
+    /***** 설정: 공정률, 장비 수 *****/
+    const onClickSetting = (date) => {
         if(project == null) return;
         const workRate = getDailyWorkRate(date);
         setWorkRate(workRate);
-        setIsModWorkRate(true);
+        setEquip(getDailyEquip(date));
+        setIsSettingModal(true);
+        setClickDate(date);
+    }
+
+    // 장비수 가져오기
+    const getDailyEquip = (date) => {
+        const strDate = dateUtil.format(date)
+
+        const filterEquip = equips.filter(item => 
+            strDate === dateUtil.format(new Date(item.record_date))
+        )
+
+        let daliyEquip;
+        if ( filterEquip.length === 0) {
+            daliyEquip = {
+                sno: project?.sno || 0,
+                jno: project?.jno || 0,
+                record_date : dateUtil.parseToGo(strDate),
+                cnt : 0
+            }
+        }else{
+            daliyEquip = {...filterEquip[0]};
+        } 
+
+        return daliyEquip;
     }
     
+    const handleRadioChange = (event) => {
+        setSelectedSettingValue(event.target.value);
+    };
+
+    // 장비수 조회
+    const getEquips = async() => {
+        if(project == null) return;
+
+        setIsLoading(true);
+        try {
+            const res = await Axios.GET(`/equip/all?jno=${project.jno}&sno=${project.sno}`);
+            if (res?.data?.result === "Success") {
+                setEquips(res?.data?.values?.list || [])
+            }else{
+                setModalText("장비 수 조회에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.\n");
+                setModalTitle("설정");
+                setIsModal(true);
+                setIsSettingModal(false);
+            }
+
+        } catch(err) {
+
+        } finally{
+            setIsLoading(false);
+        }
+
+    };
+
+
     // 공정률 조회
     const getWorkRates = async() => {
         if(project == null) return;
@@ -727,9 +787,51 @@ const Schedule = () => {
             { return {...prev, work_rate:formatValue}});
     }
 
-    // 공정률 수정
+    // 장비수 변경 이벤트
+    const onChangeEquipValue = (value) => {
+        const formatValue = Common.sanitizeNumberInput(value);
+        setEquip(prev => 
+            { return {...prev, cnt:formatValue}});
+    }
+
+    // 설정 저장
+    const clickSaveSetting = () => {
+        if (selectedSettingValue === "equip"){
+            modifyEquip();
+        }else if (selectedSettingValue === "work-rate"){
+            modifyWorkRate();
+        }
+    }
+
+    // 장비수 저장
+    const modifyEquip = async() => {
+        setIsSettingModal(false);
+        if(project === null) return;
+
+        setIsLoading(true);
+        try {
+            equip.reg_uno = user.uno
+            equip.reg_user = user.userName
+            const res = await Axios.POST(`/equip`, equip);
+
+            if (res?.data?.result === "Success") {
+                setModalText("장비 수정에 성공하였습니다.");
+                getEquips();
+            }else{
+                setModalText("장비 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.\n");
+            }
+        } catch(err) {
+            navigate("/error");
+        } finally {
+            setModalTitle("설정");
+            setIsModal(true);
+            setIsLoading(false);
+        }
+    }
+
+    // 공정률 저장
     const modifyWorkRate = async() => {
-        setIsModWorkRate(false);
+        setIsSettingModal(false);
         if(project === null) return;
 
         setIsLoading(true);
@@ -747,12 +849,12 @@ const Schedule = () => {
             var res;
             if(workRate?.is_work_rate === 'N'){
                 // 공정률 레코드가 없는 경우 바로 추가할 때 필요한 코드
-                // if ( !ObjChk.all(project.sno) && !ObjChk.all(project.jno)){
-                    // res = await Axios.POST(`/site/work-rate`, param);
-                // }else{
-                    setModalText("공정률을 수정할 수가 없습니다.\n관리자에게 문의하여 주세요.\n");
+                if ( !ObjChk.all(project.sno) && !ObjChk.all(project.jno)){
+                    res = await Axios.POST(`/site/work-rate`, param);
+                }else{
+                    setModalText("공정률을 수정할 수 없습니다.\n관리자에게 문의하여 주세요.\n");
                     return;
-                // }
+                }
             }else {
                 res = await Axios.PUT(`/site/work-rate`, param);
             }
@@ -766,7 +868,7 @@ const Schedule = () => {
         } catch(err) {
             navigate("/error");
         } finally {
-            setModalTitle("공정률");
+            setModalTitle("설정");
             setIsModal(true);
             setIsLoading(false);
         }
@@ -786,7 +888,7 @@ const Schedule = () => {
             return {
                 borderTopLeftRadius: "5px",
                 borderBottomLeftRadius: "5px",
-                right: "41px",
+                right: "34px",
             }
         }
     }
@@ -830,6 +932,7 @@ const Schedule = () => {
         getRestData();
         getDailyJobData();
         getWorkRates();
+        getEquips();
     }, [currentYear, currentMonth, project]);
 
     // 상단의 project 표시 여부 설정: 표시
@@ -876,31 +979,49 @@ const Schedule = () => {
                 text={modalText}
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
+                isConfirmFocus={true}
             />
             <Modal
-                isOpen={isModWorkRate}
-                title={"공정률"}
-                text={"공정률을 수정하시려면 변경 후 저장을 눌러주세요."}
+                isOpen={isSettingModal}
+                title={"설정"}
                 content={
                     <div>
-                        <div className="read-only-input" style={{padding: 0, marginBottom: "10px"}}>
-                            <input className="slider-input" type="text" value={workRate?.work_rate} onChange={(e) => onChangeWorkRageValue(e.target.value)} style={{height: "40px", width: "50px", textAlign: "right", paddingRight: "5px"}}/>
-                            &nbsp;%
-                            <div style={{width: "500px", marginLeft: "20px"}}>
-                                <Slider 
-                                    min={0}
-                                    max={100}
-                                    value={workRate?.work_rate}
-                                    onChange={onChangeWorkRageValue}
-                                />
-                            </div>
+                        <div className="d-flex gap-3">
+                            <Radio text="장비" value="equip" name="group1" checked={selectedSettingValue === "equip"}  onChange={handleRadioChange}/>
+                            <Radio text="공정률" value="work-rate" name="group1" checked={selectedSettingValue === "work-rate"}  onChange={handleRadioChange}/>
+                            <div className="me-1 ms-auto">날짜: {dateUtil.format(clickDate)}</div>
+
                         </div>
+                        
+                        { selectedSettingValue === "equip" ?
+                            <div className="read-only-input p-0 my-3" >
+                                <input className="slider-input" type="text" value={equip?.cnt || 0} onChange={(e) => onChangeEquipValue(e.target.value)} style={{height: "30px", width: "50px", textAlign: "right", paddingRight: "5px"}}/>
+                                {/* <NumberInput className="slider-input" initNum={equips?.cnt} setNum={(num) => onChangeEquipValue(num)} style={{height: "30px", width: "50px", textAlign: "right", paddingRight: "5px"}}/> */}
+                                &nbsp;개
+                                <div className="mx-3">
+                                    
+                                </div>
+                            </div>
+                        :
+                            <div className="read-only-input p-0 my-3">
+                                <input className="slider-input" type="text" value={workRate?.work_rate} onChange={(e) => onChangeWorkRageValue(e.target.value)} style={{height: "30px", width: "50px", textAlign: "right", paddingRight: "5px"}}/>
+                                &nbsp;%
+                                <div style={{width: "500px", marginLeft: "20px"}}>
+                                    <Slider 
+                                        min={0}
+                                        max={100}
+                                        value={workRate?.work_rate}
+                                        onChange={onChangeWorkRageValue}
+                                    />
+                                </div>
+                            </div>
+                        }
                     </div>
                 }
                 confirm={"저장"}
-                fncConfirm={() => modifyWorkRate()}
+                fncConfirm={() => clickSaveSetting()}
                 cancel={"취소"}
-                fncCancel={() => setIsModWorkRate(false)}
+                fncCancel={() => setIsSettingModal(false)}
             />
             {/* 하단 추가 아이콘 */}
             {
@@ -925,7 +1046,6 @@ const Schedule = () => {
             <div className="container-fluid px-4">
                 <ol className="breadcrumb mb-2 content-title-box">
                     <li className="breadcrumb-item content-title">일정</li>
-                    <li className="breadcrumb-item active content-title-sub">관리</li>
                     <div className="table-header-right">
                         {/* <Button text={"추가"} onClick={() => onClickSaveBtn()} /> */}
                     </div>
@@ -1021,55 +1141,7 @@ const Schedule = () => {
                                                         backgroundColor: isSameDay(new Date(), item) ? "#f9fdd7" : "",
                                                     }}
                                                 >   
-                                                    {/* 공정률 아이콘 */}
-                                                    {
-                                                        item !== null && new Date(item) <= new Date(new Date().setHours(0, 0, 0, 0)) && project !== null && checkAllowDate(item) && isRoleValid(scheduleRoles.RATE_ICON) && (
-                                                            <img
-                                                                src={WorkRateIcon}
-                                                                alt="plus"
-                                                                onClick={() => onClickWorkRate(item)}
-                                                                style={{
-                                                                    // backgroundColor: "#eee",
-                                                                    // borderTopLeftRadius: "5px",
-                                                                    // borderBottomLeftRadius: "5px",
-                                                                    padding: "3px",
-                                                                    position: "absolute",
-                                                                    bottom: "5px",
-                                                                    borderRadius:"5px",
-                                                                    // right: "41px", // workRateIconCss에서 적용됨
-                                                                    width: "32px",
-                                                                    height: "32px",
-                                                                    cursor: "pointer",
-                                                                    zIndex: 10,
-                                                                    ...workRateIconCss(item),
-                                                                }}
-                                                            />
-                                                        )
-                                                    }
-                                                    {/* 날짜 아이콘 */}
-                                                    {
-                                                        item !== null && new Date(item) < new Date(new Date().setHours(0, 0, 0, 0)) && project !== null && (
-                                                            <img
-                                                                src={weather}
-                                                                alt="plus"
-                                                                onClick={() => onClickWeatherList(dateUtil.format(item), `item_${week_idx}_${item_idx}`)}
-                                                                style={{
-                                                                    // backgroundColor: "#eee",
-                                                                    // borderTopRightRadius: "5px",
-                                                                    // borderBottomRightRadius: "5px",
-                                                                    // borderRadius:"5px",
-                                                                    padding: "3px",
-                                                                    position: "absolute",
-                                                                    bottom: "5px",
-                                                                    right: "10px",
-                                                                    width: "32px",
-                                                                    height: "32px",
-                                                                    cursor: "pointer",
-                                                                    zIndex: 10
-                                                                }}
-                                                            />
-                                                        )
-                                                    }
+                                                    
                                                     {
                                                         // 날씨
                                                         showWeatherList === `item_${week_idx}_${item_idx}` && (
@@ -1185,12 +1257,60 @@ const Schedule = () => {
                                                                 position: "absolute",
                                                                 bottom: "5px",
                                                                 borderRadius : "5px", 
-                                                                width: "90%",
+                                                                leftPadding: "2.5%",
+                                                                width: "95%",
                                                                 height:"32px",
-                                                                padding:"0.125rem 0.5rem",
+                                                                padding:"0.125rem",
                                                                 alignItems:"center",
                                                         }}>
-                                                                  {`공정률: ${getDailyWorkRate(item).work_rate || 0}%`}
+                                                            {`공정 ${getDailyWorkRate(item).work_rate || 0}%`}
+                                                            &nbsp;
+                                                            {`장비 ${getDailyEquip(item).cnt || 0}개`}
+
+                                                            {/* 공정률 아이콘 */}
+                                                            {
+                                                                item !== null && new Date(item) <= new Date(new Date().setHours(0, 0, 0, 0)) && project !== null && checkAllowDate(item) && isRoleValid(scheduleRoles.RATE_ICON) && (
+                                                                    <img
+                                                                        src={WorkRateIcon}
+                                                                        alt="plus"
+                                                                        onClick={() => onClickSetting(item)}
+                                                                        style={{
+                                                                            backgroundColor: "#eee",
+                                                                            position: "absolute",
+                                                                            padding: "3px",
+                                                                            leftMargin: "auto",
+                                                                            borderRadius:"5px",
+                                                                            width: "24px",
+                                                                            height: "24px",
+                                                                            cursor: "pointer",
+                                                                            zIndex: 10,
+                                                                            ...workRateIconCss(item),
+                                                                        }}
+                                                                    />
+                                                                )
+                                                            }
+                                                            {/* 날짜 아이콘 */}
+                                                            {
+                                                                item !== null && new Date(item) < new Date(new Date().setHours(0, 0, 0, 0)) && project !== null && (
+                                                                    <img
+                                                                        src={weather}
+                                                                        alt="plus"
+                                                                        onClick={() => onClickWeatherList(dateUtil.format(item), `item_${week_idx}_${item_idx}`)}
+                                                                        style={{
+                                                                            borderRadius:"5px",
+                                                                            backgroundColor: "#eee",
+                                                                            position: "absolute",
+                                                                            padding:"3px",
+                                                                            // bottom: "5px",
+                                                                            right: "6px",
+                                                                            width: "24px",
+                                                                            height: "24px",
+                                                                            cursor: "pointer",
+                                                                            zIndex: 10
+                                                                        }}
+                                                                    />
+                                                                )
+                                                            }
                                                         </div>
                                                     }
                                                     </div>

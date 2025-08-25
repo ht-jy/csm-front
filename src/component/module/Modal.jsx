@@ -11,7 +11,7 @@ import { ObjChk } from "../../utils/ObjChk";
  * 2025-07-10: content를 추가하여 jsx구문을 넣어서 모달로 띄울 수 있도록 함
  * 2025-07-25: text 부분에 정렬 기능 추가
  */
-const Modal = ({isOpen, title, text, content, confirm, fncConfirm, cancel, fncCancel, align = "center", width = "500px"}) => {
+const Modal = ({isOpen, title, text, content, confirm, fncConfirm, cancel, fncCancel, align = "center", width = "500px", isConfirmFocus=false, isCancelFocus= false}) => {
 
     const scrollUnset = (e) => {
         document.body.style.overflow = 'unset';
@@ -84,13 +84,13 @@ const Modal = ({isOpen, title, text, content, confirm, fncConfirm, cancel, fncCa
                                 ObjChk.all(confirm) ?
                                 <></>
                                 :
-                                <button className="btn btn-primary" style={buttonStyle} onClick={scrollUnset} name="confirm">{confirm}</button>
+                                <button className={isConfirmFocus ? "btn btn-primary btn-focus" : "btn btn-primary"} autoFocus={isConfirmFocus} style={buttonStyle} onClick={scrollUnset} name="confirm">{confirm}</button>
                             }
                             {
                                 ObjChk.all(cancel) ?
                                 <></>
                                 :
-                                <button className="btn btn-primary" style={buttonStyle} onClick={scrollUnset} name="cancel">{cancel}</button>
+                                <button className={isCancelFocus ? "btn btn-primary btn-focus" : "btn btn-primary"} autoFocus={isCancelFocus} style={buttonStyle} onClick={scrollUnset} name="cancel">{cancel}</button>
                             }
                         </div>
                     </div>
