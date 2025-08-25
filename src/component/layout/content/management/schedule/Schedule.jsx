@@ -977,7 +977,7 @@ const Schedule = () => {
                 text={modalText}
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
-                isFocus={true}
+                isConfirmFocus={true}
             />
             <Modal
                 isOpen={isSettingModal}

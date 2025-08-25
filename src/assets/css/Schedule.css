@@ -15,8 +15,8 @@
 }
 
 .holiday-reason {
-    color: black;
-    background-color: #f89999;
+    color: #ff0000;
+    /* background-color: #f89999; */
     /* background-color: #f9d470; */
     border-radius: 5px;
     margin: 1px;

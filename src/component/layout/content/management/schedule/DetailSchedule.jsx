@@ -50,7 +50,8 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
 
 
     const [isLoading, setIsLoading] = useState(false);
-    const [isEdit, setIsEdit] = useState(true);
+    const [isEdit, setIsEdit] = useState(false);
+    const [isAllow, setIsAllow] = useState(false);
     const [remove, setRemove] = useState("N");
     const [edit, setEdit] = useState("N");
     const [editData, setEditData] = useState({});
@@ -65,6 +66,12 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
     /** 예/아니오 모달 **/
     const [isModal, setIsModal] = useState(false);
     const [modalText, setModalText] = useState("");
+
+    /** 저장 유효성검사 모달 **/
+    const [isErrorModal, setIsErrorModal] = useState(false);
+    const [errorText, setErrorText] = useState("");
+    /** 초기 데이터 **/
+    const [initData, setInitData] = useState();
 
     // 제목 색상
     const titleColor = () => {
@@ -107,9 +114,9 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
         
         // 만약 비교 날짜가 최소허용기간 보다 적으면 수정 불가
         if (!ObjChk.all(cancelDay) && allowDate > inputDate) {
-            setIsEdit(false);
+            setIsAllow(false);
         }else{
-            setIsEdit(true);
+            setIsAllow(true);
         }
     }
 
@@ -123,6 +130,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
 
         setEdit("J");
         setRemove("N");
+        setInitData({...item, date: dateUtil.format(item.date)});
         setEditData({...item, date: dateUtil.format(item.date)});
 
     }
@@ -136,6 +144,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
 
         setEdit("R");
         setRemove("N");
+        setInitData({...item, date: dateUtil.format(new Date(`${item.rest_year}-${item.rest_month}-${item.rest_day}`))});
         setEditData({...item, date: dateUtil.format(new Date(`${item.rest_year}-${item.rest_month}-${item.rest_day}`))});
     }
 
@@ -148,16 +157,29 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
 
     // 데이터 변경
     const onChangeEditData = (key, value) => {
+
         setEditData(prev => {
             return {...prev, [key]: value};
         });
     }
+    const onClickCancel = () => {
+        setIsEdit(false);
+        setEditData(initData);
+        const project = projectOptions.find(option => option.value === initData.jno);
+        checkAllowDate(project?.cancelDay, new Date(initData.date));
+    }
 
     // 수정 알림 모달
     const onClickSave = () => {
+
+        if (ObjChk.all(editData?.date) || editData.date === "-" ){
+            setIsErrorModal(true);
+            setErrorText("날짜를 입력해주세요. \n");
+            return;
+        }
         setRemove("N");
         setIsModal(true);
-        setModalText("수정하시겠습니까?");
+        setModalText("저장하시겠습니까?");
     }
 
     // 삭제 알림 모달
@@ -212,6 +234,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
     /***** useEffect *****/
     useEffect(() => {
         if(isOpen){
+            setIsEdit(false);
             setEdit("N");
             setRemove("N");
             // 작업내용 프로젝트별로 그룹화
@@ -257,6 +280,15 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                 cancel={"아니오"}
                 fncCancel={() => setIsModal(false)}
             />
+            <Modal
+                isOpen={isErrorModal}
+                title={"일정"}
+                text={errorText}
+                confirm={"확인"}
+                fncConfirm={() => setIsErrorModal(false)}
+                isConfirmFocus={true}            
+            >
+            </Modal>
             {
                 isOpen ? (
                     <div style={overlayStyle}>
@@ -280,24 +312,37 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                     {
                                         edit !== "N"  && 
                                         (
-                                             isEdit ?
-                                                (nonRest || (project === null && scheduleRole && editData.jno === 0) || editData.jno === project?.jno) ?
-                                                <div>
-                                                    <button className="btn btn-primary" onClick={onClickSave} name="confirm" style={{marginRight:"10px"}}>
+                                            !isEdit ?
+                                                <div className="d-flex align-items-center">
+                                                    { (nonRest || (project === null && scheduleRole && editData.jno === 0) || editData.jno === project?.jno) ?
+                                                    !isAllow && 
+                                                        <div style={{margin: "0rem 1rem"}}>
+                                                            해당 프로젝트는 수정 가능한 기간이 아닙니다.
+                                                        </div>
+                                                    :
+                                                        <div style={{margin: "0rem 1rem"}}>
+                                                            상단의 프로젝트와 일치하는 일정만 수정이 가능합니다.
+                                                        </div>
+                                                    }
+                                                    <button className="btn btn-primary" disabled={!isAllow || !(nonRest || (project === null && scheduleRole && editData.jno === 0) || editData.jno === project?.jno)} onClick={() => setIsEdit(true)} name="confirm" style={{marginRight:"10px"}}>
                                                         수정
                                                     </button>
-                                                    <button className="btn btn-primary" onClick={onClickRemove} name="confirm" style={{marginRight:"10px"}}>
+                                                    <button className="btn btn-primary" disabled={!isAllow || !(nonRest || (project === null && scheduleRole && editData.jno === 0) || editData.jno === project?.jno)} onClick={onClickRemove} name="confirm" style={{marginRight:"10px"}}>
                                                         삭제
                                                     </button>
                                                 </div>
                                                 :
-                                                <div style={{margin: "0rem 1rem"}}>
-                                                    상단의 프로젝트와 일치하는 일정만 수정이 가능합니다.
+
+                                                <div>
+                                                    <button className="btn btn-primary" onClick={onClickSave} name="confirm" style={{marginRight:"10px"}}>
+                                                        저장
+                                                    </button>
+                                                    <button className="btn btn-primary" onClick={() => onClickCancel()} name="confirm" style={{marginRight:"10px"}}>
+                                                        취소
+                                                    </button>
                                                 </div>
-                                                :
-                                                <div style={{margin: "0rem 1rem"}}>
-                                                    해당 프로젝트는 수정 가능한 기간이 아닙니다.
-                                                </div>
+                                                
+                                                
                                         )
                                     }
                                     <div onClick={exitBtnClick} style={{ cursor: "pointer" }}>
@@ -335,13 +380,13 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                                 >
                                                                 <div style={{backgroundColor: "#f89999", width: "5px", borderRadius: "5px"}}></div>
                                                                 <div style={{textAlign:"left", marginLeft: "10px", width: "100%", height:"" }}>
-                                                                    {item.jno.map((rest) => (
-                                                                        <div className="detail-rest-item" onClick={() => onClickRestDay(rest)} style={{fontSize: "20px", color: "black", height:"30px"}}>{rest.reason}</div>
+                                                                    {item.jno.map((rest, r_idx) => (
+                                                                        <div key={r_idx} className="detail-rest-item" onClick={() => onClickRestDay(rest)} style={{fontSize: "20px", color: "black", height:"30px"}}>{rest.reason}</div>
                                                                     ))}
                                                                     
                                                                     <div style={{border: "1px solid #ccc", width: "100%"}}></div>
                                                                     
-                                                                    <div style={{fontSize: "13px"}}>{`휴무일 : ${getProject(item.jno[0].jno).label}`}</div>
+                                                                    <div style={{fontSize: "13px"}}>{`휴무일 : ${getProject(item.jno[0].jno)?.label}`}</div>
                                                                 </div>
                                                                 </div>
                                                         ))
@@ -380,12 +425,12 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                                                             }
                                                                                         >
                                                                                             <div style={{marginRight: "5px", paddingBottom: "3px"}}>●</div>
-                                                                                            <div>{item.content}</div>
+                                                                                            <div style={{whiteSpace:"pre-line"}}>{item.content}</div>
                                                                                         </div>
                                                                                     ))
                                                                                 }
                                                                                 <div style={{border: "1px solid #ccc", width: "100%"}}></div>
-                                                                                <div style={{fontSize: "13px"}}>{getProject(jobs[0].jno).label}</div>
+                                                                                <div style={{fontSize: "13px"}}>{getProject(jobs[0].jno)?.label}</div>
                                                                             </div>
                                                                         </div>
                                                                     ))
@@ -394,7 +439,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                     }
                                             </>
                                         :   edit === "R" ?
-                                            ( isEdit && (nonRest || (project === null && scheduleRole && editData.jno === 0) || editData.jno === project?.jno) ? 
+                                            ( isEdit ?
                                                 <div>
                                                     {/* 프로젝트 */}
                                                     <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "50px"} }>
@@ -461,23 +506,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                     <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "50px"} }>
                                                         <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>프로젝트</label>
                                                         <div style={{ flex: 1 }}>
-                                                             <Select
-                                                                    onChange={(e) => handleSelect(e)}
-                                                                    options={projectOptions || []} 
-                                                                    value={editData.jno !== undefined ? projectOptions.find(item => item.value === editData.jno) : {}} 
-                                                                    placeholder={"선택하세요"}
-                                                                    menuPortalTarget={document.body}
-                                                                    styles={{
-                                                                        menuPortal: (base) => ({
-                                                                            ...base,
-                                                                            zIndex: 999999999,
-                                                                        }),
-                                                                        container: (provided) => ({
-                                                                        ...provided,
-                                                                        width: "655px",
-                                                                        }),
-                                                                    }}
-                                                                />
+                                                            {projectOptions.find(item => item.value === editData.jno)?.label}
                                                         </div>
                                                     </div>
 
@@ -504,14 +533,14 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                     {/* 사유 */}
                                                     <div style={{gridColumn: "span 2", padding: '10px', display: "flex", width: "100%", height: "50px"}}>
                                                         <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>휴무사유</label>
-                                                        <div>
+                                                        <div style={{whiteSpace: "preLine"}}>
                                                             {editData.reason === undefined || editData.reason === "" ? "-" : editData.reason}
                                                         </div>
                                                     </div>
                                                 </div>
                                             )
                                         :   edit === "J" ? 
-                                            ( isEdit && (nonRest || (project === null && scheduleRole && editData.jno === 0) || editData.jno === project?.jno ) ?
+                                            ( isEdit ?
                                                 <div>
                                                     {/* 프로젝트 */}
                                                     <div style={{gridColumn: "span 2", padding: '10px', display: "flex", alignItems: "center", width: "100%", height: "50px"} }>
@@ -587,23 +616,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                         <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>프로젝트</label>
                                                         <div style={{ flex: 1 }}>
                                                             <div style={{height: "40px", display: "flex", alignItems: "center", width: "100%" }}>
-                                                                <Select
-                                                                    onChange={(e) => handleSelect(e)}
-                                                                    options={projectOptions || []} 
-                                                                    value={editData.jno !== undefined ? projectOptions.find(item => item.value === editData.jno) : {}} 
-                                                                    placeholder={"선택하세요"}
-                                                                    menuPortalTarget={document.body}
-                                                                    styles={{
-                                                                        menuPortal: (base) => ({
-                                                                            ...base,
-                                                                            zIndex: 999999999,
-                                                                        }),
-                                                                        container: (provided) => ({
-                                                                        ...provided,
-                                                                        width: "655px",
-                                                                        }),
-                                                                    }}
-                                                                />
+                                                                {editData.jno !== undefined ? projectOptions.find(item => item.value === editData.jno)?.label : ""}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -621,7 +634,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                     {/* 작업내용 */}
                                                     <div style={{gridColumn: "span 2", padding: '10px', display: "flex", width: "100%"}}>
                                                         <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>작업내용</label>
-                                                        <div style={{color: editData.content_color || "#000000"}}>
+                                                        <div style={{color: editData.content_color || "#000000", whiteSpace:"pre-line"}}>
                                                             {editData.content === undefined || editData.content === "" ? "-" : editData.content}
                                                         </div>
                                                     </div>
