@@ -108,8 +108,8 @@ const Site = () => {
     // 현장 리스트 바꾸기 (작업완료|진행중)
     const onClickNonUseList = () =>{
         dispatch({type: "LIST"});
-        setIsNonUseChecked(!isNonUseChecked);
-        refetch(true, false);
+        setIsNonUseChecked(prev => !prev);
+        // refetch(true, false);
     }
 
     // 현장 상세
@@ -397,7 +397,7 @@ const Site = () => {
         `/site?targetDate=${dateUtil.format(selectedDate, "yyyy-MM-dd")}&pCode=SITE_STATUS&isRole=${isRoleValid(siteRoles.SITE_LIST)}&isNonUse=${isNonUseChecked}`,
 
         {
-            storageKey: `siteData_${dateUtil.format(selectedDate, "yyyy-MM-dd")}`,
+            storageKey: `siteData_${dateUtil.format(selectedDate, "yyyy-MM-dd")}_isNonUse_${isNonUseChecked}`,
             useSession: true,
             delaySecondsAfterCache: 2,
             onCacheLoad: (cache) => {
@@ -418,12 +418,13 @@ const Site = () => {
             },
             onFinally: ({ isCache, isRefetch }) => {
                 if(!isCache){
-                    setIsNonUseChecked(false);
+                    // setIsNonUseChecked(false);
+                    setIsLoading(false);
                 }
                 if(isCache && isRefetch) {
-                    setIsNonUseChecked(false);
+                    // setIsNonUseChecked(false);
+                    setIsLoading(false);
                 }
-                setIsLoading(false);
             }
         }
     );

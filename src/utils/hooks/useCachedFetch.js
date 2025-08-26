@@ -107,7 +107,6 @@ export function useCachedFetch(url, options = {}) {
             const result = res ?? null;
             setCacheData(result);
             setIsStale(false);
-            setIsFetchedLoading(false);
 
             if (useCache && saveCache) {
                 // 캐시 저장
@@ -119,7 +118,7 @@ export function useCachedFetch(url, options = {}) {
         } catch (err) {
             if (myRequestId !== apiRequestMap[apiKey]) return;
             if (!isMounted.current) return;
-            setIsFetchedLoading(false);
+            
 
             // 실패 콜백
             errorRef.current(err);
@@ -127,6 +126,7 @@ export function useCachedFetch(url, options = {}) {
             if (myRequestId !== apiRequestMap[apiKey]) return;
             if (!isMounted.current) return;
             // 호출 마무리 실행 콜백
+            setIsFetchedLoading(false);
             finallyRef.current({ isCache, isRefetch });
         }
     }, [url, storageKey, storage, useCache]);

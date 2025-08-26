@@ -248,11 +248,11 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
     /***** 작업완료 *****/
     // 현장 - type: true(작업완료), false(작업완료취소)
     const nonUseCheckOpen = (type) => {
-        const text = type ? "현장 종료 처리" : "현장 종료 취소";
+        const text = type ? "종료" : "종료 취소";
 
         setIsNonUseCheckOpen(true);
         setNonUseCheckFunc(() => () => siteModifyNonUse(type));
-        setNonUseCheckText(`${text}를 하시겠습니까?\n 종료 시 프로젝트도 모두 종료됩니다.`);
+        setNonUseCheckText(`현장 ${text}를 하시겠습니까?\n ${text} 시 프로젝트도 모두 ${text}됩니다.`);
     }
 
     // 현장 작업완료 처리
@@ -494,8 +494,8 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                             {
                                 <div style={{marginRight: "8px", textAlign:"end"}}>
 
-                                    {isRoleValid(siteRoles.SITE_WORK_FINISH) && detailData.is_use === 'Y' && !isEdit && <Button text={"현장 종료"} onClick={() => nonUseCheckOpen(true)}/>}
-                                    {isRoleValid(siteRoles.SITE_WORK_CANCEL) && detailData.is_use !== 'Y' && !isEdit && <Button text={"현장 종료 취소"} style={{}} onClick={() => nonUseCheckOpen(false)}/>}
+                                    {isRoleValid(siteRoles.SITE_WORK_FINISH) && detailData.status === 'Y' && !isEdit && <Button text={"현장 종료"} onClick={() => nonUseCheckOpen(true)}/>}
+                                    {isRoleValid(siteRoles.SITE_WORK_CANCEL) && detailData.status !== 'Y' && !isEdit && <Button text={"현장 종료 취소"} style={{}} onClick={() => nonUseCheckOpen(false)}/>}
 
                                 </div>
                             }
