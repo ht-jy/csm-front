@@ -107,9 +107,9 @@ const Site = () => {
 
     // 현장 리스트 바꾸기 (작업완료|진행중)
     const onClickNonUseList = () =>{
-        dispatch({type: isNonUseChecked ? "USE_LIST" : "NON_USE_LIST"});
+        dispatch({type: "LIST"});
         setIsNonUseChecked(!isNonUseChecked);
-
+        refetch(true, false);
     }
 
     // 현장 상세
@@ -394,7 +394,7 @@ const Site = () => {
 
     // 현장 정보 조회
     const {cacheData, isStale, isFetchedLoading, refetch} = useCachedFetch(
-        `/site?targetDate=${dateUtil.format(selectedDate, "yyyy-MM-dd")}&pCode=SITE_STATUS&isRole=${isRoleValid(siteRoles.SITE_LIST)}`,
+        `/site?targetDate=${dateUtil.format(selectedDate, "yyyy-MM-dd")}&pCode=SITE_STATUS&isRole=${isRoleValid(siteRoles.SITE_LIST)}&isNonUse=${isNonUseChecked}`,
 
         {
             storageKey: `siteData_${dateUtil.format(selectedDate, "yyyy-MM-dd")}`,
@@ -418,13 +418,12 @@ const Site = () => {
             },
             onFinally: ({ isCache, isRefetch }) => {
                 if(!isCache){
-                    setIsLoading(false);
                     setIsNonUseChecked(false);
                 }
                 if(isCache && isRefetch) {
-                    setIsLoading(false);
                     setIsNonUseChecked(false);
                 }
+                setIsLoading(false);
             }
         }
     );
@@ -552,6 +551,7 @@ const Site = () => {
                 text={modalText}
                 confirm={"확인"}
                 fncConfirm={() => setIsOpenModal(false)}
+                isConfirmFocus={true}
             />
             <Modal
                 isOpen={isModal2}

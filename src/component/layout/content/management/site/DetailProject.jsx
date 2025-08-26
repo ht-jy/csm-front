@@ -371,7 +371,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                         :
                         <>
                             {scheduleRole && selectedDate === dateUtil.format(Date.now()) && data?.is_use === "Y"?
-                                <Button text={"작업추가"} onClick={() => onClickAddSchedule()}></Button>
+                                <Button text={"작업내용 추가"} onClick={() => onClickAddSchedule()}></Button>
                             : 
                                 null 
                             }

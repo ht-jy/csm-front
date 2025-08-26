@@ -36,7 +36,7 @@ const SiteReducer = (state, action) => {
                 
                 if (Array.isArray(projectList) && projectList.length > 1) {
                     projectList.forEach(item => {
-                        sites.push({...item, type: "sub", is_parent_use: site.is_use}); // useSites, nonUseSite 분리하는 부분에서 작업완료된 프로젝트가 현장이 작업 완료 안됬는데 nonUseSite 때문에 부모 완료여부(is_parent_use)를 추가함
+                        sites.push({...item, type: "sub"});
                     });
                 }
             });
@@ -66,11 +66,7 @@ const SiteReducer = (state, action) => {
                     return { ...obj, daily_content_list: contents };
                 }
             });
-
-            const useSites = newSites.filter(item => item.is_use === 'Y' || item?.is_parent_use === 'Y');
-            const nonUseSite = newSites.filter(item => item.is_use !== 'Y' && item?.is_parent_use !== 'Y');
-            
-            return {...state, list: JSON.parse(JSON.stringify(useSites)), useList: JSON.parse(JSON.stringify(useSites)), nonUseList: JSON.parse(JSON.stringify(nonUseSite)), code: JSON.parse(JSON.stringify(action.code)), dailyTotalCount: JSON.parse(JSON.stringify(total))};
+            return {...state, list: JSON.parse(JSON.stringify(newSites)), code: JSON.parse(JSON.stringify(action.code)), dailyTotalCount: JSON.parse(JSON.stringify(total))};
         case "STATS":
             const setColor2 = (code) => {
                 const foundItem = state?.code?.find(item => item.code === code);
@@ -152,10 +148,9 @@ const SiteReducer = (state, action) => {
             });
             return {...state, dailyWeather: structuredClone(weathers)};
 
-        case "USE_LIST":
+        case "LIST":
             return {...state, list: state.useList};
-        case "NON_USE_LIST":
-            return {...state, list: state.nonUseList};
+
 
         default:
             return state;
