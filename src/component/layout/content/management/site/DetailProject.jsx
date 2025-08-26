@@ -118,7 +118,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
             const res = await Axios.PUT(`/project/use`, {
                 sno: data.sno || 0,
                 jno: data.jno || 0,
-                is_used : type ? "N" : "Y",
+                is_used : type ? "S" : "Y",
                 mod_uno: user.uno,
                 mod_user: user.userName,
 
