@@ -587,7 +587,6 @@ const Site = () => {
             <div className="container-fluid px-4">
                 <ol className="breadcrumb mb-2 content-title-box">
                     <li className="breadcrumb-item content-title">현장목록</li>
-                    <li className="breadcrumb-item active content-title-sub">관리</li>
                     <div className="table-header-right">
                         {isRoleValid(siteRoles.SITE_ADD) && selectedDate === dateUtil.format(Date.now()) && <Button text={"추가"} onClick={() => onClickSaveBtn()} />}
                     </div>
@@ -602,6 +601,7 @@ const Site = () => {
                                 setTime={(value) => setSelectedDate(value)} 
                                 dateInputStyle={{margin: "0px", marginLeft:"10px"}}
                                 calendarPopupStyle={{ fontWeight: "normal"}}
+                                isRefresh={true}
                             ></DateInput>
                         </div>
                         <div className="square-container">

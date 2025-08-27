@@ -7,6 +7,7 @@ import "../../assets/css/DateInput.css";
 import "../../assets/css/Tooltip.css";
 import CalendarIcon from "../../assets/image/calendar-icon.png";
 import RefreshIcon from "../../assets/image/refresh-icon.png";
+import CancelIcon from "../../assets/image/cancel.png";
 import { dateUtil } from "../../utils/DateUtil";
 import { Axios } from "../../utils/axios/Axios.js";
 import OutsideClick from "./OutsideClick.jsx";
@@ -30,10 +31,11 @@ import OutsideClick from "./OutsideClick.jsx";
  *  dateInputStyle: 날짜가 담기는 div의 스타일
  *  caenderPopupStyle: 달력 스타일 지정
  *  isCalendarHide: 달력 표시 여부
- *  minDate: 날짜 제한(기본값: null (제한없음), 입략 형태: Date()))
+ *  minDate: 날짜 제한(기본값: null (제한없음), 입력 형태: Date()))
+ *  isRefresh: 초기화 형태(기본값: true, true:오늘 날짜 false: "-")
  * 
  */
-const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalendarHide, minDate = null}) => {
+const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalendarHide, minDate = null, isRefresh = true}) => {
 
     const [showCalendar, setShowCalendar] = useState(false);
 
@@ -102,12 +104,14 @@ const DateInput = ({time, setTime, dateInputStyle, calendarPopupStyle, isCalenda
         <span className="calendar-wrapper">
             <div className="date-input" style={{...dateInputStyle}}>
                 <input type="date" id="inputDate" value={time} max="9999-12-31" className="inputBox" onChange={(e) => setTime(e.target.value)} />
-                {
-                    <input type="image" value="" src={RefreshIcon} className="imgIcon" onClick={() => setTime("-")} style={{margin:"0 0.5rem"}}/>
+                { isRefresh ?
+                    <input type="image" value="" src={RefreshIcon} className="imgIcon" onClick={() => setTime(dateUtil.format(new Date()))} style={{margin:"0 0.25rem"}}/>
+                    :
+                    <input type="image" value="" src={CancelIcon} className="imgIcon" onClick={() => setTime("-")} style={{margin:"0 0.25rem",opacity: 0.5 }}/>
                 }
                 {
                     isCalendarHide ? null
-                    : <input type="image" value="" src={CalendarIcon} className="imgIcon" onClick={() => setShowCalendar(prev => !prev)}/>               
+                    : <input type="image" value="" src={CalendarIcon} className="imgIcon" onClick={() => setShowCalendar(prev => !prev)} />               
                 }
 
             </div>

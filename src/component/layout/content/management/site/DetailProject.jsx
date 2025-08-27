@@ -493,8 +493,8 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                     <label className="detail-text-label" style={{width: "130px", color: data?.status === "Y" ? "" : nonUseFontColor }}>
                         작업내용
                     </label>
-                    <div className="read-only-input" onClick={() => onClickScheduleOpen(data.daily_content_list)}  style={{color: data?.status === "Y" ? "" : nonUseFontColor }}>
-                        <div className="">
+                    <div className="read-only-input work" onClick={() => onClickScheduleOpen(data.daily_content_list)}  style={{color: data?.status === "Y" ? "" : nonUseFontColor }}>
+                        <div className="" style={{whiteSpace:"pre-line"}}>
 
                         {data.daily_content_list.length > 0 ?
                             // 작업내용이 여러개인 경우
