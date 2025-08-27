@@ -267,6 +267,9 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                                             <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>프로젝트</label>
                                             <div style={{ flex: 1 }}>
                                                 <div style={{height: "40px", display: "flex", alignItems: "center", width: "100%" }}>
+                                                    { nonRest ?
+                                                    <div>{projectOptions.find(item => item.value === formData.jno)?.label}</div>
+                                                    :
                                                     <Select
                                                         onChange={(e) => onChangeFormData("jno", e.value)}
                                                         options={projectOptions || []} 
@@ -285,6 +288,7 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                                                             }),
                                                         }}
                                                     />
+                                                    }
                                                 </div>
                                             </div>
                                         </div>

@@ -275,7 +275,7 @@ const DetailSite = ({isEdit, detailData, detailWeather, projectData, handleChang
                     </label>
                     <div className="form-input" style={{ flex: 1 }}>
                         {isEdit && !isNonUseChecked ? (
-                            <DateInput time={openingDate} setTime={setOpeningDate}></DateInput>
+                            <DateInput time={openingDate} setTime={setOpeningDate} isRefresh={false}></DateInput>
                         ) : (
                             <div className="read-only-input">
                                 {dateUtil.format(data?.site_date?.opening_date)}
@@ -291,7 +291,7 @@ const DetailSite = ({isEdit, detailData, detailWeather, projectData, handleChang
                     </label>
                     <div className="form-input" style={{ flex: 1 }}>
                         {isEdit && !isNonUseChecked ? (
-                            <DateInput time={closingPlanDate} setTime={setClosingPlanDate}></DateInput>
+                            <DateInput time={closingPlanDate} setTime={setClosingPlanDate} isRefresh={false}></DateInput>
                         ) : (
                             <div className="read-only-input">
                                 {dateUtil.format(data?.site_date?.closing_plan_date)}
@@ -307,7 +307,7 @@ const DetailSite = ({isEdit, detailData, detailWeather, projectData, handleChang
                     </label>
                     <div className="form-input" style={{ flex: 1 }}>
                         {isEdit && !isNonUseChecked ? (
-                            <DateInput time={closingForecastDate} setTime={setClosingForecastDate}></DateInput>
+                            <DateInput time={closingForecastDate} setTime={setClosingForecastDate} isRefresh={false}></DateInput>
                         ) : (
                             <div className="read-only-input">
                                 {dateUtil.format(data?.site_date?.closing_forecast_date)}
@@ -323,7 +323,7 @@ const DetailSite = ({isEdit, detailData, detailWeather, projectData, handleChang
                     </label>
                     <div className="form-input" style={{ flex: 1 }}>
                         {isEdit ? (
-                            <DateInput time={closingActualDate} setTime={setClosingActualDate}></DateInput>
+                            <DateInput time={closingActualDate} setTime={setClosingActualDate} isRefresh={false}></DateInput>
                         ) : (
                             <div className="read-only-input">
                                 {dateUtil.format(data?.site_date?.closing_actual_date)}

@@ -107,9 +107,9 @@ const Site = () => {
 
     // 현장 리스트 바꾸기 (작업완료|진행중)
     const onClickNonUseList = () =>{
-        dispatch({type: isNonUseChecked ? "USE_LIST" : "NON_USE_LIST"});
-        setIsNonUseChecked(!isNonUseChecked);
-
+        dispatch({type: "LIST"});
+        setIsNonUseChecked(prev => !prev);
+        // refetch(true, false);
     }
 
     // 현장 상세
@@ -394,10 +394,10 @@ const Site = () => {
 
     // 현장 정보 조회
     const {cacheData, isStale, isFetchedLoading, refetch} = useCachedFetch(
-        `/site?targetDate=${dateUtil.format(selectedDate, "yyyy-MM-dd")}&pCode=SITE_STATUS&isRole=${isRoleValid(siteRoles.SITE_LIST)}`,
+        `/site?targetDate=${dateUtil.format(selectedDate, "yyyy-MM-dd")}&pCode=SITE_STATUS&isRole=${isRoleValid(siteRoles.SITE_LIST)}&isNonUse=${isNonUseChecked}`,
 
         {
-            storageKey: `siteData_${dateUtil.format(selectedDate, "yyyy-MM-dd")}`,
+            storageKey: `siteData_${dateUtil.format(selectedDate, "yyyy-MM-dd")}_isNonUse_${isNonUseChecked}`,
             useSession: true,
             delaySecondsAfterCache: 2,
             onCacheLoad: (cache) => {
@@ -418,12 +418,12 @@ const Site = () => {
             },
             onFinally: ({ isCache, isRefetch }) => {
                 if(!isCache){
+                    // setIsNonUseChecked(false);
                     setIsLoading(false);
-                    setIsNonUseChecked(false);
                 }
                 if(isCache && isRefetch) {
+                    // setIsNonUseChecked(false);
                     setIsLoading(false);
-                    setIsNonUseChecked(false);
                 }
             }
         }
@@ -552,6 +552,7 @@ const Site = () => {
                 text={modalText}
                 confirm={"확인"}
                 fncConfirm={() => setIsOpenModal(false)}
+                isConfirmFocus={true}
             />
             <Modal
                 isOpen={isModal2}
@@ -586,7 +587,6 @@ const Site = () => {
             <div className="container-fluid px-4">
                 <ol className="breadcrumb mb-2 content-title-box">
                     <li className="breadcrumb-item content-title">현장목록</li>
-                    <li className="breadcrumb-item active content-title-sub">관리</li>
                     <div className="table-header-right">
                         {isRoleValid(siteRoles.SITE_ADD) && selectedDate === dateUtil.format(Date.now()) && <Button text={"추가"} onClick={() => onClickSaveBtn()} />}
                     </div>
@@ -601,6 +601,7 @@ const Site = () => {
                                 setTime={(value) => setSelectedDate(value)} 
                                 dateInputStyle={{margin: "0px", marginLeft:"10px"}}
                                 calendarPopupStyle={{ fontWeight: "normal"}}
+                                isRefresh={true}
                             ></DateInput>
                         </div>
                         <div className="square-container">

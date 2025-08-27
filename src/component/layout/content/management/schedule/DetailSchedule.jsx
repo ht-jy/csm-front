@@ -130,6 +130,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
 
         setEdit("J");
         setRemove("N");
+        setIsEdit(false);
         setInitData({...item, date: dateUtil.format(item.date)});
         setEditData({...item, date: dateUtil.format(item.date)});
 
@@ -144,6 +145,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
 
         setEdit("R");
         setRemove("N");
+        setIsEdit(false);
         setInitData({...item, date: dateUtil.format(new Date(`${item.rest_year}-${item.rest_month}-${item.rest_day}`))});
         setEditData({...item, date: dateUtil.format(new Date(`${item.rest_year}-${item.rest_month}-${item.rest_day}`))});
     }
@@ -547,23 +549,27 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                         <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>프로젝트</label>
                                                         <div style={{ flex: 1 }}>
                                                             <div style={{height: "40px", display: "flex", alignItems: "center", width: "100%" }}>
-                                                                <Select
-                                                                    onChange={(e) => handleSelect(e)}
-                                                                    options={projectOptions || []} 
-                                                                    value={editData.jno !== undefined ? projectOptions.find(item => item.value === editData.jno) : {}} 
-                                                                    placeholder={"선택하세요"}
-                                                                    menuPortalTarget={document.body}
-                                                                    styles={{
-                                                                        menuPortal: (base) => ({
-                                                                            ...base,
-                                                                            zIndex: 999999999,
-                                                                        }),
-                                                                        container: (provided) => ({
-                                                                        ...provided,
-                                                                        width: "655px",
-                                                                        }),
-                                                                    }}
-                                                                />
+                                                                { nonRest ?
+                                                                    <div> {projectOptions.find(item => item.value === editData.jno)?.label}</div>
+                                                                :
+                                                                    <Select
+                                                                        onChange={(e) => handleSelect(e)}
+                                                                        options={projectOptions || []} 
+                                                                        value={editData.jno !== undefined ? projectOptions.find(item => item.value === editData.jno) : {}} 
+                                                                        placeholder={"선택하세요"}
+                                                                        menuPortalTarget={document.body}
+                                                                        styles={{
+                                                                            menuPortal: (base) => ({
+                                                                                ...base,
+                                                                                zIndex: 999999999,
+                                                                            }),
+                                                                            container: (provided) => ({
+                                                                            ...provided,
+                                                                            width: "655px",
+                                                                            }),
+                                                                        }}
+                                                                    />
+                                                                }
                                                             </div>
                                                         </div>
                                                     </div>

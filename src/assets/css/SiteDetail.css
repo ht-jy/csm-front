@@ -176,7 +176,7 @@
 .read-only-input {
     width: 100%;
     padding: 0rem 0.5rem;
-    height: 35px;
+    /* height: 35px; */
     display: flex;
     align-items: center;
     border-radius: 4px;

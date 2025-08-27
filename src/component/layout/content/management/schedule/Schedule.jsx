@@ -789,7 +789,8 @@ const Schedule = () => {
 
     // 장비수 변경 이벤트
     const onChangeEquipValue = (value) => {
-        const formatValue = Common.sanitizeNumberInput(value);
+        
+        const formatValue = Common.formatNumber(value);
         setEquip(prev => 
             { return {...prev, cnt:formatValue}});
     }

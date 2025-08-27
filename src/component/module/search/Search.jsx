@@ -98,7 +98,7 @@ const Search = ({searchOptions=[], width, height="auto", fncSearchKeywords, retr
         
         setKeyword(newKeyword);
         fncSearchKeywords(setSearchKeyword(newKeyword));
-        setText("");
+        if (isReSearch) {setText("")};
     };
 
     // 검색어 텍스트로 변환
