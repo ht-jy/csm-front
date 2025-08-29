@@ -62,7 +62,7 @@ const SiteReducer = (state, action) => {
                     }
                     return { ...obj, daily_content_list: dailyContents };
                 } else {
-                    const contents = (Array.isArray(obj.daily_content_list) ? obj.daily_content_list.map(item => item.content) : []);
+                    const contents = (Array.isArray(obj.daily_content_list) ? obj.daily_content_list: []);
                     return { ...obj, daily_content_list: contents };
                 }
             });
