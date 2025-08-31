@@ -499,8 +499,8 @@ const DailyCompare = () => {
                     <li className="breadcrumb-item content-title">비교</li>
                     <li className="breadcrumb-item active content-title-sub">근로자</li>
                     <div className="table-header-right">
-                        {isRoleValid(DailyCompareRoles.TBM_EXPORT) && <Button text={"TBM 양식"} onClick={() => excelFormDownload("tbm")}/>}
-                        {isRoleValid(DailyCompareRoles.DEDUCTION_EXPORT) && <Button text={"퇴직공제 양식"} onClick={() => excelFormDownload("deduction")}/>}
+                        {isRoleValid(DailyCompareRoles.TBM_EXPORT) && <Button text={"TBM 양식"} onClick={() => excelFormDownload("TBM")}/>}
+                        {isRoleValid(DailyCompareRoles.DEDUCTION_EXPORT) && <Button text={"퇴직공제 양식"} onClick={() => excelFormDownload("퇴직공제")}/>}
                         <Button text={isFileSection ? "파일 숨기기" : "파일 펼치기"} onClick={isFileSection ? () => setIsFileSection(false) : () => setIsFileSection(true)}/>
                     </div>
                 </ol>

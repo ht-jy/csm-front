@@ -834,7 +834,9 @@ const Site = () => {
                                                                         {
                                                                             item.daily_content_list.length > 1 ?
                                                                                 // 작업내용이 있는 경우
-                                                                                ""
+                                                                                item.daily_content_list.map( (content, idx) => (
+                                                                                <div key={idx} style={{color: content.content_color || "#000" }}>● {content.content}</div>
+                                                                                ))
                                                                                 :
                                                                                 // 작업내용이 없는 경우
                                                                                 <div className="left" style={{ color: "#a5a5a5" }}>-</div>
@@ -845,14 +847,11 @@ const Site = () => {
                                                                 // 프로젝트가 하나인 경우
                                                                 <div>
                                                                     {
-                                                                        item.daily_content_list.length > 1 ?
-                                                                            // 작업내용이 여러개인 경우
+                                                                        item.daily_content_list.length > 0 ?
+                                                                            // 작업내용이 여러개인 경우 / 하나인 경우: item.daily_content_list[0].content로 분리되어 있었는데 합쳤음.
                                                                             item.daily_content_list.map( (content, idx) => (
                                                                                 <div key={idx} style={{color: content.content_color || "#000" }}>● {content.content}</div>
                                                                             ))
-                                                                        :   item.daily_content_list.length === 1 ?
-                                                                            // 작업내용이 하나인 경우
-                                                                            <div style={{color: item.daily_content_list[0].content_color || "#000" }}>● {item.daily_content_list[0].content}</div>
                                                                         :   
                                                                             // 작업내용이 없는 경우
                                                                             <div className="left" style={{ color: "#a5a5a5" }}>-</div>
@@ -912,14 +911,11 @@ const Site = () => {
                                                 {/* 작업내용 */}
                                                 <td className="left ellipsis">
                                                     {
-                                                        item.daily_content_list.length > 1 ?
+                                                        item.daily_content_list.length > 0 ?
                                                             // 작업내용이 여러개인 경우
                                                             item.daily_content_list.map( (content, idx) => (
                                                                 <div key={idx} style={{color: content.content_color}}>● {content.content}</div>
                                                             ))
-                                                        :   item.daily_content_list.length === 1 ?
-                                                            // 작업내용이 하나인 경우
-                                                            <div style={{color: item.daily_content_list[0].content_color}}>● {item.daily_content_list[0].content}</div>
                                                         :   
                                                             // 작업내용이 없는 경우
                                                             <div className="left" style={{ color: "#a5a5a5" }}>-</div>
