@@ -98,7 +98,7 @@ const Total = () => {
         { isSearch: false, isOrder: true, isSlide: true, width: "50px", header: "순번", itemName: "rnum", bodyAlign: "center", isEllipsis: false, isDate: false, type: "number" },
         { isSearch: true, isOrder: true, isSlide: false, width: "100px", header: "아이디", itemName: "user_id", bodyAlign: "center", isEllipsis: false, isDate: false, /*isFormat: true, format: "maskResidentNumber", valid: "isValidResidentNumber"*/ },
         { isSearch: true, isOrder: true, isSlide: false, width: "100px", header: "이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false, isDate: false },
-        { isSearch: true, isOrder: true, isSlide: false, width: "150px", header: "부서/조직명", itemName: "department", bodyAlign: "left", isEllipsis: false, isDate: false },
+        { isSearch: true, isOrder: true, isSlide: false, width: "150px", header: "회사명", itemName: "department", bodyAlign: "left", isEllipsis: false, isDate: false },
         { isSearch: false, isOrder: false, isSlide: false, width: "100px", header: "생년월일", itemName: "reg_no", bodyAlign: "center", isEllipsis: false, isDate: false, isFormat: true, format: "regNoToBirth" },
         { isSearch: true, isOrder: true, isSlide: false, width: "100px", header: "공종", itemName: "disc_name", bodyAlign: "left", isEllipsis: false, isDate: false },
         { isSearch: true, isOrder: true, isSlide: false, width: "300px", header: "프로젝트명", itemName: "job_name", bodyAlign: "left", isEllipsis: true, isDate: false },
@@ -123,7 +123,7 @@ const Total = () => {
         { value: "ALL", label: "전체" },
         { value: "JOB_NAME", label: "프로젝트명" },
         { value: "USER_NM", label: "이름" },
-        { value: "DEPARTMENT", label: "부서/조직명" },
+        { value: "DEPARTMENT", label: "회사명" },
     ];
 
     const onClickSaveBtn = () => {
@@ -161,6 +161,7 @@ const Total = () => {
             disc_name: item.disc_name || "",
             is_retire: item.is_retire || "N",
             retire_date: retireDate,
+            daily_reason: item.daily_reason,
             is_manage: item.is_manage || "N",
             reg_user: user.userName || "",
             reg_uno: user.uno || 0,
@@ -508,8 +509,8 @@ const Total = () => {
                         <li className="breadcrumb-item content-title">전체</li>
                         <li className="breadcrumb-item active content-title-sub">근로자</li>
                         <div className="table-header-right">
-                        { isRoleValid(workerRoles.TOTAL_EXCEL_DOWNLOAD ) && <Button text={"엑셀 업로드"} onClick={() => {setIsProjectOpenModal(true)}} /> }
-                        { isRoleValid(workerRoles.TOTAL_EXCEL_UPLOAD_ADD ) && <Button text={"엑셀 양식"} onClick={getWorkerFormExport} /> }
+                        { isRoleValid(workerRoles.TOTAL_EXCEL_DOWNLOAD ) && <Button text={"근로자 업로드"} onClick={() => {setIsProjectOpenModal(true)}} /> }
+                        { isRoleValid(workerRoles.TOTAL_EXCEL_UPLOAD_ADD ) && <Button text={"양식 다운로드"} onClick={getWorkerFormExport} /> }
                         {
                             isRoleValid(workerRoles.TOTAL_WORKER_ADD) && 
                             <Button text={"추가"} onClick={onClickSaveBtn} />
