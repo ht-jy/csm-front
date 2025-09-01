@@ -33,67 +33,61 @@
 
 /* 파일 input */
 .file-section {
-    display: flex; 
-    flex-direction: column;
-    gap: 5px;
-    max-width: 1200px;
+    display: flex;
+    justify-content: space-between;
     width: 100%; 
 }
 
 .file-upload {
     display: flex;
     align-items: center;
-    min-width: 900px;
     gap: 10px;
 }
 .file-upload input[type="file"] {
     display: none;
 }
 
-@media (max-width: 1305px) {
-    .file-section {
-        max-width: 700px;
-    }
-
-    /* .file-upload {
-        width: 300px;
-    } */
-
+@media (max-width: 1650px) {
     .file-label {
-        max-width: 500px !important;
+        max-width: 400px !important;
     }
 }
-@media (max-width: 1200px) {
+@media (max-width: 1400px) {
     /* .file-upload {
         width: 300px;
     } */
-
-    .file-label {
-        max-width: 300px !important;
+    .file-section {
+        display: flex;
+        flex-direction : column;
+        /* max-width: 700px; */
     }
+
+    /* .file-label {
+        max-width: 300px !important;
+    } */
 }
 @media (max-width: 770px) {
     .file-section {
-        max-width: 400px !important;
+        max-width: 350px !important;
     }
 
     .file-upload {
-        min-width: 400px !important;
+        min-width: 350px !important;
     }
 
     .file-label {
         font-size: 12px !important;
-        min-width: 300px;
+        min-width: 250px;
     }
 
     .file-button1 {
-        width: 60px !important;
+        width: 55px !important;
         font-size: 11px !important;
         padding: 0 5px !important;
     }
 
     .file-button2 {
-        width: 60px !important;
+        width: 35px !important;
         font-size: 11px !important;
         padding: 0 5px !important;
     }
@@ -108,7 +102,7 @@
     border: 1px solid #d2d2d2;
     border-radius: 4px;
     height: 40px;
-    width: 600px;
+    width: 500px;
     padding-left: 12px;
     font-size: 16px;
     color: #000;
@@ -124,7 +118,7 @@
 
 /* 파일 라벨 텍스트 */
 .file-label-text {
-    width: 80px;
+    width: 65px;
     flex-shrink: 0;
 }
 
@@ -149,7 +143,7 @@
     color: #333;
     /* color: white; */
     cursor: pointer;
-    width: 100px;
+    width: 80px;
     flex-shrink: 0;
 }
 
@@ -165,6 +159,6 @@
     /* color: white; */
     cursor: pointer;
     border-radius: 0 4px 4px 0;
-    width: 100px;
+    width: 60px;
     flex-shrink: 0;
 }

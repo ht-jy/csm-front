@@ -23,7 +23,7 @@ import "../../../assets/css/Search.css";
  * - width: 셀렉트박스 좌우길이
  * - fncSearchKeywords: 검색시 부모컴포넌트에서 값을 전달받기 위한 함수(~, :, | 의 구분자를 사용하여 하나의 텍스트로 전달 ex) "ALL:test|abc~column1:black|red|white~column2:react")
  */
-const Search = ({searchOptions=[], width, height="auto", fncSearchKeywords, retrySearchText, potalId }) => {
+const Search = ({searchOptions=[], width = "300px", height="auto", fncSearchKeywords, retrySearchText, potalId }) => {
     const [keyword, setKeyword] = useState([]);
     const [selectKey, setSelectKey] = useState("ALL");
     const [text, setText] = useState("");
