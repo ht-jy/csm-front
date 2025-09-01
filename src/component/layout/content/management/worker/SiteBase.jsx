@@ -412,7 +412,6 @@ const SiteBase = () => {
 
     // 프로젝트 모달의 row 클릭 이벤트
     const handleProjectRowClickReason = (item) => {
-        console.log(item);
 
         setSelectedProject(item);
         setReasonTitle("프로젝트 변경");
@@ -1451,7 +1450,7 @@ const SiteBase = () => {
                             }
                             <Search 
                                 searchOptions={searchOptions}
-                                width={"230px"}
+                                width={"300px"}
                                 fncSearchKeywords={handleRetrySearch}
                                 retrySearchText={retrySearchText}
                             /> 

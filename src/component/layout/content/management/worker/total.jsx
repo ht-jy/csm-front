@@ -538,7 +538,6 @@ const Total = () => {
                             }
                             <Search 
                                 searchOptions={searchOptions}
-                                width={"230px"}
                                 fncSearchKeywords={handleRetrySearch}
                                 retrySearchText={retrySearchText}
                             />                            
