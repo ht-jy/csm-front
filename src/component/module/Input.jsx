@@ -276,7 +276,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                             onClickRow={(item) => {siteInputChangeHandler(item)}} 
                             nonSite={isAll}
                         />
-                        <form className="input-group" style={{margin:"0px"}}>
+                        <form className="input-group" style={{margin:"0px", height:"40px"}}>
                             <input className="form-control" type="text" value={value.site_nm} placeholder="Site를 선택하세요" aria-label="Site를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearchSite} readOnly/>
                             {
                                 (value.sno && value.sno != 100 &&
@@ -326,7 +326,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                                         isAll={isAll}
                                     />
                             }
-                            <form className="input-group" style={{margin:"0px"}}>
+                            <form className="input-group" style={{margin:"0px", height:"40px"}}>
                                 <input className="form-control" type="text" value={value.job_name || ''} placeholder="Proejct를 선택하세요" aria-label="Proejct를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearchProject} readOnly/>
                                 {
                                     (value.job_name &&
