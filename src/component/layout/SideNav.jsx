@@ -67,17 +67,17 @@ const SideNav = () => {
                                         </Link>
                                     :
                                         <React.Fragment key={`parent-${idx}`}>
-                                            <a className="nav-link collapsed" href="#!" data-bs-toggle="collapse" data-bs-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth" style={item.is_temp === "N" ? {color: "white"} : {}}>
+                                            <a className="nav-link" href="#!" data-bs-toggle="collapse" data-bs-target={`#pagesCollapseAuth${idx}`} aria-expanded="true" aria-controls={`pagesCollapseAuth${idx}`} style={item.is_temp === "N" ? {color: "white"} : {}}>
                                                 <div className="sb-nav-link-icon"><img src={item.svg_name} width='20px' /></div>
                                                 {item.menu_nm}
                                                 <div className="sb-sidenav-collapse-arrow"><i className="fas fa-angle-down" /></div>
                                             </a>
-                                            <div className="collapse" id="pagesCollapseAuth" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
+                                            <div className="collapse show" id={`pagesCollapseAuth${idx}`} aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
                                                 <nav className="sb-sidenav-menu-nested nav">
                                                     {
                                                         state.childMenu.map((child, cidx) => (
                                                             item.menu_id === child.parent_id ?
-                                                                <Link key={`child-${idx}-${cidx}`} className={child.menu_id === location.pathname ? "nav-link nav-current" : "nav-link"} to={child.menu_id} style={{marginLeft: "0rem", color: item.is_temp === "N" ? "white": null}}>
+                                                                <Link key={`child-${idx}-${cidx}`} className={child.menu_id === location.pathname ? "nav-link nav-current" : "nav-link"} to={child.menu_id} style={{marginLeft: "0rem", paddingLeft:"2rem", color: item.is_temp === "N" ? "white": null}}>
                                                                     {child.menu_nm}
                                                                 </Link>
                                                             : null
