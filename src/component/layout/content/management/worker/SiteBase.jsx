@@ -293,7 +293,7 @@ const SiteBase = () => {
     // 실제 변경시도하는 로직은 다른 함수에 구현
     const onClickWorkHourBtn = () => {
         if(tableRef.current){
-            setModalTitle("일괄 공수 입력");
+            setModalTitle("공수 입력");
             const forwradRes = tableRef.current.getCheckedItemList();
             
             if(forwradRes.length === 0){
@@ -315,8 +315,8 @@ const SiteBase = () => {
     }
 
     const workHourSaveReason = () => {
-        setReasonTitle("일괄 공수 입력");
-        setReasonText("일괄 공수 입력 사유를 입력하여 주세요.");
+        setReasonTitle("공수 입력");
+        setReasonText("공수 입력 사유를 입력하여 주세요.");
         setReason("");
         setReasonConfirm(() => (reason) => workHourSave(reason));
         setIsReason(true);
@@ -327,7 +327,7 @@ const SiteBase = () => {
     const workHourSave = async(reason) => {
         if(tableRef.current){
             setIsReason(false);
-            setModalTitle("일괄 공수 입력");
+            setModalTitle("공수입력");
 
             let forwradRes
             forwradRes = tableRef.current.getCheckedItemList();
@@ -524,8 +524,8 @@ const SiteBase = () => {
 
     const deleteWorkersReason = () => {
         setIsDelWorker(false);
-        setReasonTitle("현장 근로자 삭제");
-        setReasonText("현장 근로자 삭제 사유를 입력하여 주세요.");
+        setReasonTitle("근로자 삭제");
+        setReasonText("근로자 삭제 사유를 입력하여 주세요.");
         setReason("");
         setReasonConfirm(() => (reason) => deleteWorkers(reason));
         setIsReason(true);
@@ -687,9 +687,9 @@ const SiteBase = () => {
     // 마감 취소
     const deadlineCancel = async(reason) => {
         // 마감 취소 사유입력 사용 o
-        // setIsReason(false);
+        setIsReason(false);
         // 마감 취소 사유입력 사용 x
-        setIsDeadlineCancel(false);
+        // setIsDeadlineCancel(false);
 
         if(tableRef.current){
             const selectWorkers = tableRef.current.getCheckedItemList();
@@ -918,7 +918,7 @@ const SiteBase = () => {
     const getData = async () => {
         if (project === null) {
             setIsModal(true);
-            setModalTitle("현장 근로자 조회");
+            setModalTitle("근로자 조회");
             setModalText("프로젝트를 선택해주세요.");
             dispatch({type: "EMPTY"});
             return;
@@ -933,7 +933,7 @@ const SiteBase = () => {
             if (res?.data?.result === "Success") {
                 if(res?.data?.values?.list.length === 0) {
                     setIsModal(true);
-                    setModalTitle("현장 근로자 조회");
+                    setModalTitle("근로자 조회");
                     setModalText("조회된 현장 근로자 데이터가 없습니다.");
                 }
                 dispatch({ type: "INIT", list: res?.data?.values?.list, count: res?.data?.values?.count, loginCompany: loginCompany });
@@ -1012,8 +1012,8 @@ const SiteBase = () => {
 
     // 업로드 사유
     const dailyWorkerExcelImportReason = () => {
-        setReasonTitle("현장 근로자 엑셀 업로드");
-        setReasonText("현장 근로자 엑셀 업로드 사유를 입력하여 주세요.");
+        setReasonTitle("근로자 엑셀 업로드");
+        setReasonText("근로자 엑셀 업로드 사유를 입력하여 주세요.");
         setReason("");
         setReasonConfirm(() => () => inputFileOpen());
         setIsReason(true);
@@ -1233,10 +1233,11 @@ const SiteBase = () => {
                 text={modalText}
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
+                isConfirmFocus = {true}
             />
             <SelectModal
                 isOpen={isDeadlineSelect}
-                title={"일괄마감"}
+                title={"마감"}
                 text={"마감유형을 선택하세요."}
                 first={"전체 마감"}
                 fncFirst={() => workerDeadlineReason("ALL")}
@@ -1247,7 +1248,7 @@ const SiteBase = () => {
             />
             <Modal
                 isOpen={isDeadlineModal}
-                title={"일괄마감"}
+                title={"마감"}
                 text={"마감처리를 하시겠습니까?"}
                 confirm={"예"}
                 fncConfirm={workerDeadlineReason}
@@ -1266,15 +1267,22 @@ const SiteBase = () => {
             <Modal
                 isOpen={isWorkHour}
                 title={"공수 입력"}
-                text={"저장할 공수를 입력해 주세요.\n※ 공수 입력 후 마감처리를 하지 않으면 자정 이후에 프로젝트 설정에 따라 입력한 공수가 변경될 수 있습니다."}
                 content={
-                    <DigitFormattedInput
-                        initNum={workHour}
-                        setNum={(num) => setWorkHour(num)}
-                        format="1.3"
-                        step={0.1}
-                        style={{width: "100%"}}
-                    />
+                    <div className="d-flex flex-column align-items-center gap-2 mb-3">
+                        <div>※ 공수 입력 후 마감처리를 하지 않으면 자정 이후에</div>
+                        <div> 프로젝트 설정에 따라 입력한 공수가 변경될 수 있습니다.</div>
+
+                        <div className="d-flex align-items-center gap-1 fw-bold">
+                            {"저장할 공수 "}
+                            <DigitFormattedInput
+                                initNum={workHour}
+                                setNum={(num) => setWorkHour(num)}
+                                format="1.3"
+                                step={0.1}
+                                style={{width: "5rem", marginLeft:"1rem"}}
+                            />
+                        </div>
+                    </div>
                 }
                 confirm={"확인"}
                 fncConfirm={() => workHourSaveReason()}
@@ -1283,7 +1291,7 @@ const SiteBase = () => {
             />
             <Modal
                 isOpen={isDelWorker}
-                title={"현장 근로자 삭제"}
+                title={"근로자 삭제"}
                 text={"선택한 근로자를 삭제 하시겠습니까?\n삭제한 기록은 복구하실 수 없습니다."}
                 confirm={"예"}
                 fncConfirm={deleteWorkersReason}
@@ -1296,19 +1304,20 @@ const SiteBase = () => {
                 text={"선택한 근로자를 마감취소 하시겠습니까?"}
                 confirm={"예"}
                 // 마감 취소 사유입력 사용 o
-                // fncConfirm={deadlineCancelReason}
+                fncConfirm={deadlineCancelReason}
                 // 마감 취소 사유입력 사용 x
-                fncConfirm={deadlineCancel}
+                // fncConfirm={deadlineCancel}
                 cancel={"아니요"}
                 fncCancel={() => setIsDeadlineCancel(false)}
             />
             <Modal
                 isOpen={isWorkerExcel}
-                title={"현장 근로자 엑셀 업로드"}
+                title={"근로자 엑셀 업로드"}
                 text={workerExcelText}
                 confirm={"확인"}
                 fncConfirm={() => fncWorkerExcelFile()}
                 align="left"
+                isConfirmFocus = {true}
             />
             <SearchProjectModal
                 isOpen={isProjectModal}
@@ -1353,7 +1362,7 @@ const SiteBase = () => {
             />
             <Modal
                 isOpen={isSuccessWorker}
-                title={"현장 근로자 엑셀 업로드"}
+                title={"근로자 엑셀 업로드"}
                 content={
                     <div className="table-wrapper" style={{marginBottom: "10px"}}>
                         <div className="table-container" id="table-container" style={{overflow: "auto", maxHeight: "calc(100vh - 350px)"}}>
@@ -1370,6 +1379,7 @@ const SiteBase = () => {
                 confirm={"확인"}
                 fncConfirm={onClickWorkerModalConfirm}
                 width="1000px"
+                isConfirmFocus = {true}
             />
             <div>
                 <div className="container-fluid px-4">
@@ -1398,7 +1408,7 @@ const SiteBase = () => {
                                 // :   state.list.length > 0 ?
                                 :   project !== null ?
                                         <>
-                                            { isRoleValid(workerRoles.SITE_WORKER_HISTORY) && <Button text={"변경이력"} onClick={() => setIsHistory(true)} /> }
+                                           { isRoleValid(workerRoles.SITE_WORKER_HISTORY) && <Button text={"변경이력"} onClick={() => setIsHistory(true)} /> }
                                            { isRoleValid(workerRoles.SITE_WORKER_RECORD_INFO_DOWNLOAD) && <Button text={"근태 다운로드"} onClick={onClickRecordData} />}
                                            { isRoleValid(workerRoles.SITE_WORKER_EXCEL_UPLOAD) && <Button text={"근태 업로드"} onClick={dailyWorkerExcelImport} /> }
                                            { isRoleValid(workerRoles.SITE_WORKER_FORM_DOWNLOAD) && <Button text={"양식 다운로드"} onClick={getDailyWorkerFormExport} /> }
