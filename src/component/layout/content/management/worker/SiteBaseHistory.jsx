@@ -41,20 +41,20 @@ const SiteBaseHistory = ({isOpen, fncExit, startDate, endDate, checkList}) => {
 
     // 테이블 필드
     const columns = useMemo(() => [
-        { isSearch: false, isOrder: false, width: "60px", header: "유형", itemName: "reason_type", bodyAlign: "center", isEllipsis: false, rowSpan: 2 },
-        { isSearch: false, isOrder: false, width: "80px", header: "아이디", itemName: "user_id", bodyAlign: "center", isEllipsis: false , rowSpan: 2},
-        { isSearch: false, isOrder: false, width: "50px", header: "이름", itemName: "user_nm", bodyAlign: "center", isEllipsis: false, rowSpan: 2 },
-        { isSearch: false, isOrder: false, width: "70px", header: "날짜", itemName: "record_date", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'format', rowSpan: 2 },
-        { isSearch: false, isOrder: false, width: "100px", header: "변경일시", itemName: "reg_date", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'formatDateTime', rowSpan: 2 },
-        { isSearch: false, isOrder: false, width: "30px", header: "변경", itemName: "his_name", bodyAlign: "center", isEllipsis: false },
-        { isSearch: false, isOrder: false, width: "190px", header: "프로젝트명", itemName: "job_name", bodyAlign: "left", isEllipsis: false },
-        { isSearch: false, isOrder: false, width: "70px", header: "출근시간", itemName: "in_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'formatTime24' },
-        { isSearch: false, isOrder: false, width: "70px", header: "퇴근시간", itemName: "out_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'formatTime24' },
-        { isSearch: false, isOrder: false, width: "50px", header: "상태", itemName: "work_state", bodyAlign: "center", isEllipsis: false },
-        { isSearch: false, isOrder: false, width: "50px", header: "공수", itemName: "work_hour", bodyAlign: "center", isEllipsis: false },
-        { isSearch: false, isOrder: false, width: "50px", header: "철야", itemName: "is_overtime", bodyAlign: "center", isEllipsis: false, isChecked: true},
-        { isSearch: false, isOrder: false, width: "50px", header: "마감", itemName: "is_deadline", bodyAlign: "center", isEllipsis: false, isChecked: true },
-        { isSearch: false, isOrder: false, width: "250px", header: "변경사유", itemName: "reason", bodyAlign: "left", isEllipsis: false, rowSpan: 2 },
+        { isSearch: false, isOrder: false, width: "65px", header: "유형", itemName: "reason_type", bodyAlign: "center", isEllipsis: true, rowSpan: 2 },
+        { isSearch: false, isOrder: false, width: "75px", header: "아이디", itemName: "user_id", bodyAlign: "center", isEllipsis: false , rowSpan: 2},
+        { isSearch: false, isOrder: false, width: "45px", header: "이름", itemName: "user_nm", bodyAlign: "center", isEllipsis: false, rowSpan: 2 },
+        { isSearch: false, isOrder: false, width: "75px", header: "날짜", itemName: "record_date", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'format', rowSpan: 2 },
+        { isSearch: false, isOrder: false, width: "95px", header: "변경일시", itemName: "reg_date", bodyAlign: "center", isEllipsis: true, isDate: true, dateFormat: 'formatDateTime', rowSpan: 2,  },
+        { isSearch: false, isOrder: false, width: "40px", header: "변경", itemName: "his_name", bodyAlign: "center", isEllipsis: false },
+        { isSearch: false, isOrder: false, width: "155px", header: "프로젝트명", itemName: "job_name", bodyAlign: "left", isEllipsis: true },
+        { isSearch: false, isOrder: false, width: "55px", header: "출근시간", itemName: "in_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'formatTime24' },
+        { isSearch: false, isOrder: false, width: "55px", header: "퇴근시간", itemName: "out_recog_time", bodyAlign: "center", isEllipsis: false, isDate: true, dateFormat: 'formatTime24' },
+        { isSearch: false, isOrder: false, width: "45px", header: "상태", itemName: "work_state", bodyAlign: "center", isEllipsis: false },
+        { isSearch: false, isOrder: false, width: "35px", header: "공수", itemName: "work_hour", bodyAlign: "center", isEllipsis: false },
+        { isSearch: false, isOrder: false, width: "35px", header: "철야", itemName: "is_overtime", bodyAlign: "center", isEllipsis: false, isChecked: true},
+        { isSearch: false, isOrder: false, width: "35px", header: "마감", itemName: "is_deadline", bodyAlign: "center", isEllipsis: false, isChecked: true },
+        { isSearch: false, isOrder: false, width: "155px", header: "변경사유", itemName: "reason", bodyAlign: "left", isEllipsis: true, rowSpan: 2 },
     ], []);
 
     // 검색 옵션
@@ -72,12 +72,12 @@ const SiteBaseHistory = ({isOpen, fncExit, startDate, endDate, checkList}) => {
         "추가": "01",
         "수정": "02|08",
         "마감": "03|07|08",
-        "일괄공수입력": "04",
+        "공수입력": "04",
         "프로젝트변경": "05",
         "삭제": "06",
         "마감취소": "07",
         "취소": "07",
-        "엑셀업로드": "09",
+        "근태업로드": "09",
         "엑셀": "09",
         "업로드": "09",
     };
@@ -310,12 +310,13 @@ const modalStyle = {
     backgroundColor: '#fff',
     padding: '5px',
     borderRadius: '8px',
-    // maxWidth: '1300px',
+    maxWidth: '1300px',
     width: '95%',
     maxHeight: '900px',
     height: '90%',
     boxShadow: '15px 15px 1px rgba(0, 0, 0, 0.3)',
     margin: '10px',
+
 };
 
 export default SiteBaseHistory;

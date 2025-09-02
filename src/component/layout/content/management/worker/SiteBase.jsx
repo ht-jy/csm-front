@@ -1265,7 +1265,7 @@ const SiteBase = () => {
             />
             <Modal
                 isOpen={isWorkHour}
-                title={"일괄 공수 입력"}
+                title={"공수 입력"}
                 text={"저장할 공수를 입력해 주세요.\n※ 공수 입력 후 마감처리를 하지 않으면 자정 이후에 프로젝트 설정에 따라 입력한 공수가 변경될 수 있습니다."}
                 content={
                     <DigitFormattedInput
@@ -1292,7 +1292,7 @@ const SiteBase = () => {
             />
             <Modal
                 isOpen={isDeadlineCancel}
-                title={"마감 취소"}
+                title={"마감취소"}
                 text={"선택한 근로자를 마감취소 하시겠습니까?"}
                 confirm={"예"}
                 // 마감 취소 사유입력 사용 o
@@ -1398,9 +1398,10 @@ const SiteBase = () => {
                                 // :   state.list.length > 0 ?
                                 :   project !== null ?
                                         <>
-                                           { isRoleValid(workerRoles.SITE_WORKER_RECORD_INFO_DOWNLOAD) && <Button text={"근태정보 다운로드"} onClick={onClickRecordData} />}
-                                           { isRoleValid(workerRoles.SITE_WORKER_FORM_DOWNLOAD) && <Button text={"엑셀 양식"} onClick={getDailyWorkerFormExport} /> }
-                                           { isRoleValid(workerRoles.SITE_WORKER_EXCEL_UPLOAD) && <Button text={"엑셀 업로드"} onClick={dailyWorkerExcelImport} /> }
+                                            { isRoleValid(workerRoles.SITE_WORKER_HISTORY) && <Button text={"변경이력"} onClick={() => setIsHistory(true)} /> }
+                                           { isRoleValid(workerRoles.SITE_WORKER_RECORD_INFO_DOWNLOAD) && <Button text={"근태 다운로드"} onClick={onClickRecordData} />}
+                                           { isRoleValid(workerRoles.SITE_WORKER_EXCEL_UPLOAD) && <Button text={"근태 업로드"} onClick={dailyWorkerExcelImport} /> }
+                                           { isRoleValid(workerRoles.SITE_WORKER_FORM_DOWNLOAD) && <Button text={"양식 다운로드"} onClick={getDailyWorkerFormExport} /> }
                                            { isRoleValid(workerRoles.SITE_WORKER_MOD) && <Button text={"수정"} onClick={onClickEditBtn} /> }
                                             <input ref={(e) => (excelRefs.current = e)} type="file" id="fileInput" accept=".xlsx, .xls" onChange={(e) => excelUpload(e)} style={{display: "none"}}/>                              
                                         </>
@@ -1427,16 +1428,15 @@ const SiteBase = () => {
                         <div className="table-header-left" style={{gap:"10px"}}>
 
                             <div>
-                                조회기간 <DateInput time={searchStartTime} setTime={(value) => onChangeSearchStartTime(value)}></DateInput> ~ <DateInput time={searchEndTime} setTime={(value) => onChangeSearchEndTime(value)}></DateInput>
+                                조회일 <DateInput time={searchStartTime} setTime={(value) => onChangeSearchStartTime(value)}></DateInput> ~ <DateInput time={searchEndTime} setTime={(value) => onChangeSearchEndTime(value)}></DateInput>
                                 {
                                     !isEdit && state.list.length > 0 ?
                                         <>
-                                            { isRoleValid(workerRoles.SITE_WORKER_BATCH_DEADLINE) && <Button text={"일괄마감"} onClick={onClickDeadLineBtn} /> }
+                                            { isRoleValid(workerRoles.SITE_WORKER_BATCH_DEADLINE) && <Button text={"마감"} onClick={onClickDeadLineBtn} /> }
                                             { isRoleValid(workerRoles.SITE_WORKER_BATCH_WORK_HOUR) && <Button text={"공수입력"} onClick={onClickWorkHourBtn} /> }
                                             { isRoleValid(workerRoles.SITE_WORKER_TRANS_PROJECT) && <Button text={"프로젝트 변경"} onClick={onClickModProjectBtn} /> }
                                             { isRoleValid(workerRoles.SITE_WORKER_DEL) && <Button text={"근로자 삭제"} onClick={onClickDeleteWorkerBtn} /> }
-                                            { isRoleValid(workerRoles.SITE_WORKER_CANCEL_DEADLINE) && <Button text={"마감 취소"} onClick={onClickDeadlineCancelBtn} /> }
-                                            { isRoleValid(workerRoles.SITE_WORKER_HISTORY) && <Button text={"변경 이력"} onClick={() => setIsHistory(true)} /> }
+                                            { isRoleValid(workerRoles.SITE_WORKER_CANCEL_DEADLINE) && <Button text={"마감취소"} onClick={onClickDeadlineCancelBtn} /> }
                                         </>
                                     : null
                                 }
