@@ -92,19 +92,19 @@ const Device = () => {
         { type: "hidden", value: "" },
         { type: "text", span: "double", width: "110px", label: "장치명", value: "", isRequired: true },
         { type: "text", span: "double", width: "110px", label: "시리얼번호", value: "", isRequired: true },
-        { type: "site", span: "full", width: "110px", label: "현장이름", value: {sno: 100, site_nm:"미지정", isSite: false}, isRequired: true, isAll: true },
-        { type: "project-device", span: "full", width: "110px", label: "프로젝트이름", value: {}, isRequired: true, isAll: true },
+        { type: "site", span: "full", width: "110px", label: "현장이름", value: {sno: 100, site_nm:"미지정", isSite: false}, isRequired: false, isAll: true },
+        { type: "project-device", span: "full", width: "110px", label: "프로젝트이름", value: {}, isRequired: false, isAll: true },
         // { type: "checkbox", span: "double", width: "110px", label: "사용여부", value: "", checkedLabel: "사용중|사용안함" },
         { type: "text", span: "full", width: "110px", label: "비고", value: "" },
     ];
 
     const columns = [
         { isSearch: false, isOrder: true, isSlide: true, header: "순번", width: "30px", itemName: "rnum", bodyAlign: "center", isDate: false, isEllipsis: false, type: "number" },
-        { isSearch: true, isOrder: true, isSlide: false, header: "장치명", width: "60px", itemName: "device_nm", bodyAlign: "left", isDate: false, isEllipsis: false },
+        { isSearch: true, isOrder: true, isSlide: false, header: "장치명", width: "80px", itemName: "device_nm", bodyAlign: "left", isDate: false, isEllipsis: false },
         { isSearch: true, isOrder: true, isSlide: false, header: "시리얼번호", width: "80px", itemName: "device_sn", bodyAlign: "left", isDate: false, isEllipsis: false },
         { isSearch: true, isOrder: true, isSlide: false, header: "현장이름", width: "150px", itemName: "site_nm", bodyAlign: "left", isDate: false, isEllipsis: true },
         { isSearch: false, isOrder: false, isSlide: false, header: "프로젝트명", width: "150px", itemName: "job_name", bodyAlign: "left", isDate: false, isEllipsis: true },
-        { isSearch: true, isOrder: true, isSlide: false, header: "비고", width: "150px", itemName: "etc", bodyAlign: "left", isDate: false, isEllipsis: true },
+        { isSearch: true, isOrder: true, isSlide: false, header: "비고", width: "100px", itemName: "etc", bodyAlign: "left", isDate: false, isEllipsis: true },
         // { isSearch: true, isOrder: true, isSlide: true, header: "사용여부", width: "50px", itemName: "is_use", bodyAlign: "center", isDate: false, isEllipsis: false },
         { isSearch: false, isOrder: true, isSlide: true, header: "최초 생성일시", width: "60px", itemName: "reg_date", bodyAlign: "center", isDate: true, isEllipsis: false, dateFormat: "format" },
         { isSearch: false, isOrder: true, isSlide: true, header: "최종 수정일시", width: "60px", itemName: "mod_date", bodyAlign: "center", isDate: true, isEllipsis: false, dateFormat: "format" },
@@ -173,8 +173,8 @@ const Device = () => {
             device_nm: item[1].value || "",
             device_sn: item[2].value || "",
             sno: item[3].value.sno || 0,
-            jno: item[4].value.jno || 0,
-            // is_use: item[4].value || "",
+            jno: item[4].value.jno || null,
+            is_use: "Y",
             etc: item[5].value || "",
             reg_user: user.userId || "",
             mod_user: user.userId || "",
@@ -194,31 +194,22 @@ const Device = () => {
             setModal2Text("시리얼번호를 입력해주세요.")
             return
 
-        // 현장이름 미선택 시
-        }else if (device.sno === 0) {
-            setIsModal2(true)
-            setModal2Title("입력 오류")
-            setModal2Text("현장을 선택해주세요.")
-            return
-        // 프로젝트 미선택 시
-        }else if (device.jno === 0) {
-            setIsModal2(true)
-            setModal2Title("입력 오류")
-            setModal2Text("프로젝트를 선택해주세요.")
-            return
         }
-
-        // const param = {
-        //     time: dateUtil.format(Date.now(), 'yyyy-MM-dd HH:mm:ss'),
-        //     menu: "device",
-        //     user_name: user.userName||"",
-        //     user_uno: user.uno||0,
-        //     record: {
-        //         before: state.list.find(item => item.dno === device.dno)||{},
-        //         after: device,
-        //     },
-        //     item: device,
+        
+        // // 현장이름 미선택 시
+        // else if (device.sno === 0) {
+        //     setIsModal2(true)
+        //     setModal2Title("입력 오류")
+        //     setModal2Text("현장을 선택해주세요.")
+        //     return
+        // // 프로젝트 미선택 시
+        // }else if (device.jno === 0) {
+        //     setIsModal2(true)
+        //     setModal2Title("입력 오류")
+        //     setModal2Text("프로젝트를 선택해주세요.")
+        //     return
         // }
+
         const param = createLogParam({
             menu: "device", 
             before: state.list.find(item => item.dno === device.dno)||{}, 
@@ -417,7 +408,6 @@ const Device = () => {
                 <div className="container-fluid px-4">
                     <ol className="breadcrumb mb-2 content-title-box">
                         <li className="breadcrumb-item content-title">인식기 관리</li>
-                        <li className="breadcrumb-item active content-title-sub">관리</li>
                         <div className="table-header-right">
                             {isRoleValid(DeviceRoles.ADD_BTN) && <Button text={"추가"} onClick={() => handleGridModal("SAVE")} />}
                         </div>
@@ -499,7 +489,6 @@ const Device = () => {
                             }
                             <Search 
                                 searchOptions={searchOptions}
-                                width={"230px"}
                                 fncSearchKeywords={handleRetrySearch}
                                 retrySearchText={retrySearchText}
                             />
