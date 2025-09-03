@@ -79,15 +79,15 @@ const NonUsedProjectModal = ({isOpen=false, fncExit, onClickRow}) => {
     // 프로젝트 조회
     /* E: 설계, P: 구매, C: 공사, T: EPC전체(TurnKey) */
     const getData = (value) => {
-        if(value === "1"){ // 전체
-            getAllData();
-        }else if (value === "2") { // T
+    
+        if (value === "1") { // T
             getFilterData("T");
-        } else if (value === "3") { // C
+        } else if (value === "2") { // C
             getFilterData("C");
+        } else if(value === "3"){ // 전체
+            getAllData();
         }
     }
-
     // 모든 데이터 조회
     const getAllData = async () => {
         try{
@@ -182,9 +182,9 @@ const NonUsedProjectModal = ({isOpen=false, fncExit, onClickRow}) => {
 
                             <div className="table-header">
                                 <div className="table-header-left" style={{gap:"1rem", marginLeft:"1rem"}}>
-                                    <Radio text="전체(ALL)" value="1" name="group1" defaultChecked={selectedValue === "1"} onChange={handleRadioChange}/>
-                                    <Radio text="EPC(T)" value="2" name="group1" defaultChecked={selectedValue === "2"} onChange={handleRadioChange}/>
-                                    <Radio text="공사(C)" value="3" name="group1" defaultChecked={selectedValue === "3"} onChange={handleRadioChange}/>
+                                    <Radio text="TurnKey(T)" value="1" name="group1" defaultChecked={selectedValue === "1"} onChange={handleRadioChange}/>
+                                    <Radio text="공사(C)" value="2" name="group1" defaultChecked={selectedValue === "2"} onChange={handleRadioChange}/>
+                                    <Radio text="전체(ALL)" value="3" name="group1" defaultChecked={selectedValue === "3"} onChange={handleRadioChange}/>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: "right", marginTop: "5px", marginBottom: "5px", height: "40px" }}>
                                     {

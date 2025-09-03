@@ -435,16 +435,16 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                         fncExit={() => setAddressSearchOpen(false)}
                         fncChangeData={(data) => {setAddress(data)}}
                      />
-                        <div className="modalHeader">
+                        <div className="modal-header">
                             {/* 왼쪽 - 제목 */}
                             {
                                 isEdit ? 
                                     <input className="title-input" type="text" value={siteName} onChange={onChangeTitle}/>
-                                :   <h2 style={h2Style}>{siteName}</h2>
+                                :   <h2>{siteName}</h2>
                             }
 
                             {/* 오른쪽 - 버튼 & 닫기 아이콘 */}
-                            <div style={{ display: 'flex', alignItems: 'center', paddingBottom: "15px" }}>
+                            <div style={{ display: 'flex', alignItems: 'center'}}>
                                 {
                                     isEdit || isSiteAdd ?
                                         <div>
@@ -474,7 +474,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                                 
 
                                 <div onClick={handleExit} style={{ cursor: "pointer" }}>
-                                    <img src={Exit} style={{ width: "35px", paddingBottom: '5px' }} alt="Exit" />
+                                    <img src={Exit} style={{ width: "35px" }} alt="Exit" />
                                 </div>
                             </div>
                         </div>
@@ -539,12 +539,6 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
             ) : null}
         </div>
     );
-};
-
-const h2Style = {
-    minHeight: '50px',
-    fontSize: '25px',
-    paddingTop: '5px',
 };
 
 const buttonDivStyle = {
