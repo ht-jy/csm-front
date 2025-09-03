@@ -37,24 +37,25 @@ import { useUserRole } from "../../../../../utils/hooks/useUserRole";
 import { scheduleRoles } from "../../../../../utils/rolesObject/scheduleRoles";
 import Radio from "../../../../module/Radio";
 import NumberInput from "../../../../module/NumberInput";
+import DigitFormattedInput from "../../../../module/DigitFormattedInput";
 
 /**
  * @description: 일정 - 휴무일, 작업내용을 달력 형태로 확인 / 휴무일, 작업내용, 프로젝트 공정률, 프로젝트 장비 수정
  * 
  * @author 작성자: 김진우
  * @created 작성일: 2025-04-28
- * @modified 최종 수정일: 2025-07-25
+ * @modified 최종 수정일: 2025-09-03
  * @modifiedBy 최종 수정자: 정지영
  * @modified description:
  * 2025-07-14: 공정률 확인 및 수정 추가. 해당 날짜의 레코드가 없으면 수정이 불가. 이에 대한 연락시 공정률 테이블에 레코드 삽입
  * 2025-07-25: 공정률 월별로 조회하도록 변경, 공정률 수정 및 작업내용 추가 마감기한에 따라 제한
- * 
+ * 2025-09-03: 공정률 모달에 장비도 수정 가능하도록 추가
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /api/rest-date (공휴일 조회), /schedule/rest (휴무일 조회), /schedule/daily-job (작업내용 조회), /site/work-rate (날짜별 현장 공정률 조회), /site/work-rate/{jno}/{date} (공정률 월별 조회), /project-setting/{jno} (프로젝트 설정정보)
+ *    Http Method - GET : /api/rest-date (공휴일 조회), /schedule/rest (휴무일 조회), /schedule/daily-job (작업내용 조회), /site/work-rate (날짜별 현장 공정률 조회), /site/work-rate/{jno}/{date} (공정률 월별 조회), /project-setting/{jno} (프로젝트 설정정보), /equip/all (장비 조회)
  *    Http Method - POST : /schedule/rest (휴무일 저장), /schedule/daily-job (작업내용 저장) 
- *    Http Method - PUT : /schedule/rest (휴무일 수정), /schedule/daily-job (작업내용 수정), /site/work-rate (공정률 수정)
+ *    Http Method - PUT : /schedule/rest (휴무일 수정), /schedule/daily-job (작업내용 수정), /site/work-rate (공정률 수정), /equip (장비 수정)
  *    Http Method - DELETE : /schedule/rest${item.cno} (휴무일 삭제), /schedule/daily-job${item.cno} (작업내용 삭제)
  * - 주요 상태 관리: 
  */
@@ -105,7 +106,6 @@ const Schedule = () => {
     const [weatherPopupPosition, setWeatherPopupPosition] = useState({ top: 0, left: 0 });
     // 설정 모달
     const [isSettingModal, setIsSettingModal] = useState();   // 변경 모달
-    const [selectedSettingValue, setSelectedSettingValue] = useState("equip");   // 공정률 또는 장비수정 라디오버튼
     const [workRate, setWorkRate] = useState(0);            // 변경할 공정률 데이터
     const [workRates, setWorkRates] = useState([]);
     const [equip, setEquip] = useState(null);
@@ -696,18 +696,30 @@ const Schedule = () => {
     }
 
     /***** 설정: 공정률, 장비 수 *****/
+    
+    // 초기 데이터와 변경 데이터 비교를 위해서 저장
+    const initSettingData = {
+        workRate : 0,
+        equipCnt : 0,
+    }; 
+    
+    // 설정 아이콘 틀릭 이벤트
     const onClickSetting = (date) => {
         if(project == null) return;
         const workRate = getDailyWorkRate(date);
-        setWorkRate(workRate);
-        setEquip(getDailyEquip(date));
-        setIsSettingModal(true);
-        setClickDate(date);
+        const dailyEquip = getDailyEquip(date);
+        initSettingData["workRate"] = workRate.work_rate;
+        initSettingData["equipCnt"] = dailyEquip.cnt;
+
+        setWorkRate(workRate); // 공정률 저장
+        setEquip(dailyEquip); // 장비 저장
+        setIsSettingModal(true); // 설정 모달 open
+        setClickDate(date); // 선택한 날짜
     }
 
     // 장비수 가져오기
     const getDailyEquip = (date) => {
-        const strDate = dateUtil.format(date)
+        const strDate = dateUtil.format(date);
 
         const filterEquip = equips.filter(item => 
             strDate === dateUtil.format(new Date(item.record_date))
@@ -720,7 +732,7 @@ const Schedule = () => {
                 jno: project?.jno || 0,
                 record_date : dateUtil.parseToGo(strDate),
                 cnt : 0
-            }
+            };
         }else{
             daliyEquip = {...filterEquip[0]};
         } 
@@ -728,9 +740,6 @@ const Schedule = () => {
         return daliyEquip;
     }
     
-    const handleRadioChange = (event) => {
-        setSelectedSettingValue(event.target.value);
-    };
 
     // 장비수 조회
     const getEquips = async() => {
@@ -740,7 +749,7 @@ const Schedule = () => {
         try {
             const res = await Axios.GET(`/equip/all?jno=${project.jno}&sno=${project.sno}`);
             if (res?.data?.result === "Success") {
-                setEquips(res?.data?.values?.list || [])
+                setEquips(res?.data?.values?.list || []);
             }else{
                 setModalText("장비 수 조회에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.\n");
                 setModalTitle("설정");
@@ -782,7 +791,7 @@ const Schedule = () => {
 
     // 공정률 변경 이벤트
     const onChangeWorkRageValue = (value) => {
-        const formatValue = Common.sanitizeNumberInput(value);
+        const formatValue = value;
         setWorkRate(prev => 
             { return {...prev, work_rate:formatValue}});
     }
@@ -796,75 +805,60 @@ const Schedule = () => {
     }
 
     // 설정 저장
-    const clickSaveSetting = () => {
-        if (selectedSettingValue === "equip"){
-            modifyEquip();
-        }else if (selectedSettingValue === "work-rate"){
-            modifyWorkRate();
-        }
-    }
-
-    // 장비수 저장
-    const modifyEquip = async() => {
+    const clickSaveSetting = async () => {
         setIsSettingModal(false);
-        if(project === null) return;
-
+        if(project === null) return false;
         setIsLoading(true);
-        try {
-            equip.reg_uno = user.uno
-            equip.reg_user = user.userName
-            const res = await Axios.POST(`/equip`, equip);
 
-            if (res?.data?.result === "Success") {
-                setModalText("장비 수정에 성공하였습니다.");
-                getEquips();
-            }else{
-                setModalText("장비 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.\n");
-            }
-        } catch(err) {
-            navigate("/error");
-        } finally {
-            setModalTitle("설정");
-            setIsModal(true);
-            setIsLoading(false);
-        }
-    }
-
-    // 공정률 저장
-    const modifyWorkRate = async() => {
-        setIsSettingModal(false);
-        if(project === null) return;
-
-        setIsLoading(true);
         try {
 
-            const param = {
-                sno: project.sno || 0,
-                jno: project.jno || 0,
-                work_rate: workRate.work_rate || 0,
-                search_date: dateUtil.format(workRate.record_date) || "",
-                mod_user: user.userName,
-                mod_uno: user.uno,
-            };
-
+            // 장비 수정
             var res;
-            if(workRate?.is_work_rate === 'N'){
-                // 공정률 레코드가 없는 경우 바로 추가할 때 필요한 코드
-                if ( !ObjChk.all(project.sno) && !ObjChk.all(project.jno)){
-                    res = await Axios.POST(`/site/work-rate`, param);
+            if (initSettingData.equipCnt !== equip.cnt){
+         
+                equip.reg_uno = user.uno;
+                equip.reg_user = user.userName;
+                res = await Axios.POST(`/equip`, equip);
+                if (res?.data?.result === "Success") {
+                    getEquips();
                 }else{
-                    setModalText("공정률을 수정할 수 없습니다.\n관리자에게 문의하여 주세요.\n");
+                    setModalText("설정 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.\n");
                     return;
                 }
-            }else {
-                res = await Axios.PUT(`/site/work-rate`, param);
             }
 
-            if (res?.data?.result === "Success") {
-                getWorkRates();
-                setModalText("공정률 수정에 성공하였습니다.");
-            }else{
-                setModalText("공정률 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.\n");
+            // 공정률 수정
+            res = null;
+            if (initSettingData.workRate !== workRate.work_rate){
+                
+                const param = {
+                    sno: project.sno || 0,
+                    jno: project.jno || 0,
+                    work_rate: workRate.work_rate || 0,
+                    search_date: dateUtil.format(workRate.record_date) || "",
+                    mod_user: user.userName,
+                    mod_uno: user.uno,
+                };
+
+                if(workRate?.is_work_rate === 'N'){
+                    // 공정률 레코드가 없는 경우 바로 추가할 때 필요한 코드
+                    if ( !ObjChk.all(project.sno) && !ObjChk.all(project.jno)){
+                        res = await Axios.POST(`/site/work-rate`, param);
+                    }else{
+                        setModalText("설정을 수정할 수 없습니다.\n관리자에게 문의하여 주세요.\n");
+                        return;
+                    }
+                }else {
+                    res = await Axios.PUT(`/site/work-rate`, param);
+                }
+
+                if (res?.data?.result === "Success") {
+                    getWorkRates();
+                    setModalText("설정 수정에 성공하였습니다.");
+                }else{
+                    setModalText("설정 수정에 실패하였습니다.\n잠시 후에 다시 시도하거나 관리자에게 문의해주세요.\n");
+                    return;
+                }
             }
         } catch(err) {
             navigate("/error");
@@ -988,26 +982,27 @@ const Schedule = () => {
                 content={
                     <div>
                         <div className="d-flex gap-3">
-                            <Radio text="장비" value="equip" name="group1" checked={selectedSettingValue === "equip"}  onChange={handleRadioChange}/>
-                            <Radio text="공정률" value="work-rate" name="group1" checked={selectedSettingValue === "work-rate"}  onChange={handleRadioChange}/>
                             <div className="me-1 ms-auto">날짜: {dateUtil.format(clickDate)}</div>
 
                         </div>
-                        
-                        { selectedSettingValue === "equip" ?
                             <div className="read-only-input p-0 my-3" >
-                                <input className="slider-input" type="text" value={equip?.cnt || 0} onChange={(e) => onChangeEquipValue(e.target.value)} style={{height: "30px", width: "50px", textAlign: "right", paddingRight: "5px"}}/>
+                                <label className="detail-text-label" style={{width: "5rem" }}>
+                                    장비 
+                                </label>
+                                <input className="slider-input" type="text" value={equip?.cnt || 0} onChange={(e) => onChangeEquipValue(e.target.value)} style={{height: "30px", width: "5rem", textAlign: "right", paddingRight: "5px"}}/>
                                 {/* <NumberInput className="slider-input" initNum={equips?.cnt} setNum={(num) => onChangeEquipValue(num)} style={{height: "30px", width: "50px", textAlign: "right", paddingRight: "5px"}}/> */}
                                 &nbsp;개
                                 <div className="mx-3">
                                     
                                 </div>
                             </div>
-                        :
                             <div className="read-only-input p-0 my-3">
-                                <input className="slider-input" type="text" value={workRate?.work_rate} onChange={(e) => onChangeWorkRageValue(e.target.value)} style={{height: "30px", width: "50px", textAlign: "right", paddingRight: "5px"}}/>
+                                <label className="detail-text-label" style={{width: "5rem" }}>
+                                    공정률
+                                </label>
+                                <DigitFormattedInput initNum={workRate?.work_rate} setNum={onChangeWorkRageValue} format="3.2" style ={{height: "30px", width: "5rem", textAlign: "right", paddingRight: "5px"}}> </DigitFormattedInput>                                                               
                                 &nbsp;%
-                                <div style={{width: "500px", marginLeft: "20px"}}>
+                                <div style={{width: "18rem", marginLeft: "20px"}}>
                                     <Slider 
                                         min={0}
                                         max={100}
@@ -1016,7 +1011,6 @@ const Schedule = () => {
                                     />
                                 </div>
                             </div>
-                        }
                     </div>
                 }
                 confirm={"저장"}

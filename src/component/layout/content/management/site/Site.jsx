@@ -727,8 +727,8 @@ const Site = () => {
                         <thead>
                             <tr>
                                 <th className="fixed-left" rowSpan={2} style={{ width: "10px", left: "0px" }}></th>
-                                <th className="fixed-left" rowSpan={2} style={{ width: "150px", left: "10px" }}>발주처</th>
-                                <th className="fixed-left" rowSpan={2} style={{ width: "300px", left: "110px" }}>현장</th>
+                                <th className="fixed-left" rowSpan={2} style={{ width: "120px", left: "10px" }}>발주처</th>
+                                <th className="fixed-left" rowSpan={2} style={{ width: "300px", left: "130px" }}>현장</th>
                                 <th colSpan={2} style={{ width: "100px" }}>진행현황</th>
                                 <th colSpan={2} style={{ width: "80px" }}>HTENC</th>
                                 <th colSpan={2} style={{ width: "80px" }}>협력사</th>
@@ -769,55 +769,55 @@ const Site = () => {
                                                     }}></div>
                                                 </td>
                                                 {/* 발주처 */}
-                                                <td className="left fixed-left" rowSpan={item.rowSpan} style={{ left: "10px" }}>{item.originalOrderCompName || ""}</td>
+                                                <td className="left fixed-left" rowSpan={item.rowSpan} style={{  width: "150px", left: "10px" }}>{item.originalOrderCompName || ""}</td>
                                                 {/* 현장 */}
-                                                <td className="left fixed-left ellipsis-tooltip" style={{ cursor: "pointer", left: "110px" }} onClick={() => onClickRow(idx)}>{item.site_nm || ""}</td>
+                                                <td className="left fixed-left ellipsis-tooltip" style={{ cursor: "pointer", left: "130px" }} onClick={() => onClickRow(idx)}>{item.site_nm || ""}</td>
                                                 {/* 공정률 */}
-                                                <td className="right" style={{ fontWeight: "bold" }}>{item.work_rate}%</td>
+                                                <td className="right ellipsis-tooltip" style={{ fontWeight: "bold" }}>{item.work_rate}%</td>
                                                 {/* 누계 */}
-                                                <td className="right" rowSpan={item.rowSpan} style={{ fontWeight: "bold" }}>
+                                                <td className="right ellipsis-tooltip" rowSpan={item.rowSpan} style={{ fontWeight: "bold" }}>
                                                     {
                                                         Common.formatNumber(item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_all), 0))
                                                     }
                                                 </td>
                                                 {/* 공사 */}
-                                                <td className="right">
+                                                <td className="right ellipsis-tooltip">
                                                     {
                                                         Common.formatNumber(item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_work), 0))
                                                     }
                                                 </td>
                                                 {/* 안전 */}
-                                                <td className="right">
+                                                <td className="right ellipsis-tooltip">
                                                     {
                                                         Common.formatNumber(item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_safe), 0))
                                                     }
                                                 </td>
                                                 {/* 관리 */}
-                                                <td className="right">
+                                                <td className="right ellipsis-tooltip">
                                                     {
                                                         Common.formatNumber(item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_manager), 0))
                                                     }
                                                 </td>
                                                 {/* 근로자 */}
-                                                <td className="right">
+                                                <td className="right ellipsis-tooltip">
                                                     {
                                                         Common.formatNumber(item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_not_manager), 0))
                                                     }
                                                 </td>
                                                 {/* 소계 */}
-                                                <td className="right" style={{ fontWeight: "bold" }}>
+                                                <td className="right ellipsis-tooltip" style={{ fontWeight: "bold" }}>
                                                     {
                                                         Common.formatNumber(item.project_list.reduce((sum, obj) => sum + Number(obj.worker_count_date), 0))
                                                     }
                                                 </td>
                                                 {/* 장비 */}
-                                                <td className="right" style={{ fontWeight: "bold" }}>
+                                                <td className="right ellipsis-tooltip" style={{ fontWeight: "bold" }}>
                                                     {
                                                         Common.formatNumber(item.project_list.reduce((sum, obj) => sum + Number(obj.equip_count), 0))
                                                     }
                                                 </td>
                                                 {/* 작업내용 */}
-                                                <td className="left ellipsis">
+                                                <td className="left ellipsis-tooltip">
                                                     {
                                                         item.project_list.length === 0 ?
                                                             // 현장에 프로젝트가 없는 경우. 그럴 경우는 없지만 만약을 위하여
@@ -861,7 +861,7 @@ const Site = () => {
 
                                                 </td>
                                                 {/* 날씨 */}
-                                                <td className="left fixed-right" rowSpan={item.rowSpan} style={{fontSize:"0.8rem"}}>
+                                                <td className="left fixed-right ellipsis-tooltip" rowSpan={item.rowSpan} style={{fontSize:"0.8rem"}}>
                                                     {
                                                         selectedDate !== dateUtil.now()
                                                         ? 
@@ -893,23 +893,23 @@ const Site = () => {
                                             :
                                             <tr key={idx}>
                                                 {/* 현장 */}
-                                                <td className="left fixed-left ellipsis-tooltip" style={{ cursor: "pointer", left: "110px" }} onClick={() => onClickRow(idx)}><li>{item.project_nm}</li></td>
+                                                <td className="left fixed-left ellipsis-tooltip" style={{ cursor: "pointer", left: "130px" }} onClick={() => onClickRow(idx)}><li>{item.project_nm}</li></td>
                                                 {/* 공정률 */}
-                                                <td className="right" style={{ fontWeight: "bold" }}>{item.work_rate}%</td>
+                                                <td className="right ellipsis-tooltip" style={{ fontWeight: "bold" }}>{item.work_rate}%</td>
                                                 {/* 공사 */}
-                                                <td className="right">{Common.formatNumber(item.worker_count_work)}</td>
+                                                <td className="right ellipsis-tooltip">{Common.formatNumber(item.worker_count_work)}</td>
                                                 {/* 안전 */}
-                                                <td className="right">{Common.formatNumber(item.worker_count_safe)}</td>
+                                                <td className="right ellipsis-tooltip">{Common.formatNumber(item.worker_count_safe)}</td>
                                                 {/* 관리 */}
-                                                <td className="right">{Common.formatNumber(item.worker_count_manager)}</td>
+                                                <td className="right ellipsis-tooltip">{Common.formatNumber(item.worker_count_manager)}</td>
                                                 {/* 근로자 */}
-                                                <td className="right">{Common.formatNumber(item.worker_count_not_manager)}</td>
+                                                <td className="right ellipsis-tooltip">{Common.formatNumber(item.worker_count_not_manager)}</td>
                                                 {/* 소계 */}
-                                                <td className="right" style={{ fontWeight: "bold" }}>{Common.formatNumber(item.worker_count_date)}</td>
+                                                <td className="right ellipsis-tooltip" style={{ fontWeight: "bold" }}>{Common.formatNumber(item.worker_count_date)}</td>
                                                 {/* 장비 */}
-                                                <td className="right" style={{ fontWeight: "bold" }}>{Common.formatNumber(item.equip_count)}</td>
+                                                <td className="right ellipsis-tooltip" style={{ fontWeight: "bold" }}>{Common.formatNumber(item.equip_count)}</td>
                                                 {/* 작업내용 */}
-                                                <td className="left ellipsis">
+                                                <td className="left ellipsis-tooltip">
                                                     {
                                                         item.daily_content_list.length > 0 ?
                                                             // 작업내용이 여러개인 경우
@@ -928,16 +928,16 @@ const Site = () => {
                                     ))
                             }
                             <tr style={{fontWeight: "bold"}}>
-                                <td colSpan={3} className="fixed-left" style={{backgroundColor: "#004377"}}></td>
-                                <td colSpan={2} className="center">일일 누계</td>
-                                <td className="right">{Common.formatNumber(state.dailyTotalCount.worker_count_work)}</td>
-                                <td className="right">{Common.formatNumber(state.dailyTotalCount.worker_count_safe)}</td>
-                                <td className="right">{Common.formatNumber(state.dailyTotalCount.worker_count_manager)}</td>
-                                <td className="right">{Common.formatNumber(state.dailyTotalCount.worker_count_not_manager)}</td>
-                                <td className="right">{Common.formatNumber(state.dailyTotalCount.worker_count_date)}</td>
-                                <td className="right">{Common.formatNumber(state.dailyTotalCount.equip_count)}</td>
-                                <td style={{backgroundColor: "#004377", boxShadow: "inset -0.4px 0 0 0 #004377"}}></td>
-                                <td className="fixed-right" style={{backgroundColor: "#004377", boxShadow: "inset 0.4px 0 0 0 #004377"}}></td>
+                                <td colSpan={3} className="fixed-left tail-td"> </td>
+                                <td colSpan={2} className="center tail-td" style={{fontWeight:"normal"}}>일일 누계</td>
+                                <td className="right tail-td ellipsis-tooltip">{Common.formatNumber(state.dailyTotalCount.worker_count_work)}</td>
+                                <td className="right tail-td ellipsis-tooltip">{Common.formatNumber(state.dailyTotalCount.worker_count_safe)}</td>
+                                <td className="right tail-td ellipsis-tooltip">{Common.formatNumber(state.dailyTotalCount.worker_count_manager)}</td>
+                                <td className="right tail-td ellipsis-tooltip">{Common.formatNumber(state.dailyTotalCount.worker_count_not_manager)}</td>
+                                <td className="right tail-td ellipsis-tooltip">{Common.formatNumber(state.dailyTotalCount.worker_count_date)}</td>
+                                <td className="right tail-td ellipsis-tooltip">{Common.formatNumber(state.dailyTotalCount.equip_count)}</td>
+                                <td className="tail-td"></td>
+                                <td className="fixed-right tail-td"></td>
                             </tr>
                         </tbody>
                     </table>

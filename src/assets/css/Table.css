@@ -39,6 +39,7 @@ body {
     white-space: pre-line;
     border-bottom: 1px solid rgba(0,0,0,.1);
     background: #fff;
+    
   }
 
   th, td {
@@ -87,15 +88,15 @@ td {
 }
 
 
-  @media screen and (max-width: 1200px) {
-    th, td {
-      font-size: 0.85em;
-    }
+@media screen and (max-width: 1200px) {
+  th, td {
+    font-size: 0.85em;
   }
-  
-  a {
-    color: #73685d;
-  }
+}
+
+a {
+  color: #73685d;
+}
 
 /* 테이블과 컨트롤 요소(선택창, 버튼)를 정렬할 부모 컨테이너 */
 .table-header {
@@ -329,4 +330,10 @@ tbody .fixed-right {
 
 .td-backgroud-sort {
   background-color: #fff4d384 !important;
+}
+
+.tail-td {
+  background-color: #004377 !important;
+  color: #fff;
+
 }

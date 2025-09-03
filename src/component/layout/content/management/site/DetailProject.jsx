@@ -19,6 +19,7 @@ import AddDetailSchedule from "../schedule/AddDetailSchedule";
 import DetailSchedule from "../schedule/DetailSchedule";
 import { siteRoles } from "../../../../../utils/rolesObject/siteRoles";
 import { projectRoles } from "../../../../../utils/rolesObject/projectRoles";
+import DigitFormattedInput from "../../../../module/DigitFormattedInput";
 
 /**
  * @description: 프로젝트 상세 컴포넌트
@@ -66,7 +67,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
 
     // 슬라이더 변경 이벤트
     const onChangeSliderValue = (value) => {
-        const formatValue = Common.sanitizeNumberInput(value);
+        const formatValue = value;
         setSliderValue(formatValue);
         handleChangeValue("work_rate", data.jno, formatValue);
     }
@@ -471,7 +472,8 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                     <div className="read-only-input" style={{color: data?.status === "Y" ? "" : nonUseFontColor }}>
                         {
                             isEdit && checkAllowDate(data.cancel_day) ?
-                                <input className="slider-input" type="text" value={sliderValue} onChange={(e) => onChangeSliderValue(e.target.value)} style={{height: "40px", width: "50px", textAlign: "right", paddingRight: "5px"}}/>
+                                <DigitFormattedInput initNum={sliderValue} setNum={onChangeSliderValue} format="3.2" style ={{width: "5rem"}}> </DigitFormattedInput>
+                                // <input className="slider-input" type="text" value={sliderValue} onChange={(e) => onChangeSliderValue(e.target.value)} style={{height: "40px", width: "50px", textAlign: "right", paddingRight: "5px"}}/>
                             :
                                 sliderValue
                         }

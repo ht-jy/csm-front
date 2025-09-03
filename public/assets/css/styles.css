@@ -11065,7 +11065,7 @@ html, body, #root, .App {
   display: none;
 }
 
-@media (min-width: 992px) {
+@media (min-width: 1200px) {
   #layoutSidenav #layoutSidenav_nav {
     transform: translateX(0);
   }

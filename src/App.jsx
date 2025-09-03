@@ -65,8 +65,18 @@ function App() {
                 </ErrorBoundary>
             </AuthProvider>
             {/* 툴팁 전역 설정 */}
-            <ReactTooltip id="highlightTooltip" delayShow={0} positionStrategy="fixed" style={{ zIndex: 99999 }}/>
-        </div>
+            <ReactTooltip 
+                id="highlightTooltip" 
+                delayShow={0} 
+                positionStrategy="fixed" 
+                style={{ zIndex: 99999 }}
+                render={({ content }) => (
+                    <div style={{whiteSpace: "pre-line" }}>
+                        {content}
+                    </div>
+                )}
+            />
+      </div>
     );
 }
 
