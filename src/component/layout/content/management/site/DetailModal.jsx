@@ -244,6 +244,36 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
             navigate("/error");
         }
     }
+    
+    // 현장 삭제 모달 오픈
+    const deleteCheckOpen = () => {
+        setIsNonUseCheckOpen(true);
+        setNonUseCheckFunc(() => () => siteDelete());
+        setNonUseCheckText(`현장을 삭제 하시겠습니까?\n 삭제 시 해당 현장 정보는 확인할 수 없습니다.`);
+    }
+
+    // 현장 삭제
+    const siteDelete = async () => {
+        try {
+            console.log(detailData.sno)
+            const res  = await Axios.DELETE(`/site/${detailData.sno}`)
+            console.log(res)
+            if( res?.data?.result === "Success"){
+                setNonUseConfirmText("현장 삭제에 성공하였습니다.");
+                refetch();
+            }else{
+                setNonUseConfirmText("현장 삭제에 실패하였습니다.");
+            }
+            
+            setIsNonUseConfirm(true);
+        } catch(err) {
+            navigate("/error");
+        } finally {
+
+        }
+
+    }
+
 
     /***** 작업완료 *****/
     // 현장 - type: true(작업완료), false(작업완료취소)
@@ -254,6 +284,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
         setNonUseCheckFunc(() => () => siteModifyNonUse(type));
         setNonUseCheckText(`현장 ${text}를 하시겠습니까?\n ${text} 시 프로젝트도 모두 ${text}됩니다.`);
     }
+
 
     // 현장 작업완료 처리
     const siteModifyNonUse = async(type) => {
@@ -367,6 +398,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                 text={"프로젝트의 공정률을 수정할 수 없습니다.\n관리자에게 문의하여 주세요."}
                 confirm={"확인"}
                 fncConfirm={() => setIsWorkRate(false)}
+                isConfirmFocus={true}
             />
             <Modal
                 isOpen={isModal}
@@ -393,6 +425,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                 text={nonUseConfirmText}
                 confirm={"확인"}
                 fncConfirm={onClickNonUseConfirm}
+                isConfirmFocus={true}
             />
             {isOpen ? (
                 <div className="overlayStyle">
@@ -494,6 +527,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                             {
                                 <div style={{marginRight: "8px", textAlign:"end"}}>
 
+                                    {isRoleValid(siteRoles.SITE_WORK_FINISH) && detailData.status === 'Y' && !isEdit && <Button text={"현장 삭제"} onClick={() => deleteCheckOpen()}/>}
                                     {isRoleValid(siteRoles.SITE_WORK_FINISH) && detailData.status === 'Y' && !isEdit && <Button text={"현장 종료"} onClick={() => nonUseCheckOpen(true)}/>}
                                     {isRoleValid(siteRoles.SITE_WORK_CANCEL) && detailData.status !== 'Y' && !isEdit && <Button text={"현장 종료 취소"} style={{}} onClick={() => nonUseCheckOpen(false)}/>}
 
