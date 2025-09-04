@@ -40,8 +40,14 @@ import DetailSite from "./DetailSite";
 const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detailWeather=[], exitBtnClick, saveBtnClick, isCancle = true, isSiteAdd=false }) => {
     const { user } = useAuth();
     const navigate = useNavigate();
-    const { isRoleValid } = useUserRole();
     const { refetch, setIsDetail, setIsNonUseChecked, selectedDate } = useContext(SiteContext);
+
+    // 권한
+    const { isRoleValid } = useUserRole();
+    const detailModRole = isRoleValid(siteRoles.SITE_DETAIL_MOD);
+    const detailDeleteRole = isRoleValid(siteRoles.SITE_DETAIL_DELETE);
+    const detailFinishRole = isRoleValid(siteRoles.SITE_DETAIL_FINISH);
+    const detailFinishCancelRole = isRoleValid(siteRoles.SITE_DETAIL_FINISH_CANCEL);
                                 
     const [isEdit, setIsEdit] = useState(false);
     const [formData, setFormData] = useState(null);
@@ -460,7 +466,7 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                                             }
                                         </div>
                                     :
-                                        isRoleValid(siteRoles.SITE_MOD) && 
+                                        detailModRole && 
                                         <div>
                                             {
                                                 isEditBtn && !isSiteAdd && selectedDate === dateUtil.format(Date.now()) ? 
@@ -527,9 +533,9 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
                             {
                                 <div style={{marginRight: "8px", textAlign:"end"}}>
 
-                                    {isRoleValid(siteRoles.SITE_WORK_FINISH) && detailData.status === 'Y' && !isEdit && <Button text={"현장 삭제"} onClick={() => deleteCheckOpen()}/>}
-                                    {isRoleValid(siteRoles.SITE_WORK_FINISH) && detailData.status === 'Y' && !isEdit && <Button text={"현장 종료"} onClick={() => nonUseCheckOpen(true)}/>}
-                                    {isRoleValid(siteRoles.SITE_WORK_CANCEL) && detailData.status !== 'Y' && !isEdit && <Button text={"현장 종료 취소"} style={{}} onClick={() => nonUseCheckOpen(false)}/>}
+                                    {detailDeleteRole && detailData.status === 'Y' && !isEdit && <Button text={"현장 삭제"} onClick={() => deleteCheckOpen()}/>}
+                                    {detailFinishRole && detailData.status === 'Y' && !isEdit && <Button text={"현장 종료"} onClick={() => nonUseCheckOpen(true)}/>}
+                                    {detailFinishCancelRole && detailData.status !== 'Y' && !isEdit && <Button text={"현장 종료 취소"} style={{}} onClick={() => nonUseCheckOpen(false)}/>}
 
                                 </div>
                             }

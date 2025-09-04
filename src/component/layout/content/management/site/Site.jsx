@@ -64,7 +64,6 @@ const Site = () => {
 
     const navigate = useNavigate();
     const { user, setIsProject } = useAuth();
-    const { isRoleValid } = useUserRole();
     const [isLoading, setIsLoading] = useState(false);
     const [isDetail, setIsDetail] = useState(false);
     const [detailTitle, setDetailTitle] = useState("");
@@ -75,6 +74,11 @@ const Site = () => {
     const [addSiteJno, setAddSiteJno] = useState("");
     const [selectedDate, setSelectedDate] = useState(dateUtil.now())
     const [showWeatherList, setShowWeatherList] = useState(false)
+    // 권한
+    const { isRoleValid } = useUserRole();
+    const siteListRole = isRoleValid(siteRoles.SITE_LIST);
+    const siteAddRole = isRoleValid(siteRoles.SITE_ADD);
+
     // 날짜 선택 폴링
     const selectedDateStr = dateUtil.format(selectedDate, "yyyy-MM-dd");
     const nowStr = dateUtil.format(dateUtil.now(), "yyyy-MM-dd");
@@ -142,6 +146,9 @@ const Site = () => {
 
     // 현장목록 추가
     const onClickSaveBtn = () => {
+        if( !siteAddRole){
+            return;
+        }
         setIsNonPjModal(true);
     }
 
@@ -394,7 +401,7 @@ const Site = () => {
 
     // 현장 정보 조회
     const {cacheData, isStale, isFetchedLoading, refetch} = useCachedFetch(
-        `/site?targetDate=${dateUtil.format(selectedDate, "yyyy-MM-dd")}&pCode=SITE_STATUS&isRole=${isRoleValid(siteRoles.SITE_LIST)}&isNonUse=${isNonUseChecked}`,
+        `/site?targetDate=${dateUtil.format(selectedDate, "yyyy-MM-dd")}&pCode=SITE_STATUS&isRole=${siteListRole}&isNonUse=${isNonUseChecked}`,
 
         {
             storageKey: `siteData_${dateUtil.format(selectedDate, "yyyy-MM-dd")}_isNonUse_${isNonUseChecked}`,
@@ -588,7 +595,7 @@ const Site = () => {
                 <ol className="breadcrumb mb-2 content-title-box">
                     <li className="breadcrumb-item content-title">현장목록</li>
                     <div className="table-header-right">
-                        {isRoleValid(siteRoles.SITE_ADD) && selectedDate === dateUtil.format(Date.now()) && <Button text={"추가"} onClick={() => onClickSaveBtn()} />}
+                        {siteAddRole && selectedDate === dateUtil.format(Date.now()) && <Button text={"추가"} onClick={() => onClickSaveBtn()} />}
                     </div>
                 </ol>
 
@@ -661,7 +668,7 @@ const Site = () => {
 
                     </div>
                 </div>
-                <div style={{ display: "flex", justifyContent: "flex-end", marginRight: "8px", marginTop: "6px" }}>
+                <div style={{ display: "flex", justifyContent: "flex-end", alignItems:"center", marginRight: "8px", marginTop: "6px" }}>
                     <FormCheckInput checked={isNonUseChecked} onChange={onClickNonUseList} style={{cursor: "pointer"}}/><span style={{marginLeft: "5px"}}>작업완료된 현장 확인</span>
                 </div>
                 <div>
