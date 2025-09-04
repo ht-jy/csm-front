@@ -76,7 +76,13 @@ const Total = () => {
     const navigate = useNavigate();
     const { user, setIsProject } = useAuth();
     const {createLogParam} = useLogParam();
+    
+    // 권한
     const { isRoleValid } = useUserRole();
+    const workerListRole = isRoleValid(workerRoles.TOTAL_WORKER_LIST);
+    const uploadAddRole = isRoleValid(workerRoles.TOTAL_WORKER_UPLOAD_ADD);
+    const formDownloadRole = isRoleValid(workerRoles.TOTAL_FORM_DOWNLOAD);
+    const workerAddRole = isRoleValid(workerRoles.TOTAL_WORKER_ADD);
 
     // 로딩
     const [isLoading, setIsLoading] = useState(false);
@@ -385,7 +391,7 @@ const Total = () => {
             .join('&');
         
         try {
-            const res = await Axios.GET(`/worker/total?${queryString}`);
+            const res = await Axios.GET(`/worker/total?isRole=${workerListRole}&${queryString}`);
 
             // const res = await Axios.GET(`/worker/total?page_num=${pageNum}&row_size=${rowSize}&order=${order}&user_id=${searchValues.user_id}&user_nm=${searchValues.user_nm}&department=${searchValues.department}&phone=${searchValues.phone}&worker_type=${convertWorkerTypeToCode(searchValues.worker_type_nm)}&retry_search=${retrySearchText}`);
             
@@ -506,10 +512,10 @@ const Total = () => {
                         <li className="breadcrumb-item content-title">전체</li>
                         <li className="breadcrumb-item active content-title-sub">근로자</li>
                         <div className="table-header-right">
-                        { isRoleValid(workerRoles.TOTAL_EXCEL_DOWNLOAD ) && <Button text={"근로자 업로드"} onClick={() => {setIsProjectOpenModal(true)}} /> }
-                        { isRoleValid(workerRoles.TOTAL_EXCEL_UPLOAD_ADD ) && <Button text={"양식 다운로드"} onClick={getWorkerFormExport} /> }
+                        { uploadAddRole && <Button text={"근로자 업로드"} onClick={() => {setIsProjectOpenModal(true)}} /> }
+                        { formDownloadRole && <Button text={"양식 다운로드"} onClick={getWorkerFormExport} /> }
                         {
-                            isRoleValid(workerRoles.TOTAL_WORKER_ADD) && 
+                            workerAddRole && 
                             <Button text={"추가"} onClick={onClickSaveBtn} />
                         } 
                         <input ref={(e) => (excelRefs.current = e)} type="file" id="fileInput" accept=".xlsx, .xls" onChange={(e) => excelUpload(e)} style={{display: "none"}}/>

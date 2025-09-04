@@ -44,6 +44,8 @@ import { workerRoles } from "../../../../../utils/rolesObject/workerRoles";
 const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, title, detailData, selectList, exitBtnClick, saveBtnClick, removeBtnClick, isCancle = true }) => {
     const navigate = useNavigate();
     const { isRoleValid } = useUserRole();
+    const workerModRole = isRoleValid(workerRoles.TOTAL_WORKER_MOD);
+    const workerDelRole = isRoleValid(workerRoles.TOTAL_WORKER_DEL);
 
     const [isEdit, setIsEdit] = useState(false);
     const [formData, setFormData] = useState({});
@@ -310,14 +312,14 @@ const TotalDetailModal = ({ isOpen, gridMode, funcModeSet, editBtn, removeBtn, t
                                         :
                                             <div>
                                                 {
-                                                    isRoleValid(workerRoles.TOTAL_WORKER_MOD) && editBtn ? 
+                                                    workerModRole && editBtn ? 
                                                         <button type="button" className="btn btn-primary" onClick={handleEditMode} name="confirm" style={{marginRight:"10px"}}>
                                                             수정
                                                         </button>
                                                     : null
                                                 }
                                                 {
-                                                    isRoleValid(workerRoles.TOTAL_WORKER_DEL) && removeBtn ?
+                                                    workerDelRole && removeBtn ?
                                                         <button className="btn btn-primary" onClick={handleRemove} name="confirm" style={{marginRight:"10px"}}>
                                                             삭제
                                                         </button>
