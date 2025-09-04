@@ -532,6 +532,7 @@ const DailyCompare = () => {
                 text={modalText}
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
+                isConfirmFocus={true}
             />
             <Modal 
                 isOpen={isModal2}
@@ -598,7 +599,7 @@ const DailyCompare = () => {
                                                     styles={{
                                                         container: (provided) => ({
                                                         ...provided,
-                                                        width: "30%",
+                                                        width: "16rem",
                                                         zIndex: 100,
                                                         }),
                                                     }}
@@ -616,9 +617,9 @@ const DailyCompare = () => {
 
                 <div className="table-header" >
                     <div className="table-header-left">
-                        <div>
-                            <span style={{marginRight: "26px"}}>조회일</span>
-                            <DateInput time={searchStartDate} setTime={(value) => setSearchStartDate(value)}></DateInput>
+                        <div className="file-upload">
+                            <div className="file-label-text">조회일</div>
+                            <DateInput time={searchStartDate} setTime={(value) => setSearchStartDate(value)} dateInputStyle={{margin:"0px"}}></DateInput>
                         </div>
                         {
                             ObjChk.ensureArray(checkedList).length !== 0 && (
