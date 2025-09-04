@@ -20,6 +20,7 @@ import Modal from "../../../../module/Modal";
 import Search from "../../../../module/search/Search";
 import Table from "../../../../module/Table";
 import DailyCompareReducer from "./DailyCompareReducer";
+import { workerRoles } from "../../../../../utils/rolesObject/workerRoles";
 
 
 /**
@@ -40,6 +41,13 @@ const DailyCompare = () => {
     const tableRef = useRef();
 
     const { isRoleValid } = useUserRole();
+    const tbmFormDownloadRole = isRoleValid(workerRoles.COMPARE_TBM_FORM_DOWNLOAD); 
+    const deductionFormDownloadRole = isRoleValid(workerRoles.COMPARE_DEDUCTION_FORM_DOWNLOAD); 
+    const tbmUploadRole = isRoleValid(workerRoles.COMPARE_TBM_UPLOAD); 
+    const tbmUploadDownloadRole = isRoleValid(workerRoles.COMPARE_TBM_UPLOAD_DOWNLOAD); 
+    const deductionUploadRole = isRoleValid(workerRoles.COMPARE_DEDUCTION_UPLOAD); 
+    const deductionUploadDownloadRole = isRoleValid(workerRoles.COMPARE_DEDUCTION_UPLOAD_DOWNLOAD); 
+    const registerRole = isRoleValid(workerRoles.COMPARE_REGISTER);
 
     const [state, dispatch] = useReducer(DailyCompareReducer, {
         compareList: [],
@@ -101,7 +109,7 @@ const DailyCompare = () => {
 
     // 반영 버튼
     const onClickRegister = () => {
-        if(!isRoleValid(DailyCompareRoles.REGISTER) ){
+        if(!registerRole){
             setModalText("담당자만 근로자를 반영할 수 있습니다.");
             setIsModal(true);
             return;
@@ -263,7 +271,7 @@ const DailyCompare = () => {
                 </div>
         }
 
-        if(!isRoleValid(DailyCompareRoles.TBM_UPLOAD)){
+        if(!tbmUploadRole){
             setFileModalText("담당자만 파일을 업로드 할 수 있습니다.");
             setFileFncConfirm(() => () => setIsFileModal(false));
             setIsFileModal(true);
@@ -290,7 +298,15 @@ const DailyCompare = () => {
             return state.uploadList;
         }
     }
-    
+
+    const isTypeRole = (type, action) => {
+        if (type === "DEDUCTION"){
+            return action === "download" ? deductionUploadDownloadRole : deductionUploadRole;
+        }else if (type === "TBM"){
+            return action === "download" ? tbmUploadDownloadRole : tbmUploadRole;
+        }
+    }
+
     // 파일 존재 여부
     const isFile = (type) => {
         if(state.uploadList.length === 0) return false;
@@ -556,8 +572,8 @@ const DailyCompare = () => {
                     <li className="breadcrumb-item content-title">비교</li>
                     <li className="breadcrumb-item active content-title-sub">근로자</li>
                     <div className="table-header-right">
-                        {isRoleValid(DailyCompareRoles.TBM_EXPORT) && <Button text={"TBM 양식"} onClick={() => excelFormDownload("TBM")}/>}
-                        {isRoleValid(DailyCompareRoles.DEDUCTION_EXPORT) && <Button text={"퇴직공제 양식"} onClick={() => excelFormDownload("퇴직공제")}/>}
+                        { tbmFormDownloadRole && <Button text={"TBM 양식"} onClick={() => excelFormDownload("TBM")}/>}
+                        {deductionFormDownloadRole && <Button text={"퇴직공제 양식"} onClick={() => excelFormDownload("퇴직공제")}/>}
                         {/* <Button text={isFileSection ? "파일 숨기기" : "파일 펼치기"} onClick={isFileSection ? () => setIsFileSection(false) : () => setIsFileSection(true)}/> */}
                     </div>
                 </ol>
@@ -580,12 +596,12 @@ const DailyCompare = () => {
                                                 }
                                                 </span>
                                                 {
-                                                    isFile(item) && isRoleValid(DailyCompareRoles.TBM_FILE_DOWNLOAD) && (
+                                                    isFile(item) && isTypeRole(item, "download") && (
                                                         <button type="button" className="file-button1" onClick={() => uploadExcelDownload(item)}>다운로드</button>
                                                     )
                                                 }
                                                 {
-                                                    isFile(item) && isRoleValid(DailyCompareRoles.TBM_FILE_DOWNLOAD) && (
+                                                    isFile(item) && isTypeRole(item, "change")  && (
                                                         <button type="button" className="file-button2" onClick={() => fileLabelClick(item)}>변경</button>
                                                     )
                                                 }

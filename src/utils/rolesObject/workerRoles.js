@@ -45,14 +45,14 @@ export const workerRoles = Object.freeze({
     ],
 
     /********** 비교근로자 **********/
-    COMPARE_TBM_EXPORT:[ // TBM 양식 버튼
+    COMPARE_TBM_FORM_DOWNLOAD:[ // TBM 양식 버튼
         userRole.SUPER_ADMIN,
         userRole.SYSTEM_ADMIN,
         userRole.ADMIN,
         userRole.SITE_MANAGER,
         userRole.TEMP_SITE_MANAGER,
     ],
-    COMPARE_DEDUCTION_EXPORT: [    // 퇴직공제 양식 버튼
+    COMPARE_DEDUCTION_FORM_DOWNLOAD: [    // 퇴직공제 양식 버튼
         userRole.SUPER_ADMIN,
         userRole.SYSTEM_ADMIN,
         userRole.ADMIN,
@@ -66,7 +66,7 @@ export const workerRoles = Object.freeze({
         userRole.SITE_MANAGER,
         userRole.TEMP_SITE_MANAGER,
     ],
-    COMPARE_TBM_FILE_DOWNLOAD: [    // TBM 업로드 파일 다운로드
+    COMPARE_TBM_UPLOAD_DOWNLOAD: [    // TBM 업로드 된 파일 다운로드
         userRole.SUPER_ADMIN,
         userRole.SYSTEM_ADMIN,
         userRole.ADMIN,
@@ -80,7 +80,7 @@ export const workerRoles = Object.freeze({
         userRole.SITE_MANAGER,
         userRole.TEMP_SITE_MANAGER,
     ],
-    COMPARE_COMPARE_DEDUCTION_FILE_DOWNLOAD: [    // 퇴직공제 업로드 파일 다운
+    COMPARE_DEDUCTION_UPLOAD_DOWNLOAD: [    // 퇴직공제 업로드 된 파일 다운
         userRole.SUPER_ADMIN,
         userRole.SYSTEM_ADMIN,
         userRole.ADMIN,
