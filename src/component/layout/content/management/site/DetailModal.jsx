@@ -261,9 +261,9 @@ const DetailModal = ({ isOpen, setIsOpen, isEditBtn, title, detailData=[], detai
     // 현장 삭제
     const siteDelete = async () => {
         try {
-            console.log(detailData.sno)
+
             const res  = await Axios.DELETE(`/site/${detailData.sno}`)
-            console.log(res)
+
             if( res?.data?.result === "Success"){
                 setNonUseConfirmText("현장 삭제에 성공하였습니다.");
                 refetch();

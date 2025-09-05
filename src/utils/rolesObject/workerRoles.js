@@ -100,11 +100,6 @@ export const workerRoles = Object.freeze({
         userRole.SUPER_ADMIN,
         userRole.SYSTEM_ADMIN,
         userRole.ADMIN,
-        userRole.SITE_DIRECTOR,
-        userRole.SITE_MANAGER,
-        userRole.TEMP_SITE_MANAGER,
-        userRole.SUPERVISOR,
-        userRole.SAFETY_MANAGER,
     ],
 
     SITE_WORKER_RECORD_INFO_DOWNLOAD : [ // 근태 다운로드
