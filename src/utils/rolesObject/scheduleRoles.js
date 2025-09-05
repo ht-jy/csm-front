@@ -1,36 +1,44 @@
 import { userRole } from "../Enum";
 
 export const scheduleRoles = Object.freeze({
-
-    SCHEDULE_MANAGER : [ // 일정 전체 일정 수정 권한
-        userRole.SYSTEM_ADMIN,
+    SCHEDULE_LIST : [ // 전체 일정 확인
         userRole.SUPER_ADMIN,
+        userRole.SYSTEM_ADMIN,
         userRole.ADMIN,
+        userRole.EXECUTIVE
+    ],
+    SCHEDULE_ADD_BTN: [    // 일정 추가
+        userRole.SUPER_ADMIN,
+        userRole.SYSTEM_ADMIN,
+        userRole.ADMIN,
+        userRole.SITE_DIRECTOR,
+        userRole.SITE_MANAGER,
+        userRole.TEMP_SITE_MANAGER,
+        userRole.SAFETY_MANAGER,
+    ],
+    DETAIL_ROW_CLICK : [    // 상세 > 작업내용 상세 확인
+        userRole.SUPER_ADMIN,
+        userRole.SYSTEM_ADMIN,
+        userRole.ADMIN,
+        userRole.SITE_DIRECTOR,
         userRole.SITE_MANAGER,
         userRole.TEMP_SITE_MANAGER,
     ],
-    // 달력 추가 버튼
-    CALENDER_ADD_BTN: [
-        userRole.SYSTEM_ADMIN,
+    DETAIL_SCHEDULE_MOD_DEL: [    // 상세 > 수정/삭제
         userRole.SUPER_ADMIN,
+        userRole.SYSTEM_ADMIN,
         userRole.ADMIN,
+        userRole.SITE_DIRECTOR,
         userRole.SITE_MANAGER,
         userRole.TEMP_SITE_MANAGER,
     ],
-    // 상세 row 클릭
-    DETAIL_ROW_CLICK: [
-        userRole.SYSTEM_ADMIN,
+    RATE_EQUIP_ROLE: [   // 공정률/장비 수정 권한
         userRole.SUPER_ADMIN,
+        userRole.SYSTEM_ADMIN,
         userRole.ADMIN,
+        userRole.SITE_DIRECTOR,
         userRole.SITE_MANAGER,
         userRole.TEMP_SITE_MANAGER,
-    ],
-    // 공정률 아이콘
-    RATE_ICON: [
-        userRole.SYSTEM_ADMIN,
-        userRole.SUPER_ADMIN,
-        userRole.ADMIN,
-        userRole.SITE_MANAGER,
-        userRole.TEMP_SITE_MANAGER,
+        userRole.SUPERVISOR,
     ],
 });

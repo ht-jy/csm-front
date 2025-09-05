@@ -52,12 +52,8 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
     // 작업 내용 추가 및 수정 권한
     // 권한 체크
     const { isRoleValid } = useUserRole();
-    // FIXME: 일정 권한 수정
-    const scheduleRole = isRoleValid(scheduleRoles.SCHEDULE_MANAGER);
+    const scheduleAddRole = isRoleValid(scheduleRoles.SCHEDULE_ADD_BTN);
     const projectFinishRole = isRoleValid(siteRoles.SITE_DETAIL_PJT_FINISH);
-
-
-
 
     // 작업내용 상세 모달
     const [isClickDateRest, setIsClickDateRest] = useState(false);
@@ -375,7 +371,7 @@ const DetailProject = ({data, projectNo, projectLength, isMain, isEdit, onClickD
                             !isMain && <Button text={"삭제"} style={{marginLeft: "auto"}} onClick={() => onClickDeleteBtn(data.jno)}/>
                         :
                         <>
-                            {scheduleRole && selectedDate === dateUtil.format(Date.now()) && data?.status === "Y"?
+                            {scheduleAddRole && selectedDate === dateUtil.format(Date.now()) && data?.status === "Y"?
                                 <Button text={"작업내용 추가"} onClick={() => onClickAddSchedule()}></Button>
                             : 
                                 null 

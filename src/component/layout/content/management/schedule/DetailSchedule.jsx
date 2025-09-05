@@ -15,6 +15,7 @@ import ColorInput from "../../../../module/ColorInput";
 import DateInput from "../../../../module/DateInput";
 import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
+import { all } from "axios";
 
 /**
  * @description: 일정 상세, 수정화면
@@ -46,7 +47,9 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
     // 권한 체크
     const { isRoleValid } = useUserRole();
     // 전체 프로젝트 수정 권한
-    const scheduleRole = isRoleValid(scheduleRoles.SCHEDULE_MANAGER);
+    const allListRole = isRoleValid(scheduleRoles.SCHEDULE_LIST);
+    const detailRole = isRoleValid(scheduleRoles.DETAIL_ROW_CLICK);
+    const scheduleModRole = isRoleValid(scheduleRoles.DETAIL_SCHEDULE_MOD_DEL);
 
 
     const [isLoading, setIsLoading] = useState(false);
@@ -122,7 +125,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
 
     // 작업내용 클릭
     const onClickDailyJob = (item) => {
-        if (!scheduleRole) return;
+        // if (!all) return;
         
         const project = projectOptions.find(option => option.value === item.jno);
 
@@ -217,7 +220,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
     const getProjectData = async () => {
         setIsLoading(true);
         try {
-            const res = await Axios.GET(`/project/job_name?isRole=${isRoleValid(projectRoles.PROJECT_NM)}`);
+            const res = await Axios.GET(`/project/job_name?isRole=${allListRole}`);
             if (res?.data?.result === "Success") {
                 const options = [{value:0, label: "전체 적용", cancelDay: null}];
                 res?.data?.values?.list.map(item => {
@@ -316,7 +319,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                         (
                                             !isEdit ?
                                                 <div className="d-flex align-items-center">
-                                                    { (nonRest || (project === null && scheduleRole && editData.jno === 0) || editData.jno === project?.jno) ?
+                                                    { (nonRest || (project === null && scheduleModRole && editData.jno === 0) || editData.jno === project?.jno) ?
                                                     !isAllow && 
                                                         <div style={{margin: "0rem 1rem"}}>
                                                             해당 프로젝트는 수정 가능한 기간이 아닙니다.
@@ -326,12 +329,16 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                             상단의 프로젝트와 일치하는 일정만 수정이 가능합니다.
                                                         </div>
                                                     }
-                                                    <button className="btn btn-primary" disabled={!isAllow || !(nonRest || (project === null && scheduleRole && editData.jno === 0) || editData.jno === project?.jno)} onClick={() => setIsEdit(true)} name="confirm" style={{marginRight:"10px"}}>
+                                                    { scheduleModRole && 
+                                                        <button className="btn btn-primary" disabled={!isAllow || !(nonRest || (project === null && editData.jno === 0) || editData.jno === project?.jno)} onClick={() => setIsEdit(true)} name="confirm" style={{marginRight:"10px"}}>
                                                         수정
-                                                    </button>
-                                                    <button className="btn btn-primary" disabled={!isAllow || !(nonRest || (project === null && scheduleRole && editData.jno === 0) || editData.jno === project?.jno)} onClick={onClickRemove} name="confirm" style={{marginRight:"10px"}}>
+                                                        </button>
+                                                    }
+                                                    { scheduleModRole && 
+                                                    <button className="btn btn-primary" disabled={!isAllow || !(nonRest || (project === null && scheduleModRole && editData.jno === 0) || editData.jno === project?.jno)} onClick={onClickRemove} name="confirm" style={{marginRight:"10px"}}>
                                                         삭제
                                                     </button>
+                                                    }
                                                 </div>
                                                 :
 
@@ -383,7 +390,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                                 <div style={{backgroundColor: "#f89999", width: "5px", borderRadius: "5px"}}></div>
                                                                 <div style={{textAlign:"left", marginLeft: "10px", width: "100%", height:"" }}>
                                                                     {item.jno.map((rest, r_idx) => (
-                                                                        <div key={r_idx} className="detail-rest-item" onClick={() => onClickRestDay(rest)} style={{fontSize: "20px", color: "black", height:"30px"}}>{rest.reason}</div>
+                                                                        <div key={r_idx} className="detail-rest-item" onClick={detailRole ? () => onClickRestDay(rest) : () => {}} style={{fontSize: "20px", color: "black", height:"30px"}}>{rest.reason}</div>
                                                                     ))}
                                                                     
                                                                     <div style={{border: "1px solid #ccc", width: "100%"}}></div>
@@ -412,18 +419,18 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                                                 {
                                                                                     jobs.map((item, i_idx) => (
                                                                                         <div 
-                                                                                            className={isRoleValid(scheduleRoles.DETAIL_ROW_CLICK) ? "detail-daily-job" : ""}
+                                                                                            className={ detailRole ? "detail-daily-job" : ""}
                                                                                             style={{
                                                                                                 fontSize: "17px", 
                                                                                                 display: "flex", 
                                                                                                 alignItems: "center", 
-                                                                                                cursor: isRoleValid(scheduleRoles.DETAIL_ROW_CLICK) ? "pointer" : "", 
+                                                                                                cursor: detailRole ? "pointer" : "", 
                                                                                                 paddingBottom: "2px", 
                                                                                                 color: item.content_color || "#000000"
                                                                                             }}
                                                                                             key={`${j_idx}_${i_idx}`}
                                                                                             onClick={
-                                                                                                isRoleValid(scheduleRoles.DETAIL_ROW_CLICK) ? () => onClickDailyJob(item) : () => {}
+                                                                                                detailRole ? () => onClickDailyJob(item) : () => {}
                                                                                             }
                                                                                         >
                                                                                             <div style={{marginRight: "5px", paddingBottom: "3px"}}>●</div>

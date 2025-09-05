@@ -35,8 +35,7 @@ import AddDetailSchedule from "./AddDetailSchedule";
 import DetailSchedule from "./DetailSchedule";
 import { useUserRole } from "../../../../../utils/hooks/useUserRole";
 import { scheduleRoles } from "../../../../../utils/rolesObject/scheduleRoles";
-import Radio from "../../../../module/Radio";
-import NumberInput from "../../../../module/NumberInput";
+
 import DigitFormattedInput from "../../../../module/DigitFormattedInput";
 
 /**
@@ -62,7 +61,13 @@ import DigitFormattedInput from "../../../../module/DigitFormattedInput";
 const Schedule = () => {
     const navigate = useNavigate();
     const { project, user, setIsProject } = useAuth();
+    
+    // 권한
     const { isRoleValid } = useUserRole();
+    const allListRole = isRoleValid(scheduleRoles.SCHEDULE_LIST);
+    const scheduleAddRole = isRoleValid(scheduleRoles.SCHEDULE_ADD_BTN);
+    const rateEquipModRole = isRoleValid(scheduleRoles.RATE_EQUIP_ROLE);
+
 
     const [isLoading, setIsLoading] = useState(false);
     /** 선택한 연, 월 **/
@@ -344,7 +349,7 @@ const Schedule = () => {
             if(project !== null){
                 jno = project.jno;
             }
-            res = await Axios.GET(`/schedule/rest?jno=${jno}&year=${currentYear}&month=${currentMonth}`);
+            res = await Axios.GET(`/schedule/rest?isRole=${allListRole}&jno=${jno}&year=${currentYear}&month=${currentMonth}`);
             
             if (res?.data?.result === "Success") {
                 setRestDays(res?.data?.values?.list);
@@ -366,7 +371,7 @@ const Schedule = () => {
         }
 
         try {
-            let res = await Axios.GET(`/schedule/daily-job?jno=${jno}&target_date=${currentYear}-${String(currentMonth).padStart(2, '0')}`);
+            let res = await Axios.GET(`/schedule/daily-job?isRole=${allListRole}&jno=${jno}&target_date=${currentYear}-${String(currentMonth).padStart(2, '0')}`);
 
             if (res?.data?.result === "Success") {
                 const jobs = [];
@@ -395,8 +400,8 @@ const Schedule = () => {
                     if (tdElement) {
                         const rect = tdElement.getBoundingClientRect();
                         setWeatherPopupPosition({
-                            top: rect.top + window.scrollY - 100,
-                            left: rect.left + window.scrollX + rect.width - 308
+                            top: rect.bottom + window.scrollY + 3,
+                            left: rect.left + window.scrollX + rect.width - 260
                         });
                     }
                     // show/hide
@@ -1020,7 +1025,7 @@ const Schedule = () => {
             />
             {/* 하단 추가 아이콘 */}
             {
-                isRoleValid(scheduleRoles.CALENDER_ADD_BTN) &&
+                scheduleAddRole &&
                 <div onClick={() => onClickAddDetailOpen(new Date())}>
                     <img
                     src={PlusBottomIcon}
@@ -1142,36 +1147,56 @@ const Schedule = () => {
                                                         showWeatherList === `item_${week_idx}_${item_idx}` && (
                                                             ReactDOM.createPortal(
                                                             <div style={{
-                                                                ...weatherListStyle, 
-                                                                position: "fixed", 
+                                                                position: "absolute",
+                                                                right: "0px",
+                                                                backgroundColor: 'rgb(255,255,255)',
+                                                                border: "1px solid rgb(200,200,200)",
+                                                                borderRadius: "8px",
+                                                                margin: '10px',
                                                                 top: `${weatherPopupPosition.top}px`,
-                                                                left: `${weatherPopupPosition.left}px`}}
+                                                                left: `${weatherPopupPosition.left}px`,
+                                                                width: "400px",
+                                                                maxWidth:"400px",
+                                                                minWidth:"400px",
+                                                                borderRadius: "8px",
+                                                                boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+                                                                overflowX:"hidden",
+                                                                zIndex: 9999,
+                                                            }}
                                                             >
                                                                 <div 
                                                                     ref={weatherRef}
                                                                     onClick={() => setShowWeatherList(-1)}
                                                                 >
+                                                                 <table style={{minWidth:"400px"}}> 
+                                                                        {/* <thead>
+                                                                            <tr>
+                                                                                <th style={{width:"100px"}}>시각</th>
+                                                                                <th>날씨</th>
+                                                                            </tr>
+                                                                        </thead> */}
+                                                                    <tbody>
                                                                     {
                                                                     weatherInfo.length !== 0 ?
                                                                         weatherInfo.map((weather, idx)=> (
-                                                                            <div key={`weather_${idx}`}>
-                                                                                <li style={{margin:"0.5rem 1rem", fontWeight:"bold"}}>{dateUtil.formatTimeHHMM(weather.recog_time)} 시</li>
-                                                                                <div style={{marginRight:"1rem", marginLeft:"2rem"}}>
+                                                                            <tr style={{width:"400px", maxWidth:"400px"}} key={idx}>
+                                                                                <td className="center" style={{width:"100px"}}>{dateUtil.formatTimeHHMM(weather.recog_time)}</td>
+                                                                                <td style={{fontSize:"0.8rem"}}>
                                                                                     {convertWeather(weather.pty, weather.sky)}
                                                                                     {weather.rn1 && ` / 강수량: ${weather.rn1}(㎜) `}
-                                                                                    <br />
+                                                                                    <br/>
                                                                                     {weather.t1h && ` 기온: ${weather.t1h}(°C) `}
-                                                                                    
                                                                                     {weather.vec && weather.wsd &&`/ ${weather.vec} ${weather.wsd}(㎧) `}
-                                                                                </div>
-                                                                                <br />
-                                                                            </div>
+                                                                                </td>
+                                                                            </tr>
                                                                         ))                                                        
                                                                     :
-                                                                        <div style={{textAlign:"center", margin:"1rem 0rem"}}>
-                                                                            해당 날짜의 날씨를 확인할 수 없습니다.
-                                                                        </div>
+                                                                        <tr>
+                                                                            <td colSpan={2} style={{padding:"1rem 5rem"}}>해당 날짜의 날씨를 확인할 수 없습니다.</td>
+                                                                        </tr>
                                                                     }
+                                                                    </tbody>
+                                                                    </table>
                                                                 </div>
                                                             </div>,
                                                              document.body
@@ -1180,11 +1205,11 @@ const Schedule = () => {
                                                     }
                                                     {/* 날짜 */}
                                                     <div 
-                                                        className={isRoleValid(scheduleRoles.CALENDER_ADD_BTN) ? "schedule-day schedule-day-hover" : "schedule-day"}
+                                                        className={scheduleAddRole ? "schedule-day schedule-day-hover" : "schedule-day"}
                                                         onClick={item !== null ? () => onClickAddDetailOpen(item) : null}
                                                         style={{
                                                             color: item === null ? "black" : isRest(item) ? "red" : item.getDay() === 0 ? "red" : item.getDay() === 6 ? "blue" : "black",
-                                                            cursor: item != null && isRoleValid(scheduleRoles.CALENDER_ADD_BTN) ? "pointer" : ""
+                                                            cursor: item != null && scheduleAddRole ? "pointer" : ""
                                                         }}
                                                     >
                                                         {
@@ -1193,7 +1218,7 @@ const Schedule = () => {
                                                             : ""
                                                         }
                                                         {
-                                                            item !== null && checkAllowDate(item) && isRoleValid(scheduleRoles.CALENDER_ADD_BTN)?
+                                                            item !== null && checkAllowDate(item) && scheduleAddRole ?
                                                                 <img src={PlusIcon} style={{width: "12px", marginLeft: "auto"}}/>
                                                             : ""
                                                         }
@@ -1264,7 +1289,7 @@ const Schedule = () => {
 
                                                             {/* 공정률 아이콘 */}
                                                             {
-                                                                item !== null && new Date(item) <= new Date(new Date().setHours(0, 0, 0, 0)) && project !== null && checkAllowDate(item) && isRoleValid(scheduleRoles.RATE_ICON) && (
+                                                                item !== null && new Date(item) <= new Date(new Date().setHours(0, 0, 0, 0)) && project !== null && checkAllowDate(item) && rateEquipModRole && (
                                                                     <img
                                                                         src={WorkRateIcon}
                                                                         alt="plus"
@@ -1326,22 +1351,7 @@ const Schedule = () => {
 export default Schedule;
 
 const weatherListStyle = {
-    position: "absolute",
-    right: "0px",
-    zIndex: '9998',
-    backgroundColor: 'rgb(255,255,255)',
-    padding: "10px 0px",
-    border: "1px solid rgb(200,200,200)",
-    borderRadius: "10px",
-    width: '10vw',
-    minWidth: "18rem",
-    maxWidth: "32rem",
-    height: "20rem",
-    boxShadow: '5px 5px 8px rgba(0, 0, 0, 0.5)',
-    margin: '10px',
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: "unset",
-    overflowY: "auto",
-    overflowX: "hidden",
+
+
+
 }

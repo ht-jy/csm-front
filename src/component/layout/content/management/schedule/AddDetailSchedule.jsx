@@ -41,8 +41,9 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
     const { project} = useAuth();
     // 권한 체크
     const { isRoleValid } = useUserRole();
-    // 전체 프로젝트 수정 권한
-    const scheduleRole = isRoleValid(scheduleRoles.SCHEDULE_MANAGER);
+    const allListRole = isRoleValid(scheduleRoles.SCHEDULE_LIST);
+    const scheduleAddRole = isRoleValid(scheduleRoles.SCHEDULE_ADD_BTN);
+
     
     /** 프로젝트 **/
     const [simpleProjects, setSimpleProjects] = useState([]);
@@ -138,12 +139,12 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
     const getProjectData = async () => {
         setIsLoading(true);
         try {
-            const res = await Axios.GET(`/project/job_name?isRole=${isRoleValid(projectRoles.PROJECT_NM)}`);
+            const res = await Axios.GET(`/project/job_name?isRole=${allListRole}`);
             if (res?.data?.result === "Success") {
                 // 프로젝트 정보
                 setSimpleProjects(res?.data?.values?.list);
                 // 셀렉트 옵션
-                const options = scheduleRole ? [{value:0, label: "전체 적용", cancelDay:null}] : [];
+                const options = scheduleAddRole ? [{value:0, label: "전체 적용", cancelDay:null}] : [];
                 res?.data?.values?.list.map(item => {
                     options.push({value: item.jno, label: item.project_nm, cancelDay: item.cancel_day});
                 });
@@ -214,6 +215,7 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                 text={modalText}
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
+                isConfirmFocus={true}
             />
             <Modal
                 isOpen={isConfirmSave}
