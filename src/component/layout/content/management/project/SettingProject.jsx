@@ -52,7 +52,10 @@ const SettingProject = () => {
 
     const [isLoading, setIsLoading] = useState(false)
     const { isRoleValid } = useUserRole();
-
+    const allListRole = isRoleValid(ProjectSettingRoles.SETTING_LIST);
+    const workHourModRole = isRoleValid(ProjectSettingRoles.WORK_HOUR_MOD);
+    const periodHourModRole = isRoleValid(ProjectSettingRoles.PERIOD_HOUR_MOD);
+    const deadlineCancelModRole = isRoleValid(ProjectSettingRoles.DEADLINE_CANCEL_MOD);
     // 모드
     const [isManHourEdit, setIsManHourEdit] = useState(false); // 공수 수정
     const [isInOutTimeEdit, setIsInOutTimeEdit] = useState(false); //출/퇴근 시간 수정
@@ -142,7 +145,7 @@ const SettingProject = () => {
         try {
             if(project?.jno === null) return;
 
-            const res = await Axios.GET(`/project-setting/${project.jno}`)
+            const res = await Axios.GET(`/project-setting/${project.jno}?isRole=${allListRole}`)
 
             if(res?.data?.result === "Success"){
                 setSetting(res?.data?.values?.project[0] || null)
@@ -518,7 +521,7 @@ const SettingProject = () => {
                                 <Button text={"취소"} style={{ ...titleButtonStyle }} onClick={() => {initSetting("editManHour")}}></Button>
                             </>
                             : 
-                                isRoleValid(ProjectSettingRoles.WORK_HOUR) && <Button text={"수정"} style={{ ...titleButtonStyle }} onClick={() => editMode(setIsManHourEdit)}></Button>
+                                workHourModRole && <Button text={"수정"} style={{ ...titleButtonStyle }} onClick={() => editMode(setIsManHourEdit)}></Button>
                         }
                         {/* {
 
@@ -663,7 +666,7 @@ const SettingProject = () => {
                                     <Button style={{...titleButtonStyle}} text={"취소"} onClick={() => initSetting("inOutTime")}></Button>
                                 </div>
                             : 
-                                isRoleValid(ProjectSettingRoles.PERIOD_HOUR) && <Button text={"수정"} style={{ ...titleButtonStyle }} onClick={() => editMode(setIsInOutTimeEdit)} />
+                                periodHourModRole && <Button text={"수정"} style={{ ...titleButtonStyle }} onClick={() => editMode(setIsInOutTimeEdit)} />
                         }
                     </ol>
                     {
@@ -727,7 +730,7 @@ const SettingProject = () => {
                                 </div>
 
                             : 
-                                isRoleValid(ProjectSettingRoles.DEADLINE_CANCEL) && <Button text={"수정"} style={{ ...titleButtonStyle }} onClick={() => editMode(setIsCancelCodeEdit)}></Button>
+                                deadlineCancelModRole && <Button text={"수정"} style={{ ...titleButtonStyle }} onClick={() => editMode(setIsCancelCodeEdit)}></Button>
                         }
                     </ol>
                     { cancelCodeExpand ? 
@@ -751,11 +754,12 @@ const SettingProject = () => {
                                     <div className="text-style">{selectInput(setting.cancel_code).label}</div>
                                 }
                             </div>
-
-                            <div className="text-success m-2">
-                                {'>'} 기간 추가 문의: 기술연구소 담당( ☎061-809-1148 )
-                            </div>
-
+                            
+                            {isCancelCodeEdit && 
+                                <div className="text-success m-2">
+                                    {'>'} 기간 추가 문의: 기술연구소 담당( ☎061-809-1148 )
+                                </div>
+                            }
                         </div>
                     : null 
                     }
@@ -763,11 +767,12 @@ const SettingProject = () => {
 
             : 
                 <div>
-                    <h5 className="h5-style">{ project ? "공사관리에 등록된 " : null } PROJECT를 선택하세요.</h5>
+                    <h5 className="h5-style">{ project ? "공사관리에 등록된" : null } PROJECT를 선택하세요.</h5>
                         <div className="h5-div-style">
-
+                            ※ 본인이 속한 프로젝트가 아닌 경우 조회가 되지 않을 수 있습니다. 
                             <br></br>
-                            프로젝트 추가 문의: 담당자( ☎061-690-0000 )
+                            <br></br>
+                            프로젝트 추가 문의: 담당자( ☎061-690-1242 )
                         </div>
                     
 
