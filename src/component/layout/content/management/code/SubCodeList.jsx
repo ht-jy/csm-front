@@ -326,6 +326,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData, pCode }) => {
             fncConfirm={isEdit || isAdd ? save : (isSortNoEdit ? sortNoSave : deleteCode)}
             cancel={isConfirmButton ? "취소" : "확인"}
             fncCancel={() => setIsOpenModal(false)}
+            isConfirmFocus={!isConfirmButton}
         >
         </Modal>
         <div style={{ ...headerStyle }}>

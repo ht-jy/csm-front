@@ -64,12 +64,12 @@ const Company = () => {
                 text={modalText}
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
+                isConfirmFocus={true}
             />
             <div>
                 <div className="border-box container-fluid px-4">
                     <ol className="breadcrumb mb-3 content-title-box">
                         <li className="breadcrumb-item content-title">협력업체 관리</li>
-                        <li className="breadcrumb-item active content-title-sub">관리</li>
                     </ol>
 
                     <div className="table-header">
