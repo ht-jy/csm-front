@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Axios } from "../../utils/axios/Axios";
 import ContentLayout from "./ContentLayout";
@@ -11,8 +11,16 @@ const PrivateRoute = () => {
     const location = useLocation();
     const [isMenuValid, setIsMenuValid] = useState(undefined);
 
+    const navigate = useNavigate();
+
     // 사용자 메뉴 접근 권한 체크
     useEffect(() => {
+
+        if (location?.pathname === "/") {
+            navigate("/site");
+            return;
+        }
+        
         const checkMenuValid = async () => {
             if (user?.uno && location?.pathname) {
                 try {

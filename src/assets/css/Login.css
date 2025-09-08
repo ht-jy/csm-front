@@ -93,13 +93,17 @@ h1, h2, h3, h4, h5, h6, p, ul, ol {
 }
 
 .save-checkbox-left {
-    padding-top: 3px;
     color: #4791db;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .save-checkbox-right {
-    padding-top: 3px;
     color: #4791db;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 a.brand-logo {

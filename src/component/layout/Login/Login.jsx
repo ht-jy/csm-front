@@ -1,13 +1,12 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
+import { useNavigate } from "react-router-dom";
 import "../../../assets/css/Login.css";
 import Logo from "../../../assets/image/hitecheng_logo_default.png";
 import { Axios } from "../../../utils/axios/Axios";
-import { useAuth } from "../../context/AuthContext";  // AuthContext 가져오기
-import Modal from "../../module/Modal";
-import DigitFormattedInput from './../../module/DigitFormattedInput';
+import { useAuth } from "../../context/AuthContext"; // AuthContext 가져오기
 import Loading from "../../module/Loading";
+import Modal from "../../module/Modal";
 
 function Login() {
     const navigate = useNavigate();
@@ -81,6 +80,7 @@ function Login() {
                 text={modalText}
                 confirm={"확인"}
                 fncConfirm={onClickConfirm}
+                isConfirmFocus={true}
             />
 
             <section className="w3l-login">
@@ -98,7 +98,7 @@ function Login() {
                                 </div>
                                 <div className="checkbox-container">
                                     <div className="save-checkbox-left">
-                                        <FormCheckInput checked={isSave} onChange={() => setIsSave(!isSave)}/> 로그인 상태 유지
+                                        <FormCheckInput className="" checked={isSave} onChange={() => setIsSave(!isSave)}/> 로그인 상태 유지
                                     </div>
                                     <div className="save-checkbox-right">
                                         <FormCheckInput checked={isCompany} onChange={() => setIsCompany(!isCompany)}/> 협력업체 로그인
