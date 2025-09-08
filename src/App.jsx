@@ -16,7 +16,7 @@ import Notice from "./component/layout/content/management/notice/Notice";
 import Code from "./component/layout/content/management/code/Code";
 import DailyDeadline from "./component/layout/content/management/deadline/DailyDeadline";
 import RetireDeduction from "./component/layout/content/management/retire/RetireDeduction";
-import DailyCompare from "./component/layout/content/management/compare/DailyCompare";
+import DailyCompare from "./component/layout/content/management/worker/DailyCompare";
 import Project from "./component/layout/content/management/project/SettingProject";
 import SystemManagement from "./component/layout/content/management/system/SystemManagement";
 import ErrorBoundary from "./component/error/ErrorBoundary";

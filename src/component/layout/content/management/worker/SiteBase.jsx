@@ -24,7 +24,7 @@ import "../../../../../assets/css/Table.css";
 import "../../../../../assets/css/Paginate.css";
 import "../../../../../assets/css/Calendar.css";
 import { TableProvider } from "../../../../context/TableContext";
-import { resultType } from "../../../../../utils/Enum";
+import { resultType, userRole } from "../../../../../utils/Enum";
 import { useLogParam } from "../../../../../utils/Log";
 import useExcelUploader from "../../../../../utils/hooks/useExcelUploader";
 import DigitFormattedInput from "../../../../module/DigitFormattedInput";
@@ -49,7 +49,7 @@ import { workerRoles } from "../../../../../utils/rolesObject/workerRoles";
  * 
  * @additionalInfo
  * - API: 
- *    Http Method - GET : /worker/site-base (현장 근로자 조회), /code (코드 조회)
+ *    Http Method - GET : /worker/site-base (현장 근로자 조회), /worker/site-base/co (현장 근로자 조회-협력업체), /code (코드 조회), 
  *    Http Method - POST : /worker/site-base (현장 근로자 추가/수정), /worker/site-base/deadline (일괄마감)
  */
 const SiteBase = () => {
@@ -68,6 +68,17 @@ const SiteBase = () => {
     const tableRef = useRef();
     const excelRefs = useRef({});
     const { isRoleValid } = useUserRole();
+    const allListRole = isRoleValid(workerRoles.SITE_WORKER_LIST);
+    const recordDownloadRole = isRoleValid(workerRoles.SITE_WORKER_RECORD_INFO_DOWNLOAD);
+    const recordUploadRole = isRoleValid(workerRoles.SITE_WORKER_RECORD_UPLOAD);
+    const formDownloadRole = isRoleValid(workerRoles.SITE_WORKER_FORM_DOWNLOAD);
+    const workerModifyRole = isRoleValid(workerRoles.SITE_WORKER_MOD);
+    const deadlineRole = isRoleValid(workerRoles.SITE_WORKER_BATCH_DEADLINE);
+    const workhoureRole = isRoleValid(workerRoles.SITE_WORKER_BATCH_WORK_HOUR);
+    const transPJTRole = isRoleValid(workerRoles.SITE_WORKER_TRANS_PROJECT);
+    const workerDeleteRole = isRoleValid(workerRoles.SITE_WORKER_DEL);
+    const deadlineCancelRole = isRoleValid(workerRoles.SITE_WORKER_CANCEL_DEADLINE);
+    const hisotryRole = isRoleValid(workerRoles.SITE_WORKER_HISTORY);
 
     // 엑셀 커스텀 훅
     const { handleSelectAndUpload } = useExcelUploader();
@@ -135,7 +146,7 @@ const SiteBase = () => {
     ];
 
     // 업로드 성공 테이블 정보
-    const workerSColumns = [
+    const workersColumns = [
         { isSearch: false, isOrder: false, width: "50px", header: "이름", itemName: "user_nm", bodyAlign: "left", isEllipsis: false },
         { isSearch: false, isOrder: false, width: "50px", header: "생년월일", itemName: "reg_no", bodyAlign: "left", isEllipsis: false },
         { isSearch: false, isOrder: false, width: "50px", header: "핸드폰번호", itemName: "phone", bodyAlign: "left", isEllipsis: false },
@@ -924,12 +935,17 @@ const SiteBase = () => {
             return;
         }
 
-        
         if (project.sno == null) return;
         setIsLoading(true);
-
         try {
-            const res = await Axios.GET(`/worker/site-base?page_num=${pageNum}&row_size=${rowSize}&order=${order}&rnum_order=${rnumOrder}&search_start_time=${searchStartTime}&search_end_time=${searchEndTime}&jno=${project.jno}&user_id=${searchValues.user_id}&user_nm=${searchValues.user_nm}&department=${searchValues.department}&retry_search=${retrySearchText}`);
+            let url;
+            if (user.role === userRole.CO_MANAGER.code) {
+                url = `/worker/site-base/co?page_num=${pageNum}&row_size=${rowSize}&order=${order}&rnum_order=${rnumOrder}&search_start_time=${searchStartTime}&search_end_time=${searchEndTime}&jno=${project.jno}&user_id=${searchValues.user_id}&user_nm=${searchValues.user_nm}&department=${searchValues.department}&retry_search=${retrySearchText}`
+            } else {
+                url = `/worker/site-base?isRole=${allListRole}&page_num=${pageNum}&row_size=${rowSize}&order=${order}&rnum_order=${rnumOrder}&search_start_time=${searchStartTime}&search_end_time=${searchEndTime}&jno=${project.jno}&user_id=${searchValues.user_id}&user_nm=${searchValues.user_nm}&department=${searchValues.department}&retry_search=${retrySearchText}`
+            }
+
+            const res = await Axios.GET(url);
             if (res?.data?.result === "Success") {
                 if(res?.data?.values?.list.length === 0) {
                     setIsModal(true);
@@ -1367,7 +1383,7 @@ const SiteBase = () => {
                     <div className="table-wrapper" style={{marginBottom: "10px"}}>
                         <div className="table-container" id="table-container" style={{overflow: "auto", maxHeight: "calc(100vh - 350px)"}}>
                             <Table
-                                columns={workerSColumns} 
+                                columns={workersColumns} 
                                 data={successWorkers}
                                 noDataText={"추가에 성공한 근로자가 없습니다."}
                                 styles={{minWidth: "400px"}}
@@ -1408,11 +1424,11 @@ const SiteBase = () => {
                                 // :   state.list.length > 0 ?
                                 :   project !== null ?
                                         <>
-                                           { isRoleValid(workerRoles.SITE_WORKER_HISTORY) && <Button text={"변경이력"} onClick={() => setIsHistory(true)} /> }
-                                           { isRoleValid(workerRoles.SITE_WORKER_RECORD_INFO_DOWNLOAD) && <Button text={"근태 다운로드"} onClick={onClickRecordData} />}
-                                           { isRoleValid(workerRoles.SITE_WORKER_EXCEL_UPLOAD) && <Button text={"근태 업로드"} onClick={dailyWorkerExcelImport} /> }
-                                           { isRoleValid(workerRoles.SITE_WORKER_FORM_DOWNLOAD) && <Button text={"양식 다운로드"} onClick={getDailyWorkerFormExport} /> }
-                                           { isRoleValid(workerRoles.SITE_WORKER_MOD) && <Button text={"수정"} onClick={onClickEditBtn} /> }
+                                           { hisotryRole && <Button text={"변경이력"} onClick={() => setIsHistory(true)} /> }
+                                           { recordDownloadRole && <Button text={"근태 다운로드"} onClick={onClickRecordData} />}
+                                           { recordUploadRole && <Button text={"근태 업로드"} onClick={dailyWorkerExcelImport} /> }
+                                           { formDownloadRole && <Button text={"양식 다운로드"} onClick={getDailyWorkerFormExport} /> }
+                                           { workerModifyRole && <Button text={"수정"} onClick={onClickEditBtn} /> }
                                             <input ref={(e) => (excelRefs.current = e)} type="file" id="fileInput" accept=".xlsx, .xls" onChange={(e) => excelUpload(e)} style={{display: "none"}}/>                              
                                         </>
                                     :   null
@@ -1442,11 +1458,11 @@ const SiteBase = () => {
                                 {
                                     !isEdit && state.list.length > 0 ?
                                         <>
-                                            { isRoleValid(workerRoles.SITE_WORKER_BATCH_DEADLINE) && <Button text={"마감"} onClick={onClickDeadLineBtn} /> }
-                                            { isRoleValid(workerRoles.SITE_WORKER_BATCH_WORK_HOUR) && <Button text={"공수입력"} onClick={onClickWorkHourBtn} /> }
-                                            { isRoleValid(workerRoles.SITE_WORKER_TRANS_PROJECT) && <Button text={"프로젝트 변경"} onClick={onClickModProjectBtn} /> }
-                                            { isRoleValid(workerRoles.SITE_WORKER_DEL) && <Button text={"근로자 삭제"} onClick={onClickDeleteWorkerBtn} /> }
-                                            { isRoleValid(workerRoles.SITE_WORKER_CANCEL_DEADLINE) && <Button text={"마감취소"} onClick={onClickDeadlineCancelBtn} /> }
+                                            { deadlineRole && <Button text={"마감"} onClick={onClickDeadLineBtn} /> }
+                                            { workhoureRole && <Button text={"공수입력"} onClick={onClickWorkHourBtn} /> }
+                                            { transPJTRole && <Button text={"프로젝트 변경"} onClick={onClickModProjectBtn} /> }
+                                            { workerDeleteRole && <Button text={"근로자 삭제"} onClick={onClickDeleteWorkerBtn} /> }
+                                            { deadlineCancelRole && <Button text={"마감취소"} onClick={onClickDeadlineCancelBtn} /> }
                                         </>
                                     : null
                                 }

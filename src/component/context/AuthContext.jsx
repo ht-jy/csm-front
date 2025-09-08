@@ -45,6 +45,7 @@ export const AuthProvider = ({ children }) => {
                     userName: res?.data?.values?.claims?.user_name,
                     role: res?.data?.values?.claims?.role, // USER_ROLE_MAP 테이블에서 JNO가 0으로 되어 있는 기본 권한 or go서버에 하드코딩 되어 있는 권한만 가져옴
                 });
+                console.log(res?.data?.values?.claims?.role);
                 if(res?.data?.values?.claims?.role === userRoles.CO_MANAGER.code || res?.data?.values?.claims?.role === userRoles.CO_USER.code){
                     const match = res?.data?.values?.claims?.user_name?.match(/\(([^)]+)\)/); // () 안에 있는 협력업체명 추출 
                     setLoginCompany({name: match ? match[1] : "", is: true});

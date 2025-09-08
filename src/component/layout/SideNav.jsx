@@ -44,10 +44,9 @@ const SideNav = () => {
         }
     };
 
-
     useEffect(() => {
-        getMenuData()
-    }, [jobRole]);
+        getMenuData();
+    }, [user]);
 
     return(
         <div id="layoutSidenav_nav">

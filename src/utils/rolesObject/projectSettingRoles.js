@@ -1,26 +1,28 @@
 import { userRole } from "../Enum";
 
 export const ProjectSettingRoles = Object.freeze({
-    // 공수시간 수정
-    WORK_HOUR: [
-        userRole.SYSTEM_ADMIN,
+    SETTING_LIST: [    // 모든 프로젝트 조회
         userRole.SUPER_ADMIN,
+        userRole.SYSTEM_ADMIN,
+        userRole.ADMIN,
+    ],
+    WORK_HOUR_MOD: [    // 공수시간 수정
+        userRole.SUPER_ADMIN,
+        userRole.SYSTEM_ADMIN,
         userRole.ADMIN,
         userRole.SITE_MANAGER,
         userRole.TEMP_SITE_MANAGER,
     ],
-    // 유예시간 수정
-    PERIOD_HOUR: [
-        userRole.SYSTEM_ADMIN,
+    PERIOD_HOUR_MOD: [    // 유예시간 수정
         userRole.SUPER_ADMIN,
+        userRole.SYSTEM_ADMIN,
         userRole.ADMIN,
         userRole.SITE_MANAGER,
         userRole.TEMP_SITE_MANAGER,
     ],
-    // 마감취소 수정
-    DEADLINE_CANCEL: [
-        userRole.SYSTEM_ADMIN,
+    DEADLINE_CANCEL_MOD: [    // 마감취소 수정
         userRole.SUPER_ADMIN,
+        userRole.SYSTEM_ADMIN,
         userRole.ADMIN,
         userRole.SITE_MANAGER,
         userRole.TEMP_SITE_MANAGER,

@@ -12,6 +12,7 @@ import { useUserRole } from "../../utils/hooks/useUserRole";
 function AnnouncementSlider() {
 
     const { isRoleValid } = useUserRole(); 
+    const noticeAllRole = isRoleValid(noticeRoles.NOTICE_LIST);
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
@@ -35,8 +36,7 @@ function AnnouncementSlider() {
 
     // 공지사항 데이터 불러오기
     const getNotices = async () => {
-        const res = await Axios.GET(`/notice/${user.uno}?isRole=${isRoleValid(noticeRoles.NOTICE_MANAGER)}&page_num=${1}&row_size=${50}&jno=${project?.jno}`);
-
+        const res = await Axios.GET(`/notice?isRole=${noticeAllRole}&page_num=${1}&row_size=${50}&jno=${project?.jno}`);
         if (res?.data?.result === "Success") {
            dispatch({ type: "HEADER", notices: res?.data?.values?.notices, count: res?.data?.values?.count })
         }
@@ -53,16 +53,20 @@ function AnnouncementSlider() {
         if (isAnimating) return;
         setIsAnimating(true);
         setCurrentIndex((prevIndex) =>
-            prevIndex === 0 ? state.headerList.length - 1 : prevIndex - 1
+            prevIndex === 0 ? state.noticesHeader.length - 1 : prevIndex - 1
         );
         resetAutoSlide();
     };
 
     // 다음 공지로 넘기기
     const handleNext = () => {
-        if (state.headerList.length <= 1 || isAnimating) return;
+ 
+        if (state.noticesHeader.length <= 1 ||isAnimating) {
+            return;
+        }
+
         setIsAnimating(true);
-        setCurrentIndex( (prevIndex) =>(prevIndex + 1) % state.headerList.length)
+        setCurrentIndex( (prevIndex) =>(prevIndex + 1) % state.noticesHeader.length)
         resetAutoSlide();
     };
 
@@ -81,11 +85,10 @@ function AnnouncementSlider() {
 
     // Index 조절하기
     useEffect(() => {
-        if (state.headerList.length > 0) {
+        if (state.noticesHeader.length > 0) {
             setCurrentIndex(0);
         }
-
-    }, [state.headerList]);
+    }, [state.noticesHeader]);
 
     // 공지사항 데이터 로드
     useEffect(() => {
@@ -94,16 +97,16 @@ function AnnouncementSlider() {
 
     // 3초마다 다음 공지 띄우기.
     useEffect(() => {
-        if (state.headerList.length <= 1) return
-
         const interval = setInterval(() => {
             handleNext();
         }, 3000);
         return () => clearInterval(interval);
-    }, [state.headerList.length]);
+    }, [state.noticesHeader.length]);
 
     // 0.5초 후 적용하기(텍스트 변경되는 시간)
     useEffect(() => {
+        if (state.noticesHeader.length <= 1 ) return;
+
         const timeout = setTimeout(() => setIsAnimating(false), 500);
         return () => clearTimeout(timeout);
 
@@ -169,13 +172,12 @@ function AnnouncementSlider() {
                 <div className="slides-container">
                     <div className="slide">
                         {
-                            state.headerList.length === 0 ? 
+                            state.noticesHeader.length === 0 ? 
                                 <span>공지사항이 없습니다.</span>
                             :
                             <span className="slide">               
-                            
-                                    {state.headerList[currentIndex]?.job_name === "전체" ?
-                                        `전체` : `PROJ`} - {state.headerList[currentIndex]?.title}
+                                    {state.noticesHeader[currentIndex]?.job_name === "전체" ?
+                                        `전체` : `PROJ`} - {state.noticesHeader[currentIndex]?.title}
                                               
                             </span>
                         }

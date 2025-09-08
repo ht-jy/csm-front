@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
-import { Axios } from "../../../../../utils/axios/Axios";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../../context/AuthContext";
-import { useLogParam } from "../../../../../utils/Log";
-import { useUserRole } from "../../../../../utils/hooks/useUserRole";
-import CheckInput from "../../../../module/CheckInput";
-import CheckIcon from "../../../../../assets/image/check-icon.png";
 import "../../../../../assets/css/Table.css";
+import CheckIcon from "../../../../../assets/image/check-icon.png";
+import { useLogParam } from "../../../../../utils/Log";
+import { Axios } from "../../../../../utils/axios/Axios";
+import { useUserRole } from "../../../../../utils/hooks/useUserRole";
+import { useAuth } from "../../../../context/AuthContext";
+import CheckInput from "../../../../module/CheckInput";
 import Loading from "../../../../module/Loading";
 import Modal from "../../../../module/Modal";
 import { CompanyRoles } from './../../../../../utils/rolesObject/companyRoles';
@@ -76,7 +76,7 @@ const CompanySupervisor = ({jno, styles}) => {
             const param = createLogParam({
                 menu: "company",
                 after: supervisor.find(obj =>obj.uno = item.uno)||[],
-                before: {...item, is_site_manager: value}||{},
+                before: {...item, is_temp_site_manager: value}||{},
                 items: [
                     {
                         user_uno: item.uno,
@@ -141,7 +141,6 @@ const CompanySupervisor = ({jno, styles}) => {
             try {
                 setIsLoading(true);
                 const res = await Axios.GET(`/company/supervisor?jno=${jno}`);
-                
                 if (res?.data?.result === "Success") {
                     //func_no
                     if (res?.data?.values?.list.length !== 0){
@@ -155,6 +154,7 @@ const CompanySupervisor = ({jno, styles}) => {
                         });
                     }
                     setSupervisor(res?.data?.values?.list);
+
                 }
             } catch(err) {
                 navigate("/error");
@@ -235,8 +235,13 @@ const CompanySupervisor = ({jno, styles}) => {
                                         justifyContent: "space-between", 
                                         alignItems: "center" 
                                     }}>
+                                        
                                         <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                                            <CheckInput checkFlag={item.is_site_manager} setCheckFlag={(value) => onClickTempManagerBtn(value, item)} checkVaild={siteManagerRole}/>
+                                            {item.is_site_manager === 'Y' ?
+                                                <div style={{width: "18px"}}></div>
+                                            :
+                                                <CheckInput checkFlag={item.is_temp_site_manager} setCheckFlag={(value) => onClickTempManagerBtn(value, item)} checkVaild={siteManagerRole}/>
+                                            }
                                             <span>{`${item.user_name} ${item.duty_name} (${item.user_id})`}</span>
                                         </div>
                                         {

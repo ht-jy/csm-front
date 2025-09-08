@@ -58,6 +58,9 @@ const Device = () => {
     const { user, setIsProject } = useAuth();
     const { createLogParam } = useLogParam();
     const { isRoleValid } = useUserRole();
+    const deviceAddRole = isRoleValid(DeviceRoles.DEVICE_ADD);
+    const deviceModRole = isRoleValid(DeviceRoles.DETAIL_DEVICE_MOD);
+    const deviceDelRole = isRoleValid(DeviceRoles.DETAIL_DEVICE_DEL);
 
     const [isLoading, setIsLoading] = useState(false);
     const [isGridModal, setIsGridModal] = useState(false);
@@ -395,8 +398,8 @@ const Device = () => {
                 isOpen={isGridModal}
                 gridMode={gridMode}
                 funcModeSet={onClickModeSet}
-                editBtn={isRoleValid(DeviceRoles.MOD_BTN)}
-                removeBtn={isRoleValid(DeviceRoles.DEL_BTN)}
+                editBtn={deviceModRole}
+                removeBtn={deviceDelRole}
                 title={`인식기 관리 ${getModeString()}`}
                 exitBtnClick={onClickGridModalExitBtn}
                 detailData={detail}
@@ -409,7 +412,7 @@ const Device = () => {
                     <ol className="breadcrumb mb-2 content-title-box">
                         <li className="breadcrumb-item content-title">인식기 관리</li>
                         <div className="table-header-right">
-                            {isRoleValid(DeviceRoles.ADD_BTN) && <Button text={"추가"} onClick={() => handleGridModal("SAVE")} />}
+                            {deviceAddRole && <Button text={"추가"} onClick={() => handleGridModal("SAVE")} />}
                         </div>
                     </ol>
 
