@@ -38,6 +38,9 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
     const navigate = useNavigate();
     const { user } = useAuth(); 
     const {isRoleValid} = useUserRole();
+    const noticeCopyRole = isRoleValid(noticeRoles.DETAIL_NOTICE_COPY);
+    const noticeModifyRole = isRoleValid(noticeRoles.DETAIL_NOTICE_MOD);
+    const noticeDeleteRole = isRoleValid(noticeRoles.DETAIL_NOTICE_DEL);
 
     // [GridModal]
     const [detail, setDetail] = useState([]);
@@ -302,14 +305,15 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
                 fncConfirm={save}
                 cancel={isValidation ? "아니오" : "확인"}
                 fncCancel={() => setIsOpenModal(false)}
+                isCancelFocus={!isValidation} 
             />
              <NoticeModal
                 data={noticeData}
                 isOpen={isGridModal}
                 gridMode={gridMode}
                 funcModeSet={onClickModeSet}
-                editBtn={isRoleValid(noticeRoles.NOTICE_ADD_MANAGER) || isAuthorization}
-                removeBtn={isRoleValid(noticeRoles.NOTICE_ADD_MANAGER) || isAuthorization}
+                editBtn={noticeModifyRole || isAuthorization}
+                removeBtn={noticeDeleteRole || isAuthorization}
                 title={`공지사항 ${getModeString()}`}
                 exitBtnClick={onClickGridModalExitBtn}
                 detailData={detail}
@@ -317,7 +321,7 @@ const NoticeDetail = ( {notice, isDetail, setIsDetail, getData} ) => {
                 saveBtnClick={onClickModalSave}
                 removeBtnClick={onClickGridModalDeleteBtn}
                 isCancle={true}
-                isCopy={isRoleValid(noticeRoles.NOTICE_ADD_MANAGER) && true}
+                isCopy={noticeCopyRole}
                 copyBtnClick={() => {handlePostGridModal("COPY", noticeData)}}
             />
         </div>

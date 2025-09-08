@@ -337,7 +337,7 @@ const gridStyle = {
     borderRadius: '10px',
     padding: '10px',
     width: '100%', 
-    // height: '95%',
+    height: '95%',
     overflowX: 'auto',            // 가로 스크롤
     overflowY: 'auto',            // 세로 스크롤
     marginTop: "5px",

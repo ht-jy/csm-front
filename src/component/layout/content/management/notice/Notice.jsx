@@ -49,8 +49,13 @@ const Notice = () => {
 
     const navigate = useNavigate();
     const { user, project, jobRole, setIsProject } = useAuth();
-    const { isRoleValid } = useUserRole();
     const { pageNum, setPageNum, rowSize, setRowSize, order, setOrder } = useTableControlState(20);
+
+    // 권한
+    const { isRoleValid } = useUserRole();
+    const allListRole = isRoleValid(noticeRoles.NOTICE_LIST);
+    const noticeAddRole = isRoleValid(noticeRoles.NOTICE_ADD);
+    
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -95,7 +100,7 @@ const Notice = () => {
     const getNotices = async () => {
         setIsLoading(true);
         try {
-            const res = await Axios.GET(`/notice/${user.uno}?isRole=${isRoleValid(noticeRoles.NOTICE_MANAGER)}&page_num=${pageNum}&row_size=${rowSize}&order=${order}&jno=${project?.jno}&job_loc_name=${searchValues.job_loc_name}&job_name=${searchValues.job_name}&title=${searchValues.title}&user_info=${searchValues.user_info}`);
+            const res = await Axios.GET(`/notice?isRole=${allListRole}&page_num=${pageNum}&row_size=${rowSize}&order=${order}&jno=${project?.jno}&job_loc_name=${searchValues.job_loc_name}&job_name=${searchValues.job_name}&title=${searchValues.title}&user_info=${searchValues.user_info}`);
             if (res?.data?.result === "Success") {
                 dispatch({ type: "INIT", notices: res?.data?.values?.notices, count: res?.data?.values?.count });
                 dispatch({ type: "HEADER", notices: res?.data?.values?.notices, count: res?.data?.values?.count })
@@ -160,7 +165,6 @@ const Notice = () => {
                 <div className="container-fluid px-4">
                     <ol className="breadcrumb mb-2 content-title-box">
                         <li className="breadcrumb-item content-title">공지사항</li>
-                        <li className="breadcrumb-item active content-title-sub">관리</li>
                     </ol>
                     <div className="table-header">
                         <div className="table-header-left">
@@ -178,7 +182,7 @@ const Notice = () => {
                                 isSearchInit ? <Button text={"초기화"} onClick={handleSearchInit} /> : null
                             }
                             {
-                                isRoleValid(noticeRoles.NOTICE_ADD_MANAGER) &&
+                                noticeAddRole &&
                                 <Button text={"등록"} onClick={() => onClickRow(null)}></Button>
                             }
                         </div>

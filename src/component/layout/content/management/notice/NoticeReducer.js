@@ -6,7 +6,7 @@ const NoticeReducer = (state, action) => {
         case "HEADER":
             const headerList = ObjChk.ensureArray(action.notices).map((item, idx) => ({job_name : item.job_name, title: item.title}))
 
-            return {...state, noticesHeader: structuredClone(ObjChk.ensureArray(action.notices)), count: action.count ?? 0, headerList: headerList}
+            return {...state, noticesHeader: structuredClone(ObjChk.ensureArray(action.notices)), count: action.count ?? 0}
         
         // 공지사항 데이터
         case "INIT":

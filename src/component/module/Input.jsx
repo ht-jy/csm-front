@@ -141,12 +141,29 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
     // date 체인지 이벤트
     useEffect(() => {
         if (type === "date-duration"){
+            if (searchStartTime > searchEndTime) { // 시작 날짜보다 끝나는 날짜가 빠를 시: 시작 날짜를 변경한 경우 (끝나는 날짜를 시작 날짜로)
+                setSearchEndTime(searchStartTime)
+            }
+
             onValueChange({startTime: searchStartTime, endTime:searchEndTime});
         }else{
             onValueChange(searchStartTime)
         }
 
-    }, [searchStartTime, searchEndTime]);
+    }, [searchStartTime]);
+
+    useEffect(() => {
+        if (type === "date-duration"){
+            if (searchStartTime > searchEndTime) { // 시작 날짜보다 끝나는 날짜가 빠를 시: 끝나는 날짜를 변경한 경우 (시작 날짜를 끝나는 날짜로)
+                setSearchStartTime(searchEndTime)
+            }
+
+            onValueChange({startTime: searchStartTime, endTime:searchEndTime});
+        }else{
+            onValueChange(searchStartTime)
+        }
+
+    }, [searchEndTime]);
 
 
     // 체크박스, 주민번호 상태 업데이트
@@ -279,7 +296,7 @@ const Input = ({ editMode, type, span, label, value, onValueChange, selectData, 
                         <form className="input-group" style={{margin:"0px", height:"40px"}}>
                             <input className="form-control" type="text" value={value.site_nm} placeholder="Site를 선택하세요" aria-label="Site를 선택하세요" aria-describedby="btnNavbarSearch" onClick={onClickSearchSite} readOnly/>
                             {
-                                (value.sno && value.sno != 100 &&
+                                (value.sno && value.sno !== 100 &&
                                     <img 
                                     src={CancelIcon}
                                     alt="취소"
