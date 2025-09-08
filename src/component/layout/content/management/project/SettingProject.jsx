@@ -494,11 +494,10 @@ const SettingProject = () => {
                 fncConfirm={() => fncConfirm()}
                 cancel={isConfirmButton ? "취소" : "확인"}
                 fncCancel={() => { setIsModal(false); setDeleteMH(null)}}
-
+                isCancelFocus={!isConfirmButton}
             />
             <ol className="breadcrumb mb-2 content-title-box">
                 <li className="breadcrumb-item content-title">프로젝트 설정</li>
-                <li className="breadcrumb-item active content-title-sub">관리</li>
             </ol>
 
             {

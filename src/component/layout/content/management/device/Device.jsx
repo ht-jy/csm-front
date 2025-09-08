@@ -386,6 +386,7 @@ const Device = () => {
                 text={`인식기 ${getModeString()}에 ${isMod ? "성공하였습니다." : "실패하였습니다."}`}
                 confirm={"확인"}
                 fncConfirm={() => setIsModal(false)}
+                isConfirmFocus={true}
             />
             <Modal
                 isOpen={isModal2}
@@ -393,6 +394,7 @@ const Device = () => {
                 text={modal2Text}
                 confirm={"확인"}
                 fncConfirm={() => setIsModal2(false)}
+                isConfirmFocus={true}
             />
             <GridModal
                 isOpen={isGridModal}
