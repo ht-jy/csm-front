@@ -348,7 +348,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData, pCode }) => {
                 }
             </div>
         </div>
-        <table>
+        <table className="">
             <thead>
                 <tr>
                     <th style={{ width: "10px" }} >순서</th>
@@ -411,7 +411,7 @@ const SubCodeList = ({ data, dispatch, path, funcRefreshData, pCode }) => {
                                                         <td className="center">{index + 1}</td>
                                                         <td>{codeTree.code_set.code}</td>
                                                         <td>{codeTree.code_set.code_nm}</td>
-                                                        <td style={{ justifyItems: 'center' }}> <div className="square" style={{ backgroundColor: `${codeTree.code_set.code_color}` }}></div></td>
+                                                        <td style={{ justifyItems: 'center' }}> <div className="square" style={{ margin:"0", backgroundColor: `${codeTree.code_set.code_color}` }}></div></td>
                                                         <td>{codeTree.code_set.udf_val_03}</td>
                                                         <td>{codeTree.code_set.udf_val_04}</td>
                                                         <td>{codeTree.code_set.udf_val_05}</td>
@@ -488,6 +488,5 @@ const textInputStyle = {
 }
 
 const colorInputStyle = {
-    width: "30px",
-    height: "25px",
+    justifyItems: "center",
 }

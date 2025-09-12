@@ -618,7 +618,7 @@ const DetailSchedule = ({isOpen, isRest, restDates, dailyJobs, clickDate, exitBt
                                                     <div style={{gridColumn: "span 2", padding: '10px', display: "flex", width: "100%"}}>
                                                         <label style={{ marginRight: "5px", fontWeight: "bold", width: "80px" }}>작업내용</label>
                                                         <div>
-                                                            <textarea className="text-area" type="text" value={editData.content === undefined ? "" : editData.content} onChange={(e) => onChangeEditData("content", e.target.value)} style={{width: "655px", height:"calc(50vh - 260px)", textAlign: "start", paddingLeft: "10px"}}/>
+                                                            <textarea className="text-area" type="text" value={editData.content === undefined ? "" : editData.content} onChange={(e) => onChangeEditData("content", e.target.value)} style={{width: "655px", height:"calc(50vh - 260px)", textAlign: "start", paddingLeft: "10px", color: editData.content_color || "#000000"}}/>
                                                         </div>
                                                     </div>
                                                 </div>

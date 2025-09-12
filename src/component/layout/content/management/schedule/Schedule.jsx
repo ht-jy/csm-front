@@ -159,7 +159,7 @@ const Schedule = () => {
     const getProjectSetting = async () => {
         if(project === null) return;
         
-        const res = await Axios.GET(`/project-setting/${project.jno}`)
+        const res = await Axios.GET(`/project-setting/${project.jno}?isRole=${true}`)
         if (res?.data?.result === "Success"){
             setCancelDay(res?.data?.values?.project[0]?.cancel_day || null);
         }else{

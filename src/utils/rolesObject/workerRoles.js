@@ -45,6 +45,12 @@ export const workerRoles = Object.freeze({
     ],
 
     /********** 비교근로자 **********/
+    COMPARE_WORKER_LIST: [ // 근로자 전체 조회 권한
+        userRole.SUPER_ADMIN,
+        userRole.SYSTEM_ADMIN,
+        userRole.ADMIN,
+    ],
+
     COMPARE_TBM_FORM_DOWNLOAD:[ // TBM 양식 버튼
         userRole.SUPER_ADMIN,
         userRole.SYSTEM_ADMIN,

@@ -10,7 +10,7 @@ import useTableControlState from "../../../../../utils/hooks/useTableControlStat
 import useTableSearch from "../../../../../utils/hooks/useTableSearch";
 import { useUserRole } from "../../../../../utils/hooks/useUserRole";
 import { ObjChk } from "../../../../../utils/ObjChk";
-import { DailyCompareRoles } from "../../../../../utils/rolesObject/dailyCompareRoles";
+import { workerRoles } from "../../../../../utils/rolesObject/workerRoles";
 import { useAuth } from "../../../../context/AuthContext";
 import { TableProvider } from "../../../../context/TableContext";
 import Button from "../../../../module/Button";
@@ -20,7 +20,6 @@ import Modal from "../../../../module/Modal";
 import Search from "../../../../module/search/Search";
 import Table from "../../../../module/Table";
 import DailyCompareReducer from "./DailyCompareReducer";
-import { workerRoles } from "../../../../../utils/rolesObject/workerRoles";
 
 
 /**
@@ -41,6 +40,7 @@ const DailyCompare = () => {
     const tableRef = useRef();
 
     const { isRoleValid } = useUserRole();
+    const allListRole = isRoleValid(workerRoles.COMPARE_WORKER_LIST);
     const tbmFormDownloadRole = isRoleValid(workerRoles.COMPARE_TBM_FORM_DOWNLOAD); 
     const deductionFormDownloadRole = isRoleValid(workerRoles.COMPARE_DEDUCTION_FORM_DOWNLOAD); 
     const tbmUploadRole = isRoleValid(workerRoles.COMPARE_TBM_UPLOAD); 
@@ -455,7 +455,7 @@ const DailyCompare = () => {
                 dispatch({type: "COMPARE_INIT", list: []})
             }
 
-            const res = await Axios.GET(`/compare?sno=${project.sno}&jno=${project.jno}&start_date=${searchStartDate}&order=${order}&retry_search=${retrySearchText}`);
+            const res = await Axios.GET(`/compare?isRole=${allListRole}&sno=${project.sno}&jno=${project.jno}&start_date=${searchStartDate}&order=${order}&retry_search=${retrySearchText}`);
             
             if(res?.data?.result === resultType.SUCCESS){
                 dispatch({type: "COMPARE_INIT", list: res?.data?.values || []});

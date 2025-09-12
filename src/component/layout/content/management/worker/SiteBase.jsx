@@ -985,7 +985,7 @@ const SiteBase = () => {
         try {
             if(ObjChk.all(project?.jno)) return;
 
-            const res = await Axios.GET(`/project-setting/${project.jno}`)
+            const res = await Axios.GET(`/project-setting/${project.jno}?isRole=${true}`);
             
             if(res?.data?.result === "Success"){
                 dispatch({type:"PROJECT_SETTING", list: ObjChk.ensureArray(res?.data?.values?.project)});
