@@ -168,7 +168,7 @@ const containerStyle = {
     borderRadius: '10px',
     marginTop: "5px",
     marginRight: "15px",
-    overFlow: "unset"
+    overflow: "unset"
 
 };
 

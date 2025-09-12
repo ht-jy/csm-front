@@ -403,7 +403,7 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                                         <div style={{gridColumn: "span 2", padding: '10px', display: "flex", width: "100%"}}>
                                             <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>{addType === "REST" ? "휴무사유" : "작업내용"}</label>
                                             <div>
-                                                <textarea className="text-area" type="text" value={formData.reason === undefined ? "" : formData.reason} onChange={(e) => onChangeFormData("reason", e.target.value)} style={{width: "635px", height: addType === "REST"  ? "calc(50vh - 285px)" :"calc(50vh - 335px)", textAlign: "left", paddingLeft: "10px", textWrap:"wrap"}}/>
+                                                <textarea className="text-area" type="text" value={formData.reason === undefined ? "" : formData.reason} onChange={(e) => onChangeFormData("reason", e.target.value)} style={{width: "635px", height: addType === "REST"  ? "calc(50vh - 285px)" :"calc(50vh - 335px)", textAlign: "left", paddingLeft: "10px", textWrap:"wrap", color: addType !== "REST" ? formData.content_color || "#000000" : null}}/>
                                             </div>
                                         </div>
                                     </div>
@@ -524,7 +524,7 @@ const AddDetailSchedule = ({ isOpen, clickDate, exitBtnClick, restSaveBtnClick, 
                                         {/* 사유 */}
                                         <div style={{gridColumn: "span 2", padding: '10px', display: "flex", width: "100%"}}>
                                             <label style={{ marginRight: "5px", fontWeight: "bold", width: "110px" }}>{addType === "REST" ? "휴무사유" : "작업내용"}</label>
-                                            <div  sytle={{color: addType !== "REST" ? formData.content_color || "#000000" : null}}>
+                                            <div  sytle={{color: addType !== "REST" ? formData.content_color || "#000000" : null }}>
                                                 {formData.reason === undefined || formData.reason === "" ? "-" : formData.reason}
                                             </div>
                                         </div>
